@@ -1,15 +1,36 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Tao.FreeGlut;
+using OpenGL;
 
-namespace Time_Dash_Client
+class Program
 {
-	class Program
+	static void Main(string[] args)
 	{
-		static void Main(string[] args)
-		{
-		}
+		Glut.glutInit();
+		Glut.glutInitDisplayMode(Glut.GLUT_DOUBLE);
+		Glut.glutInitWindowSize(1024, 768);
+		Glut.glutCreateWindow("OpenGL");
+
+		Glut.glutIdleFunc(OnRenderFrame);
+		Glut.glutDisplayFunc(OnDisplay);
+		Glut.glutCloseFunc(OnClose);
+
+		Glut.glutMainLoop();
+	}
+
+	static void OnDisplay()
+	{
+	}
+
+	static void OnClose()
+	{
+	}
+
+	static void OnRenderFrame()
+	{
+		Gl.ClearColor(1, 0, 0, 1);
+		Gl.Clear(ClearBufferMask.ColorBufferBit);
+
+		Glut.glutSwapBuffers();
 	}
 }
