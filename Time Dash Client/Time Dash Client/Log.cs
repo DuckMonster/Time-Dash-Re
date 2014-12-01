@@ -15,8 +15,8 @@ class Log
 	{
 		if (CanDebug)
 		{
-			Console.WriteLine(text, args);
-			Console.WriteLine("--");
+			//Console.WriteLine(text, args);
+			//Console.WriteLine("--");
 		}
 	}
 
@@ -28,7 +28,7 @@ class Log
 		if (CanDebug) debugTimer = debugInterval;
 		debugTimer -= Game.delta;
 
-		ShowFPS();
+		//ShowFPS();
 	}
 
 	static void ShowFPS()
