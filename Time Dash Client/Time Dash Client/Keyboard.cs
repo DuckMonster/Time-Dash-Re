@@ -1,16 +1,8 @@
 ﻿using System;
 
-enum Key
-{
-	LeftArrow = 37,
-	UpArrow = 38,
-	RightArrow = 39,
-	DownArrow = 40
-}
-
 class Keyboard
 {
-	private static bool[] currentKeyData = new bool[400];
+	private static bool[] currentKeyData = new bool[256];
 	private static Keyboard current, previous;
 
 	public static Keyboard Current
@@ -24,7 +16,6 @@ class Keyboard
 
 	public static void SetKey(byte k, bool s)
 	{
-		if (s) Console.WriteLine(k + " is pressed!");
 		currentKeyData[k] = s;
 	}
 
@@ -54,13 +45,6 @@ class Keyboard
 		get
 		{
 			return key[i];
-		}
-	}
-	public bool this[Key k]
-	{
-		get
-		{
-			return key[(int)k];
 		}
 	}
 }

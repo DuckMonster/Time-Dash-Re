@@ -1,70 +1,86 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.IO;
+using Tao.FreeGlut;
+using OpenGL;
 
-using OpenTK;
-using OpenTK.Graphics.OpenGL;
-
-class Program : GameWindow
+class Program
 {
-	ShaderProgram program;
-	int vbo_position;
-	Vector3[] positionData;
+	static Game game;
 
 	static void Main(string[] args)
 	{
-		using (Program prog = new Program())
+		Glut.glutInit();
+		Glut.glutInitDisplayMode(Glut.GLUT_DOUBLE);
+		Glut.glutInitWindowSize(1024, 768);
+		Glut.glutCreateWindow("OpenGL");
+
+		Glut.glutIdleFunc(OnRenderFrame);
+		Glut.glutDisplayFunc(OnDisplay);
+		Glut.glutCloseFunc(OnClose);
+
+		Glut.glutKeyboardFunc(KeyboardDown);
+		Glut.glutKeyboardUpFunc(KeyboardUp);
+
+		game = new Game();
+
+		Glut.glutMainLoop();
+	}
+
+	static void OnDisplay()
+	{
+	}
+
+	static void OnClose()
+	{
+		Garbage.Dispose();
+	}
+
+	static void KeyboardDown(byte key, int x, int y)
+	{
+		Keyboard.SetKey(key, true);
+	}
+
+	static void KeyboardUp(byte key, int x, int y)
+	{
+		Keyboard.SetKey(key, false);
+	}
+
+	static void OnRenderFrame()
+	{
+		Gl.ClearColor(1, 0, 0, 1);
+		Gl.Clear(ClearBufferMask.ColorBufferBit);
+
+		Keyboard.Update();
+
+		game.Logic();
+		game.Draw();
+
+		Glut.glutSwapBuffers();
+	}
+
+	public static ShaderProgram CreateShaderProgram(string vertexPath, string fragmentPath)
+	{
+		ShaderProgram program = new ShaderProgram(ReadFile(vertexPath), ReadFile(fragmentPath));
+		if (program.ProgramLog != "")
 		{
-			prog.Run(30.0);
+			Console.WriteLine(program.ProgramLog);
+			Console.ReadKey();
+
+			throw new NullReferenceException();
 		}
+
+		program.DisposeChildren = true;
+		Garbage.Add(program);
+
+		return program;
 	}
 
-	protected override void OnLoad(EventArgs e)
+	public static string ReadFile(string fileName)
 	{
-		base.OnLoad(e);
-
-		Title = "OpenTK Test";
-
-		GL.ClearColor(1f, 0f, 0f, 1f);
-
-		program = new ShaderProgram("Shaders/standardShader.glsl");
-
-		vbo_position = GL.GenBuffer();
-
-		positionData = new Vector3[] {
-			new Vector3(-1f, -1f, 0f),
-			new Vector3(1f, -1f, 0f),
-			new Vector3(0f, 1f, 0f)
-		};
-
-		GL.BindBuffer(BufferTarget.ArrayBuffer, vbo_position);
-		GL.BufferData<Vector3>(BufferTarget.ArrayBuffer, (IntPtr)(Vector3.SizeInBytes * positionData.Length), positionData, BufferUsageHint.StaticDraw);
-		program.BindVBO(vbo_position, "vertexPosition");
-
-		GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
-
-		program["projection"].SetValue(Matrix4.CreatePerspectiveFieldOfView(0.45f, Width / (float)Height, 1f, 1000f));
-		program["view"].SetValue(Matrix4.LookAt(new Vector3(0, 0, 10), Vector3.Zero, Vector3.UnitY));
-		program["model"].SetValue(Matrix4.Identity);
-	}
-
-	protected override void OnResize(EventArgs e)
-	{
-		base.OnResize(e);
-
-		GL.Viewport(ClientRectangle.X, ClientRectangle.Y, ClientRectangle.Width, ClientRectangle.Height);
-	}
-
-	protected override void OnRenderFrame(FrameEventArgs e)
-	{
-		base.OnRenderFrame(e);
-		GL.Clear(ClearBufferMask.ColorBufferBit);
-
-		program.Use();
-		GL.DrawArrays(PrimitiveType.Triangles, 0, 3);
-
-		SwapBuffers();
+		using (StreamReader stream = new StreamReader(fileName))
+		{
+			string line = stream.ReadToEnd();
+			return line;
+		}
 	}
 }
