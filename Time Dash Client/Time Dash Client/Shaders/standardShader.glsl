@@ -24,6 +24,7 @@ void main() {
 #version 330
 
 uniform sampler2D texture;
+uniform bool usingTexture;
 uniform vec4 color;
 
 in vec2 uv;
@@ -31,7 +32,11 @@ in vec2 uv;
 out vec4 fragment;
 
 void main() {
-	fragment = texture2D(texture, uv) * color;
+	if (usingTexture) {
+		fragment = texture2D(texture, uv) * color;
+	} else {
+		fragment = color;
+	}
 }
 
 @-------------------

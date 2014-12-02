@@ -5,7 +5,9 @@ using OpenTK;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Input;
 
-public class Mesh
+using TKTools;
+
+public class Mesh : IDisposable
 {
 	public static int CALCULATIONS = 0, DRAW_CALLS = 0;
 
@@ -116,6 +118,12 @@ public class Mesh
 		uvBuffer = new VBO<Vector2>();
 	}
 
+	public void Dispose()
+	{
+		if (vertexBuffer != null) vertexBuffer.Dispose();
+		if (uvBuffer != null) uvBuffer.Dispose();
+	}
+
 	public void Reset()
 	{
 		modelMatrix = Matrix4.Identity;
@@ -155,7 +163,15 @@ public class Mesh
 		program["color"].SetValue(color);
 		program["position"].SetValue(position);
 
-		if (texture != null) texture.Bind();
+		if (texture != null)
+		{
+			texture.Bind();
+			program["usingTexture"].SetValue(true);
+		}
+		else
+		{
+			program["usingTexture"].SetValue(false);
+		}
 
 		GL.DrawArrays(PrimitiveType.TriangleStrip, 0, vertexList.Count);
 	}

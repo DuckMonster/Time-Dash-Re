@@ -16,7 +16,7 @@ class Program : GameWindow
 	{
 		using (Program prog = new Program())
 		{
-			prog.Run(150.0);
+			prog.Run(80.0);
 		}
 	}
 

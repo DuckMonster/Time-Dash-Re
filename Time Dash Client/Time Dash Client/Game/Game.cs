@@ -4,6 +4,8 @@ using System.Diagnostics;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
 
+using TKTools;
+
 public class Game
 {
 	public static float delta;
@@ -18,7 +20,7 @@ public class Game
 		defaultShader["view"].SetValue(Matrix4.LookAt(new Vector3(0, 0, 5), Vector3.Zero, Vector3.UnitY));
 
 		mesh = Mesh.Box;
-		mesh.Texture = new Texture("Res/testa.jpg");
+		mesh.Texture = new Texture("Res/circlebig.png");
 	}
 
 	public void UpdateProjection(Matrix4 proj)
@@ -46,6 +48,12 @@ public class Game
 	{
 		Mesh.DRAW_CALLS = Mesh.CALCULATIONS = 0;
 
-		mesh.Draw();
+		Mesh m = Mesh.Box;
+		m.Texture = new Texture("Res/circlebig.png");
+
+		m.Draw();
+
+		m.Texture.Dispose();
+		m.Dispose();
 	}
 }
