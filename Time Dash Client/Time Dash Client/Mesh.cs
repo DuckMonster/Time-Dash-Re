@@ -34,6 +34,12 @@ class Mesh
 				new Vector2(-0.5f, -0.5f),
 				new Vector2(0.5f, -0.5f)
 			};
+			m.UV = new Vector2[] {
+				new Vector2(0f, 1f),
+				new Vector2(1f, 1f),
+				new Vector2(0f, 0f),
+				new Vector2(1f, 0f)
+			};
 
 			return m;
 		}
@@ -41,8 +47,8 @@ class Mesh
 
 	#endregion
 
-	VBO<Vector2> vertexBuffer;
-	List<Vector2> vertexList = new List<Vector2>();
+	VBO<Vector2> vertexBuffer, uvBuffer;
+	List<Vector2> vertexList = new List<Vector2>(), uvList = new List<Vector2>();
 	Matrix4 modelMatrix = Matrix4.Identity;
 	ShaderProgram program = Program.program;
 
@@ -73,11 +79,25 @@ class Mesh
 			return vertexList.ToArray();
 		}
 	}
+	public Vector2[] UV
+	{
+		set
+		{
+			uvList.Clear();
+			uvList.AddRange(value);
+
+			uvBuffer.UploadData(uvList.ToArray());
+		}
+		get
+		{
+			return uvList.ToArray();
+		}
+	}
 
 	public Mesh()
 	{
-		program.Use();
 		vertexBuffer = new VBO<Vector2>();
+		uvBuffer = new VBO<Vector2>();
 	}
 
 	public void Reset()
@@ -102,14 +122,17 @@ class Mesh
 		modelMatrix *= Matrix4.CreateRotationZ(a);
 	}
 
-	public void Draw()
+	public void Draw() { Draw(Vector2.Zero); }
+	public void Draw(Vector2 position)
 	{
 		program.Use();
 
 		program["vertexPosition"].SetValue(vertexBuffer);
-		//program["model"].SetValue(modelMatrix);
+		program["vertexUV"].SetValue(uvBuffer);
+		program["model"].SetValue(modelMatrix);
 		program["color"].SetValue(color);
+		program["position"].SetValue(position);
 
-		GL.DrawArrays(PrimitiveType.Triangles, 0, 3);
+		GL.DrawArrays(PrimitiveType.TriangleStrip, 0, vertexList.Count);
 	}
 }

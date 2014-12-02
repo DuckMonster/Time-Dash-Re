@@ -30,7 +30,7 @@ class ShaderProgram : IDisposable
 		{
 			GL.UseProgram(program.programID);
 			vbo.Bind();
-			GL.VertexAttribPointer(ID, vbo.Count, VertexAttribPointerType.Float, false, 0, 0);
+			GL.VertexAttribPointer(ID, vbo.Dimensions, VertexAttribPointerType.Float, false, 0, 0);
 		}
 
 		public void SetValue(Vector2 vec)

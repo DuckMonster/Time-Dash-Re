@@ -8,12 +8,27 @@ class VBO<T> : IDisposable where T : struct
 {
 	protected int vbo_ID;
 	List<T> vertexList = new List<T>();
+	int dimensions = 0;
 
 	public int Count
 	{
 		get
 		{
 			return vertexList.Count;
+		}
+	}
+	public int Dimensions
+	{
+		get
+		{
+			return dimensions;
+		}
+	}
+	public int ByteSize
+	{
+		get
+		{
+			return dimensions * 4;
 		}
 	}
 
@@ -38,16 +53,14 @@ class VBO<T> : IDisposable where T : struct
 		vertexList.Clear();
 		vertexList.AddRange(data);
 
-		int size = 0;
-
 		switch (typeof(T).Name)
 		{
-			case "Vector2": size = Vector2.SizeInBytes; break;
-			case "Vector3": size = Vector3.SizeInBytes; break;
-			case "Vector4": size = Vector4.SizeInBytes; break;
+			case "Vector2": dimensions = 2; break;
+			case "Vector3": dimensions = 3; break;
+			case "Vector4": dimensions = 4; break;
 		}
 
 		Bind();
-		GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)(size * data.Length), data, BufferUsageHint.StaticDraw);
+		GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)(ByteSize * data.Length), data, BufferUsageHint.StaticDraw);
 	}
 }

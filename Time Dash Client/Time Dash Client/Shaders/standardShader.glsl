@@ -1,16 +1,20 @@
 ﻿@v------------------
 
 #version 330
-in vec3 vertexPosition;
-in vec4 vertexTemp;
 
+in vec2 vertexPosition;
+in vec2 vertexUV;
+
+uniform vec2 position;
 uniform mat4 projection;
 uniform mat4 view;
 uniform mat4 model;
 
+out vec2 uv;
+
 void main() {
-	vec3 pos = vertexPosition + vec3(vertexTemp.xyz);
-	gl_Position = vec4(pos, 1.0);
+	uv = vertexUV;
+	gl_Position = projection * view * model * (vec4(vertexPosition, 0.0, 1.0) + vec4(position, 0.0, 1.0));
 }
 	
 @------------------
@@ -18,10 +22,16 @@ void main() {
 @f------------------
 
 #version 330
+
+uniform sampler2D texture;
+uniform vec4 color;
+
+in vec2 uv;
+
 out vec4 fragment;
 
 void main() {
-	fragment = vec4(1.0, 1.0, 1.0, 1.0);
+	fragment = texture2D(texture, uv) * color;
 }
 
 @-------------------
