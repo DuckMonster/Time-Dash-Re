@@ -2,13 +2,15 @@
 
 #version 330
 in vec3 vertexPosition;
+in vec4 vertexTemp;
 
 uniform mat4 projection;
 uniform mat4 view;
 uniform mat4 model;
 
 void main() {
-	gl_Position = projection * view * model * vec4(vertexPosition, 1.0);
+	vec3 pos = vertexPosition + vec3(vertexTemp.xyz);
+	gl_Position = vec4(pos, 1.0);
 }
 	
 @------------------

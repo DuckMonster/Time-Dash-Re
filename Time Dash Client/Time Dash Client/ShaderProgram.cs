@@ -5,7 +5,7 @@ using System.IO;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
 
-class ShaderProgram
+class ShaderProgram : IDisposable
 {
 	public enum ArgumentType
 	{
@@ -26,6 +26,13 @@ class ShaderProgram
 			this.ID = ID;
 		}
 
+		public void SetValue<T>(VBO<T> vbo) where T : struct
+		{
+			GL.UseProgram(program.programID);
+			vbo.Bind();
+			GL.VertexAttribPointer(ID, vbo.Count, VertexAttribPointerType.Float, false, 0, 0);
+		}
+
 		public void SetValue(Vector2 vec)
 		{
 			GL.UseProgram(program.programID);
@@ -44,6 +51,11 @@ class ShaderProgram
 			GL.Uniform4(ID, ref vec);
 		}
 
+		public void SetValue(Color c)
+		{
+			SetValue(c.ToVector);
+		}
+
 		public void SetValue(Matrix4 mat)
 		{
 			GL.UseProgram(program.programID);
@@ -53,16 +65,22 @@ class ShaderProgram
 
 	Dictionary<string, int> attributeList = new Dictionary<string, int>();
 	Dictionary<string, int> uniformList = new Dictionary<string, int>();
-	int vertexID, fragmentID, programID;
+	public int programID;
 
 	public ShaderProgram(string source)
 	{
 		string vertexSrc = "", fragmentSrc = "";
 		ReadFileCombined(source, ref vertexSrc, ref fragmentSrc);
 
-		vertexID = CreateShader(ShaderType.VertexShader, vertexSrc);
-		fragmentID = CreateShader(ShaderType.FragmentShader, fragmentSrc);
+		int vertexID = CreateShader(ShaderType.VertexShader, vertexSrc);
+		int fragmentID = CreateShader(ShaderType.FragmentShader, fragmentSrc);
 		programID = CreateProgram(vertexID, fragmentID);
+	}
+
+	public void Dispose()
+	{
+		Console.WriteLine("Disposed of program....");
+		GL.DeleteProgram(programID);
 	}
 
 	static int CreateShader(ShaderType type, string src)
@@ -70,6 +88,9 @@ class ShaderProgram
 		int id = GL.CreateShader(type);
 		GL.ShaderSource(id, src);
 		GL.CompileShader(id);
+
+		Console.WriteLine("Shader log:");
+		Console.WriteLine(GL.GetShaderInfoLog(id));
 
 		return id;
 	}
@@ -84,6 +105,11 @@ class ShaderProgram
 		Console.WriteLine("Program log:");
 		Console.WriteLine(GL.GetProgramInfoLog(id));
 
+		GL.DetachShader(id, vertex);
+		GL.DetachShader(id, fragment);
+		GL.DeleteShader(vertex);
+		GL.DeleteShader(fragment);
+
 		return id;
 	}
 
@@ -97,7 +123,6 @@ class ShaderProgram
 			attributeList.Add(name, attrib);
 		}
 
-		if (attrib == -1) throw new NullReferenceException();
 		return attrib;
 	}
 
@@ -111,7 +136,6 @@ class ShaderProgram
 			uniformList.Add(name, uni);
 		}
 
-		if (uni == -1) throw new NullReferenceException();
 		return uni;
 	}
 
@@ -142,7 +166,11 @@ class ShaderProgram
 	{
 		get
 		{
-			return new Argument(ArgumentType.Uniform, GetUniform(name), this);
+			int uni = GetUniform(name), attr = GetAttribute(name);
+
+			if (uni != -1) return new Argument(ArgumentType.Uniform, uni, this);
+			else if (attr != -1) return new Argument(ArgumentType.Attribute, attr, this);
+			else throw new NullReferenceException();
 		}
 	}
 
