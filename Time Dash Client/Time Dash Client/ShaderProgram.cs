@@ -5,7 +5,7 @@ using System.IO;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
 
-class ShaderProgram : IDisposable
+public class ShaderProgram : IDisposable
 {
 	public enum ArgumentType
 	{

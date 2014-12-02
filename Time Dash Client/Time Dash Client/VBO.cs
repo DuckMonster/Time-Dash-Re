@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
 
-class VBO<T> : IDisposable where T : struct
+public class VBO<T> : IDisposable where T : struct
 {
 	protected int vbo_ID;
 	List<T> vertexList = new List<T>();

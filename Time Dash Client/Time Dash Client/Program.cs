@@ -6,17 +6,17 @@ using System.Threading.Tasks;
 
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
+using OpenTK.Input;
 
 class Program : GameWindow
 {
-	public static ShaderProgram program;
-	Mesh mesh; 
+	Game game;
 
 	static void Main(string[] args)
 	{
 		using (Program prog = new Program())
 		{
-			prog.Run(30.0);
+			prog.Run(150.0);
 		}
 	}
 
@@ -24,19 +24,13 @@ class Program : GameWindow
 	{
 		base.OnLoad(e);
 
-		Title = "OpenTK Test";
+		Title = "Time Dash";
 
 		GL.ClearColor(1f, 0f, 0f, 1f);
+		GL.Enable(EnableCap.Blend);
+		GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
 
-		program = new ShaderProgram("Shaders/standardShader.glsl");
-
-		mesh = Mesh.Box;		
-
-		program["projection"].SetValue(Matrix4.CreatePerspectiveFieldOfView(0.45f, Width / (float)Height, 1f, 1000f));
-		program["view"].SetValue(Matrix4.LookAt(new Vector3(0, 0, 10), Vector3.Zero, Vector3.UnitY));
-		program["model"].SetValue(Matrix4.Identity);
-
-		Texture tex = new Texture("Res/testa.jpg");
+		game = new Game();
 	}
 
 	protected override void OnResize(EventArgs e)
@@ -44,11 +38,17 @@ class Program : GameWindow
 		base.OnResize(e);
 
 		GL.Viewport(ClientRectangle.X, ClientRectangle.Y, ClientRectangle.Width, ClientRectangle.Height);
+
+		float ratio = Width / (float)Height;
+		game.UpdateProjection(Matrix4.CreatePerspectiveOffCenter(-1, 1, -1 / ratio, 1 / ratio, 1, 1000));
 	}
 
 	protected override void OnUpdateFrame(FrameEventArgs e)
 	{
 		base.OnUpdateFrame(e);
+
+		Input.Update();
+		game.Logic();
 	}
 
 	protected override void OnRenderFrame(FrameEventArgs e)
@@ -57,7 +57,7 @@ class Program : GameWindow
 
 		GL.Clear(ClearBufferMask.ColorBufferBit);
 
-		mesh.Draw();
+		game.Draw();
 
 		SwapBuffers();
 	}
