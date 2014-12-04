@@ -1,7 +1,7 @@
 ﻿using System;
 using OpenTK.Input;
 
-class Input
+class KeyboardInput
 {
 	private static KeyboardState current, previous;
 

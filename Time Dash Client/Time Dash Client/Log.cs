@@ -20,8 +20,8 @@ class Log
 		}
 	}
 
-	private static int[] fpsAvg = new int[20];
-	private static int fpsAvgIndex = 0;
+	private static int[] tickAvg = new int[150], frameAvg = new int[500];
+	private static int tickAvgIndex = 0, frameAvgIndex = 0;
 
 	public static void Logic()
 	{
@@ -31,26 +31,39 @@ class Log
 		ShowFPS();
 	}
 
+	public static void CalculateTick(float t)
+	{
+		tickAvg[tickAvgIndex] = (int)(1.0 / t);
+		tickAvgIndex = (tickAvgIndex + 1) % tickAvg.Length;
+	}
+
+	public static void CalculateFrame(float t)
+	{
+		frameAvg[frameAvgIndex] = (int)(1.0 / t);
+		frameAvgIndex = (frameAvgIndex + 1) % frameAvg.Length;
+	}
+
 	static void ShowFPS()
 	{
 		if (CanDebug)
 		{
 			Console.Clear();
 
-			fpsAvg[fpsAvgIndex] = (int)(1.0 / Game.delta);
-
 			//Calculate average
-			int avg = 0;
+			int tick = 0, frame = 0;
 
-			for (int i = 0; i < fpsAvg.Length; i++)
-				avg += fpsAvg[i];
+			for (int i = 0; i < tickAvg.Length; i++)
+				tick += tickAvg[i];
 
-			avg /= fpsAvg.Length;
+			for (int i = 0; i < frameAvg.Length; i++)
+				frame += frameAvg[i];
+
+			tick /= tickAvg.Length;
+			frame /= frameAvg.Length;
+
 			//
 
-			Debug("FPS: {0:0} ~ {1}", fpsAvg[fpsAvgIndex], avg);
-
-			fpsAvgIndex = (fpsAvgIndex + 1) % fpsAvg.Length;
+			Debug("Ticks/S: {1} ~ {0:0}\nFrames/S: {3} ~ {2:0}", tickAvg[tickAvgIndex], tick, frameAvg[frameAvgIndex], frame);
 		}
 	}
 }

@@ -16,8 +16,19 @@ class Program : GameWindow
 	{
 		using (Program prog = new Program())
 		{
-			prog.Run(80.0);
+			prog.Run(150.0);
 		}
+	}
+
+	public Program()
+		: base()
+	{
+		KeyDown += KeyHandle;
+	}
+
+	public void KeyHandle(object sender, KeyboardKeyEventArgs a)
+	{
+		if (a.Key == Key.Escape) Exit();
 	}
 
 	protected override void OnLoad(EventArgs e)
@@ -29,6 +40,13 @@ class Program : GameWindow
 		GL.ClearColor(1f, 0f, 0f, 1f);
 		GL.Enable(EnableCap.Blend);
 		GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
+
+		Width = 1024;
+		Height = 768;
+
+		WindowBorder = OpenTK.WindowBorder.Fixed;
+
+		VSync = VSyncMode.Off;
 
 		game = new Game();
 	}
@@ -47,7 +65,7 @@ class Program : GameWindow
 	{
 		base.OnUpdateFrame(e);
 
-		Input.Update();
+		KeyboardInput.Update();
 		game.Logic();
 	}
 

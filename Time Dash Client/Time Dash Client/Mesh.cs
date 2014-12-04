@@ -17,7 +17,7 @@ public class Mesh : IDisposable
 	{
 		get
 		{
-			Mesh m = new Mesh();
+			Mesh m = new Mesh(PrimitiveType.TriangleStrip);
 			m.Vertices = new Vector2[] {
 				new Vector2(-0.5f, -0.5f),
 				new Vector2(0.5f, -0.5f),
@@ -32,7 +32,7 @@ public class Mesh : IDisposable
 	{
 		get
 		{
-			Mesh m = new Mesh();
+			Mesh m = new Mesh(PrimitiveType.TriangleStrip);
 			m.Vertices = new Vector2[] {
 				new Vector2(-0.5f, 0.5f),
 				new Vector2(0.5f, 0.5f),
@@ -52,10 +52,11 @@ public class Mesh : IDisposable
 
 	#endregion
 
+	PrimitiveType primitiveType;
+
 	VBO<Vector2> vertexBuffer, uvBuffer;
 	List<Vector2> vertexList = new List<Vector2>(), uvList = new List<Vector2>();
 	Matrix4 modelMatrix = Matrix4.Identity;
-	ShaderProgram program = Game.defaultShader;
 
 	Color color = Color.White;
 	Texture texture;
@@ -112,10 +113,39 @@ public class Mesh : IDisposable
 		}
 	}
 
-	public Mesh()
+	public ShaderProgram Program
 	{
+		get
+		{
+			return Map.defaultProgram;
+		}
+	}
+
+	public Mesh(PrimitiveType pt)
+	{
+		primitiveType = pt;
+
 		vertexBuffer = new VBO<Vector2>();
 		uvBuffer = new VBO<Vector2>();
+	}
+	public Mesh(Vector2[] vertices, PrimitiveType pt)
+	{
+		primitiveType = pt;
+
+		vertexBuffer = new VBO<Vector2>();
+		uvBuffer = new VBO<Vector2>();
+
+		Vertices = vertices;
+	}
+	public Mesh(Vector2[] vertices, Vector2[] uvs, PrimitiveType pt)
+	{
+		primitiveType = pt;
+
+		vertexBuffer = new VBO<Vector2>();
+		uvBuffer = new VBO<Vector2>();
+
+		Vertices = vertices;
+		UV = uvs;
 	}
 
 	public void Dispose()
@@ -149,30 +179,27 @@ public class Mesh : IDisposable
 		modelMatrix *= Matrix4.CreateRotationZ(a);
 	}
 
-	public void Draw() { Draw(Vector2.Zero); }
-	public void Draw(float x, float y) { Draw(new Vector2(x, y)); }
-	public void Draw(Vector2 position)
+	public void Draw()
 	{
 		DRAW_CALLS++;
 
-		program.Use();
+		Program.Use();
 
-		program["vertexPosition"].SetValue(vertexBuffer);
-		program["vertexUV"].SetValue(uvBuffer);
-		program["model"].SetValue(modelMatrix);
-		program["color"].SetValue(color);
-		program["position"].SetValue(position);
+		Program["vertexPosition"].SetValue(vertexBuffer);
+		Program["vertexUV"].SetValue(uvBuffer);
+		Program["model"].SetValue(modelMatrix);
+		Program["color"].SetValue(color);
 
 		if (texture != null)
 		{
 			texture.Bind();
-			program["usingTexture"].SetValue(true);
+			Program["usingTexture"].SetValue(true);
 		}
 		else
 		{
-			program["usingTexture"].SetValue(false);
+			Program["usingTexture"].SetValue(false);
 		}
 
-		GL.DrawArrays(PrimitiveType.TriangleStrip, 0, vertexList.Count);
+		GL.DrawArrays(primitiveType, 0, vertexList.Count);
 	}
 }

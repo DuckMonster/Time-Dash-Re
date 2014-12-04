@@ -9,23 +9,18 @@ using TKTools;
 public class Game
 {
 	public static float delta;
-	public static ShaderProgram defaultShader;
 
-	Stopwatch watch;
-	Mesh mesh;
+	Map map;
+	Stopwatch tickWatch, frameWatch;
 
 	public Game()
 	{
-		defaultShader = new ShaderProgram("Shaders/standardShader.glsl");
-		defaultShader["view"].SetValue(Matrix4.LookAt(new Vector3(0, 0, 5), Vector3.Zero, Vector3.UnitY));
-
-		mesh = Mesh.Box;
-		mesh.Texture = new Texture("Res/circlebig.png");
+		map = new Map();
 	}
 
 	public void UpdateProjection(Matrix4 proj)
 	{
-		defaultShader["projection"].SetValue(proj);
+		Map.defaultProgram["projection"].SetValue(proj);
 	}
 
 	public void Logic()
@@ -33,27 +28,37 @@ public class Game
 		CalculateDelta();
 		Log.Logic();
 		Log.Debug("Calculations: {0}\nDraw Calls: {1}", Mesh.CALCULATIONS, Mesh.DRAW_CALLS);
+
+		map.Logic();
 	}
 
 	public void CalculateDelta()
 	{
-		if (watch == null) watch = Stopwatch.StartNew();
+		if (tickWatch == null) tickWatch = Stopwatch.StartNew();
 
-		watch.Stop();
-		delta = watch.ElapsedTicks / (float)Stopwatch.Frequency;
-		watch.Restart();
+		tickWatch.Stop();
+		delta = tickWatch.ElapsedTicks / (float)Stopwatch.Frequency;
+		tickWatch.Restart();
+
+		Log.CalculateTick(delta);
+	}
+
+	public void CalculateFrameDelta()
+	{
+		if (frameWatch == null) frameWatch = Stopwatch.StartNew();
+
+		frameWatch.Stop();
+		float d = frameWatch.ElapsedTicks / (float)Stopwatch.Frequency;
+		frameWatch.Restart();
+
+		Log.CalculateFrame(d);
 	}
 
 	public void Draw()
 	{
+		CalculateFrameDelta();
 		Mesh.DRAW_CALLS = Mesh.CALCULATIONS = 0;
 
-		Mesh m = Mesh.Box;
-		m.Texture = new Texture("Res/circlebig.png");
-
-		m.Draw();
-
-		m.Texture.Dispose();
-		m.Dispose();
+		map.Draw();
 	}
 }
