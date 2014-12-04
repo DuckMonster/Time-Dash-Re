@@ -49,7 +49,7 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="TKTools, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\C#\TKTools\TKTools\bin\Debug\TKTools.dll</HintPath>
+      <HintPath>..\..\..\C#\TKTools\TKTools\bin\Release\TKTools.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

@@ -3,7 +3,8 @@ using OpenTK.Input;
 
 public class Actor : Entity
 {
-	public static float GRAVITY = 40f, FRICTION = 2.5f, ACCERELATION = 20f, JUMP_FORCE = 10f;
+	public static float GRAVITY = 40f, FRICTION = 8f, ACCERELATION = 50f, JUMP_FORCE = 10f,
+		JUMP_ADD_FORCE = 20f, JUMP_ADD_LIM = 2f;
 	Vector2 velocity = Vector2.Zero;
 
 	public Actor(Vector2 position, Map m)
@@ -38,6 +39,17 @@ public class Actor : Entity
 	{
 		if (KeyboardInput.Current[Key.Right]) velocity.X += ACCERELATION * Game.delta;
 		if (KeyboardInput.Current[Key.Left]) velocity.X -= ACCERELATION * Game.delta;
-		if (IsOnGround && KeyboardInput.Current[Key.Z]) velocity.Y = JUMP_FORCE;
+		if (IsOnGround && KeyboardInput.Current[Key.Z] && !KeyboardInput.Previous[Key.Z]) Jump();
+		if (KeyboardInput.Current[Key.Z]) JumpHold();
+	}
+
+	public void Jump()
+	{
+		velocity.Y = JUMP_FORCE;
+	}
+
+	public void JumpHold()
+	{
+		if (velocity.Y >= JUMP_ADD_LIM) velocity.Y += JUMP_ADD_FORCE * Game.delta;
 	}
 }

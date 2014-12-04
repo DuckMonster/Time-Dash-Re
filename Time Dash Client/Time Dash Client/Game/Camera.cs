@@ -26,6 +26,6 @@ class Camera
 
 		float targetZ = 5f + difference.Length + 0.6f,
 			ZDifference = targetZ - position.Z;
-		position.Z += ZDifference * 2f * Game.delta;
+		position.Z += ZDifference * 0.8f * Game.delta;
 	}
 }
