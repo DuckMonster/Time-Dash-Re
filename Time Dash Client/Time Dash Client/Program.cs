@@ -16,7 +16,7 @@ class Program : GameWindow
 	{
 		using (Program prog = new Program())
 		{
-			prog.Run(150.0);
+			prog.Run();
 		}
 	}
 
@@ -45,8 +45,6 @@ class Program : GameWindow
 		Height = 600;
 
 		WindowBorder = OpenTK.WindowBorder.Fixed;
-
-		VSync = VSyncMode.Off;
 
 		game = new Game();
 	}

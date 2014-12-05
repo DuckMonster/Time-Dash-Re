@@ -7,7 +7,7 @@ public class Entity
 	protected Map map;
 	public Vector2 position, size = new Vector2(0.6f, 0.8f);
 
-	Mesh mesh;
+	protected Mesh mesh;
 
 	public Entity(Vector2 pos, Map m)
 	{
