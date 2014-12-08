@@ -6,7 +6,8 @@ enum LogMode
 {
 	Debug,
 	Message,
-	Input
+	Input,
+	Standard
 }
 
 class Log
@@ -140,6 +141,11 @@ class Log
 
 					case ConsoleKey.D:
 						mode = LogMode.Debug;
+						Console.Clear();
+						break;
+
+					case ConsoleKey.S:
+						mode = LogMode.Standard;
 						Console.Clear();
 						break;
 

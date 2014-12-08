@@ -50,6 +50,8 @@ public class Game
 
 		server.Update();
 		Log.Debug("Number of clients: {0}", clientList.Count);
+
+		foreach(Map m in mapList) m.Logic();
 	}
 
 	public void CalculateDelta()

@@ -80,6 +80,10 @@ public class Map
 			case Protocol.PlayerInputToggle:
 				playerList[msg.ReadByte()].ToggleKey(msg.ReadByte());
 				break;
+
+			case Protocol.PlayerPosition:
+				playerList[msg.ReadByte()].ReceivePosition(msg.ReadFloat(), msg.ReadFloat());
+				break;
 		}
 
 		msg.Reset();

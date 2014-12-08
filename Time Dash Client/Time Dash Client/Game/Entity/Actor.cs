@@ -162,17 +162,8 @@ public class Actor : Entity
 
 	public override void Logic()
 	{
-		velocity.X += currentAcceleration * Game.delta - velocity.X * Friction * Game.delta;
-		currentAcceleration = 0;
-
-		velocity.Y -= physics.Gravity * Game.delta;
-
-		if (map.GetCollision(this, new Vector2(0, velocity.Y) * Game.delta))
-			velocity.Y = 0;
-		if (map.GetCollision(this, new Vector2(velocity.X, 0) * Game.delta))
-			velocity.X = 0;
-		if (map.GetCollision(this, velocity * Game.delta))
-			velocity = Vector2.Zero;
+		DoPhysics();
+		DoCollision();
 
 		position += velocity * Game.delta;
 
@@ -180,13 +171,34 @@ public class Actor : Entity
 		if (velocity.X < 0) dir = -1;
 	}
 
+	public virtual void DoPhysics()
+	{
+		velocity.X += currentAcceleration * Game.delta - velocity.X * Friction * Game.delta;
+		currentAcceleration = 0;
+
+		velocity.Y -= physics.Gravity * Game.delta;
+	}
+
+	public virtual void DoCollision()
+	{
+		if (map.GetCollision(this, new Vector2(0, velocity.Y) * Game.delta))
+			velocity.Y = 0;
+		if (map.GetCollision(this, new Vector2(velocity.X, 0) * Game.delta))
+			velocity.X = 0;
+		if (map.GetCollision(this, velocity * Game.delta))
+			velocity = Vector2.Zero;
+	}
+
 	public virtual void Jump()
 	{
-		velocity.Y = physics.JumpForce;
+		if (IsOnGround)
+		{
+			velocity.Y = physics.JumpForce;
 
-		EZUDP.MessageBuffer msg = new EZUDP.MessageBuffer();
-		msg.WriteString("Jump!");
-		Game.client.Send(msg);
+			EZUDP.MessageBuffer msg = new EZUDP.MessageBuffer();
+			msg.WriteString("Jump!");
+			Game.client.Send(msg);
+		}
 	}
 
 	public virtual void JumpHold()

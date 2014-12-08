@@ -105,6 +105,10 @@ public class Map
 				case Protocol.PlayerInputToggle:
 					p.ToggleInput(msg.ReadByte());
 					break;
+
+				case Protocol.PlayerPosition:
+					p.ReceivePosition(msg.ReadFloat(), msg.ReadFloat());
+					break;
 			}
 		}
 

@@ -17,6 +17,11 @@ public class Entity
 		mesh = Mesh.Box;
 	}
 
+	public virtual void ReceivePosition(float x, float y)
+	{
+		position = new Vector2(x, y);
+	}
+
 	public virtual void Logic()
 	{
 	}

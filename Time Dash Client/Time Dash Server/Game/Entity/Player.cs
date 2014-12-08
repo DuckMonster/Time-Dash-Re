@@ -84,6 +84,13 @@ public class Player : Actor
 	{
 		inputData[k] = !inputData[k];
 		SendInputToggleToPlayer(k, map.playerList);
+		SendPositionToPlayer(map.playerList);
+	}
+
+	public override void ReceivePosition(float x, float y)
+	{
+		base.ReceivePosition(x, y);
+		SendPositionToPlayer(map.playerList);
 	}
 
 	public override void Logic()
@@ -113,6 +120,11 @@ public class Player : Actor
 	public void SendLeaveToPlayer(params Player[] players)
 	{
 		SendMessageToPlayer(GetLeaveMessage(), players);
+	}
+
+	public void SendPositionToPlayer(params Player[] players)
+	{
+		SendMessageToPlayer(GetPositionMessage(), players);
 	}
 
 	public void SendInputToggleToPlayer(PlayerKey k, params Player[] players)
@@ -152,6 +164,18 @@ public class Player : Actor
 		msg.WriteShort((short)Protocol.PlayerInputToggle);
 		msg.WriteByte(playerID);
 		msg.WriteByte((byte)k);
+
+		return msg;
+	}
+
+	MessageBuffer GetPositionMessage()
+	{
+		MessageBuffer msg = new MessageBuffer();
+
+		msg.WriteShort((short)Protocol.PlayerPosition);
+		msg.WriteByte(playerID);
+		msg.WriteFloat(position.X);
+		msg.WriteFloat(position.Y);
 
 		return msg;
 	}
