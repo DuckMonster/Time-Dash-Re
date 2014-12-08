@@ -6,16 +6,41 @@ using OpenTK.Graphics.OpenGL;
 
 using TKTools;
 
+using EZUDP;
+using EZUDP.Client;
+
 public class Game
 {
+	public const int portTCP = 1765, portUDP = 1780;
+	public static string hostIP;
+
 	public static float delta;
+	public static EzClient client;
+
+	Program program;
 
 	Map map;
 	Stopwatch tickWatch, frameWatch;
 
-	public Game()
+	public Game(Program p)
 	{
-		map = new Map();
+		program = p;
+
+		Log.Init();
+
+		client = new EzClient();
+
+		client.OnConnect += OnConnect;
+		client.OnDisconnect += OnDisconnect;
+		client.OnMessage += OnMessage;
+
+		client.Connect(hostIP, portTCP, portUDP);
+	}
+
+	public void Dispose()
+	{
+		client.Disconnect();
+		client = null;
 	}
 
 	public void UpdateProjection(Matrix4 proj)
@@ -23,13 +48,14 @@ public class Game
 		Map.defaultProgram["projection"].SetValue(proj);
 	}
 
-	public void Logic()
+	public virtual void Logic()
 	{
 		CalculateDelta();
 		Log.Logic();
 		Log.Debug("Calculations: {0}\nDraw Calls: {1}", Mesh.CALCULATIONS, Mesh.DRAW_CALLS);
 
-		map.Logic();
+		client.Update();
+		if (map != null) map.Logic();
 	}
 
 	public void CalculateDelta()
@@ -59,6 +85,29 @@ public class Game
 		CalculateFrameDelta();
 		Mesh.DRAW_CALLS = Mesh.CALCULATIONS = 0;
 
-		map.Draw();
+		if (map != null) map.Draw();
+	}
+
+	//ONLINE
+	public void OnConnect()
+	{
+		Log.Write("Connected to server!");
+	}
+	public void OnDisconnect()
+	{
+		//Log.Write("Disconnected from server!");
+		//program.Exit();
+	}
+	public void OnMessage(MessageBuffer msg)
+	{
+		switch ((Protocol)msg.ReadShort())
+		{
+			case Protocol.EnterMap:
+				map = new Map(msg.ReadByte());
+				client.OnMessage += map.MessageHandle;
+				break;
+		}
+
+		msg.Reset();
 	}
 }

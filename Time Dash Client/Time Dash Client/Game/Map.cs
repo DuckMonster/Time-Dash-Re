@@ -2,22 +2,43 @@
 
 using OpenTK;
 using TKTools;
+using EZUDP;
 
 public class Map
 {
-	public static ShaderProgram defaultProgram;
+	public static ShaderProgram defaultProgram = new ShaderProgram("Shaders/standardShader.glsl");
+	public int myID;
 	Camera camera;
 	Environment environment;
 
-	public Actor actor;
+	public Player[] playerList = new Player[10];
 
-	public Map()
+	public Player LocalPlayer
 	{
-		defaultProgram = new ShaderProgram("Shaders/standardShader.glsl");
+		get
+		{
+			return playerList[myID];
+		}
+	}
+
+	public void PlayerJoin(int id)
+	{
+		playerList[id] = new Player(id, new Vector2(4, 4), this);
+		Log.Write("Player " + id + " joined!");
+	}
+
+	public void PlayerLeave(int id)
+	{
+		playerList[id] = null;
+	}
+
+	public Map(int id)
+	{
+		myID = id;
+		Log.Write("My id is " + id);
 
 		environment = new Environment(this);
 		camera = new Camera(this);
-		actor = new Actor(new Vector2(5, 5), this);
 	}
 
 	public bool GetCollision(Entity e) { return GetCollision(e.position, e.size); }
@@ -31,13 +52,36 @@ public class Map
 	{
 		camera.Logic();
 		environment.Logic();
-		actor.Logic();
+
+		if (LocalPlayer != null) LocalPlayer.LocalInput();
+		foreach (Player p in playerList) if (p != null) p.Logic();
 	}
 
 	public void Draw()
 	{
 		defaultProgram["view"].SetValue(camera.ViewMatrix);
 		environment.Draw();
-		actor.Draw();
+		foreach (Player p in playerList) if (p != null) p.Draw();
+	}
+
+	//ONLINE
+	public void MessageHandle(MessageBuffer msg)
+	{
+		switch ((Protocol)msg.ReadShort())
+		{
+			case Protocol.PlayerJoin:
+				PlayerJoin(msg.ReadByte());
+				break;
+
+			case Protocol.PlayerLeave:
+				PlayerLeave(msg.ReadByte());
+				break;
+
+			case Protocol.PlayerInputToggle:
+				playerList[msg.ReadByte()].ToggleKey(msg.ReadByte());
+				break;
+		}
+
+		msg.Reset();
 	}
 }

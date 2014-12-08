@@ -5,6 +5,10 @@ VisualStudioVersion = 12.0.30723.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Time Dash Client", "Time Dash Client\Time Dash Client.csproj", "{1437DC39-1F73-4CC0-A398-70EB829F887A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Time Dash Server", "Time Dash Server\Time Dash Server.csproj", "{CEB20CD4-C570-4D13-A0B1-E9A13E3E0E74}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Time Dash Protocol", "Time Dash Protocol\Time Dash Protocol.csproj", "{0D6EDBC7-25E7-41F7-B98F-343B7409A402}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +19,14 @@ Global
 		{1437DC39-1F73-4CC0-A398-70EB829F887A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1437DC39-1F73-4CC0-A398-70EB829F887A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1437DC39-1F73-4CC0-A398-70EB829F887A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CEB20CD4-C570-4D13-A0B1-E9A13E3E0E74}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CEB20CD4-C570-4D13-A0B1-E9A13E3E0E74}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CEB20CD4-C570-4D13-A0B1-E9A13E3E0E74}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CEB20CD4-C570-4D13-A0B1-E9A13E3E0E74}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0D6EDBC7-25E7-41F7-B98F-343B7409A402}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0D6EDBC7-25E7-41F7-B98F-343B7409A402}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0D6EDBC7-25E7-41F7-B98F-343B7409A402}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0D6EDBC7-25E7-41F7-B98F-343B7409A402}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

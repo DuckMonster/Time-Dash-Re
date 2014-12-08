@@ -1,7 +1,6 @@
 ﻿using OpenTK;
 using OpenTK.Input;
 using System;
-using TKTools;
 
 public class Actor : Entity
 {
@@ -180,28 +179,13 @@ public class Actor : Entity
 		if (velocity.X < 0) dir = -1;
 	}
 
-	public virtual void Jump()
+	public void Jump()
 	{
 		velocity.Y = physics.JumpForce;
-
-		EZUDP.MessageBuffer msg = new EZUDP.MessageBuffer();
-		msg.WriteString("Jump!");
-		Game.client.Send(msg);
 	}
 
-	public virtual void JumpHold()
+	public void JumpHold()
 	{
 		if (velocity.Y >= physics.JumpAddLim) velocity.Y += physics.JumpAddForce * Game.delta;
-	}
-
-	public override void Draw()
-	{
-		mesh.Reset();
-
-		mesh.Scale(size);
-		mesh.Scale(new Vector2(-dir, 1));
-		mesh.Translate(position);
-
-		mesh.Draw();
 	}
 }

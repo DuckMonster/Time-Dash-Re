@@ -8,12 +8,36 @@ using OpenTK;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Input;
 
-class Program : GameWindow
+public class Program : GameWindow
 {
 	Game game;
 
 	static void Main(string[] args)
 	{
+		#region Server or client
+		bool valid = false;
+
+		while (!valid)
+		{
+			try
+			{
+				//string[] comm = Console.ReadLine().Split(' ');
+				string[] comm = "join 90.224.59.61".Split(' ');
+
+				if (comm[0] == "join")
+				{
+					Game.hostIP = comm[1];
+					valid = true;
+				}
+			}
+			catch (Exception e)
+			{
+				Console.WriteLine("Invalid input.");
+				Console.WriteLine(e);
+			}
+		}
+		#endregion
+
 		using (Program prog = new Program())
 		{
 			prog.Run();
@@ -24,6 +48,13 @@ class Program : GameWindow
 		: base()
 	{
 		KeyDown += KeyHandle;
+		Closed += OnClose;
+	}
+
+	public void OnClose(object sender, EventArgs e)
+	{
+		game.Dispose();
+		Log.ShutDown();
 	}
 
 	public void KeyHandle(object sender, KeyboardKeyEventArgs a)
@@ -46,7 +77,7 @@ class Program : GameWindow
 
 		WindowBorder = OpenTK.WindowBorder.Fixed;
 
-		game = new Game();
+		game = new Game(this);
 	}
 
 	protected override void OnResize(EventArgs e)
@@ -63,7 +94,7 @@ class Program : GameWindow
 	{
 		base.OnUpdateFrame(e);
 
-		KeyboardInput.Update();
+		if (this.Focused) KeyboardInput.Update();
 		game.Logic();
 	}
 
