@@ -4,124 +4,7 @@ using System;
 
 public class Actor : Entity
 {
-	public class Physics
-	{
-		float gravity = 40f;
-		float maxVelocity = 6f;
-		float accelerationTime = 0.2f, accelerationTimeAir = 0.6f, decelerationTime = 0.3f, decelerationTimeAir = 1.8f;
-		float jumpForce = 10f, jumpAddForce = 20f, jumpAddLim = 2f;
-
-		float acceleration, accelerationAir, accFriction, accFrictionAir, decFriction, decFrictionAir;
-
-		float GetFriction(float speed)
-		{
-			return -(float)(Math.Log(0.02, Math.E) / speed);
-		}
-		void CalculatePhysics()
-		{
-			accFriction = GetFriction(accelerationTime);
-			accFrictionAir = GetFriction(accelerationTimeAir);
-			decFriction = GetFriction(decelerationTime);
-			decFrictionAir = GetFriction(decelerationTimeAir);
-
-			acceleration = maxVelocity * accFriction;
-			accelerationAir = maxVelocity * accFrictionAir;
-		}
-
-		public float Gravity { get { return gravity; } set { gravity = value; } }
-		public float MaxVelocity
-		{
-			get
-			{
-				return maxVelocity;
-			}
-			set
-			{
-				maxVelocity = value;
-				CalculatePhysics();
-			}
-		}
-		public float AccelerationTime
-		{
-			get
-			{
-				return accelerationTime;
-			}
-			set
-			{
-				accelerationTime = value;
-				CalculatePhysics();
-			}
-		}
-		public float AccelerationTimeAir
-		{
-			get
-			{
-				return accelerationTimeAir;
-			}
-			set
-			{
-				accelerationTimeAir = value;
-				CalculatePhysics();
-			}
-		}
-		public float DecelerationTime
-		{
-			get
-			{
-				return decelerationTime;
-			}
-			set
-			{
-				decelerationTime = value;
-				CalculatePhysics();
-			}
-		}
-		public float DecelerationTimeAir
-		{
-			get
-			{
-				return decelerationTimeAir;
-			}
-			set {
-				decelerationTimeAir = value;
-				CalculatePhysics();
-			}
-		}
-
-		public float Acceleration { get { return acceleration; } }
-		public float AccelerationAir { get { return accelerationAir; } }
-		public float AccFriction { get { return accFriction; } }
-		public float AccFrictionAir { get { return accFrictionAir; } }
-		public float DecFriction { get { return decFriction; } }
-		public float DecFrictionAir { get { return decFrictionAir;} }
-
-		public float JumpForce { get { return jumpForce; } set { jumpForce = value; } }
-		public float JumpAddForce { get { return jumpAddForce; } set { jumpAddForce = value; } }
-		public float JumpAddLim { get { return jumpAddLim; } set { jumpAddLim = value; } }
-
-		public Physics()
-		{
-			CalculatePhysics();
-		}
-		public Physics(float g, float mv, float at, float dt, float dta, float jf, float jaf, float jal)
-		{
-			gravity = g;
-
-			maxVelocity = mv;
-			accelerationTime = at;
-			decelerationTime = dt;
-			decelerationTimeAir = dta;
-
-			jumpForce = jf;
-			jumpAddForce = jaf;
-			jumpAddLim = jal;
-
-			CalculatePhysics();
-		}
-	}
-
-	protected Physics physics;
+	protected Physics physics = Physics.StandardPhysics;
 
 	protected Vector2 velocity = Vector2.Zero;
 	protected float currentAcceleration = 0;
@@ -186,6 +69,6 @@ public class Actor : Entity
 
 	public void JumpHold()
 	{
-		if (velocity.Y >= physics.JumpAddLim) velocity.Y += physics.JumpAddForce * Game.delta;
+		if (velocity.Y >= physics.JumpAddLimit) velocity.Y += physics.JumpAddForce * Game.delta;
 	}
 }
