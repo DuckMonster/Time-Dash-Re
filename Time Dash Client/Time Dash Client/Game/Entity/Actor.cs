@@ -8,7 +8,7 @@ public class Actor : Entity
 	public class Physics
 	{
 		float gravity = 40f;
-		float maxVelocity = 8f;
+		float maxVelocity = 6f;
 		float accelerationTime = 0.2f, accelerationTimeAir = 0.6f, decelerationTime = 0.3f, decelerationTimeAir = 1.8f;
 		float jumpForce = 10f, jumpAddForce = 20f, jumpAddLim = 2f;
 

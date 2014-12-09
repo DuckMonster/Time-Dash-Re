@@ -143,9 +143,12 @@ class Log
 
 	public static void CalculateNetworkData()
 	{
-		currentDown = EzClient.DownBytes;
-		currentUp = EzClient.UpBytes;
-		Game.client.Ping();
+		if (Game.client.Connected)
+		{
+			currentDown = EzClient.DownBytes;
+			currentUp = EzClient.UpBytes;
+			Game.client.Ping();
+		}
 	}
 
 	static void ShowFPS()

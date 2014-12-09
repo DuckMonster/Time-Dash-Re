@@ -22,7 +22,8 @@ public class Program : GameWindow
 			try
 			{
 				//string[] comm = Console.ReadLine().Split(' ');
-				string[] comm = "join 127.0.0.1".Split(' ');
+				//string[] comm = "join 127.0.0.1".Split(' ');
+				string[] comm = "join 90.224.59.61".Split(' ');
 
 				if (comm[0] == "join")
 				{
@@ -40,7 +41,7 @@ public class Program : GameWindow
 
 		using (Program prog = new Program())
 		{
-			prog.Run();
+			prog.Run(180);
 		}
 	}
 
@@ -72,10 +73,11 @@ public class Program : GameWindow
 		GL.Enable(EnableCap.Blend);
 		GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
 
-		Width = 500;
-		Height = 375;
+		Width = 1024;
+		Height = 768;
 
 		WindowBorder = OpenTK.WindowBorder.Fixed;
+		VSync = VSyncMode.Off;
 
 		game = new Game(this);
 	}

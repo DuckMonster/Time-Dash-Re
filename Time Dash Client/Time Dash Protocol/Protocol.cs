@@ -29,7 +29,7 @@
 
 public class Port
 {
-	public const int TCP = 1227, UDP = 1280;
+	public const int TCP = 1255, UDP = 1337;
 }
 
 public enum Protocol

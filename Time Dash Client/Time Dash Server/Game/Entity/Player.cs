@@ -106,6 +106,8 @@ public class Player : Actor
 	public int playerID;
 	public Client client;
 
+	public float updateTimer = 0.2f;
+
 	public Player(int id, Client c, Vector2 position, Map m)
 		: base(position, m)
 	{
@@ -138,7 +140,14 @@ public class Player : Actor
 
 		base.Logic();
 
-		Log.Debug(Convert.ToString(inputData.GetFlag(), 2));
+		//Log.Debug(Convert.ToString(inputData.GetFlag(), 2));
+
+		updateTimer -= Game.delta;
+		if (updateTimer <= 0)
+		{
+			//SendPositionToPlayer(map.playerList);
+			updateTimer = 0.02f;
+		}
 	}
 
 	public void Input()

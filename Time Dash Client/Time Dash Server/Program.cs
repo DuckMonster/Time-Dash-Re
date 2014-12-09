@@ -17,7 +17,7 @@ class Program
 		while (running)
 		{
 			game.Logic();
-			Thread.Sleep(1);
+			Thread.Sleep((int)(1000.0 / 180));
 		}
 	}
 

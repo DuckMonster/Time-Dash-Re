@@ -122,6 +122,8 @@ public class Player : Actor
 	Texture[] textureList = new Texture[4];
 	int tex = 0;
 
+	Vector2 serverPosition = Vector2.Zero;
+
 	public Player(int id, Vector2 position, Map m)
 		: base(position, m)
 	{
@@ -145,7 +147,11 @@ public class Player : Actor
 
 	public void ReceiveInput(Vector2 position, Vector2 velocity, byte k)
 	{
-		if (IsLocalPlayer) return;
+		if (IsLocalPlayer)
+		{
+			serverPosition = position;
+			return;
+		}
 
 		this.position = position;
 		this.velocity = velocity;
@@ -154,10 +160,14 @@ public class Player : Actor
 
 	public void ReceivePosition(Vector2 position, Vector2 velocity)
 	{
-		if (IsLocalPlayer) return;
+		if (IsLocalPlayer)
+		{
+			serverPosition = position;
+			return;
+		}
 		
-		this.position = position;
-		this.velocity = velocity;
+		//this.position = position;
+		//this.velocity = velocity;
 	}
 
 	public override void Logic()
@@ -238,6 +248,16 @@ public class Player : Actor
 		mesh.Scale(size);
 		mesh.Scale(new Vector2(-dir, 1));
 		mesh.Translate(position);
+
+		mesh.Draw();
+
+		mesh.Color = new Color(1, 1, 1, 0.5f);
+
+		mesh.Reset();
+
+		mesh.Scale(size);
+		mesh.Scale(new Vector2(-dir, 1));
+		mesh.Translate(serverPosition);
 
 		mesh.Draw();
 	}
