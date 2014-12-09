@@ -34,6 +34,40 @@ public class Player : Actor
 				inputData[i] = pi[i];
 		}
 
+		public byte GetFlag()
+		{
+			byte flag = 0;
+
+			for (int i = 0; i < inputData.Length; i++)
+				if (this[i]) flag = (byte)(1 << i | flag);
+
+			return flag;
+		}
+
+		public void DecodeFlag(byte b)
+		{
+			for (int i = 0; i < inputData.Length; i++)
+				this[i] = ((1 << i) & b) != 0;
+		}
+
+		public byte GetFlagKey(PlayerKey k)
+		{
+			byte flag = (byte)(this[k] ? 1 << 7 : 0);
+			byte value = (byte)k;
+
+			byte fullFlag = (byte)(flag | value);
+
+			return fullFlag;
+		}
+
+		public void DecodeFlagKey(byte b)
+		{
+			bool flag = (b & 1 << 7) == 1;
+			byte value = (byte)(b & 0xF);
+
+			this[(PlayerKey)value] = flag;
+		}
+
 		public bool this[PlayerKey k]
 		{
 			get
@@ -79,11 +113,19 @@ public class Player : Actor
 		client = c;
 	}
 
-	public void ToggleInput(byte k) { ToggleInput((PlayerKey)k); }
-	public void ToggleInput(PlayerKey k)
+	public void ReceiveInput(Vector2 position, Vector2 velocity, byte k)
 	{
-		inputData[k] = !inputData[k];
-		SendInputToggleToPlayer(k, map.playerList);
+		this.position = position;
+		this.velocity = velocity;
+		inputData.DecodeFlag(k);
+		SendInputToPlayer(map.playerList);
+	}
+
+	public void ReceivePosition(Vector2 position, Vector2 velocity)
+	{
+		this.position = position;
+		this.velocity = velocity;
+		SendPositionToPlayer(map.playerList);
 	}
 
 	public override void Logic()
@@ -95,6 +137,8 @@ public class Player : Actor
 		Input();
 
 		base.Logic();
+
+		Log.Debug(Convert.ToString(inputData.GetFlag(), 2));
 	}
 
 	public void Input()
@@ -108,6 +152,7 @@ public class Player : Actor
 	public void SendExistanceToPlayer(params Player[] players)
 	{
 		SendMessageToPlayer(GetExistanceMessage(), players);
+		SendPositionToPlayer(players);
 	}
 
 	public void SendLeaveToPlayer(params Player[] players)
@@ -115,9 +160,14 @@ public class Player : Actor
 		SendMessageToPlayer(GetLeaveMessage(), players);
 	}
 
-	public void SendInputToggleToPlayer(PlayerKey k, params Player[] players)
+	public void SendInputToPlayer(params Player[] players)
 	{
-		SendMessageToPlayer(GetInputToggleMessage(k), players);
+		SendMessageToPlayer(GetInputMessage(), players);
+	}
+
+	public void SendPositionToPlayer(params Player[] players)
+	{
+		SendMessageToPlayer(GetPositionMessage(), players);
 	}
 
 	void SendMessageToPlayer(MessageBuffer msg, params Player[] players)
@@ -145,13 +195,27 @@ public class Player : Actor
 		return msg;
 	}
 
-	MessageBuffer GetInputToggleMessage(PlayerKey k)
+	MessageBuffer GetInputMessage()
 	{
 		MessageBuffer msg = new MessageBuffer();
 
-		msg.WriteShort((short)Protocol.PlayerInputToggle);
+		msg.WriteShort((short)Protocol.PlayerInput);
 		msg.WriteByte(playerID);
-		msg.WriteByte((byte)k);
+		msg.WriteVector(position);
+		msg.WriteVector(velocity);
+		msg.WriteByte(inputData.GetFlag());
+
+		return msg;
+	}
+
+	MessageBuffer GetPositionMessage()
+	{
+		MessageBuffer msg = new MessageBuffer();
+
+		msg.WriteShort((short)Protocol.PlayerPosition);
+		msg.WriteByte(playerID);
+		msg.WriteVector(position);
+		msg.WriteVector(velocity);
 
 		return msg;
 	}

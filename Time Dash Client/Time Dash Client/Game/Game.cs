@@ -26,16 +26,17 @@ public class Game
 	{
 		program = p;
 
-		Log.Init();
-
 		client = new EzClient();
 
 		client.OnConnect += OnConnect;
 		client.OnDisconnect += OnDisconnect;
 		client.OnMessage += OnMessage;
 		client.OnException += OnException;
+		client.OnDebug += OnDebug;
 
 		client.Connect(hostIP, portTCP, portUDP);
+
+		Log.Init();
 	}
 
 	public void Dispose()
@@ -93,6 +94,7 @@ public class Game
 	public void OnConnect()
 	{
 		Log.Write(ConsoleColor.Green, "Connected to server!");
+		//client.Ping();
 	}
 	public void OnDisconnect()
 	{
@@ -121,5 +123,10 @@ public class Game
 	public void OnException(Exception e)
 	{
 		Log.Write(e.Message);
+	}
+
+	public void OnDebug(string msg)
+	{
+		Log.Write(msg);
 	}
 }

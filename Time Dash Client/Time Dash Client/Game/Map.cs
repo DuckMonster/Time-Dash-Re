@@ -79,8 +79,12 @@ public class Map
 					PlayerLeave(msg.ReadByte());
 					break;
 
-				case Protocol.PlayerInputToggle:
-					playerList[msg.ReadByte()].ToggleKey(msg.ReadByte());
+				case Protocol.PlayerInput:
+					playerList[msg.ReadByte()].ReceiveInput(msg.ReadVector2(), msg.ReadVector2(), msg.ReadByte());
+					break;
+
+				case Protocol.PlayerPosition:
+					playerList[msg.ReadByte()].ReceivePosition(msg.ReadVector2(), msg.ReadVector2());
 					break;
 			}
 

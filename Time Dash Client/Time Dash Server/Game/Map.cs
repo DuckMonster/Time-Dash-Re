@@ -104,8 +104,12 @@ public class Map
 			{
 				switch ((Protocol)msg.ReadShort())
 				{
-					case Protocol.PlayerInputToggle:
-						p.ToggleInput(msg.ReadByte());
+					case Protocol.PlayerInput:
+						p.ReceiveInput(msg.ReadVector2(), msg.ReadVector2(), msg.ReadByte());
+						break;
+
+					case Protocol.PlayerPosition:
+						p.ReceivePosition(msg.ReadVector2(), msg.ReadVector2());
 						break;
 				}
 			}

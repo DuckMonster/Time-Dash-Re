@@ -15,7 +15,7 @@ public class Game
 	Stopwatch tickWatch;
 
 	List<Client> clientList = new List<Client>();
-	List<Map> mapList = new List<Map>();
+	Map currentMap;
 
 	public Game()
 	{
@@ -30,10 +30,9 @@ public class Game
 
 		server.StartUp();
 
-		Map m = new Map();
-		server.OnMessage += m.MessageHandle;
-
-		mapList.Add(m);
+		currentMap = new Map();
+		server.OnMessage += currentMap.MessageHandle;
+		server.OnDebug += OnDebug;
 	}
 
 	public void Dispose()
@@ -50,6 +49,8 @@ public class Game
 
 		server.Update();
 		Log.Debug("Number of clients: {0}", clientList.Count);
+
+		if (currentMap != null) currentMap.Logic();
 	}
 
 	public void CalculateDelta()
@@ -74,7 +75,9 @@ public class Game
 		Log.Write(ConsoleColor.Green, "{0}[{1}, {2}] connected!", c.ID, c.tcpAdress, c.udpAdress);
 		clientList.Add(c);
 
-		mapList[0].PlayerJoin(c);
+		currentMap.PlayerJoin(c);
+
+		c.Ping();
 	}
 
 	public void OnDisconnect(Client c)
@@ -82,7 +85,7 @@ public class Game
 		Log.Write(ConsoleColor.DarkRed, "{0}[{1}, {2}] disconnected!", c.ID, c.tcpAdress, c.udpAdress);
 		clientList.Remove(c);
 
-		mapList[0].PlayerLeave(c);
+		currentMap.PlayerLeave(c);
 	}
 
 	public void OnMessage(Client c, MessageBuffer msg)
@@ -100,5 +103,10 @@ public class Game
 	public void OnException(Exception e)
 	{
 		Log.Write(ConsoleColor.Red, e.Message);
+	}
+
+	public void OnDebug(string s)
+	{
+		Log.Write(s);
 	}
 }

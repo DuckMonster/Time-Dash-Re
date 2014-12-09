@@ -33,6 +33,40 @@ public class Player : Actor
 				inputData[i] = pi[i];
 		}
 
+		public byte GetFlag()
+		{
+			byte flag = 0;
+
+			for (int i = 0; i < inputData.Length; i++)
+				if (this[i]) flag = (byte)(1 << i | flag);
+
+			return flag;
+		}
+
+		public void DecodeFlag(byte b)
+		{
+			for (int i = 0; i < inputData.Length; i++)
+				this[i] = ((1 << i) & b) != 0;
+		}
+
+		public byte GetFlagKey(PlayerKey k)
+		{
+			byte flag = (byte)(this[k] ? 1 << 7 : 0);
+			byte value = (byte)k;
+
+			byte fullFlag = (byte)(flag | value);
+
+			return fullFlag;
+		}
+
+		public void DecodeFlagKey(byte b)
+		{
+			bool flag = (b & 1 << 7) == 1;
+			byte value = (byte)(b & 0xF);
+
+			this[(PlayerKey)value] = flag;
+		}
+
 		public bool this[PlayerKey k]
 		{
 			get
@@ -109,10 +143,21 @@ public class Player : Actor
 		};
 	}
 
-	public void ToggleKey(byte k) { ToggleKey((PlayerKey)k); }
-	public void ToggleKey(PlayerKey k)
+	public void ReceiveInput(Vector2 position, Vector2 velocity, byte k)
 	{
-		if (!IsLocalPlayer) inputData[k] = !inputData[k];
+		if (IsLocalPlayer) return;
+
+		this.position = position;
+		this.velocity = velocity;
+		inputData.DecodeFlag(k);
+	}
+
+	public void ReceivePosition(Vector2 position, Vector2 velocity)
+	{
+		if (IsLocalPlayer) return;
+		
+		this.position = position;
+		this.velocity = velocity;
 	}
 
 	public override void Logic()
@@ -150,18 +195,30 @@ public class Player : Actor
 		for (int i = 0; i < inputData.Length; i++)
 			if (inputData[i] != newInput[i])
 			{
-				SendInputToggle(i);
 				inputData[i] = newInput[i];
+				SendInput();
 			}
 	}
 
-	public void SendInputToggle(PlayerKey k) { SendInputToggle((int)k); }
-	public void SendInputToggle(int k)
+	public void SendInput()
 	{
 		MessageBuffer msg = new MessageBuffer();
 
-		msg.WriteShort((short)Protocol.PlayerInputToggle);
-		msg.WriteByte(k);
+		msg.WriteShort((short)Protocol.PlayerInput);
+		msg.WriteVector(position);
+		msg.WriteVector(velocity);
+		msg.WriteByte(inputData.GetFlag());
+
+		Game.client.Send(msg);
+	}
+
+	public void SendPosition()
+	{
+		MessageBuffer msg = new MessageBuffer();
+
+		msg.WriteShort((short)Protocol.PlayerPosition);
+		msg.WriteVector(position);
+		msg.WriteVector(velocity);
 
 		Game.client.Send(msg);
 	}

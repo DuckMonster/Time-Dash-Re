@@ -1,11 +1,14 @@
-﻿using System;
+﻿using EZUDP.Client;
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading;
 
 enum LogMode
 {
 	Debug,
-	Message
+	Message,
+	Neutral
 }
 
 class Log
@@ -44,6 +47,11 @@ class Log
 	static LogMode mode = LogMode.Message;
 	static Thread inputThread;
 
+	static Stopwatch networkWatch;
+	static int currentUp = 0, currentDown = 0;
+	static int ping = 0;
+	static void Ping(int millis) { ping = millis; }
+
 	public static void Init()
 	{
 		if (inputThread != null) return;
@@ -53,6 +61,8 @@ class Log
 		ShowMessages();
 		inputThread = new Thread(InputThread);
 		inputThread.Start();
+
+		Game.client.OnPing += Ping;
 	}
 
 	public static void ShutDown()
@@ -88,8 +98,10 @@ class Log
 	}
 	public static void Write(ConsoleColor c, string text, params object[] args)
 	{
-		logMessageList.Add(new LogMessage(string.Format(text, args), c));
-		if (mode == LogMode.Message) ShowMessages();
+		LogMessage msg = new LogMessage(string.Format(text, args), c);
+
+		logMessageList.Add(msg);
+		if (mode == LogMode.Message) msg.Print();
 	}
 
 	public static void Clear()
@@ -106,6 +118,15 @@ class Log
 		debugTimer -= Game.delta;
 
 		ShowFPS();
+
+		if (networkWatch == null) networkWatch = Stopwatch.StartNew();
+		if (networkWatch.Elapsed.Seconds >= 1)
+		{
+			CalculateNetworkData();
+			networkWatch.Restart();
+		}
+
+		ShowNetworkData();
 	}
 
 	public static void CalculateTick(float t)
@@ -118,6 +139,13 @@ class Log
 	{
 		frameAvg[frameAvgIndex] = (int)(1.0 / t);
 		frameAvgIndex = (frameAvgIndex + 1) % frameAvg.Length;
+	}
+
+	public static void CalculateNetworkData()
+	{
+		currentDown = EzClient.DownBytes;
+		currentUp = EzClient.UpBytes;
+		Game.client.Ping();
 	}
 
 	static void ShowFPS()
@@ -142,6 +170,11 @@ class Log
 
 			Debug("Ticks/S: {1} ~ {0:0}\nFrames/S: {3} ~ {2:0}", tickAvg[tickAvgIndex], tick, frameAvg[frameAvgIndex], frame);
 		}
+	}
+
+	static void ShowNetworkData()
+	{
+		Debug("U: {0} b/s\nD: {1} b/s\nPing: {2}", currentUp, currentDown, ping);
 	}
 
 	static void ShowMessages()
@@ -174,6 +207,11 @@ class Log
 
 					case ConsoleKey.D:
 						mode = LogMode.Debug;
+						Console.Clear();
+						break;
+
+					case ConsoleKey.N:
+						mode = LogMode.Neutral;
 						Console.Clear();
 						break;
 				}

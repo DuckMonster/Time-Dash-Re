@@ -1,11 +1,14 @@
-﻿using System;
+﻿using EZUDP.Server;
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading;
 
 enum LogMode
 {
 	Debug,
-	Message
+	Message,
+	Netural
 }
 
 class Log
@@ -43,6 +46,12 @@ class Log
 	static List<LogMessage> logMessageList = new List<LogMessage>();
 	static LogMode mode = LogMode.Message;
 	static Thread inputThread;
+
+	private static int[] tickAvg = new int[150], frameAvg = new int[500];
+	private static int tickAvgIndex = 0, frameAvgIndex = 0;
+
+	static Stopwatch networkWatch;
+	static int currentUp = 0, currentDown = 0;
 
 	public static void Init()
 	{
@@ -88,8 +97,10 @@ class Log
 	}
 	public static void Write(ConsoleColor c, string text, params object[] args)
 	{
-		logMessageList.Add(new LogMessage(string.Format(text, args), c));
-		if (mode == LogMode.Message) ShowMessages();
+		LogMessage msg = new LogMessage(string.Format(text, args), c);
+
+		logMessageList.Add(msg);
+		if (mode == LogMode.Message) msg.Print();
 	}
 
 	public static void Clear()
@@ -97,15 +108,22 @@ class Log
 		logMessageList.Clear();
 	}
 
-	private static int[] tickAvg = new int[150], frameAvg = new int[500];
-	private static int tickAvgIndex = 0, frameAvgIndex = 0;
-
 	public static void Logic()
 	{
 		if (CanDebug) debugTimer = debugInterval;
 		debugTimer -= Game.delta;
 
+
 		ShowFPS();
+
+		if (networkWatch == null) networkWatch = Stopwatch.StartNew();
+		if (networkWatch.Elapsed.Seconds >= 1)
+		{
+			CalculateNetworkData();
+			networkWatch.Restart();
+		}
+
+		ShowNetworkData();
 	}
 
 	public static void CalculateTick(float t)
@@ -118,6 +136,12 @@ class Log
 	{
 		frameAvg[frameAvgIndex] = (int)(1.0 / t);
 		frameAvgIndex = (frameAvgIndex + 1) % frameAvg.Length;
+	}
+
+	public static void CalculateNetworkData()
+	{
+		currentDown = EzServer.DownBytes;
+		currentUp = EzServer.UpBytes;
 	}
 
 	static void ShowFPS()
@@ -142,6 +166,11 @@ class Log
 
 			Debug("Ticks/S: {1} ~ {0:0}\nFrames/S: {3} ~ {2:0}", tickAvg[tickAvgIndex], tick, frameAvg[frameAvgIndex], frame);
 		}
+	}
+
+	static void ShowNetworkData()
+	{
+		Debug("U: {0} b/s\nD: {1} b/s", currentUp, currentDown);
 	}
 
 	static void ShowMessages()
@@ -170,6 +199,11 @@ class Log
 
 					case ConsoleKey.D:
 						mode = LogMode.Debug;
+						Console.Clear();
+						break;
+
+					case ConsoleKey.N:
+						mode = LogMode.Netural;
 						Console.Clear();
 						break;
 				}

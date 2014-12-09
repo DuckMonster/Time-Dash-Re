@@ -37,5 +37,6 @@ public enum Protocol
 	EnterMap,
 	PlayerJoin,
 	PlayerLeave,
-	PlayerInputToggle
+	PlayerPosition,
+	PlayerInput
 }
