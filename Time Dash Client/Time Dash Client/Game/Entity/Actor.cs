@@ -1,4 +1,4 @@
-﻿using OpenTK;
+using OpenTK;
 using OpenTK.Input;
 using System;
 using TKTools;
@@ -11,7 +11,10 @@ public class Actor : Entity
 	Vector2 velocity = Vector2.Zero;
 	float acceleration, friction;
 	int dir = 1;
-
+    
+	Texture[] textureList = new Texture[4];
+	int tex = 0;
+    
 	public void CalculatePhysics()
 	{
 		friction = -(float)(Math.Log(0.02, Math.E) / ACCELERATION_SPEED);
@@ -22,7 +25,12 @@ public class Actor : Entity
 		: base(position, m)
 	{
 		CalculatePhysics();
-		mesh.Texture = new TKTools.Texture("Res/guy.png");
+
+		textureList[0] = new Texture("Res/guy.png");
+		textureList[1] = new Texture("Res/guyHead1.png");
+		textureList[2] = new Texture("Res/guyHead2.png");
+		textureList[3] = new Texture("Res/guyHead3.png");
+		//mesh.Texture = new TKTools.Texture("Res/guyHead1.png");
 
 		float w = (size.X / size.Y)/2;
 
@@ -57,6 +65,11 @@ public class Actor : Entity
 
 		if (velocity.X > 0) dir = 1;
 		if (velocity.X < 0) dir = -1;
+
+		if (KeyboardInput.Current[Key.Number1]) tex = 0;
+		if (KeyboardInput.Current[Key.Number2]) tex = 1;
+		if (KeyboardInput.Current[Key.Number3]) tex = 2;
+		if (KeyboardInput.Current[Key.Number4]) tex = 3;
 	}
 
 	public void Input()
@@ -80,6 +93,8 @@ public class Actor : Entity
 	new public void Draw()
 	{
 		mesh.Color = Color.White;
+        
+		mesh.Texture = textureList[tex];
 
 		mesh.Reset();
 
