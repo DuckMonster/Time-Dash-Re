@@ -41,8 +41,8 @@ class Program : GameWindow
 		GL.Enable(EnableCap.Blend);
 		GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
 
-		Width = 1024;
-		Height = 768;
+		Width = 800;
+		Height = 600;
 
 		WindowBorder = OpenTK.WindowBorder.Fixed;
 
