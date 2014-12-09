@@ -96,18 +96,25 @@ public class Map
 
 	public void MessageHandle(Client c, MessageBuffer msg)
 	{
-		Player p = GetPlayer(c);
-
-		if (p != null)
+		try
 		{
-			switch ((Protocol)msg.ReadShort())
-			{
-				case Protocol.PlayerInputToggle:
-					p.ToggleInput(msg.ReadByte());
-					break;
-			}
-		}
+			Player p = GetPlayer(c);
 
-		msg.Reset();
+			if (p != null)
+			{
+				switch ((Protocol)msg.ReadShort())
+				{
+					case Protocol.PlayerInputToggle:
+						p.ToggleInput(msg.ReadByte());
+						break;
+				}
+			}
+
+			msg.Reset();
+		}
+		catch (Exception e)
+		{
+			Log.Write(ConsoleColor.Red, "Packet corrupt!\n" + e.Message);
+		}
 	}
 }

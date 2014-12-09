@@ -10,9 +10,37 @@ enum LogMode
 
 class Log
 {
+	class LogMessage
+	{
+		string message;
+		ConsoleColor color;
+
+		public LogMessage(string msg)
+		{
+			message = msg;
+			color = ConsoleColor.Gray;
+		}
+		public LogMessage(string msg, ConsoleColor clr)
+		{
+			message = msg;
+			color = clr;
+		}
+
+		public void Print()
+		{
+			Console.ForegroundColor = color;
+
+			Console.WriteLine(message);
+
+			Console.ForegroundColor = ConsoleColor.Gray;
+
+			Console.WriteLine("---");
+		}
+	}
+
 	static bool running = false;
 
-	static List<string> logMessageList = new List<string>();
+	static List<LogMessage> logMessageList = new List<LogMessage>();
 	static LogMode mode = LogMode.Message;
 	static Thread inputThread;
 
@@ -56,7 +84,11 @@ class Log
 
 	public static void Write(string text, params object[] args)
 	{
-		logMessageList.Add(string.Format(text, args));
+		Write(ConsoleColor.Gray, text, args);
+	}
+	public static void Write(ConsoleColor c, string text, params object[] args)
+	{
+		logMessageList.Add(new LogMessage(string.Format(text, args), c));
 		if (mode == LogMode.Message) ShowMessages();
 	}
 
@@ -115,10 +147,13 @@ class Log
 	static void ShowMessages()
 	{
 		Console.Clear();
-		foreach (string s in logMessageList)
+
+		List<LogMessage> buffer = new List<LogMessage>();
+		buffer.AddRange(logMessageList.ToArray());
+
+		foreach (LogMessage s in buffer)
 		{
-			Console.WriteLine(s);
-			Console.WriteLine("--");
+			s.Print();
 		}
 	}
 

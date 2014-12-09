@@ -5,15 +5,42 @@ using System.Threading;
 enum LogMode
 {
 	Debug,
-	Message,
-	Input
+	Message
 }
 
 class Log
 {
+	class LogMessage
+	{
+		string message;
+		ConsoleColor color;
+
+		public LogMessage(string msg)
+		{
+			message = msg;
+			color = ConsoleColor.Gray;
+		}
+		public LogMessage(string msg, ConsoleColor clr)
+		{
+			message = msg;
+			color = clr;
+		}
+
+		public void Print()
+		{
+			Console.ForegroundColor = color;
+
+			Console.WriteLine(message);
+
+			Console.ForegroundColor = ConsoleColor.Gray;
+
+			Console.WriteLine("---");
+		}
+	}
+
 	static bool running = false;
 
-	static List<string> logMessageList = new List<string>();
+	static List<LogMessage> logMessageList = new List<LogMessage>();
 	static LogMode mode = LogMode.Message;
 	static Thread inputThread;
 
@@ -57,7 +84,11 @@ class Log
 
 	public static void Write(string text, params object[] args)
 	{
-		logMessageList.Add(string.Format(text, args));
+		Write(ConsoleColor.Gray, text, args);
+	}
+	public static void Write(ConsoleColor c, string text, params object[] args)
+	{
+		logMessageList.Add(new LogMessage(string.Format(text, args), c));
 		if (mode == LogMode.Message) ShowMessages();
 	}
 
@@ -66,8 +97,8 @@ class Log
 		logMessageList.Clear();
 	}
 
-	private static int[] tickAvg = new int[150];
-	private static int tickAvgIndex = 0;
+	private static int[] tickAvg = new int[150], frameAvg = new int[500];
+	private static int tickAvgIndex = 0, frameAvgIndex = 0;
 
 	public static void Logic()
 	{
@@ -83,6 +114,12 @@ class Log
 		tickAvgIndex = (tickAvgIndex + 1) % tickAvg.Length;
 	}
 
+	public static void CalculateFrame(float t)
+	{
+		frameAvg[frameAvgIndex] = (int)(1.0 / t);
+		frameAvgIndex = (frameAvgIndex + 1) % frameAvg.Length;
+	}
+
 	static void ShowFPS()
 	{
 		if (CanDebug)
@@ -90,26 +127,29 @@ class Log
 			Console.Clear();
 
 			//Calculate average
-			int tick = 0;
+			int tick = 0, frame = 0;
 
 			for (int i = 0; i < tickAvg.Length; i++)
 				tick += tickAvg[i];
 
+			for (int i = 0; i < frameAvg.Length; i++)
+				frame += frameAvg[i];
+
 			tick /= tickAvg.Length;
+			frame /= frameAvg.Length;
 
 			//
 
-			Debug("Ticks/S: {1} ~ {0:0}", tickAvg[tickAvgIndex], tick);
+			Debug("Ticks/S: {1} ~ {0:0}\nFrames/S: {3} ~ {2:0}", tickAvg[tickAvgIndex], tick, frameAvg[frameAvgIndex], frame);
 		}
 	}
 
 	static void ShowMessages()
 	{
 		Console.Clear();
-		foreach (string s in logMessageList)
+		foreach (LogMessage s in logMessageList)
 		{
-			Console.WriteLine(s);
-			Console.WriteLine("--");
+			s.Print();
 		}
 	}
 
@@ -117,16 +157,6 @@ class Log
 	{
 		while (running)
 		{
-			if (mode == LogMode.Input)
-			{
-				string[] input = Console.ReadLine().Split(' ');
-
-				if (input[0] == "kick") Game.server.GetClient(int.Parse(input[1])).Disconnect();
-				if (input[0] == "clear") Clear();
-
-				mode = LogMode.Message;
-				ShowMessages();
-			}
 			if (Console.KeyAvailable)
 			{
 				ConsoleKey k = Console.ReadKey(true).Key;
@@ -141,12 +171,6 @@ class Log
 					case ConsoleKey.D:
 						mode = LogMode.Debug;
 						Console.Clear();
-						break;
-
-					case ConsoleKey.Enter:
-						mode = LogMode.Input;
-						Console.Clear();
-						Console.Write(">");
 						break;
 				}
 			}

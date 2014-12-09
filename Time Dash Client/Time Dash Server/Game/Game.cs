@@ -7,7 +7,7 @@ using System.Diagnostics;
 
 public class Game
 {
-	public const int portTCP = 1765, portUDP = 1780;
+	public const int portTCP = Port.TCP, portUDP = Port.UDP;
 
 	public static EzServer server;
 
@@ -66,12 +66,12 @@ public class Game
 	//ONLINE
 	public void OnStart()
 	{
-		Log.Write("Server started!");
+		Log.Write(ConsoleColor.Green, "Server started!");
 	}
 
 	public void OnConnect(Client c)
 	{
-		Log.Write("{0}[{1}, {2}] connected!", c.ID, c.tcpAdress, c.udpAdress);
+		Log.Write(ConsoleColor.Green, "{0}[{1}, {2}] connected!", c.ID, c.tcpAdress, c.udpAdress);
 		clientList.Add(c);
 
 		mapList[0].PlayerJoin(c);
@@ -79,7 +79,7 @@ public class Game
 
 	public void OnDisconnect(Client c)
 	{
-		Log.Write("{0}[{1}, {2}] disconnected!", c.ID, c.tcpAdress, c.udpAdress);
+		Log.Write(ConsoleColor.DarkRed, "{0}[{1}, {2}] disconnected!", c.ID, c.tcpAdress, c.udpAdress);
 		clientList.Remove(c);
 
 		mapList[0].PlayerLeave(c);
@@ -87,6 +87,18 @@ public class Game
 
 	public void OnMessage(Client c, MessageBuffer msg)
 	{
-		msg.Reset();
+		try
+		{
+			msg.Reset();
+		}		
+		catch (Exception e)
+		{
+			Log.Write(ConsoleColor.Red, "Packet corrupt!\n" + e.Message);
+		}
+	}
+
+	public void OnException(Exception e)
+	{
+		Log.Write(ConsoleColor.Red, e.Message);
 	}
 }

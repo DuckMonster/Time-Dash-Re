@@ -11,7 +11,7 @@ using EZUDP.Client;
 
 public class Game
 {
-	public const int portTCP = 1765, portUDP = 1780;
+	public const int portTCP = Port.TCP, portUDP = Port.UDP;
 	public static string hostIP;
 
 	public static float delta;
@@ -33,6 +33,7 @@ public class Game
 		client.OnConnect += OnConnect;
 		client.OnDisconnect += OnDisconnect;
 		client.OnMessage += OnMessage;
+		client.OnException += OnException;
 
 		client.Connect(hostIP, portTCP, portUDP);
 	}
@@ -91,23 +92,34 @@ public class Game
 	//ONLINE
 	public void OnConnect()
 	{
-		Log.Write("Connected to server!");
+		Log.Write(ConsoleColor.Green, "Connected to server!");
 	}
 	public void OnDisconnect()
 	{
-		//Log.Write("Disconnected from server!");
-		//program.Exit();
+		Log.Write("Disconnected from server!");
+		program.Exit();
 	}
 	public void OnMessage(MessageBuffer msg)
 	{
-		switch ((Protocol)msg.ReadShort())
+		try
 		{
-			case Protocol.EnterMap:
-				map = new Map(msg.ReadByte());
-				client.OnMessage += map.MessageHandle;
-				break;
-		}
+			switch ((Protocol)msg.ReadShort())
+			{
+				case Protocol.EnterMap:
+					map = new Map(msg.ReadByte());
+					client.OnMessage += map.MessageHandle;
+					break;
+			}
 
-		msg.Reset();
+			msg.Reset();
+		}
+		catch (Exception e)
+		{
+			Log.Write(ConsoleColor.Red, "Packet corrupt!\n" + e.Message);
+		}
+	}
+	public void OnException(Exception e)
+	{
+		Log.Write(e.Message);
 	}
 }

@@ -27,6 +27,11 @@
 //	}
 //}
 
+public class Port
+{
+	public const int TCP = 1227, UDP = 1280;
+}
+
 public enum Protocol
 {
 	EnterMap,

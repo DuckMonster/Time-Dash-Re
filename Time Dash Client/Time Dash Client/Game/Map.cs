@@ -67,21 +67,28 @@ public class Map
 	//ONLINE
 	public void MessageHandle(MessageBuffer msg)
 	{
-		switch ((Protocol)msg.ReadShort())
+		try
 		{
-			case Protocol.PlayerJoin:
-				PlayerJoin(msg.ReadByte());
-				break;
+			switch ((Protocol)msg.ReadShort())
+			{
+				case Protocol.PlayerJoin:
+					PlayerJoin(msg.ReadByte());
+					break;
 
-			case Protocol.PlayerLeave:
-				PlayerLeave(msg.ReadByte());
-				break;
+				case Protocol.PlayerLeave:
+					PlayerLeave(msg.ReadByte());
+					break;
 
-			case Protocol.PlayerInputToggle:
-				playerList[msg.ReadByte()].ToggleKey(msg.ReadByte());
-				break;
+				case Protocol.PlayerInputToggle:
+					playerList[msg.ReadByte()].ToggleKey(msg.ReadByte());
+					break;
+			}
+
+			msg.Reset();
 		}
-
-		msg.Reset();
+		catch (Exception e)
+		{
+			Log.Write(ConsoleColor.Red, "Packet corrupt!\n" + e.Message);
+		}
 	}
 }
