@@ -163,20 +163,20 @@ public class Mesh : IDisposable
 	public void Translate(Vector2 pos)
 	{
 		CALCULATIONS++;
-		modelMatrix *= Matrix4.CreateTranslation(new Vector3(pos.X, pos.Y, 0));
+		modelMatrix = Matrix4.CreateTranslation(new Vector3(pos.X, pos.Y, 0)) * modelMatrix;
 	}
 
 	public void Scale(float s) { Scale(new Vector2(s, s)); }
 	public void Scale(Vector2 s)
 	{
 		CALCULATIONS++;
-		modelMatrix *= Matrix4.CreateScale(new Vector3(s.X, s.Y, 1));
+		modelMatrix = Matrix4.CreateScale(new Vector3(s.X, s.Y, 1)) * modelMatrix;
 	}
 
 	public void Rotate(float a)
 	{
 		CALCULATIONS++;
-		modelMatrix *= Matrix4.CreateRotationZ(a);
+		modelMatrix = Matrix4.CreateRotationZ(a) * modelMatrix;
 	}
 
 	public void Draw()

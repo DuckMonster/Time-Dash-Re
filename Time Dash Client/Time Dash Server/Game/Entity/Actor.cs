@@ -4,7 +4,7 @@ using System;
 
 public class Actor : Entity
 {
-	protected Physics physics = Physics.StandardPhysics;
+	protected Physics physics = Physics.defaultPhysics;
 
 	protected Vector2 velocity = Vector2.Zero;
 	protected float currentAcceleration = 0;

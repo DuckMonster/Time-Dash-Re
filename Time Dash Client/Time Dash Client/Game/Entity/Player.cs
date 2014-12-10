@@ -8,7 +8,7 @@ public class Player : Actor
 {
 	protected class PlayerInput
 	{
-		bool[] inputData = new bool[3];
+		bool[] inputData = new bool[4];
 		public int Length
 		{
 			get
@@ -95,7 +95,8 @@ public class Player : Actor
 	{
 		Right,
 		Left,
-		Jump
+		Jump,
+		Dash
 	}
 
 	protected PlayerInput inputData = new PlayerInput();
@@ -112,6 +113,8 @@ public class Player : Actor
 
 	protected Texture[] textureList = new Texture[4];
 	protected int tex = 0;
+
+	protected PlayerShadow shadow;
 
 	public Player(Vector2 position, Map m)
 		: base(position, m)
@@ -130,6 +133,8 @@ public class Player : Actor
 			new Vector2(0.5f-w, 1f),
 			new Vector2(0.5f+w, 1f)
 		};
+
+		shadow = new PlayerShadow(this, mesh);
 	}
 
 	public override void Logic()
@@ -146,6 +151,8 @@ public class Player : Actor
 		if (KeyboardInput.Current[Key.Number2]) tex = 1;
 		if (KeyboardInput.Current[Key.Number3]) tex = 2;
 		if (KeyboardInput.Current[Key.Number4]) tex = 3;
+
+		shadow.Logic();
 	}
 
 	public void Input()
@@ -154,6 +161,7 @@ public class Player : Actor
 		if (input[PlayerKey.Left]) currentAcceleration -= Acceleration;
 		if (IsOnGround && input[PlayerKey.Jump] && !oldInput[PlayerKey.Jump]) Jump();
 		if (input[PlayerKey.Jump]) JumpHold();
+		if (input[PlayerKey.Dash] && !oldInput[PlayerKey.Dash]) Dash();
 	}
 
 	public virtual void LocalInput()
@@ -161,11 +169,18 @@ public class Player : Actor
 		inputData[PlayerKey.Right] = KeyboardInput.Current[Key.Right];
 		inputData[PlayerKey.Left] = KeyboardInput.Current[Key.Left];
 		inputData[PlayerKey.Jump] = KeyboardInput.Current[Key.Z];
+		inputData[PlayerKey.Dash] = KeyboardInput.Current[Key.X];
 	}
 
 	public override void Jump()
 	{
 		base.Jump();
+	}
+
+	public void Dash()
+	{
+		velocity = (shadow.CurrentPosition - position) * 4f;
+		position = shadow.CurrentPosition;
 	}
 
 	public override void Draw()
@@ -180,5 +195,7 @@ public class Player : Actor
 		mesh.Translate(position);
 
 		mesh.Draw();
+
+		shadow.Draw();
 	}
 }

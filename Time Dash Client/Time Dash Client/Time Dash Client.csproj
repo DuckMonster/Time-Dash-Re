@@ -63,6 +63,7 @@
     <Compile Include="Game\Entity\Physics.cs" />
     <Compile Include="Game\Entity\NetworkPlayer.cs" />
     <Compile Include="Game\Entity\Player.cs" />
+    <Compile Include="Game\Entity\PlayerShadow.cs" />
     <Compile Include="Game\Environment.cs" />
     <Compile Include="Game\Game.cs" />
     <Compile Include="Game\Map.cs" />

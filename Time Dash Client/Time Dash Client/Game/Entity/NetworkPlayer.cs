@@ -91,9 +91,9 @@ public class NetworkPlayer : Player
 
 		mesh.Reset();
 
+		mesh.Translate(position);
 		mesh.Scale(size);
 		mesh.Scale(new Vector2(-dir, 1));
-		mesh.Translate(position);
 
 		mesh.Draw();
 
@@ -101,10 +101,12 @@ public class NetworkPlayer : Player
 
 		mesh.Reset();
 
+		mesh.Translate(serverPosition);
 		mesh.Scale(size);
 		mesh.Scale(new Vector2(-dir, 1));
-		mesh.Translate(serverPosition);
 
 		mesh.Draw();
+
+		shadow.Draw();
 	}
 }
