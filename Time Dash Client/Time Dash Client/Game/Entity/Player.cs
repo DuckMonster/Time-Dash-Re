@@ -6,7 +6,7 @@ using TKTools;
 
 public class Player : Actor
 {
-	class PlayerInput
+	protected class PlayerInput
 	{
 		bool[] inputData = new bool[3];
 		public int Length
@@ -98,8 +98,8 @@ public class Player : Actor
 		Jump
 	}
 
-	PlayerInput inputData = new PlayerInput();
-	PlayerInput input, oldInput;
+	protected PlayerInput inputData = new PlayerInput();
+	protected PlayerInput input, oldInput;
 
 	public Color[] colorList = new Color[] {
 		Color.Blue,
@@ -108,27 +108,14 @@ public class Player : Actor
 		Color.Teal,
 		Color.Violet,
 		Color.Yellow
-	};
+	};	
 
-	public int playerID;
-	public bool IsLocalPlayer
-	{
-		get
-		{
-			return map.myID == playerID;
-		}
-	}
+	protected Texture[] textureList = new Texture[4];
+	protected int tex = 0;
 
-	Texture[] textureList = new Texture[4];
-	int tex = 0;
-
-	Vector2 serverPosition = Vector2.Zero;
-
-	public Player(int id, Vector2 position, Map m)
+	public Player(Vector2 position, Map m)
 		: base(position, m)
 	{
-		playerID = id;
-
 		textureList[0] = new Texture("Res/guy.png");
 		textureList[1] = new Texture("Res/guyHead1.png");
 		textureList[2] = new Texture("Res/guyHead2.png");
@@ -143,31 +130,6 @@ public class Player : Actor
 			new Vector2(0.5f-w, 1f),
 			new Vector2(0.5f+w, 1f)
 		};
-	}
-
-	public void ReceiveInput(Vector2 position, Vector2 velocity, byte k)
-	{
-		if (IsLocalPlayer)
-		{
-			serverPosition = position;
-			return;
-		}
-
-		this.position = position;
-		this.velocity = velocity;
-		inputData.DecodeFlag(k);
-	}
-
-	public void ReceivePosition(Vector2 position, Vector2 velocity)
-	{
-		if (IsLocalPlayer)
-		{
-			serverPosition = position;
-			return;
-		}
-		
-		//this.position = position;
-		//this.velocity = velocity;
 	}
 
 	public override void Logic()
@@ -194,43 +156,11 @@ public class Player : Actor
 		if (input[PlayerKey.Jump]) JumpHold();
 	}
 
-	public void LocalInput()
+	public virtual void LocalInput()
 	{
-		PlayerInput newInput = new PlayerInput();
-
-		newInput[PlayerKey.Right] = KeyboardInput.Current[Key.Right];
-		newInput[PlayerKey.Left] = KeyboardInput.Current[Key.Left];
-		newInput[PlayerKey.Jump] = KeyboardInput.Current[Key.Z];
-
-		for (int i = 0; i < inputData.Length; i++)
-			if (inputData[i] != newInput[i])
-			{
-				inputData[i] = newInput[i];
-				SendInput();
-			}
-	}
-
-	public void SendInput()
-	{
-		MessageBuffer msg = new MessageBuffer();
-
-		msg.WriteShort((short)Protocol.PlayerInput);
-		msg.WriteVector(position);
-		msg.WriteVector(velocity);
-		msg.WriteByte(inputData.GetFlag());
-
-		Game.client.Send(msg);
-	}
-
-	public void SendPosition()
-	{
-		MessageBuffer msg = new MessageBuffer();
-
-		msg.WriteShort((short)Protocol.PlayerPosition);
-		msg.WriteVector(position);
-		msg.WriteVector(velocity);
-
-		Game.client.Send(msg);
+		inputData[PlayerKey.Right] = KeyboardInput.Current[Key.Right];
+		inputData[PlayerKey.Left] = KeyboardInput.Current[Key.Left];
+		inputData[PlayerKey.Jump] = KeyboardInput.Current[Key.Z];
 	}
 
 	public override void Jump()
@@ -240,24 +170,14 @@ public class Player : Actor
 
 	public override void Draw()
 	{
-		mesh.Color = colorList[playerID];
 		mesh.Texture = textureList[tex];
+		mesh.Color = Color.White;
 
 		mesh.Reset();
 
 		mesh.Scale(size);
 		mesh.Scale(new Vector2(-dir, 1));
 		mesh.Translate(position);
-
-		mesh.Draw();
-
-		mesh.Color = new Color(1, 1, 1, 0.5f);
-
-		mesh.Reset();
-
-		mesh.Scale(size);
-		mesh.Scale(new Vector2(-dir, 1));
-		mesh.Translate(serverPosition);
 
 		mesh.Draw();
 	}

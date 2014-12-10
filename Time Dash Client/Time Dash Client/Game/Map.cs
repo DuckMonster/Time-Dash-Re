@@ -11,9 +11,9 @@ public class Map
 	Camera camera;
 	Environment environment;
 
-	public Player[] playerList = new Player[10];
+	public NetworkPlayer[] playerList = new NetworkPlayer[10];
 
-	public Player LocalPlayer
+	public NetworkPlayer LocalPlayer
 	{
 		get
 		{
@@ -23,7 +23,7 @@ public class Map
 
 	public void PlayerJoin(int id)
 	{
-		playerList[id] = new Player(id, new Vector2(4, 4), this);
+		playerList[id] = new NetworkPlayer(id, new Vector2(4, 4), this);
 		Log.Write("Player " + id + " joined!");
 	}
 
