@@ -8,6 +8,7 @@ using System.Diagnostics;
 public class Game
 {
 	public const int portTCP = Port.TCP, portUDP = Port.UDP;
+	public static string hostIP;
 
 	public static EzServer server;
 
@@ -28,7 +29,10 @@ public class Game
 		server.OnStart += OnStart;
 		server.OnMessage += OnMessage;
 
-		server.StartUp();
+		if (hostIP == null)
+			server.StartUp();
+		else
+			server.StartUp(hostIP);
 
 		currentMap = new Map();
 		server.OnMessage += currentMap.MessageHandle;

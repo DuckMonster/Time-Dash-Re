@@ -14,27 +14,31 @@ public class Program : GameWindow
 
 	static void Main(string[] args)
 	{
-		#region Server or client
+		#region Server ip
+		string[] serverList = new string[] {
+			"127.0.0.1",
+			"90.224.59.61"
+		};
+
 		bool valid = false;
 
 		while (!valid)
 		{
 			try
 			{
-				//string[] comm = Console.ReadLine().Split(' ');
-				//string[] comm = "join 127.0.0.1".Split(' ');
-				string[] comm = "join 90.224.59.61".Split(' ');
+				Console.WriteLine("Connect to:");
+				for (int i = 0; i < serverList.Length; i++)
+					Console.WriteLine("({0}) {1}", i, serverList[i]);
 
-				if (comm[0] == "join")
-				{
-					Game.hostIP = comm[1];
-					valid = true;
-				}
+				int n = int.Parse(Console.ReadKey().KeyChar.ToString());
+
+				Game.hostIP = serverList[n];
+				valid = true;
 			}
 			catch (Exception e)
 			{
+				Console.Clear();
 				Console.WriteLine("Invalid input.");
-				Console.WriteLine(e);
 			}
 		}
 		#endregion

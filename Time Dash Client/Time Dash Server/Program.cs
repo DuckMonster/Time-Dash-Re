@@ -12,6 +12,12 @@ class Program
 
 	public static void Main(string[] args)
 	{
+		Console.Write("Host locally? ");
+		char k = Console.ReadKey().KeyChar;
+
+		if (k == 'y') Game.hostIP = "127.0.0.1";
+		else Game.hostIP = null;
+
 		game = new Game();
 
 		while (running)
