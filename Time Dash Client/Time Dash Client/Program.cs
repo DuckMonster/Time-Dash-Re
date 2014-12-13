@@ -83,7 +83,7 @@ public class Program : GameWindow
 		Width = 1024;
 		Height = 768;
 
-		WindowBorder = OpenTK.WindowBorder.Fixed;
+		WindowBorder = OpenTK.WindowBorder.Resizable;
 		VSync = VSyncMode.Off;
 
 		game = new Game(this);

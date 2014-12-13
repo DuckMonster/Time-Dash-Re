@@ -110,11 +110,13 @@ public partial class Player : Actor
 	protected PlayerShadow shadow;
 	float warpCooldown = 1f;
 
+	Timer forceWarpTimer = new Timer(1.4f, true);
+
 	public bool CanWarp
 	{
 		get
 		{
-			return warpCooldown <= 0;
+			return warpCooldown <= 0 && shadow == null;
 		}
 	}
 
@@ -136,8 +138,6 @@ public partial class Player : Actor
 			new Vector2(0.5f-w, 1f),
 			new Vector2(0.5f+w, 1f)
 		};
-
-		shadow = new PlayerShadow(this, mesh);
 	}
 
 	public override void Logic()
@@ -155,8 +155,16 @@ public partial class Player : Actor
 		if (KeyboardInput.Current[Key.Number3]) tex = 2;
 		if (KeyboardInput.Current[Key.Number4]) tex = 3;
 
-		if (warpCooldown > 0f) warpCooldown -= 1 / shadow.bufferLength * Game.delta;
-		shadow.Logic();
+		if (warpCooldown > 0f) warpCooldown -= Game.delta;
+		if (shadow != null)
+		{
+			forceWarpTimer.Logic();
+			if (forceWarpTimer.IsDone)
+			{
+				Warp(shadow.position);
+				shadow = null;
+			}
+		}
 	}
 
 	public void Input()
@@ -165,7 +173,22 @@ public partial class Player : Actor
 		if (input[PlayerKey.Left]) currentAcceleration -= Acceleration;
 		if (IsOnGround && input[PlayerKey.Jump] && !oldInput[PlayerKey.Jump]) Jump();
 		if (input[PlayerKey.Jump]) JumpHold();
-		if (input[PlayerKey.Dash] && !oldInput[PlayerKey.Dash]) Warp();
+
+		if (input[PlayerKey.Warp] && !oldInput[PlayerKey.Warp])
+		{
+			if (shadow != null)
+			{
+				Warp(shadow.position);
+				shadow = null;
+				forceWarpTimer.IsDone = true;
+			}
+			else if (CanWarp)
+			{
+				shadow = new PlayerShadow(position, this, mesh);
+				if (IsLocalPlayer) map.AddEffect(new EffectRing(position, 2f, 0.4f, map));
+				forceWarpTimer.Reset();
+			}
+		}
 	}
 
 	public void LocalInput()
@@ -175,7 +198,7 @@ public partial class Player : Actor
 		inputData[PlayerKey.Right] = KeyboardInput.Current[Key.Right];
 		inputData[PlayerKey.Left] = KeyboardInput.Current[Key.Left];
 		inputData[PlayerKey.Jump] = KeyboardInput.Current[Key.Z];
-		inputData[PlayerKey.Dash] = KeyboardInput.Current[Key.X];
+		inputData[PlayerKey.Warp] = KeyboardInput.Current[Key.X];
 
 		for (int i = 0; i < inputData.Length; i++)
 			if (inputData[i] != oldInput[i])
@@ -190,24 +213,23 @@ public partial class Player : Actor
 		base.Jump();
 	}
 
-	public void Warp()
+	public void Warp(Vector2 target)
 	{
-		if (!CanWarp) return;
+		map.AddEffect(new EffectSpike(position, target, map));
 
-		map.AddEffect(new EffectSpike(position, shadow.CurrentPosition, map));
+		float velo = (float)(1 - Math.Exp(-(target - position).Length / 2f)) * physics.WarpVelocity;
 
-		float velo = (float)(1 - Math.Exp(-(shadow.CurrentPosition - position).Length / 2f)) * physics.WarpVelocity;
+		velocity = (target - position).Normalized() * velo;
+		position = target;
 
-		velocity = (shadow.CurrentPosition - position).Normalized() * velo;
-		position = shadow.CurrentPosition;
-
-		warpCooldown = 1.5f;
+		warpCooldown = 0f;
 
 		map.AddEffect(new EffectRing(position, 0.2f + (velo / physics.WarpVelocity) * 5f, 0.9f, map));
 	}
 
 	public override void Draw()
 	{
+		mesh.FillColor = false;
 		mesh.Color = colorList[playerID];
 		mesh.Texture = textureList[tex];
 
@@ -219,6 +241,15 @@ public partial class Player : Actor
 
 		mesh.Draw();
 
+		if (!forceWarpTimer.IsDone)
+		{
+			mesh.Color = new Color(1, 1, 1, forceWarpTimer.PercentageDone);
+			mesh.FillColor = true;
+
+			mesh.Draw();
+		}
+
+		/*
 		mesh.Color = new Color(1, 1, 1, 0.5f);
 
 		mesh.Reset();
@@ -227,8 +258,9 @@ public partial class Player : Actor
 		mesh.Scale(size);
 		mesh.Scale(new Vector2(-dir, 1));
 
-		//mesh.Draw();
+		mesh.Draw();
+		 * */
 
-		if (CanWarp) shadow.Draw();
+		if (shadow != null && IsLocalPlayer) shadow.Draw();
 	}
 }

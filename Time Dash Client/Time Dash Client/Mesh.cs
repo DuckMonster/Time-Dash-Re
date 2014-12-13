@@ -59,6 +59,7 @@ public class Mesh : IDisposable
 	Matrix4 modelMatrix = Matrix4.Identity;
 
 	Color color = Color.White;
+	bool fillColor = false;
 	Texture texture;
 
 	public Color Color
@@ -70,6 +71,18 @@ public class Mesh : IDisposable
 		set
 		{
 			color = value;
+		}
+	}
+
+	public bool FillColor
+	{
+		get
+		{
+			return fillColor;
+		}
+		set
+		{
+			fillColor = value;
 		}
 	}
 
@@ -189,6 +202,7 @@ public class Mesh : IDisposable
 		Program["vertexUV"].SetValue(uvBuffer);
 		Program["model"].SetValue(modelMatrix);
 		Program["color"].SetValue(color);
+		Program["fillColor"].SetValue(fillColor);
 
 		if (texture != null)
 		{

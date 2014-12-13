@@ -3,5 +3,5 @@
 	Right,
 	Left,
 	Jump,
-	Dash
+	Warp
 }

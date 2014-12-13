@@ -99,8 +99,10 @@ public partial class Player : Actor
 	public int playerID;
 	public Client client;
 
-	public PlayerShadow shadow;
+	protected PlayerShadow shadow;
 	float warpCooldown = 1f;
+
+	Timer forceWarpTimer = new Timer(1.4f, true);
 
 	public bool CanWarp
 	{
@@ -115,8 +117,6 @@ public partial class Player : Actor
 	{
 		playerID = id;
 		client = c;
-
-		shadow = new PlayerShadow(this);
 	}
 
 	public override void Hit()
@@ -137,8 +137,16 @@ public partial class Player : Actor
 
 		base.Logic();
 
-		if (warpCooldown > 0f) warpCooldown -= 1 / shadow.bufferLength * Game.delta;
-		shadow.Logic();
+		if (warpCooldown > 0f) warpCooldown -= Game.delta;
+		if (shadow != null)
+		{
+			forceWarpTimer.Logic();
+			if (forceWarpTimer.IsDone)
+			{
+				Warp(shadow.position);
+				shadow = null;
+			}
+		}
 	}
 
 	public void Input()
@@ -147,20 +155,34 @@ public partial class Player : Actor
 		if (input[PlayerKey.Left]) currentAcceleration -= Acceleration;
 		if (IsOnGround && input[PlayerKey.Jump] && !oldInput[PlayerKey.Jump]) Jump();
 		if (input[PlayerKey.Jump]) JumpHold();
-		if (input[PlayerKey.Dash] && !oldInput[PlayerKey.Dash]) Warp();
+
+		if (input[PlayerKey.Warp] && !oldInput[PlayerKey.Warp])
+		{
+			if (shadow != null)
+			{
+				Warp(shadow.position);
+				shadow = null;
+				forceWarpTimer.IsDone = true;
+			}
+			else if (CanWarp)
+			{
+				shadow = new PlayerShadow(position, this);
+				forceWarpTimer.Reset();
+			}
+		}
 	}
 
-	public void Warp()
+	public void Warp(Vector2 target)
 	{
-		if (!CanWarp) return;
+		float velo = (float)(1 - Math.Exp(-(target - position).Length / 2f)) * physics.WarpVelocity;
 
-		float distance = (shadow.CurrentPosition - position).Length;
+		float distance = (target - position).Length;
 
-		float velo = (float)(1 - Math.Exp(-distance / 2f)) * physics.WarpVelocity;
-
-		int accuracy = (int)distance;
+		int accuracy = (int)(distance * 6);
 		float step = distance / accuracy;
-		Vector2 checkpos = position, dirVector = (shadow.CurrentPosition - position).Normalized();
+		Vector2 checkpos = position, dirVector = (target - position).Normalized();
+
+		Log.Write("Raytracing with accuracy " + accuracy);
 
 		for (int i = 0; i < accuracy; i++)
 		{
@@ -170,9 +192,9 @@ public partial class Player : Actor
 			checkpos += dirVector * step;
 		}
 
-		velocity = (shadow.CurrentPosition - position).Normalized() * velo;
-		position = shadow.CurrentPosition;
+		velocity = (target - position).Normalized() * velo;
+		position = target;
 
-		warpCooldown = 1.5f;
+		warpCooldown = 0f;
 	}
 }
