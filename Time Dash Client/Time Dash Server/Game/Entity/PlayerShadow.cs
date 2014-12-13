@@ -1,13 +1,8 @@
 ﻿using OpenTK;
-using OpenTK.Graphics.OpenGL;
-
-using TKTools;
 
 public class PlayerShadow
 {
 	Player player;
-	Mesh mesh;
-
 	public float updateRate = 0.01f, updateTimer = 0f, bufferLength = 0.8f;
 
 	Vector2[] positionBuffer;
@@ -21,10 +16,9 @@ public class PlayerShadow
 		}
 	}
 
-	public PlayerShadow(Player p, Mesh m)
+	public PlayerShadow(Player p)
 	{
 		player = p;
-		mesh = m;
 
 		positionBuffer = new Vector2[(int)(bufferLength / updateRate)];
 	}
@@ -44,21 +38,5 @@ public class PlayerShadow
 	{
 		positionBuffer[positionBufferIndex] = player.position;
 		positionBufferIndex = (positionBufferIndex + 1) % positionBuffer.Length;
-	}
-
-	public void Draw()
-	{
-		mesh.Color = new Color(0, 0, 0, 0.4f);
-
-		if (CurrentPosition != null)
-		{
-			mesh.Reset();
-
-			mesh.Translate(CurrentPosition);
-			mesh.Scale(player.size);
-			//mesh.Scale(new Vector2(1, 1));
-
-			mesh.Draw();
-		}
 	}
 }

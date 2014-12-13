@@ -10,12 +10,6 @@ public class Actor : Entity
 	protected float currentAcceleration = 0;
 	protected int dir = 1;
 
-	public Actor(Vector2 position, Map m)
-		: base(position, m)
-	{
-		physics = new Physics();
-	}
-
 	public float Acceleration
 	{
 		get
@@ -28,8 +22,8 @@ public class Actor : Entity
 	{
 		get
 		{
-			return currentAcceleration == 0 ? 
-				(IsOnGround ? physics.DecFriction : physics.DecFrictionAir) : 
+			return currentAcceleration == 0 ?
+				(IsOnGround ? physics.DecFriction : physics.DecFrictionAir) :
 				(IsOnGround ? physics.AccFriction : physics.AccFrictionAir);
 		}
 	}
@@ -40,6 +34,17 @@ public class Actor : Entity
 		{
 			return map.GetCollision(this, new Vector2(0, -0.1f));
 		}
+	}
+
+	public Actor(Vector2 position, Map m)
+		: base(position, m)
+	{
+		physics = new Physics();
+	}
+
+	public virtual void Hit()
+	{
+		Log.Write("OUCH!");
 	}
 
 	public override void Logic()

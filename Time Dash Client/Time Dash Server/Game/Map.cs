@@ -86,6 +86,15 @@ public class Map
 		foreach (Player p in playerList) if (p != null) p.Logic();
 	}
 
+	public Player GetPlayerAtPos(Vector2 pos, Vector2 size, params Player[] exclude)
+	{
+		List<Player> excludeList = new List<Player>();
+		excludeList.AddRange(exclude);
+
+		foreach (Player p in playerList) if (!excludeList.Contains(p) && p != null && p.CollidesWith(pos, size)) return p;
+		return null;
+	}
+
 	public void SendToAllPlayers(MessageBuffer msg, params Player[] exceptions)
 	{
 		List<Player> exceptionList = new List<Player>();

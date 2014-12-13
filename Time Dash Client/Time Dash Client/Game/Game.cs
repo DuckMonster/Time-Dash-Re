@@ -8,6 +8,7 @@ using TKTools;
 
 using EZUDP;
 using EZUDP.Client;
+using System.Collections.Generic;
 
 public class Game
 {

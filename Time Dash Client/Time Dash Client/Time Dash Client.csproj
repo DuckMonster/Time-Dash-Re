@@ -58,10 +58,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Game\Camera.cs" />
+    <Compile Include="Game\Effects\Effect.cs" />
+    <Compile Include="Game\Effects\EffectRing.cs" />
+    <Compile Include="Game\Effects\EffectSpike.cs" />
     <Compile Include="Game\Entity\Actor.cs" />
     <Compile Include="Game\Entity\Entity.cs" />
-    <Compile Include="Game\Entity\Physics.cs" />
-    <Compile Include="Game\Entity\NetworkPlayer.cs" />
+    <Compile Include="Game\Entity\PlayerNetwork.cs" />
     <Compile Include="Game\Entity\Player.cs" />
     <Compile Include="Game\Entity\PlayerShadow.cs" />
     <Compile Include="Game\Environment.cs" />
@@ -72,6 +74,7 @@
     <Compile Include="Mesh.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Timer.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -80,6 +83,9 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Res\circlebig.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Res\grad.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -114,6 +120,7 @@
       <Name>Time Dash Protocol</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

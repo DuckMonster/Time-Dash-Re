@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 using OpenTK;
+using GRFX = OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Input;
 
@@ -43,14 +44,14 @@ public class Program : GameWindow
 		}
 		#endregion
 
-		using (Program prog = new Program())
+		using (Program p = new Program(1025, 768, new GRFX.GraphicsMode(new GRFX.ColorFormat(32), 24, 8, 3)))
 		{
-			prog.Run(180);
+			p.Run(180);
 		}
 	}
 
-	public Program()
-		: base()
+	public Program(int w, int h, GRFX.GraphicsMode mode)
+		: base(w, h, mode)
 	{
 		KeyDown += KeyHandle;
 		Closed += OnClose;
@@ -76,6 +77,8 @@ public class Program : GameWindow
 		GL.ClearColor(1f, 0f, 0f, 1f);
 		GL.Enable(EnableCap.Blend);
 		GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
+
+		this.
 
 		Width = 1024;
 		Height = 768;

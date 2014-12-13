@@ -83,6 +83,7 @@ class Log
 		}
 	}
 
+	public static void Debug(object o) { Debug(o.ToString()); }
 	public static void Debug(string text, params object[] args)
 	{
 		if (CanDebug)
@@ -92,6 +93,14 @@ class Log
 		}
 	}
 
+	public static void Write(ConsoleColor c, object o)
+	{
+		Write(c, o.ToString());
+	}
+	public static void Write(object o)
+	{
+		Write(o.ToString());
+	}
 	public static void Write(string text, params object[] args)
 	{
 		Write(ConsoleColor.Gray, text, args);

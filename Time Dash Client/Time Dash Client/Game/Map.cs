@@ -3,6 +3,7 @@
 using OpenTK;
 using TKTools;
 using EZUDP;
+using System.Collections.Generic;
 
 public class Map
 {
@@ -11,9 +12,21 @@ public class Map
 	Camera camera;
 	Environment environment;
 
-	public NetworkPlayer[] playerList = new NetworkPlayer[10];
+	public Player[] playerList = new Player[10];
+	List<Effect> effectList = new List<Effect>(), effectBufferList = new List<Effect>();
 
-	public NetworkPlayer LocalPlayer
+	public void AddEffect(Effect e)
+	{
+		effectList.Add(e);
+		effectBufferList.Add(e);
+	}
+	public void RemoveEffect(Effect e)
+	{
+		effectList.Remove(e);
+		e.Dispose();
+	}
+
+	public Player LocalPlayer
 	{
 		get
 		{
@@ -23,7 +36,7 @@ public class Map
 
 	public void PlayerJoin(int id)
 	{
-		playerList[id] = new NetworkPlayer(id, new Vector2(4, 4), this);
+		playerList[id] = new Player(id, new Vector2(4, 4), this);
 		Log.Write("Player " + id + " joined!");
 	}
 
@@ -52,9 +65,16 @@ public class Map
 	{
 		camera.Logic();
 		environment.Logic();
-
+		 
 		if (LocalPlayer != null) LocalPlayer.LocalInput();
 		foreach (Player p in playerList) if (p != null) p.Logic();
+		foreach (Effect e in effectBufferList) e.Logic();
+
+		if (!effectList.Equals(effectBufferList))
+		{
+			effectBufferList.Clear();
+			effectBufferList.AddRange(effectList.ToArray());
+		}
 	}
 
 	public void Draw()
@@ -62,6 +82,7 @@ public class Map
 		defaultProgram["view"].SetValue(camera.ViewMatrix);
 		environment.Draw();
 		foreach (Player p in playerList) if (p != null) p.Draw();
+		foreach (Effect e in effectList) e.Draw();
 	}
 
 	//ONLINE

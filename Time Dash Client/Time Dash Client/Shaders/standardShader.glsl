@@ -31,11 +31,16 @@ in vec2 uv;
 out vec4 fragment;
 
 void main() {
+	vec4 finalColor;
+
 	if (usingTexture) {
-		fragment = texture2D(texture, uv) * color;
+		finalColor = texture2D(texture, uv) * color;
 	} else {
-		fragment = color;
+		finalColor = color;
 	}
+
+	if (finalColor.a <= 0) discard;
+	else fragment = finalColor;
 }
 
 @-------------------

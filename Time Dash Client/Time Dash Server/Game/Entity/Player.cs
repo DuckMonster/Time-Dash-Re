@@ -5,11 +5,11 @@ using System;
 using EZUDP;
 using EZUDP.Server;
 
-public class Player : Actor
+public partial class Player : Actor
 {
 	class PlayerInput
 	{
-		bool[] inputData = new bool[3];
+		bool[] inputData = new bool[4];
 		public int Length
 		{
 			get
@@ -93,40 +93,37 @@ public class Player : Actor
 		}
 	}
 
-	public enum PlayerKey : short
-	{
-		Right,
-		Left,
-		Jump
-	}
-
 	PlayerInput inputData = new PlayerInput();
 	PlayerInput input, oldInput;
 
 	public int playerID;
 	public Client client;
 
-	public float updateTimer = 0.2f;
+	public PlayerShadow shadow;
+	float warpCooldown = 1f;
+
+	public bool CanWarp
+	{
+		get
+		{
+			return warpCooldown <= 0;
+		}
+	}
 
 	public Player(int id, Client c, Vector2 position, Map m)
 		: base(position, m)
 	{
 		playerID = id;
 		client = c;
+
+		shadow = new PlayerShadow(this);
 	}
 
-	public void ReceiveInput(Vector2 position, Vector2 velocity, byte k)
+	public override void Hit()
 	{
-		this.position = position;
-		this.velocity = velocity;
-		inputData.DecodeFlag(k);
-		SendInputToPlayer(map.playerList);
-	}
-
-	public void ReceivePosition(Vector2 position, Vector2 velocity)
-	{
-		this.position = position;
-		this.velocity = velocity;
+		base.Hit();
+		position = new Vector2(2, 9);
+		velocity = Vector2.Zero;
 		SendPositionToPlayer(map.playerList);
 	}
 
@@ -140,14 +137,8 @@ public class Player : Actor
 
 		base.Logic();
 
-		//Log.Debug(Convert.ToString(inputData.GetFlag(), 2));
-
-		updateTimer -= Game.delta;
-		if (updateTimer <= 0)
-		{
-			//SendPositionToPlayer(map.playerList);
-			updateTimer = 0.02f;
-		}
+		if (warpCooldown > 0f) warpCooldown -= 1 / shadow.bufferLength * Game.delta;
+		shadow.Logic();
 	}
 
 	public void Input()
@@ -156,76 +147,32 @@ public class Player : Actor
 		if (input[PlayerKey.Left]) currentAcceleration -= Acceleration;
 		if (IsOnGround && input[PlayerKey.Jump] && !oldInput[PlayerKey.Jump]) Jump();
 		if (input[PlayerKey.Jump]) JumpHold();
+		if (input[PlayerKey.Dash] && !oldInput[PlayerKey.Dash]) Warp();
 	}
 
-	public void SendExistanceToPlayer(params Player[] players)
+	public void Warp()
 	{
-		SendMessageToPlayer(GetExistanceMessage(), players);
-		SendPositionToPlayer(players);
-	}
+		if (!CanWarp) return;
 
-	public void SendLeaveToPlayer(params Player[] players)
-	{
-		SendMessageToPlayer(GetLeaveMessage(), players);
-	}
+		float distance = (shadow.CurrentPosition - position).Length;
 
-	public void SendInputToPlayer(params Player[] players)
-	{
-		SendMessageToPlayer(GetInputMessage(), players);
-	}
+		float velo = (float)(1 - Math.Exp(-distance / 2f)) * physics.WarpVelocity;
 
-	public void SendPositionToPlayer(params Player[] players)
-	{
-		SendMessageToPlayer(GetPositionMessage(), players);
-	}
+		int accuracy = (int)distance;
+		float step = distance / accuracy;
+		Vector2 checkpos = position, dirVector = (shadow.CurrentPosition - position).Normalized();
 
-	void SendMessageToPlayer(MessageBuffer msg, params Player[] players)
-	{
-		foreach (Player p in players) if (p != null) p.client.Send(msg);
-	}
+		for (int i = 0; i < accuracy; i++)
+		{
+			Player p = map.GetPlayerAtPos(checkpos, size, this);
+			if (p != null) p.Hit();
 
-	MessageBuffer GetExistanceMessage()
-	{
-		MessageBuffer msg = new MessageBuffer();
+			checkpos += dirVector * step;
+		}
 
-		msg.WriteShort((short)Protocol.PlayerJoin);
-		msg.WriteByte(playerID);
+		velocity = (shadow.CurrentPosition - position).Normalized() * velo;
+		position = shadow.CurrentPosition;
 
-		return msg;
-	}
-
-	MessageBuffer GetLeaveMessage()
-	{
-		MessageBuffer msg = new MessageBuffer();
-
-		msg.WriteShort((short)Protocol.PlayerLeave);
-		msg.WriteByte(playerID);
-
-		return msg;
-	}
-
-	MessageBuffer GetInputMessage()
-	{
-		MessageBuffer msg = new MessageBuffer();
-
-		msg.WriteShort((short)Protocol.PlayerInput);
-		msg.WriteByte(playerID);
-		msg.WriteVector(position);
-		msg.WriteVector(velocity);
-		msg.WriteByte(inputData.GetFlag());
-
-		return msg;
-	}
-
-	MessageBuffer GetPositionMessage()
-	{
-		MessageBuffer msg = new MessageBuffer();
-
-		msg.WriteShort((short)Protocol.PlayerPosition);
-		msg.WriteByte(playerID);
-		msg.WriteVector(position);
-		msg.WriteVector(velocity);
-
-		return msg;
+		warpCooldown = 1.5f;
 	}
 }

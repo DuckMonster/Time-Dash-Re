@@ -10,6 +10,7 @@ public class Physics
 	float jumpForce = 10f, jumpAddForce = 20f, jumpAddLimit = 2f;
 
 	float acceleration, accelerationAir, accFriction, accFrictionAir, decFriction, decFrictionAir;
+	float warpVelocity = 18f;
 
 	float GetFriction(float speed)
 	{
@@ -98,6 +99,8 @@ public class Physics
 	public float JumpForce { get { return jumpForce; } set { jumpForce = value; } }
 	public float JumpAddForce { get { return jumpAddForce; } set { jumpAddForce = value; } }
 	public float JumpAddLimit { get { return jumpAddLimit; } set { jumpAddLimit = value; } }
+
+	public float WarpVelocity { get { return warpVelocity; } set { warpVelocity = value; } }
 
 	public Physics()
 	{
