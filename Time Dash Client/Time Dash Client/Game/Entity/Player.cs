@@ -110,6 +110,8 @@ public partial class Player : Actor
 	protected PlayerShadow shadow;
 	float warpCooldown = 1f;
 
+	Timer forceWarpTimer;
+
 	public bool CanWarp
 	{
 		get
@@ -138,6 +140,7 @@ public partial class Player : Actor
 		};
 
 		shadow = new PlayerShadow(this, mesh);
+		forceWarpTimer = new Timer(1f, true);
 	}
 
 	public override void Logic()
@@ -157,6 +160,16 @@ public partial class Player : Actor
 
 		if (warpCooldown > 0f) warpCooldown -= 1 / shadow.bufferLength * Game.delta;
 		shadow.Logic();
+
+		if (shadow.warpHold)
+		{
+			forceWarpTimer.Logic();
+			if (forceWarpTimer.IsDone)
+			{
+				Warp(shadow.CurrentPosition);
+				shadow.warpHold = false;
+			}
+		}
 	}
 
 	public void Input()
@@ -165,7 +178,19 @@ public partial class Player : Actor
 		if (input[PlayerKey.Left]) currentAcceleration -= Acceleration;
 		if (IsOnGround && input[PlayerKey.Jump] && !oldInput[PlayerKey.Jump]) Jump();
 		if (input[PlayerKey.Jump]) JumpHold();
-		if (input[PlayerKey.Dash] && !oldInput[PlayerKey.Dash]) Warp();
+
+		if (input[PlayerKey.Warp] && !oldInput[PlayerKey.Warp] && CanWarp)
+		{
+			shadow.warpHold = true;
+			forceWarpTimer.Reset();
+		}
+
+		if (!input[PlayerKey.Warp] && shadow.warpHold)
+		{
+			Warp(shadow.CurrentPosition);
+			shadow.warpHold = false;
+			forceWarpTimer.IsDone = true;
+		}
 	}
 
 	public void LocalInput()
@@ -175,7 +200,7 @@ public partial class Player : Actor
 		inputData[PlayerKey.Right] = KeyboardInput.Current[Key.Right];
 		inputData[PlayerKey.Left] = KeyboardInput.Current[Key.Left];
 		inputData[PlayerKey.Jump] = KeyboardInput.Current[Key.Z];
-		inputData[PlayerKey.Dash] = KeyboardInput.Current[Key.X];
+		inputData[PlayerKey.Warp] = KeyboardInput.Current[Key.X];
 
 		for (int i = 0; i < inputData.Length; i++)
 			if (inputData[i] != oldInput[i])
@@ -190,18 +215,16 @@ public partial class Player : Actor
 		base.Jump();
 	}
 
-	public void Warp()
+	public void Warp(Vector2 target)
 	{
-		if (!CanWarp) return;
+		map.AddEffect(new EffectSpike(position, target, map));
 
-		map.AddEffect(new EffectSpike(position, shadow.CurrentPosition, map));
+		float velo = (float)(1 - Math.Exp(-(target - position).Length / 2f)) * physics.WarpVelocity;
 
-		float velo = (float)(1 - Math.Exp(-(shadow.CurrentPosition - position).Length / 2f)) * physics.WarpVelocity;
+		velocity = (target - position).Normalized() * velo;
+		position = target;
 
-		velocity = (shadow.CurrentPosition - position).Normalized() * velo;
-		position = shadow.CurrentPosition;
-
-		warpCooldown = 1.5f;
+		warpCooldown = 2f;
 
 		map.AddEffect(new EffectRing(position, 0.2f + (velo / physics.WarpVelocity) * 5f, 0.9f, map));
 	}
@@ -209,6 +232,8 @@ public partial class Player : Actor
 	public override void Draw()
 	{
 		mesh.Color = colorList[playerID];
+		mesh.FillColor = false;
+
 		mesh.Texture = textureList[tex];
 
 		mesh.Reset();
@@ -219,6 +244,15 @@ public partial class Player : Actor
 
 		mesh.Draw();
 
+		if (!forceWarpTimer.IsDone)
+		{
+			mesh.Color = new Color(1, 1, 1, forceWarpTimer.PercentageDone);
+			mesh.FillColor = true;
+
+			mesh.Draw();
+		}
+
+		/*
 		mesh.Color = new Color(1, 1, 1, 0.5f);
 
 		mesh.Reset();
@@ -227,8 +261,9 @@ public partial class Player : Actor
 		mesh.Scale(size);
 		mesh.Scale(new Vector2(-dir, 1));
 
-		//mesh.Draw();
-
-		if (CanWarp) shadow.Draw();
+		mesh.Draw();
+		*/
+ 
+		if (shadow.warpHold) shadow.Draw();
 	}
 }

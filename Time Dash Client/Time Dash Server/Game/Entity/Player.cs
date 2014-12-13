@@ -147,7 +147,7 @@ public partial class Player : Actor
 		if (input[PlayerKey.Left]) currentAcceleration -= Acceleration;
 		if (IsOnGround && input[PlayerKey.Jump] && !oldInput[PlayerKey.Jump]) Jump();
 		if (input[PlayerKey.Jump]) JumpHold();
-		if (input[PlayerKey.Dash] && !oldInput[PlayerKey.Dash]) Warp();
+		if (input[PlayerKey.Warp] && !oldInput[PlayerKey.Warp]) Warp();
 	}
 
 	public void Warp()
