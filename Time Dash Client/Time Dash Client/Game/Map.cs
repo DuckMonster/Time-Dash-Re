@@ -114,6 +114,8 @@ public class Map
 		catch (Exception e)
 		{
 			Log.Write(ConsoleColor.Red, "Packet corrupt!\n" + e.Message);
+
+			Harmless update
 		}
 	}
 }
