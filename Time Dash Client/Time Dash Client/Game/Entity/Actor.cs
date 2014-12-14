@@ -43,12 +43,14 @@ public class Actor : Entity
 		}
 	}
 
+	public virtual void Die()
+	{
+
+	}
+
 	public override void Logic()
 	{
-		velocity.X += currentAcceleration * Game.delta - velocity.X * Friction * Game.delta;
-		currentAcceleration = 0;
-
-		velocity.Y -= physics.Gravity * Game.delta;
+		DoPhysics();
 
 		if (map.GetCollision(this, new Vector2(0, velocity.Y) * Game.delta))
 			velocity.Y = 0;
@@ -61,6 +63,14 @@ public class Actor : Entity
 
 		if (velocity.X > 0) dir = 1;
 		if (velocity.X < 0) dir = -1;
+	}
+
+	public virtual void DoPhysics()
+	{
+		velocity.X += currentAcceleration * Game.delta - velocity.X * Friction * Game.delta;
+		currentAcceleration = 0;
+
+		velocity.Y -= physics.Gravity * Game.delta;
 	}
 
 	public virtual void Jump()

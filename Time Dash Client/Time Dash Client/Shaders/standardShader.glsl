@@ -25,6 +25,7 @@ void main() {
 uniform sampler2D texture;
 uniform bool usingTexture;
 uniform vec4 color;
+uniform bool fillColor;
 
 in vec2 uv;
 
@@ -37,6 +38,11 @@ void main() {
 		finalColor = texture2D(texture, uv) * color;
 	} else {
 		finalColor = color;
+	}
+
+	if (fillColor) 
+	{
+		finalColor.rgb = color.rgb;
 	}
 
 	if (finalColor.a <= 0) discard;

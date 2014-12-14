@@ -18,13 +18,14 @@ public partial class Player
 
 	public void ReceiveInput(Vector2 position, Vector2 velocity, byte k)
 	{
-		this.position = position;
-		this.velocity = velocity;
+		ReceivePosition(position, velocity);
 		inputData.DecodeFlag(k);
 	}
 
 	public void ReceivePosition(Vector2 position, Vector2 velocity)
 	{
+		serverPosition = position;
+
 		this.position = position;
 		this.velocity = velocity;
 	}

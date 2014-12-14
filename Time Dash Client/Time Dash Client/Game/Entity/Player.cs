@@ -110,11 +110,24 @@ public partial class Player : Actor
 	protected PlayerShadow shadow;
 	float warpCooldown = 1f;
 
+	float wallStick = 0f;
+	bool wallStickable = true;
+
 	public bool CanWarp
 	{
 		get
 		{
 			return warpCooldown <= 0;
+		}
+	}
+
+	public int WallTouch
+	{
+		get
+		{
+			if (map.GetCollision(this, new Vector2(-0.2f, 0f))) return -1;
+			if (map.GetCollision(this, new Vector2(0.2f, 0))) return 1;
+			return 0;
 		}
 	}
 
@@ -140,6 +153,12 @@ public partial class Player : Actor
 		shadow = new PlayerShadow(this, mesh);
 	}
 
+	public override void Die()
+	{
+		base.Die();
+		warpCooldown = 1.5f;
+	}
+
 	public override void Logic()
 	{
 		oldInput = input;
@@ -147,6 +166,13 @@ public partial class Player : Actor
 		if (oldInput == null) oldInput = input;
 
 		Input();
+
+		if (!wallStickable && WallTouch == 0) wallStickable = true;
+		if (wallStick > 0)
+		{
+			if (WallTouch == 0 || IsOnGround) wallStick = 0;
+			wallStick -= Game.delta;
+		}
 
 		base.Logic();
 
@@ -159,11 +185,47 @@ public partial class Player : Actor
 		shadow.Logic();
 	}
 
+	public override void DoPhysics()
+	{
+		if (!IsOnGround &&
+			Math.Abs(velocity.X) > physics.MaxVelocity &&
+			((velocity.X > 0 && input[PlayerKey.Right]) ||
+			(velocity.X < 0 && input[PlayerKey.Left])))
+			Log.Debug("GOTTA GO FAST!");
+		else
+			velocity.X += currentAcceleration * Game.delta - velocity.X * Friction * Game.delta;
+
+		currentAcceleration = 0;
+		velocity.Y -= physics.Gravity * Game.delta;
+	}
+
 	public void Input()
 	{
-		if (input[PlayerKey.Right]) currentAcceleration += Acceleration;
-		if (input[PlayerKey.Left]) currentAcceleration -= Acceleration;
-		if (IsOnGround && input[PlayerKey.Jump] && !oldInput[PlayerKey.Jump]) Jump();
+		if (input[PlayerKey.Right])
+		{
+			if (wallStickable && WallTouch == -1)
+			{
+				wallStick = 0.3f;
+				wallStickable = false;
+			}
+			if (wallStick <= 0) currentAcceleration += Acceleration;
+		}
+
+		if (input[PlayerKey.Left])
+		{
+			if (wallStickable && WallTouch == 1)
+			{
+				wallStick = 0.3f;
+				wallStickable = false;
+			}
+			if (wallStick <= 0) currentAcceleration -= Acceleration;
+		}
+
+		if (input[PlayerKey.Jump] && !oldInput[PlayerKey.Jump])
+		{
+			if (IsOnGround) Jump();
+			else if (WallTouch != 0) WallJump();
+		}
 		if (input[PlayerKey.Jump]) JumpHold();
 		if (input[PlayerKey.Dash] && !oldInput[PlayerKey.Dash]) Warp();
 	}
@@ -190,6 +252,15 @@ public partial class Player : Actor
 		base.Jump();
 	}
 
+	public void WallJump()
+	{
+		Vector2 velo = physics.WallJumpVector;
+
+		velocity = new Vector2(velo.X * -WallTouch, velo.Y);
+
+		wallStick = 0f;
+	}
+
 	public void Warp()
 	{
 		if (!CanWarp) return;
@@ -209,6 +280,8 @@ public partial class Player : Actor
 	public override void Draw()
 	{
 		mesh.Color = colorList[playerID];
+		mesh.FillColor = false;
+
 		mesh.Texture = textureList[tex];
 
 		mesh.Reset();
@@ -219,7 +292,9 @@ public partial class Player : Actor
 
 		mesh.Draw();
 
-		mesh.Color = new Color(1, 1, 1, 0.5f);
+		/*
+		mesh.Color = new Color(0, 0, 1, 0.5f);
+		mesh.FillColor = true;
 
 		mesh.Reset();
 
@@ -227,8 +302,9 @@ public partial class Player : Actor
 		mesh.Scale(size);
 		mesh.Scale(new Vector2(-dir, 1));
 
-		//mesh.Draw();
+		mesh.Draw();
+		*/
 
-		if (CanWarp) shadow.Draw();
+		if (CanWarp && IsLocalPlayer) shadow.Draw();
 	}
 }
