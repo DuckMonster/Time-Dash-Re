@@ -102,13 +102,27 @@ public partial class Player : Actor
 	protected PlayerShadow shadow;
 	float warpCooldown = 1f;
 
+
 	Timer forceWarpTimer = new Timer(1.4f, true);
+
+	float wallStick = 0f;
+	bool wallStickable = true;
 
 	public bool CanWarp
 	{
 		get
 		{
 			return warpCooldown <= 0;
+		}
+	}
+
+	public int WallTouch
+	{
+		get
+		{
+			if (map.GetCollision(this, new Vector2(-0.3f, 0f))) return -1;
+			if (map.GetCollision(this, new Vector2(0.3f, 0))) return 1;
+			return 0;
 		}
 	}
 
@@ -122,9 +136,13 @@ public partial class Player : Actor
 	public override void Hit()
 	{
 		base.Hit();
-		position = new Vector2(2, 9);
+		position = new Vector2(4, 30);
 		velocity = Vector2.Zero;
+
+		warpCooldown = 1.5f;
+
 		SendPositionToPlayer(map.playerList);
+		SendDieToPlayer(map.playerList);
 	}
 
 	public override void Logic()
@@ -134,6 +152,13 @@ public partial class Player : Actor
 		if (oldInput == null) oldInput = input;
 
 		Input();
+
+		if (!wallStickable && WallTouch == 0) wallStickable = true;
+		if (wallStick > 0)
+		{
+			if (WallTouch == 0 || IsOnGround) wallStick = 0;
+			wallStick -= Game.delta;
+		}
 
 		base.Logic();
 
@@ -149,11 +174,47 @@ public partial class Player : Actor
 		}
 	}
 
+	public override void DoPhysics()
+	{
+		if (!IsOnGround &&
+			Math.Abs(velocity.X) > physics.MaxVelocity &&
+			((velocity.X > 0 && input[PlayerKey.Right]) ||
+			(velocity.X < 0 && input[PlayerKey.Left])))
+			Log.Debug("GOTTA GO FAST!");
+		else
+			velocity.X += currentAcceleration * Game.delta - velocity.X * Friction * Game.delta;
+
+		currentAcceleration = 0;
+		velocity.Y -= physics.Gravity * Game.delta;
+	}
+
 	public void Input()
 	{
-		if (input[PlayerKey.Right]) currentAcceleration += Acceleration;
-		if (input[PlayerKey.Left]) currentAcceleration -= Acceleration;
-		if (IsOnGround && input[PlayerKey.Jump] && !oldInput[PlayerKey.Jump]) Jump();
+		if (input[PlayerKey.Right])
+		{
+			if (wallStickable && WallTouch == -1)
+			{
+				wallStick = 0.3f;
+				wallStickable = false;
+			}
+			if (wallStick <= 0) currentAcceleration += Acceleration;
+		}
+
+		if (input[PlayerKey.Left])
+		{
+			if (wallStickable && WallTouch == 1)
+			{
+				wallStick = 0.3f;
+				wallStickable = false;
+			}
+			if (wallStick <= 0) currentAcceleration -= Acceleration;
+		}
+
+		if (input[PlayerKey.Jump] && !oldInput[PlayerKey.Jump])
+		{
+			if (IsOnGround) Jump();
+			else if (WallTouch != 0) WallJump();
+		}
 		if (input[PlayerKey.Jump]) JumpHold();
 
 		if (input[PlayerKey.Warp] && !oldInput[PlayerKey.Warp])
@@ -172,6 +233,15 @@ public partial class Player : Actor
 		}
 	}
 
+	public void WallJump()
+	{
+		Vector2 velo = physics.WallJumpVector;
+
+		velocity = new Vector2(velo.X * -WallTouch, velo.Y);
+
+		wallStick = 0f;
+	}
+
 	public void Warp(Vector2 target)
 	{
 		float velo = (float)(1 - Math.Exp(-(target - position).Length / 2f)) * physics.WarpVelocity;
@@ -181,6 +251,8 @@ public partial class Player : Actor
 		int accuracy = (int)(distance * 6);
 		float step = distance / accuracy;
 		Vector2 checkpos = position, dirVector = (target - position).Normalized();
+
+		Log.Write("Raytracing with accuracy " + accuracy);
 
 		Log.Write("Raytracing with accuracy " + accuracy);
 

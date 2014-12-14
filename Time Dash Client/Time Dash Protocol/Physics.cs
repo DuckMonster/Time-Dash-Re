@@ -1,4 +1,6 @@
 ﻿using System;
+using OpenTK;
+using TKTools;
 
 public class Physics
 {
@@ -11,6 +13,8 @@ public class Physics
 
 	float acceleration, accelerationAir, accFriction, accFrictionAir, decFriction, decFrictionAir;
 	float warpVelocity = 18f;
+
+	float wallJumpVelocity = 14f, wallJumpAngle = 50f;
 
 	float GetFriction(float speed)
 	{
@@ -101,6 +105,16 @@ public class Physics
 	public float JumpAddLimit { get { return jumpAddLimit; } set { jumpAddLimit = value; } }
 
 	public float WarpVelocity { get { return warpVelocity; } set { warpVelocity = value; } }
+
+	public float WallJumpVelocity { get { return wallJumpVelocity; } set { wallJumpVelocity = value; } }
+	public float WallJumpAngle { get { return wallJumpAngle; } set { wallJumpAngle = value; } }
+	public Vector2 WallJumpVector
+	{
+		get
+		{
+			return TKMath.GetAngleVector(WallJumpAngle) * WallJumpVelocity;
+		}
+	}
 
 	public Physics()
 	{

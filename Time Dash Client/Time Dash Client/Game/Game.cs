@@ -67,6 +67,7 @@ public class Game
 
 		tickWatch.Stop();
 		delta = tickWatch.ElapsedTicks / (float)Stopwatch.Frequency;
+		if (delta > 0.2f) delta = 0;
 		tickWatch.Restart();
 
 		Log.CalculateTick(delta);

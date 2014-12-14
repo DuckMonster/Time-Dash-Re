@@ -39,6 +39,11 @@ public partial class Player : Actor
 		SendMessageToPlayer(GetPositionMessage(), false, players);
 	}
 
+	public void SendDieToPlayer(params Player[] players)
+	{
+		SendMessageToPlayer(GetDieMessage(), false, players);
+	}
+
 	void SendMessageToPlayer(MessageBuffer msg, bool excludeSelf, params Player[] players)
 	{
 		foreach (Player p in players) if (p != null && !(excludeSelf && p == this)) p.client.Send(msg);
@@ -85,6 +90,16 @@ public partial class Player : Actor
 		msg.WriteByte(playerID);
 		msg.WriteVector(position);
 		msg.WriteVector(velocity);
+
+		return msg;
+	}
+
+	MessageBuffer GetDieMessage()
+	{
+		MessageBuffer msg = new MessageBuffer();
+
+		msg.WriteShort((short)Protocol.PlayerDie);
+		msg.WriteByte(playerID);
 
 		return msg;
 	}

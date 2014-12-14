@@ -39,7 +39,7 @@ public class Map
 	public void PlayerJoin(Client c)
 	{
 		int id = GetFreePlayerSlot();
-		if (id != -1) playerList[id] = new Player(id, c, new Vector2(4, 4), this);
+		if (id != -1) playerList[id] = new Player(id, c, new Vector2(10, 30), this);
 
 		MessageBuffer msg = new MessageBuffer();
 		msg.WriteShort((short)Protocol.EnterMap);

@@ -36,7 +36,7 @@ public class Map
 
 	public void PlayerJoin(int id)
 	{
-		playerList[id] = new Player(id, new Vector2(4, 4), this);
+		playerList[id] = new Player(id, new Vector2(4, 10), this);
 		Log.Write("Player " + id + " joined!");
 	}
 
@@ -106,6 +106,10 @@ public class Map
 
 				case Protocol.PlayerPosition:
 					playerList[msg.ReadByte()].ReceivePosition(msg.ReadVector2(), msg.ReadVector2());
+					break;
+
+				case Protocol.PlayerDie:
+					playerList[msg.ReadByte()].Die();
 					break;
 			}
 

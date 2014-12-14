@@ -53,6 +53,7 @@ public class EffectSpike : Effect
 		mesh.Scale(new Vector2(lenVector.Length, w));
 		mesh.Translate(0.5f, 0);
 
+
 		mesh.Draw();
 	}
 }
