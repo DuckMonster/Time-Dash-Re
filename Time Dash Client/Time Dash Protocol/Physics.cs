@@ -16,6 +16,8 @@ public class Physics
 
 	float wallJumpVelocity = 14f, wallJumpAngle = 50f;
 
+	float dashVelocity = 15f, dashLength = 3.5f;
+
 	float GetFriction(float speed)
 	{
 		return -(float)(Math.Log(0.02, Math.E) / speed);
@@ -108,6 +110,7 @@ public class Physics
 
 	public float WallJumpVelocity { get { return wallJumpVelocity; } set { wallJumpVelocity = value; } }
 	public float WallJumpAngle { get { return wallJumpAngle; } set { wallJumpAngle = value; } }
+
 	public Vector2 WallJumpVector
 	{
 		get
@@ -115,6 +118,9 @@ public class Physics
 			return TKMath.GetAngleVector(WallJumpAngle) * WallJumpVelocity;
 		}
 	}
+
+	public float DashVelocity { get { return dashVelocity; } set { dashVelocity = value; } }
+	public float DashLength { get { return dashLength; } set { dashLength = value; } }
 
 	public Physics()
 	{

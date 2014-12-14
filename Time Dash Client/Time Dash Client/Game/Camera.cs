@@ -28,7 +28,7 @@ class Camera
 			Vector2 difference = p.position - position.Xy;
 			position.Xy += difference * 4f * Game.delta;
 
-			float targetZ = 5f + difference.Length + 0.6f,
+			float targetZ = 10f + difference.Length + 0.6f,
 				ZDifference = targetZ - position.Z;
 			position.Z += ZDifference * 0.8f * Game.delta;
 		}

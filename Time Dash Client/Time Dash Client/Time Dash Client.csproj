@@ -60,6 +60,7 @@
     <Compile Include="Game\Camera.cs" />
     <Compile Include="Game\Effects\Effect.cs" />
     <Compile Include="Game\Effects\EffectRing.cs" />
+    <Compile Include="Game\Effects\EffectSkull.cs" />
     <Compile Include="Game\Effects\EffectSpike.cs" />
     <Compile Include="Game\Entity\Actor.cs" />
     <Compile Include="Game\Entity\Entity.cs" />
@@ -104,6 +105,7 @@
     <Content Include="Res\map.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="Res\skull.png" />
     <Content Include="Res\test2.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

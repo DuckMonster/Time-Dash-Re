@@ -72,7 +72,7 @@ public class Actor : Entity
 		velocity.Y -= physics.Gravity * Game.delta;
 	}
 
-	public void Jump()
+	public virtual void Jump()
 	{
 		velocity.Y = physics.JumpForce;
 	}

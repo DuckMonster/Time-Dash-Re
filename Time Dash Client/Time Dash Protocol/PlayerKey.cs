@@ -3,5 +3,6 @@
 	Right,
 	Left,
 	Jump,
-	Dash
+	Dash,
+	Parry
 }
