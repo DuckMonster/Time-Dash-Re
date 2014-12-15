@@ -12,11 +12,10 @@ public class Physics
 	float jumpForce = 10f, jumpAddForce = 20f, jumpAddLimit = 2f;
 
 	float acceleration, accelerationAir, accFriction, accFrictionAir, decFriction, decFrictionAir;
-	float warpVelocity = 18f;
+	float warpVelocity = 250f, warpEndVelocity = 18f;
 
 	float wallJumpVelocity = 14f, wallJumpAngle = 50f;
-
-	float dashVelocity = 15f, dashLength = 3.5f;
+	float dashVelocity = 250f, dashEndVelocity = 18f, dashLength = 3.5f;
 
 	float GetFriction(float speed)
 	{
@@ -107,6 +106,7 @@ public class Physics
 	public float JumpAddLimit { get { return jumpAddLimit; } set { jumpAddLimit = value; } }
 
 	public float WarpVelocity { get { return warpVelocity; } set { warpVelocity = value; } }
+	public float WarpEndVelocity { get { return warpEndVelocity; } set { warpEndVelocity = value; } }
 
 	public float WallJumpVelocity { get { return wallJumpVelocity; } set { wallJumpVelocity = value; } }
 	public float WallJumpAngle { get { return wallJumpAngle; } set { wallJumpAngle = value; } }
@@ -120,6 +120,7 @@ public class Physics
 	}
 
 	public float DashVelocity { get { return dashVelocity; } set { dashVelocity = value; } }
+	public float DashEndVelocity { get { return dashEndVelocity; } set { dashEndVelocity = value; } }
 	public float DashLength { get { return dashLength; } set { dashLength = value; } }
 
 	public Physics()

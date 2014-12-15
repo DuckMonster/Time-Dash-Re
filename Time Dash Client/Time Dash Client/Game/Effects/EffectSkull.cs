@@ -23,7 +23,7 @@ public class EffectSkull : Effect
 		mesh.Translate(position);
 
 		Random rng = new Random();
-		rotation = (float)(rng.NextDouble() * 2 - 1) * 0.8f;
+		rotation = (float)(rng.NextDouble() * 2 - 1) * 30f;
 
 		mesh.Rotate(rotation);
 		mesh.Scale(2f);
@@ -43,6 +43,8 @@ public class EffectSkull : Effect
 			return;
 		}
 
+		mesh.Translate(0, 1f * Game.delta);
+
 		effectTimer.Logic();
 	}
 
@@ -50,7 +52,7 @@ public class EffectSkull : Effect
 	{
 		if (effectTimer.IsDone) return;
 
-		mesh.Color = new Color(0.8f, 0.8f, 0.8f, 1 - effectTimer.PercentageDone);
+		mesh.Color = new Color(0f, 0f, 0f, 1 - effectTimer.PercentageDone);
 		mesh.Draw();
 	}
 }

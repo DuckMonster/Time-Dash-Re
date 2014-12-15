@@ -12,11 +12,21 @@ class Program
 
 	public static void Main(string[] args)
 	{
-		Console.Write("Host locally? ");
-		char k = Console.ReadKey().KeyChar;
+		bool valid = false;
 
-		if (k == 'y') Game.hostIP = "127.0.0.1";
-		else Game.hostIP = null;
+		while (!valid)
+		{
+			Console.Write("Host locally? ");
+			char answer = Console.ReadKey().KeyChar;
+
+			if (answer == 'y') { Game.hostIP = "127.0.0.1"; valid = true; }
+			else if (answer == 'n') { valid = true; }
+			else
+			{
+				Console.Clear();
+				Console.WriteLine("y/n only!");
+			}
+		}
 
 		game = new Game();
 

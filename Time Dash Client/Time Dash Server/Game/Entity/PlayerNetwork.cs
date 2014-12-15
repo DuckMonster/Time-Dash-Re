@@ -100,6 +100,7 @@ public partial class Player : Actor
 
 		msg.WriteShort((short)Protocol.PlayerDie);
 		msg.WriteByte(playerID);
+		msg.WriteVector(position);
 
 		return msg;
 	}

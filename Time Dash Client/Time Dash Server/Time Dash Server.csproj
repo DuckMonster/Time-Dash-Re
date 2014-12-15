@@ -44,6 +44,10 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Reference Include="TKTools, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\C#\TKTools\TKTools\bin\Debug\TKTools.dll</HintPath>
+    </Reference>
     <Reference Include="UDPEngine">
       <HintPath>..\..\..\C#\UDPEngine\UDPEngine\bin\Debug\UDPEngine.dll</HintPath>
     </Reference>

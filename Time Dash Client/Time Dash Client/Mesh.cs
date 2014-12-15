@@ -180,6 +180,7 @@ public class Mesh : IDisposable
 	}
 
 	public void Scale(float s) { Scale(new Vector2(s, s)); }
+	public void Scale(float x, float y) { Scale(new Vector2(x, y)); }
 	public void Scale(Vector2 s)
 	{
 		CALCULATIONS++;
@@ -189,6 +190,8 @@ public class Mesh : IDisposable
 	public void Rotate(float a)
 	{
 		CALCULATIONS++;
+
+		a = TKTools.TKMath.ToRadians(a);
 		modelMatrix = Matrix4.CreateRotationZ(a) * modelMatrix;
 	}
 

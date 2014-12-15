@@ -8,7 +8,7 @@ public class PlayerShadow
 	Player player;
 	Mesh mesh;
 
-	public float updateRate = 0.01f, updateTimer = 0f, bufferLength = 0.8f;
+	public float updateRate = 0.01f, updateTimer = 0f, bufferLength = 0.5f;
 
 	Vector2[] positionBuffer;
 	int positionBufferIndex = 0;

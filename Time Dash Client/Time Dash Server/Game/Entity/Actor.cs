@@ -44,7 +44,6 @@ public class Actor : Entity
 
 	public virtual void Hit()
 	{
-		Log.Write("OUCH!");
 	}
 
 	public override void Logic()

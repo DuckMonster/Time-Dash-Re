@@ -61,6 +61,68 @@ public class Map
 		return environment.GetCollision(pos, size);
 	}
 
+	public Player GetPlayerAtPos(Vector2 pos, Vector2 size, params Player[] exclude)
+	{
+		List<Player> excludeList = new List<Player>();
+		excludeList.AddRange(exclude);
+
+		foreach (Player p in playerList) if (!excludeList.Contains(p) && p != null && p.CollidesWith(pos, size)) return p;
+		return null;
+	}
+
+	public bool RayTraceCollision(Vector2 start, Vector2 end, Vector2 size, out Vector2 freepos)
+	{
+		Vector2 diffVector = end - start, directionVector = diffVector.Normalized();
+
+		int accuracy = 1 + (int)(diffVector.Length * 6);
+		float step = diffVector.Length / accuracy;
+		Vector2 checkpos = start;
+
+		for (int i = 0; i < accuracy; i++)
+		{
+			Vector2 buffer = checkpos;
+			buffer += directionVector * step;
+
+			if (GetCollision(buffer, size))
+			{
+				freepos = checkpos;
+				return true;
+			}
+
+			checkpos = buffer;
+		}
+
+		freepos = end;
+		return false;
+	}
+
+	public List<Player> RayTrace(Vector2 start, Vector2 end, Vector2 size, params Player[] exclude)
+	{
+		List<Player> excludeList = new List<Player>();
+		excludeList.AddRange(exclude);
+		List<Player> returnList = new List<Player>();
+
+		Vector2 diffVector = end - start, directionVector = diffVector.Normalized();
+
+		int accuracy = (int)(diffVector.Length * 6);
+		float step = diffVector.Length / accuracy;
+		Vector2 checkpos = start;
+
+		for (int i = 0; i < accuracy; i++)
+		{
+			Player p = GetPlayerAtPos(checkpos, size, excludeList.ToArray());
+			if (p != null && !returnList.Contains(p))
+			{
+				returnList.Add(p);
+				excludeList.Add(p);
+			}
+
+			checkpos += directionVector * step;
+		}
+
+		return returnList;
+	}
+
 	public void Logic()
 	{
 		camera.Logic();
@@ -109,7 +171,7 @@ public class Map
 					break;
 
 				case Protocol.PlayerDie:
-					playerList[msg.ReadByte()].Die();
+					playerList[msg.ReadByte()].Die(msg.ReadVector2());
 					break;
 			}
 

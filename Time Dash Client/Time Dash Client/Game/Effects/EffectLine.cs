@@ -5,14 +5,14 @@ using OpenTK.Graphics.OpenGL;
 
 using TKTools;
 
-public class EffectSpike : Effect
+public class EffectLine : Effect
 {
 	Timer effectTimer;
 	Mesh mesh;
 
 	Vector2 origin, target;
 
-	public EffectSpike(Vector2 pos1, Vector2 pos2, float width, float duration, Map m)
+	public EffectLine(Vector2 pos1, Vector2 pos2, float startWidth, float endWidth, float duration, Map m)
 		: base(m)
 	{
 		origin = pos1;
@@ -20,10 +20,10 @@ public class EffectSpike : Effect
 
 		mesh = new Mesh(PrimitiveType.TriangleStrip);
 		mesh.Vertices = new Vector2[] {
-			new Vector2(-0.5f, 0f),
-			new Vector2(-0.2f, 0.5f * width),
-			new Vector2(-0.2f, -0.5f * width),
-			new Vector2(0.5f, 0f)
+			new Vector2(-0.5f, -0.5f * startWidth),
+			new Vector2(-0.5f, 0.5f * startWidth),
+			new Vector2(0.5f, -0.5f * endWidth),
+			new Vector2(0.5f, 0.5f * endWidth)
 		};
 
 		effectTimer = new Timer(duration, false);
@@ -52,7 +52,6 @@ public class EffectSpike : Effect
 		mesh.Rotate(TKMath.GetAngle(lenVector));
 		mesh.Scale(new Vector2(lenVector.Length, w));
 		mesh.Translate(0.5f, 0);
-
 
 		mesh.Draw();
 	}

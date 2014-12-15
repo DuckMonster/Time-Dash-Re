@@ -26,8 +26,11 @@ public partial class Player
 	{
 		serverPosition = position;
 
-		this.position = position;
-		this.velocity = velocity;
+		if (!IsLocalPlayer)
+		{
+			this.position = position;
+			this.velocity = velocity;
+		}
 	}
 
 	public void SendInput()
