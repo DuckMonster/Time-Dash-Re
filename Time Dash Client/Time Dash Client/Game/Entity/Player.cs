@@ -66,8 +66,9 @@ public partial class Player : Actor
 	WarpTarget warpTarget = null;
 	DashTarget dashTarget = null;
 
-	Timer warpCooldown = new Timer(1.2f, false);
-	Timer dashCooldown = new Timer(0.4f, true);
+	Timer warpCooldown;
+	Timer dashCooldown;
+	Timer disableTimer;
 
 	float dashInterval = 0.2f;
 	float dashIntervalTimer = 0;
@@ -96,7 +97,6 @@ public partial class Player : Actor
 			if (value) wallStick = -1;
 		}
 	}
-
 	public bool IsWarping
 	{
 		get
@@ -104,7 +104,6 @@ public partial class Player : Actor
 			return warpTarget != null;
 		}
 	}
-
 	public bool IsDashing
 	{
 		get
@@ -112,12 +111,23 @@ public partial class Player : Actor
 			return dashTarget != null;
 		}
 	}
-
 	public bool IgnoresGravity
 	{
 		get
 		{
 			return gravityIgnore > 0;
+		}
+	}
+	public bool Disabled
+	{
+		get
+		{
+			return !disableTimer.IsDone;
+		}
+		set
+		{
+			if (!value) disableTimer.IsDone = true;
+			else disableTimer.Reset();
 		}
 	}
 
@@ -141,6 +151,10 @@ public partial class Player : Actor
 		};
 
 		shadow = new PlayerShadow(this, mesh);
+
+		warpCooldown = new Timer(stats.WarpCooldown, false);
+		dashCooldown = new Timer(stats.DashCooldown, true);
+		disableTimer = new Timer(stats.DisableTime, true);
 	}
 
 	public void Die(Vector2 diePos)
@@ -155,6 +169,7 @@ public partial class Player : Actor
 	{
 		warpCooldown.Logic();
 		dashCooldown.Logic();
+		disableTimer.Logic();
 
 		oldInput = input;
 		input = new PlayerInput(inputData);
@@ -203,7 +218,7 @@ public partial class Player : Actor
 
 	public override void DoPhysics()
 	{
-		bool aboveMaxSpeed = Math.Abs(velocity.X) > physics.MaxVelocity &&
+		bool aboveMaxSpeed = Math.Abs(velocity.X) > stats.MaxVelocity &&
 			((velocity.X > 0 && input[PlayerKey.Right]) ||
 			(velocity.X < 0 && input[PlayerKey.Left]));
 
@@ -224,7 +239,7 @@ public partial class Player : Actor
 		}
 
 		currentAcceleration = 0;
-		if (!IgnoresGravity) velocity.Y -= physics.Gravity * Game.delta;
+		if (!IgnoresGravity) velocity.Y -= stats.Gravity * Game.delta;
 	}
 
 	public void Input()
@@ -236,55 +251,54 @@ public partial class Player : Actor
 		if (input[PlayerKey.Up]) inputDirection.Y++;
 		if (input[PlayerKey.Down]) inputDirection.Y--;
 
-		if (inputDirection.X != 0)
+		if (IsLocalPlayer)
 		{
-			if (inputDirection.X != lastDirection.X) dashIntervalTimer = 0;
-
-			if (inputDirection.X != oldInputDirection.X)
+			//Dashing hori
+			if (inputDirection.X != 0)
 			{
-				if (dashIntervalTimer > 0 && dashCooldown.IsDone)
+				if (inputDirection.X != lastDirection.X) dashIntervalTimer = 0;
+
+				if (inputDirection.X != oldInputDirection.X)
 				{
-					Dash((int)inputDirection.X);
-				}
-				else
-				{
-					dashIntervalTimer = dashInterval;
+					if (dashIntervalTimer > 0 && dashCooldown.IsDone)
+						Dash((int)inputDirection.X);
+					else
+						dashIntervalTimer = dashInterval;
+
+					lastDirection.X = inputDirection.X;
 				}
 			}
-			if (WallStickable && WallTouch == -inputDirection.X)
-			{
-				wallStick = 0.3f;
-			}
-			if (wallStick <= 0) currentAcceleration += Acceleration * inputDirection.X;
 
-			lastDirection.X = inputDirection.X;
+			//Dashing vert
+			if (inputDirection.Y != 0)
+			{
+				if (inputDirection.Y != oldInputDirection.Y)
+				{
+					if (dashIntervalTimer > 0 && dashCooldown.IsDone)
+						DashVertical((int)inputDirection.Y);
+					else
+						dashIntervalTimer = dashInterval;
+
+					lastDirection.Y = inputDirection.Y;
+				}
+			}
+
+			//Warp
+			if (input[PlayerKey.Warp] && !oldInput[PlayerKey.Warp] && warpCooldown.IsDone)
+			{
+				Warp(shadow.CurrentPosition);
+			}
 		}
 
-		if (inputDirection.Y != 0)
+		if (inputDirection.X != 0)
 		{
-			if (inputDirection.Y != lastDirection.Y) dashIntervalTimer = 0;
+			if (WallStickable && WallTouch == -inputDirection.X)
+				wallStick = 0.3f;
 
-			if (inputDirection.Y != oldInputDirection.Y)
-			{
-				if (dashIntervalTimer > 0 && dashCooldown.IsDone)
-				{
-					DashVertical((int)inputDirection.Y);
-				}
-				else
-				{
-					dashIntervalTimer = dashInterval;
-				}
-			}
-
-			lastDirection.Y = inputDirection.Y;
+			if (wallStick <= 0) currentAcceleration += Acceleration * inputDirection.X;
 		}
 
 		oldInputDirection = inputDirection;
-
-		if (input[PlayerKey.Warp] && !oldInput[PlayerKey.Warp] && warpCooldown.IsDone)
-		{
-			Warp(shadow.CurrentPosition);
-		}
 
 		if (input[PlayerKey.Jump] && !oldInput[PlayerKey.Jump])
 		{
@@ -296,6 +310,7 @@ public partial class Player : Actor
 				canDoublejump = false;
 			}
 		}
+
 		if (input[PlayerKey.Jump]) JumpHold();
 	}
 
@@ -316,140 +331,6 @@ public partial class Player : Actor
 				SendInput();
 				break;
 			}
-	}
-
-	public override void Jump()
-	{
-		base.Jump();
-	}
-
-	public void WallJump()
-	{
-		Vector2 velo = physics.WallJumpVector;
-
-		velocity = new Vector2(velo.X * -WallTouch, velo.Y);
-
-		wallStick = 0f;
-
-		canDoublejump = true;
-	}
-
-	public void Dash(int dir)
-	{
-		dashTarget = new DashTarget(position, position + new Vector2(physics.DashLength * dir, 0));
-		dashCooldown.Reset();
-
-		if (!IsOnGround) gravityIgnore = dashGravityIgnoreTime;
-	}
-
-	public void DashVertical(int dir)
-	{
-		dashTarget = new DashTarget(position, position + new Vector2(0, physics.DashLength * dir));
-		dashCooldown.Reset();
-	}
-
-	public void DashStep()
-	{
-		Vector2 diffVector = dashTarget.endPosition - position;
-		Vector2 directionVector = diffVector.Normalized();
-
-		float factor = TKMath.Exp(Math.Max(0, 0.4f - dashTarget.distance), 1.5f, 30);
-
-		Vector2 diffStepVector = directionVector * physics.DashVelocity* factor;
-
-		if (diffStepVector.Length * Game.delta < diffVector.Length)
-		{
-			Vector2 collisionVec;
-			bool collision = map.RayTraceCollision(position, position + diffStepVector * Game.delta, size, out collisionVec);
-
-			map.AddEffect(new EffectLine(position, collisionVec,
-				dashTarget.lastStep / physics.WarpVelocity, diffStepVector.Length / physics.WarpVelocity, 0.2f, map));
-			position = collisionVec;
-
-			dashTarget.distance += Game.delta;
-			dashTarget.lastStep = diffStepVector.Length;
-
-			if (collision)
-				DashEnd();
-		}
-		else
-		{
-			DashEnd();
-		}
-	}
-
-	public void DashEnd()
-	{
-		map.AddEffect(new EffectSpike(dashTarget.startPosition, position, 1f, 0.8f, map));
-		map.AddEffect(new EffectRing(position, 4f, 1f, map));
-
-		velocity = (dashTarget.endPosition - dashTarget.startPosition).Normalized() * physics.DashEndVelocity;
-
-		dashTarget = null;
-	}
-
-	public void Warp(Vector2 target)
-	{
-		warpTarget = new WarpTarget(position, target);
-		warpCooldown.Reset();
-	}
-
-	public void WarpStep()
-	{
-		Vector2 diffVector = warpTarget.endPosition - position;
-		Vector2 directionVector = diffVector.Normalized();
-
-		float factor = TKMath.Exp(Math.Max(0, 0.4f - warpTarget.distance), 2f, 20);
-
-		Vector2 diffStepVector = directionVector * physics.WarpVelocity * factor;
-
-		if (diffStepVector.Length * Game.delta < diffVector.Length)
-		{
-			List<Player> playerList = map.RayTrace(position, position + diffStepVector * Game.delta, size, this);
-			foreach (Player p in playerList)
-			{
-				if (p.IsWarping)
-				{
-					WarpEnd(p);
-					p.WarpEnd(this);
-				}
-			}
-
-			if (warpTarget == null) return;
-
-			map.AddEffect(new EffectLine(position, position + diffStepVector * Game.delta,
-				warpTarget.lastStep / physics.WarpVelocity, diffStepVector.Length / physics.WarpVelocity, 0.2f, map));
-			position += diffStepVector * Game.delta;
-
-			warpTarget.distance += Game.delta;
-
-			warpTarget.lastStep = diffStepVector.Length;
-		}
-		else
-		{
-			WarpEnd();
-		}
-	}
-
-	public void WarpEnd()
-	{
-		WarpEnd(warpTarget.startPosition, warpTarget.endPosition, (warpTarget.endPosition - warpTarget.startPosition).Normalized() * physics.WarpEndVelocity);
-	}
-
-	public void WarpEnd(Player p)
-	{
-		WarpEnd(warpTarget.startPosition, p.position, (position - p.position).Normalized() * physics.WarpEndVelocity);
-	}
-
-	public void WarpEnd(Vector2 start, Vector2 end, Vector2 velo)
-	{
-		position = end;
-		map.AddEffect(new EffectSpike(start, end, 1f, 0.8f, map));
-		map.AddEffect(new EffectRing(end, 4f, 1f, map));
-
-		velocity = velo;
-
-		warpTarget = null;
 	}
 
 	public override void Draw()
@@ -490,8 +371,17 @@ public partial class Player : Actor
 			mesh.Draw();
 		}
 
+		if (Disabled)
+		{
+			mesh.Color = new Color(0.3f, 0.3f, 1f, 1 - disableTimer.PercentageDone);
+			mesh.FillColor = true;
+
+			mesh.Draw();
+		}
 		
-		mesh.Color = new Color(0, 0, 1, 0.5f);
+		/*
+
+		mesh.Color = new Color(0, 1, 0, 0.5f);
 		mesh.FillColor = true;
 
 		mesh.Reset();
@@ -501,8 +391,8 @@ public partial class Player : Actor
 		mesh.Scale(new Vector2(-dir, 1));
 
 		mesh.Draw();
-		
+		*/
 
-		if (IsLocalPlayer && (warpCooldown.IsDone || IsWarping)) shadow.Draw();
+		if (IsLocalPlayer && (warpCooldown.IsDone || IsWarping) && !Disabled) shadow.Draw();
 	}
 }

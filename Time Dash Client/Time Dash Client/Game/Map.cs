@@ -173,6 +173,18 @@ public class Map
 				case Protocol.PlayerDie:
 					playerList[msg.ReadByte()].Die(msg.ReadVector2());
 					break;
+
+				case Protocol.PlayerDisable:
+					playerList[msg.ReadByte()].Disabled = true;
+					break;
+
+				case Protocol.PlayerDash:
+					playerList[msg.ReadByte()].ReceiveDash(msg.ReadVector2(), msg.ReadVector2());
+					break;
+
+				case Protocol.PlayerWarp:
+					playerList[msg.ReadByte()].ReceiveWarp(msg.ReadVector2(), msg.ReadVector2());
+					break;
 			}
 
 			msg.Reset();

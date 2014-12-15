@@ -8,7 +8,8 @@ enum LogMode
 {
 	Debug,
 	Message,
-	Netural
+	Netural,
+	Command
 }
 
 class Log
@@ -211,5 +212,10 @@ class Log
 
 			Thread.Sleep(50);
 		}
+	}
+
+	static void CommandThread()
+	{
+
 	}
 }

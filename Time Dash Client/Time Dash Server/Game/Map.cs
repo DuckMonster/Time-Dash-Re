@@ -173,6 +173,14 @@ public class Map
 					case Protocol.PlayerPosition:
 						p.ReceivePosition(msg.ReadVector2(), msg.ReadVector2());
 						break;
+
+					case Protocol.PlayerDash:
+						p.ReceiveDash(msg.ReadVector2(), msg.ReadVector2());
+						break;
+
+					case Protocol.PlayerWarp:
+						p.ReceiveWarp(msg.ReadVector2(), msg.ReadVector2());
+						break;
 				}
 			}
 
@@ -180,7 +188,7 @@ public class Map
 		}
 		catch (Exception e)
 		{
-			Log.Write(ConsoleColor.Red, "Packet corrupt!\n" + e.Message);
+			Log.Write(ConsoleColor.Red, "Packet corrupt!\n" + e.StackTrace);
 		}
 	}
 }

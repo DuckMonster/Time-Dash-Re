@@ -1,20 +1,41 @@
 ﻿using System;
+using System.Reflection;
+
 using OpenTK;
 using TKTools;
 
-public class Physics
+public class Stats
 {
-	public static readonly Physics defaultPhysics = new Physics();
+	public static readonly Stats defaultStats = new Stats();
+
+	public float this[string name]
+	{
+		set
+		{
+			this.GetType().GetProperty(name).SetValue(this, value);
+		}
+		get
+		{
+			return (float)this.GetType().GetProperty(name).GetValue(this);
+		}
+	}
+
+	public PropertyInfo[] GetAllStats()
+	{
+		return this.GetType().GetProperties();
+	}
+
+	#region Physics
 
 	float gravity = 40f;
 	float maxVelocity = 6f;
 	float accelerationTime = 0.2f, accelerationTimeAir = 0.6f, decelerationTime = 0.3f, decelerationTimeAir = 1.8f;
-	float jumpForce = 10f, jumpAddForce = 20f, jumpAddLimit = 2f;
+	float jumpForce = 12f, jumpAddForce = 20f, jumpAddLimit = 2f;
 
 	float acceleration, accelerationAir, accFriction, accFrictionAir, decFriction, decFrictionAir;
 	float warpVelocity = 250f, warpEndVelocity = 18f;
 
-	float wallJumpVelocity = 14f, wallJumpAngle = 50f;
+	float wallJumpVelocity = 15f, wallJumpAngle = 50f;
 	float dashVelocity = 250f, dashEndVelocity = 18f, dashLength = 3.5f;
 
 	float GetFriction(float speed)
@@ -123,23 +144,20 @@ public class Physics
 	public float DashEndVelocity { get { return dashEndVelocity; } set { dashEndVelocity = value; } }
 	public float DashLength { get { return dashLength; } set { dashLength = value; } }
 
-	public Physics()
+	#endregion
+
+	#region Cooldowns
+
+	float warpCooldown = 1.2f, dashCooldown = 0.3f, disabledTime = 0.8f;
+
+	public float DisableTime { get { return disabledTime; } set { disabledTime = value; } }
+	public float DashCooldown { get { return dashCooldown; } set { dashCooldown = value; } }
+	public float WarpCooldown { get { return warpCooldown; } set { warpCooldown = value; } }
+
+	#endregion
+
+	public Stats()
 	{
-		CalculatePhysics();
-	}
-	public Physics(float g, float mv, float at, float dt, float dta, float jf, float jaf, float jal)
-	{
-		gravity = g;
-
-		maxVelocity = mv;
-		accelerationTime = at;
-		decelerationTime = dt;
-		decelerationTimeAir = dta;
-
-		jumpForce = jf;
-		jumpAddForce = jaf;
-		jumpAddLimit = jal;
-
 		CalculatePhysics();
 	}
 }

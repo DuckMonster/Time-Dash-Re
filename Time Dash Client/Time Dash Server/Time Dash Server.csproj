@@ -55,6 +55,7 @@
   <ItemGroup>
     <Compile Include="Game\Entity\Actor.cs" />
     <Compile Include="Game\Entity\Entity.cs" />
+    <Compile Include="Game\Entity\PlayerAbilities.cs" />
     <Compile Include="Game\Entity\PlayerNetwork.cs" />
     <Compile Include="Game\Entity\PlayerShadow.cs" />
     <Compile Include="Game\Environment.cs" />

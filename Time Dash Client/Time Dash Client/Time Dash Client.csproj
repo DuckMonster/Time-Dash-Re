@@ -65,6 +65,7 @@
     <Compile Include="Game\Effects\EffectSpike.cs" />
     <Compile Include="Game\Entity\Actor.cs" />
     <Compile Include="Game\Entity\Entity.cs" />
+    <Compile Include="Game\Entity\PlayerAbilities.cs" />
     <Compile Include="Game\Entity\PlayerNetwork.cs" />
     <Compile Include="Game\Entity\Player.cs" />
     <Compile Include="Game\Entity\PlayerShadow.cs" />

@@ -13,5 +13,9 @@ public enum Protocol
 	PlayerPosition,
 	PlayerInput,
 
-	PlayerDie
+	PlayerDash,
+	PlayerWarp,
+
+	PlayerDie,
+	PlayerDisable
 }

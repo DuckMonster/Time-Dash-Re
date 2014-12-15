@@ -5,7 +5,7 @@ using TKTools;
 
 public class Actor : Entity
 {
-	protected Physics physics = Physics.defaultPhysics;
+	protected Stats stats = Stats.defaultStats;
 
 	protected Vector2 velocity = Vector2.Zero;
 	protected float currentAcceleration = 0;
@@ -14,14 +14,14 @@ public class Actor : Entity
 	public Actor(Vector2 position, Map m)
 		: base(position, m)
 	{
-		physics = new Physics();
+		stats = new Stats();
 	}
 
 	public float Acceleration
 	{
 		get
 		{
-			return IsOnGround ? physics.Acceleration : physics.AccelerationAir;
+			return IsOnGround ? stats.Acceleration : stats.AccelerationAir;
 		}
 	}
 
@@ -30,8 +30,8 @@ public class Actor : Entity
 		get
 		{
 			return currentAcceleration == 0 ? 
-				(IsOnGround ? physics.DecFriction : physics.DecFrictionAir) : 
-				(IsOnGround ? physics.AccFriction : physics.AccFrictionAir);
+				(IsOnGround ? stats.DecFriction : stats.DecFrictionAir) : 
+				(IsOnGround ? stats.AccFriction : stats.AccFrictionAir);
 		}
 	}
 
@@ -70,21 +70,17 @@ public class Actor : Entity
 		velocity.X += currentAcceleration * Game.delta - velocity.X * Friction * Game.delta;
 		currentAcceleration = 0;
 
-		velocity.Y -= physics.Gravity * Game.delta;
+		velocity.Y -= stats.Gravity * Game.delta;
 	}
 
 	public virtual void Jump()
 	{
-		velocity.Y = physics.JumpForce;
-
-		EZUDP.MessageBuffer msg = new EZUDP.MessageBuffer();
-		msg.WriteString("Jump!");
-		Game.client.Send(msg);
+		velocity.Y = stats.JumpForce;
 	}
 
 	public virtual void JumpHold()
 	{
-		if (velocity.Y >= physics.JumpAddLimit) velocity.Y += physics.JumpAddForce * Game.delta;
+		if (velocity.Y >= stats.JumpAddLimit) velocity.Y += stats.JumpAddForce * Game.delta;
 	}
 
 	public override void Draw()

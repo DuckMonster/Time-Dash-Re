@@ -26,14 +26,23 @@ public partial class Player
 	{
 		serverPosition = position;
 
-		if (!IsLocalPlayer)
-		{
-			this.position = position;
-			this.velocity = velocity;
-		}
+		this.position = position;
+		this.velocity = velocity;
 	}
 
-	public void SendInput()
+	public void ReceiveDash(Vector2 start, Vector2 target)
+	{
+		this.position = start;
+		Dash(target);
+	}
+
+	public void ReceiveWarp(Vector2 start, Vector2 target)
+	{
+		this.position = start;
+		Warp(target);
+	}
+
+	void SendInput()
 	{
 		MessageBuffer msg = new MessageBuffer();
 
@@ -45,13 +54,35 @@ public partial class Player
 		Game.client.Send(msg);
 	}
 
-	public void SendPosition()
+	void SendPosition()
 	{
 		MessageBuffer msg = new MessageBuffer();
 
 		msg.WriteShort((short)Protocol.PlayerPosition);
 		msg.WriteVector(position);
 		msg.WriteVector(velocity);
+
+		Game.client.Send(msg);
+	}
+
+	void SendDash(DashTarget target)
+	{
+		MessageBuffer msg = new MessageBuffer();
+
+		msg.WriteShort((short)Protocol.PlayerDash);
+		msg.WriteVector(target.startPosition);
+		msg.WriteVector(target.endPosition);
+
+		Game.client.Send(msg);
+	}
+
+	void SendWarp(WarpTarget target)
+	{
+		MessageBuffer msg = new MessageBuffer();
+
+		msg.WriteShort((short)Protocol.PlayerWarp);
+		msg.WriteVector(target.startPosition);
+		msg.WriteVector(target.endPosition);
 
 		Game.client.Send(msg);
 	}
