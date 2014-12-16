@@ -5,6 +5,9 @@ using TKTools;
 
 public partial class Player
 {
+	DashTarget dashTargetBuffer;
+	WarpTarget warpTargetBuffer;
+
 	public int playerID;
 	public bool IsLocalPlayer
 	{
@@ -20,6 +23,8 @@ public partial class Player
 	{
 		ReceivePosition(position, velocity);
 		inputData.DecodeFlag(k);
+
+		Log.Write("Received input");
 	}
 
 	public void ReceivePosition(Vector2 position, Vector2 velocity)
@@ -32,14 +37,12 @@ public partial class Player
 
 	public void ReceiveDash(Vector2 start, Vector2 target)
 	{
-		this.position = start;
-		Dash(target);
+		dashTargetBuffer = new DashTarget(start, target);
 	}
 
 	public void ReceiveWarp(Vector2 start, Vector2 target)
 	{
-		this.position = start;
-		Warp(target);
+		warpTargetBuffer = new WarpTarget(start, target);
 	}
 
 	void SendInput()

@@ -35,50 +35,55 @@ public partial class Player : Actor
 		Dash(position + new Vector2(0, stats.DashLength * dir));
 	}
 
+	public void Dash(DashTarget t)
+	{
+		if (Disabled) return;
+		position = t.startPosition;
+		Dash(t.endPosition);
+	}
+
 	public void Dash(Vector2 target)
 	{
+		map.RayTraceCollision(position, target, size, out target); //Raytrace
 		dashTarget = new DashTarget(position, target);
 		dashCooldown.Reset();
 
 		if (!IsOnGround) gravityIgnore = dashGravityIgnoreTime;
-
 		if (IsLocalPlayer) SendDash(dashTarget);
 	}
 
 	public void DashStep()
 	{
-		Vector2 diffVector = dashTarget.endPosition - position;
-		Vector2 directionVector = diffVector.Normalized();
+		dashTarget.timeTraveled += Game.delta;
 
-		float factor = TKMath.Exp(Math.Max(0, 0.4f - dashTarget.distance), 1.5f, 30);
+		Vector2 dir = dashTarget.Direction;
 
-		Vector2 diffStepVector = directionVector * stats.DashVelocity * factor;
+		float speedFactor = TKMath.Exp(Math.Max(0, 0.4f - dashTarget.timeTraveled * 5), 2f, 30);
 
-		if (diffStepVector.Length * Game.delta < diffVector.Length)
-		{
-			Vector2 collisionVec;
-			bool collision = map.RayTraceCollision(position, position + diffStepVector * Game.delta, size, out collisionVec);
+		Vector2 stepSize = dir * stats.DashVelocity * speedFactor * Game.delta;
 
-			map.AddEffect(new EffectLine(position, collisionVec,
-				dashTarget.lastStep / stats.WarpVelocity, diffStepVector.Length / stats.WarpVelocity, 0.2f, map));
-			position = collisionVec;
-
-			dashTarget.distance += Game.delta;
-			dashTarget.lastStep = diffStepVector.Length;
-
-			if (collision)
-				DashEnd();
-		}
-		else
+		//If youre there, just end it
+		if (stepSize.Length > (dashTarget.endPosition - position).Length || (dashTarget.endPosition - position).Length <= 0.1f)
 		{
 			DashEnd();
+			return;
 		}
+
+		Vector2 stepTarget = position + stepSize;
+
+		//Add line effect
+		map.AddEffect(new EffectLine(position, stepTarget,
+				dashTarget.lastStep * 0.4f, speedFactor * 0.4f, 0.8f, map));
+
+		position = stepTarget;
+
+		dashTarget.lastStep = speedFactor;
 	}
 
 	public void DashEnd()
 	{
-		map.AddEffect(new EffectSpike(dashTarget.startPosition, position, 1f, 0.8f, map));
-		map.AddEffect(new EffectRing(position, 4f, 1f, map));
+		//map.AddEffect(new EffectSpike(dashTarget.startPosition, position, 1f, 0.8f, map));
+		map.AddEffect(new EffectRing(position, 4f, 0.5f, map));
 
 		velocity = (dashTarget.endPosition - dashTarget.startPosition).Normalized() * stats.DashEndVelocity;
 
@@ -87,6 +92,14 @@ public partial class Player : Actor
 	#endregion
 
 	#region Warping
+	public void Warp(WarpTarget t)
+	{
+		if (Disabled) return;
+
+		position = t.startPosition;
+		Warp(t.endPosition);
+	}
+
 	public void Warp(Vector2 target)
 	{
 		if (Disabled) return;
@@ -99,39 +112,21 @@ public partial class Player : Actor
 
 	public void WarpStep()
 	{
-		Vector2 diffVector = warpTarget.endPosition - position;
-		Vector2 directionVector = diffVector.Normalized();
+		warpTarget.timeTraveled += Game.delta;
 
-		float factor = TKMath.Exp(Math.Max(0, 0.4f - warpTarget.distance), 2f, 20);
+		Vector2 direction = warpTarget.Direction;
+		float speedFactor = TKMath.Exp(Math.Max(0, 0.4f - warpTarget.timeTraveled), 2f, 20);
 
-		Vector2 diffStepVector = directionVector * stats.WarpVelocity * factor;
+		Vector2 stepSize = direction * speedFactor * stats.WarpVelocity * Game.delta;
 
-		if (diffStepVector.Length * Game.delta < diffVector.Length)
-		{
-			List<Player> playerList = map.RayTrace(position, position + diffStepVector * Game.delta, size, this);
-			foreach (Player p in playerList)
-			{
-				if (p.IsWarping)
-				{
-					WarpEnd(p);
-					p.WarpEnd(this);
-				}
-			}
-
-			if (warpTarget == null) return;
-
-			map.AddEffect(new EffectLine(position, position + diffStepVector * Game.delta,
-				warpTarget.lastStep / stats.WarpVelocity, diffStepVector.Length / stats.WarpVelocity, 0.2f, map));
-			position += diffStepVector * Game.delta;
-
-			warpTarget.distance += Game.delta;
-
-			warpTarget.lastStep = diffStepVector.Length;
-		}
-		else
+		if (stepSize.Length > (warpTarget.endPosition - position).Length)
 		{
 			WarpEnd();
+			return;
 		}
+
+		position += stepSize;
+		warpTarget.lastStep = speedFactor;
 	}
 
 	public void WarpEnd()

@@ -22,10 +22,22 @@ public partial class Player : Actor
 		canDoublejump = true;
 	}
 
-	public void Dash(Vector2 target)
+	#region Dashing
+	public void Dash(int dir)
 	{
 		if (Disabled) return;
+		Dash(position + new Vector2(stats.DashLength * dir, 0));
+	}
 
+	public void DashVertical(int dir)
+	{
+		if (Disabled) return;
+		Dash(position + new Vector2(0, stats.DashLength * dir));
+	}
+
+	public void Dash(Vector2 target)
+	{
+		map.RayTraceCollision(position, target, size, out target); //Raytrace
 		dashTarget = new DashTarget(position, target);
 		dashCooldown.Reset();
 
@@ -34,61 +46,36 @@ public partial class Player : Actor
 
 	public void DashStep()
 	{
-		Vector2 diffVector = dashTarget.endPosition - position;
-		Vector2 directionVector = diffVector.Normalized();
+		dashTarget.timeTraveled += Game.delta;
 
-		float factor = TKMath.Exp(Math.Max(0, 0.4f - dashTarget.distance), 1.5f, 30);
+		Vector2 dir = dashTarget.Direction;
 
-		Vector2 diffStepVector = directionVector * stats.DashVelocity * factor;
+		float speedFactor = TKMath.Exp(Math.Max(0, 0.4f - dashTarget.timeTraveled * 5), 2f, 30);
 
-		if (diffStepVector.Length * Game.delta < diffVector.Length)
-		{
-			Vector2 collisionVec;
-			bool collision = map.RayTraceCollision(position, position + diffStepVector * Game.delta, size, out collisionVec);
+		Vector2 stepSize = dir * stats.DashVelocity * speedFactor * Game.delta;
 
-			List<Player> playerList = map.RayTrace(position, position + diffStepVector * Game.delta, size, this);
-			foreach (Player p in playerList)
-			{
-				if (!p.Disabled)
-				{
-					p.Disabled = true;
-
-					if (lastDirection.X != 0)
-					{
-						Vector2 hitVelo = TKMath.GetAngleVector(90f - 55f * lastDirection.X) * stats.DashEndVelocity;
-
-						p.velocity = hitVelo;
-						p.SendPositionToPlayer(map.playerList);
-					}
-					else
-					{
-						p.velocity = new Vector2(0, stats.DashEndVelocity);
-						p.SendPositionToPlayer(map.playerList);
-					}
-				}
-			}
-
-			position = collisionVec;
-
-			dashTarget.distance += Game.delta;
-			dashTarget.lastStep = diffStepVector.Length;
-
-			if (collision)
-				DashEnd();
-		}
-		else
+		//If youre there, just end it
+		if (stepSize.Length > (dashTarget.endPosition - position).Length || (dashTarget.endPosition - position).Length <= 0.1f)
 		{
 			DashEnd();
+			return;
 		}
+
+		Vector2 stepTarget = position + stepSize;
+
+		position = stepTarget;
+
+		dashTarget.lastStep = speedFactor;
 	}
 
 	public void DashEnd()
 	{
 		velocity = (dashTarget.endPosition - dashTarget.startPosition).Normalized() * stats.DashEndVelocity;
-
 		dashTarget = null;
 	}
+	#endregion
 
+	#region Warping
 	public void Warp(Vector2 target)
 	{
 		if (Disabled) return;
@@ -99,54 +86,38 @@ public partial class Player : Actor
 
 	public void WarpStep()
 	{
-		Vector2 diffVector = warpTarget.endPosition - position;
-		Vector2 directionVector = diffVector.Normalized();
+		warpTarget.timeTraveled += Game.delta;
 
-		float factor = TKMath.Exp(Math.Max(0, 0.4f - warpTarget.distance), 2f, 20);
+		Vector2 direction = warpTarget.Direction;
+		float speedFactor = TKMath.Exp(Math.Max(0, 0.4f - warpTarget.timeTraveled), 2f, 20);
 
-		Vector2 diffStepVector = directionVector * stats.WarpVelocity * factor;
+		Vector2 stepSize = direction * speedFactor * stats.WarpVelocity * Game.delta;
 
-		if (diffStepVector.Length * Game.delta < diffVector.Length)
-		{
-			List<Player> playerList = map.RayTrace(position, position + diffStepVector * Game.delta, size, this);
-			foreach (Player p in playerList)
-			{
-				if (p.IsWarping)
-				{
-					WarpEnd(p);
-					p.WarpEnd(this);
-				}
-				else
-				{
-					p.Hit();
-				}
-			}
-
-			if (warpTarget == null) return;
-
-			position += diffStepVector * Game.delta;
-			warpTarget.distance += Game.delta;
-		}
-		else
+		if (stepSize.Length > (warpTarget.endPosition - position).Length)
 		{
 			WarpEnd();
+			return;
 		}
+
+		position += stepSize;
 	}
 
 	public void WarpEnd()
 	{
-		WarpEnd(warpTarget.endPosition, (warpTarget.endPosition - warpTarget.startPosition).Normalized() * stats.WarpEndVelocity);
+		WarpEnd(warpTarget.startPosition, warpTarget.endPosition, (warpTarget.endPosition - warpTarget.startPosition).Normalized() * stats.WarpEndVelocity);
 	}
 
 	public void WarpEnd(Player p)
 	{
-		WarpEnd(p.position, (position - p.position).Normalized() * stats.WarpEndVelocity);
+		WarpEnd(warpTarget.startPosition, p.position, (position - p.position).Normalized() * stats.WarpEndVelocity);
 	}
 
-	public void WarpEnd(Vector2 pos, Vector2 velo)
+	public void WarpEnd(Vector2 start, Vector2 end, Vector2 velo)
 	{
-		position = pos;
+		position = end;
 		velocity = velo;
+
 		warpTarget = null;
 	}
+	#endregion
 }

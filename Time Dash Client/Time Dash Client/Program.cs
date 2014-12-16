@@ -46,7 +46,7 @@ public class Program : GameWindow
 
 		using (Program p = new Program(1025, 768, new GRFX.GraphicsMode(new GRFX.ColorFormat(32), 24, 8, 3)))
 		{
-			p.Run(180);
+			p.Run(180.0, 200.0);
 		}
 	}
 
@@ -78,10 +78,8 @@ public class Program : GameWindow
 		GL.Enable(EnableCap.Blend);
 		GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
 
-		this.
-
-		Width = 1024;
-		Height = 768;
+		Width = 400;
+		Height = 300;
 
 		WindowBorder = OpenTK.WindowBorder.Resizable;
 		VSync = VSyncMode.Off;

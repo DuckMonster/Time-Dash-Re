@@ -11,26 +11,46 @@ public partial class Player : Actor
 {
 	class WarpTarget
 	{
-		public float distance = 0;
-
-		public Vector2 startPosition;
-		public Vector2 endPosition;
-
-		public WarpTarget(Vector2 a, Vector2 b)
-		{
-			startPosition = a;
-			endPosition = b;
-		}
-	}
-	class DashTarget
-	{
-		public float distance = 0;
+		public float timeTraveled = 0;
 		public float lastStep = 0;
 
 		public float angle;
 
 		public Vector2 startPosition;
 		public Vector2 endPosition;
+
+		public Vector2 Direction
+		{
+			get
+			{
+				return (endPosition - startPosition).Normalized();
+			}
+		}
+
+		public WarpTarget(Vector2 a, Vector2 b)
+		{
+			startPosition = a;
+			endPosition = b;
+			angle = TKMath.GetAngle(a, b);
+		}
+	}
+	class DashTarget
+	{
+		public float timeTraveled = 0;
+		public float lastStep = 0;
+
+		public float angle;
+
+		public Vector2 startPosition;
+		public Vector2 endPosition;
+
+		public Vector2 Direction
+		{
+			get
+			{
+				return (endPosition - startPosition).Normalized();
+			}
+		}
 
 		public DashTarget(Vector2 a, Vector2 b)
 		{

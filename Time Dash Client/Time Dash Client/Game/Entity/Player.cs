@@ -7,15 +7,23 @@ using TKTools;
 
 public partial class Player : Actor
 {
-	class WarpTarget
+	public class WarpTarget
 	{
-		public float distance = 0;
+		public float timeTraveled = 0;
 		public float lastStep = 0;
 
 		public float angle;
 
 		public Vector2 startPosition;
 		public Vector2 endPosition;
+
+		public Vector2 Direction
+		{
+			get
+			{
+				return (endPosition - startPosition).Normalized();
+			}
+		}
 
 		public WarpTarget(Vector2 a, Vector2 b)
 		{
@@ -24,15 +32,23 @@ public partial class Player : Actor
 			angle = TKMath.GetAngle(a, b);
 		}
 	}
-	class DashTarget
+	public class DashTarget
 	{
-		public float distance = 0;
+		public float timeTraveled = 0;
 		public float lastStep = 0;
 
 		public float angle;
 
 		public Vector2 startPosition;
 		public Vector2 endPosition;
+
+		public Vector2 Direction
+		{
+			get
+			{
+				return (endPosition - startPosition).Normalized();
+			}
+		}
 
 		public DashTarget(Vector2 a, Vector2 b)
 		{
@@ -175,7 +191,7 @@ public partial class Player : Actor
 		input = new PlayerInput(inputData);
 		if (oldInput == null) oldInput = input;
 
-		if (gravityIgnore > 0 && !input.Equals(oldInput)) gravityIgnore = 0;
+		if (gravityIgnore > 0 && !input.Equals(oldInput)) { gravityIgnore = 0; Log.Write("Drop!"); }
 		gravityIgnore -= Game.delta;
 
 		dashIntervalTimer -= Game.delta;
@@ -213,6 +229,7 @@ public partial class Player : Actor
 		else if (dashTarget != null)
 		{
 			DashStep();
+			shadow.Logic();
 		}
 	}
 
@@ -289,6 +306,20 @@ public partial class Player : Actor
 				Warp(shadow.CurrentPosition);
 			}
 		}
+		else
+		{
+			if (warpTargetBuffer != null)
+			{
+				Warp(warpTargetBuffer);
+				warpTargetBuffer = null;
+			}
+
+			if (dashTargetBuffer != null)
+			{
+				Dash(dashTargetBuffer);
+				dashTargetBuffer = null;
+			}
+		}
 
 		if (inputDirection.X != 0)
 		{
@@ -348,14 +379,14 @@ public partial class Player : Actor
 		if (warpTarget != null)
 		{
 			mesh.Rotate(warpTarget.angle);
-			mesh.Scale(1 + warpTarget.lastStep * 0.03f, 1 - warpTarget.lastStep * 0.008f);
+			mesh.Scale(1 + warpTarget.lastStep * 8.5f, 1 - warpTarget.lastStep * 2.7f);
 			mesh.Rotate(-warpTarget.angle);
 		}
 
 		if (dashTarget != null)
 		{
 			mesh.Rotate(dashTarget.angle);
-			mesh.Scale(1 + dashTarget.lastStep * 0.03f, 1 - dashTarget.lastStep * 0.008f);
+			mesh.Scale(1 + dashTarget.lastStep * 1.5f, 1 - dashTarget.lastStep * 0.7f);
 			mesh.Rotate(-dashTarget.angle);
 		}
 

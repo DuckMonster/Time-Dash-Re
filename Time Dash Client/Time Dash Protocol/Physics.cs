@@ -36,7 +36,7 @@ public class Stats
 	float warpVelocity = 250f, warpEndVelocity = 18f;
 
 	float wallJumpVelocity = 15f, wallJumpAngle = 50f;
-	float dashVelocity = 250f, dashEndVelocity = 18f, dashLength = 3.5f;
+	float dashVelocity = 50f, dashEndVelocity = 13f, dashLength = 3.5f;
 
 	float GetFriction(float speed)
 	{
@@ -148,7 +148,7 @@ public class Stats
 
 	#region Cooldowns
 
-	float warpCooldown = 1.2f, dashCooldown = 0.3f, disabledTime = 0.8f;
+	float warpCooldown = 1.2f, dashCooldown = 0.05f, disabledTime = 0.8f;
 
 	public float DisableTime { get { return disabledTime; } set { disabledTime = value; } }
 	public float DashCooldown { get { return dashCooldown; } set { dashCooldown = value; } }
