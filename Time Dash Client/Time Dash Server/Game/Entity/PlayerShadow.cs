@@ -3,7 +3,7 @@
 public class PlayerShadow
 {
 	Player player;
-	public float updateRate = 0.01f, updateTimer = 0f, bufferLength = 0.5f;
+	public float updateRate = 0.01f, updateTimer = 0f, bufferLength = 0.6f;
 
 	Vector2[] positionBuffer;
 	int positionBufferIndex = 0;
@@ -21,6 +21,8 @@ public class PlayerShadow
 		player = p;
 
 		positionBuffer = new Vector2[(int)(bufferLength / updateRate)];
+		for (int i = 0; i < positionBuffer.Length; i++)
+			positionBuffer[i] = p.position;
 	}
 
 	public void Logic()

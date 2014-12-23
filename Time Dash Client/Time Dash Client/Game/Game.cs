@@ -48,7 +48,8 @@ public class Game
 
 	public void UpdateProjection(Matrix4 proj)
 	{
-		Map.defaultProgram["projection"].SetValue(proj);
+		Map.defaultShader["projection"].SetValue(proj);
+		Tileset.tileProgram["projection"].SetValue(proj);
 	}
 
 	public virtual void Logic()

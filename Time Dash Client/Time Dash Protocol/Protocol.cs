@@ -11,11 +11,17 @@ public enum Protocol
 	PlayerJoin,
 	PlayerLeave,
 	PlayerPosition,
+	PlayerLand,
 	PlayerInput,
+	PlayerInputPure,
 
 	PlayerDash,
 	PlayerWarp,
+	PlayerDashCollision,
+	PlayerWarpCollision,
 
 	PlayerDie,
-	PlayerDisable
+	PlayerDisable,
+
+	ServerPosition
 }

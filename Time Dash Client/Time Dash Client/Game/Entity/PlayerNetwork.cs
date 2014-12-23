@@ -17,27 +17,65 @@ public partial class Player
 		}
 	}
 
+	bool receivedServerPosition = false;
 	Vector2 serverPosition = Vector2.Zero;
 
+	public void ReceiveInput(byte k)
+	{
+		inputData.DecodeFlag(k);
+	}
 	public void ReceiveInput(Vector2 position, Vector2 velocity, byte k)
 	{
-		ReceivePosition(position, velocity);
-		inputData.DecodeFlag(k);
+		if (!IsDashing && !IsWarping)
+		{
+			this.position = position;
+			this.velocity = velocity;
+		}
 
-		Log.Write("Received input");
+		inputData.DecodeFlag(k);
 	}
 
 	public void ReceivePosition(Vector2 position, Vector2 velocity)
 	{
-		serverPosition = position;
-
 		this.position = position;
 		this.velocity = velocity;
+	}
+
+	public void ReceiveServerPosition(Vector2 position)
+	{
+		receivedServerPosition = true;
+		serverPosition = position;
 	}
 
 	public void ReceiveDash(Vector2 start, Vector2 target)
 	{
 		dashTargetBuffer = new DashTarget(start, target);
+	}
+
+	public void ReceiveDashCollision(byte player, Vector2 myPos, Vector2 colPos)
+	{
+		Player p = map.playerList[player];
+
+		position = myPos;
+		p.position = colPos;
+
+		DashEnd(p);
+		p.DashEnd(this);
+
+		map.AddEffect(new EffectCollision(this, p, map));
+	}
+
+	public void ReceiveWarpCollision(byte player, Vector2 myPos, Vector2 colPos)
+	{
+		Player p = map.playerList[player];
+
+		position = myPos;
+		p.position = colPos;
+
+		WarpEnd(p);
+		p.WarpEnd(this);
+
+		map.AddEffect(new EffectCollision(this, p, map));
 	}
 
 	public void ReceiveWarp(Vector2 start, Vector2 target)
@@ -57,11 +95,32 @@ public partial class Player
 		Game.client.Send(msg);
 	}
 
+	void SendInputPure()
+	{
+		MessageBuffer msg = new MessageBuffer();
+
+		msg.WriteShort((short)Protocol.PlayerInputPure);
+		msg.WriteByte(inputData.GetFlag());
+
+		Game.client.Send(msg);
+	}
+
 	void SendPosition()
 	{
 		MessageBuffer msg = new MessageBuffer();
 
 		msg.WriteShort((short)Protocol.PlayerPosition);
+		msg.WriteVector(position);
+		msg.WriteVector(velocity);
+
+		Game.client.Send(msg);
+	}
+
+	void SendLand()
+	{
+		MessageBuffer msg = new MessageBuffer();
+
+		msg.WriteShort((short)Protocol.PlayerLand);
 		msg.WriteVector(position);
 		msg.WriteVector(velocity);
 

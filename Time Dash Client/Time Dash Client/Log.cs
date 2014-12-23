@@ -36,8 +36,6 @@ class Log
 			Console.WriteLine(message);
 
 			Console.ForegroundColor = ConsoleColor.Gray;
-
-			Console.WriteLine("---");
 		}
 	}
 
@@ -74,7 +72,7 @@ class Log
 		inputThread = null;
 	}
 
-	public static float debugTimer = 0f, debugInterval = 0.05f;
+	public static float debugTimer = 0f, debugInterval = 0.1f;
 	public static bool CanDebug
 	{
 		get

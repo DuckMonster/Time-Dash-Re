@@ -71,9 +71,6 @@ public partial class Player : Actor
 		Color.Yellow
 	};	
 
-	protected Texture[] textureList = new Texture[4];
-	protected int tex = 0;
-
 	protected PlayerShadow shadow;
 
 	float wallStick = -1;
@@ -92,6 +89,8 @@ public partial class Player : Actor
 	float dashGravityIgnoreTime = 0.2f;
 	float gravityIgnore = 0f;
 
+	public Tileset playerTileset = new Tileset(200, 200, "Res/jackTileset.png");
+
 	public int WallTouch
 	{
 		get
@@ -99,6 +98,14 @@ public partial class Player : Actor
 			if (map.GetCollision(this, new Vector2(-0.2f, 0f))) return -1;
 			if (map.GetCollision(this, new Vector2(0.2f, 0))) return 1;
 			return 0;
+		}
+	}
+
+	public Color MyColor
+	{
+		get
+		{
+			return colorList[playerID];
 		}
 	}
 
@@ -127,6 +134,23 @@ public partial class Player : Actor
 			return dashTarget != null;
 		}
 	}
+	public bool CanWarp
+	{
+		get
+		{
+			return shadow != null && warpCooldown.IsDone;
+		}
+	}
+	public bool CanDash
+	{
+		get
+		{
+			if (IsOnGround)
+				return !Disabled;
+			else
+				return !Disabled && airDashNmbr > 0;
+		}
+	}
 	public bool IgnoresGravity
 	{
 		get
@@ -151,12 +175,6 @@ public partial class Player : Actor
 		: base(position, m)
 	{
 		playerID = id;
-
-		textureList[0] = new Texture("Res/guy.png");
-		textureList[1] = new Texture("Res/guyHead1.png");
-		textureList[2] = new Texture("Res/guyHead2.png");
-		textureList[3] = new Texture("Res/guyHead3.png");
-
 		float w = (size.X / size.Y) / 2;
 
 		mesh.UV = new Vector2[] {
@@ -176,14 +194,25 @@ public partial class Player : Actor
 	public void Die(Vector2 diePos)
 	{
 		base.Die();
-		map.AddEffect(new EffectSkull(diePos, map));
+		map.AddEffect(new EffectSkull(diePos, MyColor, map));
+
+		warpTarget = null;
+		dashTarget = null;
 
 		warpCooldown.Reset();
 	}
 
 	public override void Logic()
 	{
-		warpCooldown.Logic();
+		if (shadow != null && !warpCooldown.IsDone)
+		{
+			warpCooldown.Logic();
+			if (warpCooldown.IsDone)
+			{
+				map.AddEffect(new EffectRing(shadow.CurrentPosition, 1.2f, 0.5f, MyColor, map));
+			}
+		}
+
 		dashCooldown.Logic();
 		disableTimer.Logic();
 
@@ -191,7 +220,7 @@ public partial class Player : Actor
 		input = new PlayerInput(inputData);
 		if (oldInput == null) oldInput = input;
 
-		if (gravityIgnore > 0 && !input.Equals(oldInput)) { gravityIgnore = 0; Log.Write("Drop!"); }
+		if (gravityIgnore > 0 && !input.Equals(oldInput)) { gravityIgnore = 0; }
 		gravityIgnore -= Game.delta;
 
 		dashIntervalTimer -= Game.delta;
@@ -215,12 +244,8 @@ public partial class Player : Actor
 
 			base.Logic();
 
-			if (KeyboardInput.Current[Key.Number1]) tex = 0;
-			if (KeyboardInput.Current[Key.Number2]) tex = 1;
-			if (KeyboardInput.Current[Key.Number3]) tex = 2;
-			if (KeyboardInput.Current[Key.Number4]) tex = 3;
-
-			shadow.Logic();
+			if (shadow == null && (IsOnGround || WallTouch != 0)) CreateShadow();
+			if (shadow != null) shadow.Logic();
 		}
 		else if (warpTarget != null)
 		{
@@ -229,7 +254,7 @@ public partial class Player : Actor
 		else if (dashTarget != null)
 		{
 			DashStep();
-			shadow.Logic();
+			if (shadow != null) shadow.Logic();
 		}
 	}
 
@@ -257,6 +282,15 @@ public partial class Player : Actor
 
 		currentAcceleration = 0;
 		if (!IgnoresGravity) velocity.Y -= stats.Gravity * Game.delta;
+	}
+
+	public override void Land()
+	{
+		airDashNmbr = stats.AirDashMax;
+
+		base.Land();
+
+		if (IsLocalPlayer) SendLand();
 	}
 
 	public void Input()
@@ -301,7 +335,7 @@ public partial class Player : Actor
 			}
 
 			//Warp
-			if (input[PlayerKey.Warp] && !oldInput[PlayerKey.Warp] && warpCooldown.IsDone)
+			if (input[PlayerKey.Warp] && !oldInput[PlayerKey.Warp] && CanWarp)
 			{
 				Warp(shadow.CurrentPosition);
 			}
@@ -349,8 +383,17 @@ public partial class Player : Actor
 	{
 		PlayerInput oldInput = new PlayerInput(inputData);
 
-		inputData[PlayerKey.Right] = KeyboardInput.Current[Key.Right];
-		inputData[PlayerKey.Left] = KeyboardInput.Current[Key.Left];
+		if (Program.focused)
+		{
+			inputData[PlayerKey.Right] = KeyboardInput.Current[Key.Right];
+			inputData[PlayerKey.Left] = KeyboardInput.Current[Key.Left];
+		}
+		else
+		{
+			inputData[PlayerKey.Right] = KeyboardInput.Current[Key.Left];
+			inputData[PlayerKey.Left] = KeyboardInput.Current[Key.Right];
+		}
+
 		//inputData[PlayerKey.Up] = KeyboardInput.Current[Key.Up];
 		inputData[PlayerKey.Down] = KeyboardInput.Current[Key.Down];
 		inputData[PlayerKey.Jump] = KeyboardInput.Current[Key.Z];
@@ -359,17 +402,40 @@ public partial class Player : Actor
 		for (int i = 0; i < inputData.Length; i++)
 			if (inputData[i] != oldInput[i])
 			{
-				SendInput();
+				if (IsDashing || IsWarping)
+					SendInputPure();
+				else
+					SendInput();
+	
 				break;
 			}
 	}
 
 	public override void Draw()
 	{
-		mesh.Color = colorList[playerID];
-		mesh.FillColor = false;
+		if (WallTouch != 0 && !IsOnGround)
+		{
+			playerTileset.X = 0;
+		}
+		else if (IsOnGround)
+		{
+			if (Math.Abs(velocity.X) > 1f)
+			{
+				playerTileset.X = 1;
+			}
+			else
+			{
+				playerTileset.X = 3;
+			}
+		}
+		else
+		{
+			if (velocity.Y > 0) playerTileset.X = 4;
+			else playerTileset.X = 2;
+		}
 
-		mesh.Texture = textureList[tex];
+		mesh.Color = MyColor;
+		mesh.FillColor = true;
 
 		mesh.Reset();
 
@@ -392,14 +458,22 @@ public partial class Player : Actor
 
 		mesh.Scale(new Vector2(-dir, 1));
 
-		mesh.Draw();
+		mesh.Draw(playerTileset);
 
 		if (!warpCooldown.IsDone)
 		{
 			mesh.Color = new Color(1, 1, 1, 1 - warpCooldown.PercentageDone);
 			mesh.FillColor = true;
 
-			mesh.Draw();
+			mesh.Draw(playerTileset);
+		}
+
+		if (!dashCooldown.IsDone)
+		{
+			mesh.Color = new Color(1, 1, 1, 1 - dashCooldown.PercentageDone);
+			mesh.FillColor = true;
+
+			mesh.Draw(playerTileset);
 		}
 
 		if (Disabled)
@@ -407,23 +481,24 @@ public partial class Player : Actor
 			mesh.Color = new Color(0.3f, 0.3f, 1f, 1 - disableTimer.PercentageDone);
 			mesh.FillColor = true;
 
-			mesh.Draw();
+			mesh.Draw(playerTileset);
 		}
-		
-		/*
 
-		mesh.Color = new Color(0, 1, 0, 0.5f);
-		mesh.FillColor = true;
+		if (receivedServerPosition)
+		{
+			mesh.Color = new Color(0, 1, 0, 0.5f);
+			mesh.FillColor = true;
 
-		mesh.Reset();
+			mesh.Reset();
 
-		mesh.Translate(serverPosition);
-		mesh.Scale(size);
-		mesh.Scale(new Vector2(-dir, 1));
+			mesh.Translate(serverPosition);
+			mesh.Scale(size);
+			mesh.Scale(new Vector2(-dir, 1));
 
-		mesh.Draw();
-		*/
+			mesh.Draw(playerTileset);
+		}
 
-		if (IsLocalPlayer && (warpCooldown.IsDone || IsWarping) && !Disabled) shadow.Draw();
+		//if (shadow != null && IsLocalPlayer && (warpCooldown.IsDone || IsWarping) && !Disabled) shadow.Draw();
+		if (IsLocalPlayer && (CanWarp || IsWarping)) shadow.Draw();
 	}
 }

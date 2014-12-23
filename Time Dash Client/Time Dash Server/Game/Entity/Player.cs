@@ -9,7 +9,7 @@ using System.Collections.Generic;
 
 public partial class Player : Actor
 {
-	class WarpTarget
+	public class WarpTarget
 	{
 		public float timeTraveled = 0;
 		public float lastStep = 0;
@@ -34,7 +34,7 @@ public partial class Player : Actor
 			angle = TKMath.GetAngle(a, b);
 		}
 	}
-	class DashTarget
+	public class DashTarget
 	{
 		public float timeTraveled = 0;
 		public float lastStep = 0;
@@ -123,6 +123,25 @@ public partial class Player : Actor
 		}
 	}
 
+	public bool CanDash
+	{
+		get
+		{
+			if (IsOnGround)
+				return !Disabled;
+			else
+				return !Disabled && airDashNmbr > 0;
+		}
+	}
+
+	public bool CanWarp
+	{
+		get
+		{
+			return shadow != null;
+		}
+	}
+
 	public bool IgnoresGravity
 	{
 		get
@@ -170,7 +189,10 @@ public partial class Player : Actor
 		position = new Vector2(4, 30);
 		velocity = Vector2.Zero;
 
-		SendPositionToPlayer(map.playerList);
+		warpTarget = null;
+		dashTarget = null;
+
+		SendPositionToPlayerForce(map.playerList);
 	}
 
 	public override void Logic()
@@ -207,7 +229,8 @@ public partial class Player : Actor
 
 			base.Logic();
 
-			shadow.Logic();
+			if (shadow == null && (IsOnGround || WallTouch != 0)) CreateShadow();
+			if (shadow != null) shadow.Logic();
 		}
 		else if (warpTarget != null)
 		{
@@ -216,7 +239,10 @@ public partial class Player : Actor
 		else if (dashTarget != null)
 		{
 			DashStep();
+			if (shadow != null) shadow.Logic();
 		}
+
+		if (SEND_SERVER_POSITION) SendServerPositionToPlayer(map.playerList);
 	}
 
 	public override void DoPhysics()
@@ -243,6 +269,11 @@ public partial class Player : Actor
 
 		currentAcceleration = 0;
 		if (!IgnoresGravity) velocity.Y -= stats.Gravity * Game.delta;
+	}
+
+	public void Land()
+	{
+		airDashNmbr = stats.AirDashMax;
 	}
 
 	public void Input()
@@ -278,5 +309,17 @@ public partial class Player : Actor
 			}
 		}
 		if (input[PlayerKey.Jump]) JumpHold();
+
+		if (warpTargetBuffer != null)
+		{
+			Warp(warpTargetBuffer);
+			warpTargetBuffer = null;
+		}
+
+		if (dashTargetBuffer != null)
+		{
+			Dash(dashTargetBuffer);
+			dashTargetBuffer = null;
+		}
 	}
 }

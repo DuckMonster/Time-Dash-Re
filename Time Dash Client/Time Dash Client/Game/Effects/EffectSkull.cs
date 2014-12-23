@@ -12,7 +12,7 @@ public class EffectSkull : Effect
 
 	Timer effectTimer = new Timer(1f, false);
 
-	public EffectSkull(Vector2 position, Map m)
+	public EffectSkull(Vector2 position, Color c, Map m)
 		: base(m)
 	{
 		mesh = Mesh.Box;
@@ -27,6 +27,7 @@ public class EffectSkull : Effect
 
 		mesh.Rotate(rotation);
 		mesh.Scale(2f);
+		mesh.Color = c;
 	}
 
 	public override void Dispose()
@@ -52,7 +53,10 @@ public class EffectSkull : Effect
 	{
 		if (effectTimer.IsDone) return;
 
-		mesh.Color = new Color(0f, 0f, 0f, 1 - effectTimer.PercentageDone);
+		Color c = mesh.Color;
+		c.A = 1 - effectTimer.PercentageDone;
+
+		mesh.Color = c;
 		mesh.Draw();
 	}
 }

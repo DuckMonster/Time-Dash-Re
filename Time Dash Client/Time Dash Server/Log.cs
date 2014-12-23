@@ -8,16 +8,17 @@ enum LogMode
 {
 	Debug,
 	Message,
-	Netural,
-	Command
+	Neutral,
+	Command,
+	CommandResult
 }
 
 class Log
 {
 	class LogMessage
 	{
-		string message;
-		ConsoleColor color;
+		public string message;
+		public ConsoleColor color;
 
 		public LogMessage(string msg)
 		{
@@ -30,22 +31,30 @@ class Log
 			color = clr;
 		}
 
-		public void Print()
+		public void Print(string[] filter)
 		{
+			bool pass = false;
+
+			if (filter != null)
+			{
+				foreach (string s in filter)
+					if (message.ToLower().Contains(s.ToLower()))
+						pass = true;
+
+				if (!pass) return;
+			}
+
 			Console.ForegroundColor = color;
-
 			Console.WriteLine(message);
-
 			Console.ForegroundColor = ConsoleColor.Gray;
-
-			Console.WriteLine("---");
 		}
 	}
 
 	static bool running = false;
 
+	static string[] filterList;
 	static List<LogMessage> logMessageList = new List<LogMessage>();
-	static LogMode mode = LogMode.Message;
+	public static LogMode mode = LogMode.Message;
 	static Thread inputThread;
 
 	private static int[] tickAvg = new int[150], frameAvg = new int[500];
@@ -63,6 +72,8 @@ class Log
 		ShowMessages();
 		inputThread = new Thread(InputThread);
 		inputThread.Start();
+
+		LogCommand.Init();
 	}
 
 	public static void ShutDown()
@@ -74,7 +85,7 @@ class Log
 		inputThread = null;
 	}
 
-	public static float debugTimer = 0f, debugInterval = 0.05f;
+	public static float debugTimer = 0f, debugInterval = 0.1f;
 	public static bool CanDebug
 	{
 		get
@@ -83,6 +94,7 @@ class Log
 		}
 	}
 
+	public static void Debug(object o) { Debug(o.ToString()); }
 	public static void Debug(string text, params object[] args)
 	{
 		if (CanDebug)
@@ -101,7 +113,7 @@ class Log
 		LogMessage msg = new LogMessage(string.Format(text, args), c);
 
 		logMessageList.Add(msg);
-		if (mode == LogMode.Message) msg.Print();
+		if (mode == LogMode.Message) msg.Print(filterList);
 	}
 
 	public static void Clear()
@@ -174,12 +186,18 @@ class Log
 		Debug("U: {0} b/s\nD: {1} b/s", currentUp, currentDown);
 	}
 
-	static void ShowMessages()
+	public static void ShowMessages()
 	{
 		Console.Clear();
+
+		if (filterList != null)
+			PrintFilter();
+
+		mode = LogMode.Message;
+
 		foreach (LogMessage s in logMessageList)
 		{
-			s.Print();
+			s.Print(filterList);
 		}
 	}
 
@@ -194,7 +212,7 @@ class Log
 				switch (k)
 				{
 					case ConsoleKey.M:
-						mode = LogMode.Message;
+						ClearFilter();
 						ShowMessages();
 						break;
 
@@ -204,8 +222,13 @@ class Log
 						break;
 
 					case ConsoleKey.N:
-						mode = LogMode.Netural;
+						mode = LogMode.Neutral;
 						Console.Clear();
+						break;
+
+					case ConsoleKey.Enter:
+						mode = LogMode.Command;
+						CommandInput();
 						break;
 				}
 			}
@@ -214,8 +237,37 @@ class Log
 		}
 	}
 
-	static void CommandThread()
+	static void CommandInput()
 	{
+		Console.Clear();
+		Console.Write('>');
+		string[] command = Console.ReadLine().Split(' ');
 
+		mode = LogMode.CommandResult;
+
+		Console.Clear();
+		LogCommand.RunCommand(command);
+	}
+
+	public static void SetMessageFilter(string[] filter)
+	{
+		filterList = filter;
+		PrintFilter();
+	}
+
+	static void PrintFilter()
+	{
+		Console.Clear();
+		Console.ForegroundColor = ConsoleColor.Cyan;
+		Console.Write("Filter: ");
+		foreach (string s in filterList)
+			Console.Write(s + " ");
+
+		Console.WriteLine();
+	}
+
+	public static void ClearFilter()
+	{
+		filterList = null;
 	}
 }

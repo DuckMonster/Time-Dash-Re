@@ -12,7 +12,7 @@ public class EffectSpike : Effect
 
 	Vector2 origin, target;
 
-	public EffectSpike(Vector2 pos1, Vector2 pos2, float width, float duration, Map m)
+	public EffectSpike(Vector2 pos1, Vector2 pos2, float width, float duration, Color c, Map m)
 		: base(m)
 	{
 		origin = pos1;
@@ -25,6 +25,8 @@ public class EffectSpike : Effect
 			new Vector2(-0.2f, -0.5f * width),
 			new Vector2(0.5f, 0f)
 		};
+
+		mesh.Color = c;
 
 		effectTimer = new Timer(duration, false);
 	}
@@ -41,7 +43,6 @@ public class EffectSpike : Effect
 
 	public override void Draw()
 	{
-		mesh.Color = Color.White;
 		mesh.Reset();
 
 		Vector2 lenVector = target - origin;

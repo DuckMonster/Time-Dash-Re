@@ -148,11 +148,13 @@ public class Stats
 
 	#region Cooldowns
 
-	float warpCooldown = 1.2f, dashCooldown = 0.05f, disabledTime = 0.8f;
+	float warpCooldown = 0.6f, dashCooldown = 1f, disabledTime = 0.8f;
+	int airDashMax = 1;
 
 	public float DisableTime { get { return disabledTime; } set { disabledTime = value; } }
 	public float DashCooldown { get { return dashCooldown; } set { dashCooldown = value; } }
 	public float WarpCooldown { get { return warpCooldown; } set { warpCooldown = value; } }
+	public int AirDashMax { get { return airDashMax; } set { airDashMax = value; } }
 
 	#endregion
 

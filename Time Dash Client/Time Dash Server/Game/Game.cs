@@ -24,10 +24,6 @@ public class Game
 
 		server = new EzServer(portTCP, portUDP);
 
-		EzServer.DebugInfo.downData = true;
-		EzServer.DebugInfo.upData = true;
-		EzServer.DebugInfo.acceptData = true;
-
 		server.OnConnect += OnConnect;
 		server.OnDisconnect += OnDisconnect;
 		server.OnStart += OnStart;

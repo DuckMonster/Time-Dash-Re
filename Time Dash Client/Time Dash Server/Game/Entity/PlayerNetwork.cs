@@ -3,10 +3,24 @@ using OpenTK;
 
 public partial class Player : Actor
 {
+	public static bool SEND_SERVER_POSITION = false;
+
+	DashTarget dashTargetBuffer;
+	WarpTarget warpTargetBuffer;
+
+	public void ReceiveInput(byte k)
+	{
+		inputData.DecodeFlag(k);
+		SendInputPureToPlayer(map.playerList);
+	}
 	public void ReceiveInput(Vector2 position, Vector2 velocity, byte k)
 	{
-		this.position = position;
-		this.velocity = velocity;
+		if (!IsDashing && !IsWarping)
+		{
+			this.position = position;
+			this.velocity = velocity;
+		}
+
 		inputData.DecodeFlag(k);
 		SendInputToPlayer(map.playerList);
 	}
@@ -15,27 +29,29 @@ public partial class Player : Actor
 	{
 		this.position = position;
 		this.velocity = velocity;
+		if (dashTarget != null) dashTarget = null;
 		SendPositionToPlayer(map.playerList);
+	}
+
+	public void ReceiveLand(Vector2 position, Vector2 velocity)
+	{
+		this.position = position;
+		this.velocity = velocity;
+		Land();
 	}
 
 	public void ReceiveDash(Vector2 start, Vector2 target)
 	{
-		this.position = start;
-		Dash(target);
+		dashTargetBuffer = new DashTarget(start, target);
 
 		SendDashToPlayer(start, target, map.playerList);
-
-		Log.Write("DASHING");
 	}
 
 	public void ReceiveWarp(Vector2 start, Vector2 target)
 	{
-		this.position = start;
-		Warp(target);
+		warpTargetBuffer = new WarpTarget(start, target);
 
 		SendWarpToPlayer(start, target, map.playerList);
-
-		Log.Write("WARPING");
 	}
 
 	public void SendExistanceToPlayer(params Player[] players)
@@ -54,7 +70,17 @@ public partial class Player : Actor
 		SendMessageToPlayer(GetInputMessage(), true, players);
 	}
 
+	public void SendInputPureToPlayer(params Player[] players)
+	{
+		SendMessageToPlayer(GetInputPureMessage(), true, players);
+	}
+
 	public void SendPositionToPlayer(params Player[] players)
+	{
+		SendMessageToPlayer(GetPositionMessage(), true, players);
+	}
+
+	public void SendPositionToPlayerForce(params Player[] players)
 	{
 		SendMessageToPlayer(GetPositionMessage(), false, players);
 	}
@@ -77,6 +103,21 @@ public partial class Player : Actor
 	public void SendWarpToPlayer(Vector2 start, Vector2 target, params Player[] players)
 	{
 		SendMessageToPlayer(GetWarpMessage(start, target), true, players);
+	}
+
+	public void SendDashCollisionToPlayer(Player p, params Player[] players)
+	{
+		SendMessageToPlayer(GetDashCollisionMessage(p), false, players);
+	}
+
+	public void SendWarpCollisionToPlayer(Player p, params Player[] players)
+	{
+		SendMessageToPlayer(GetWarpCollisionMessage(p), false, players);
+	}
+
+	public void SendServerPositionToPlayer(params Player[] players)
+	{
+		SendMessageToPlayer(GetServerPositionMessage(), false, players);
 	}
 
 	void SendMessageToPlayer(MessageBuffer msg, bool excludeSelf, params Player[] players)
@@ -112,6 +153,17 @@ public partial class Player : Actor
 		msg.WriteByte(playerID);
 		msg.WriteVector(position);
 		msg.WriteVector(velocity);
+		msg.WriteByte(inputData.GetFlag());
+
+		return msg;
+	}
+
+	MessageBuffer GetInputPureMessage()
+	{
+		MessageBuffer msg = new MessageBuffer();
+
+		msg.WriteShort((short)Protocol.PlayerInputPure);
+		msg.WriteByte(playerID);
 		msg.WriteByte(inputData.GetFlag());
 
 		return msg;
@@ -172,6 +224,44 @@ public partial class Player : Actor
 
 		msg.WriteVector(start);
 		msg.WriteVector(target);
+
+		return msg;
+	}
+
+	MessageBuffer GetDashCollisionMessage(Player p)
+	{
+		MessageBuffer msg = new MessageBuffer();
+
+		msg.WriteShort((short)Protocol.PlayerDashCollision);
+		msg.WriteByte(playerID);
+		msg.WriteByte(p.playerID);
+		msg.WriteVector(position);
+		msg.WriteVector(p.position);
+
+		return msg;
+	}
+
+	MessageBuffer GetWarpCollisionMessage(Player p)
+	{
+		MessageBuffer msg = new MessageBuffer();
+
+		msg.WriteShort((short)Protocol.PlayerWarpCollision);
+		msg.WriteByte(playerID);
+		msg.WriteByte(p.playerID);
+		msg.WriteVector(position);
+		msg.WriteVector(p.position);
+
+		return msg;
+	}
+
+	MessageBuffer GetServerPositionMessage()
+	{
+		MessageBuffer msg = new MessageBuffer();
+
+		msg.WriteShort((short)Protocol.ServerPosition);
+		msg.WriteByte(playerID);
+
+		msg.WriteVector(position);
 
 		return msg;
 	}

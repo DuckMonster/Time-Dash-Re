@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 public class Map
 {
-	public static ShaderProgram defaultProgram = new ShaderProgram("Shaders/standardShader.glsl");
+	public static ShaderProgram defaultShader = new ShaderProgram("Shaders/standardShader.glsl");
 	public int myID;
 	Camera camera;
 	Environment environment;
@@ -141,7 +141,8 @@ public class Map
 
 	public void Draw()
 	{
-		defaultProgram["view"].SetValue(camera.ViewMatrix);
+		defaultShader["view"].SetValue(camera.ViewMatrix);
+		Tileset.tileProgram["view"].SetValue(camera.ViewMatrix);
 		environment.Draw();
 		foreach (Player p in playerList) if (p != null) p.Draw();
 		foreach (Effect e in effectList) e.Draw();
@@ -166,6 +167,10 @@ public class Map
 					playerList[msg.ReadByte()].ReceiveInput(msg.ReadVector2(), msg.ReadVector2(), msg.ReadByte());
 					break;
 
+				case Protocol.PlayerInputPure:
+					playerList[msg.ReadByte()].ReceiveInput(msg.ReadByte());
+					break;
+
 				case Protocol.PlayerPosition:
 					playerList[msg.ReadByte()].ReceivePosition(msg.ReadVector2(), msg.ReadVector2());
 					break;
@@ -184,6 +189,18 @@ public class Map
 
 				case Protocol.PlayerWarp:
 					playerList[msg.ReadByte()].ReceiveWarp(msg.ReadVector2(), msg.ReadVector2());
+					break;
+
+				case Protocol.PlayerDashCollision:
+					playerList[msg.ReadByte()].ReceiveDashCollision(msg.ReadByte(), msg.ReadVector2(), msg.ReadVector2());
+					break;
+
+				case Protocol.PlayerWarpCollision:
+					playerList[msg.ReadByte()].ReceiveWarpCollision(msg.ReadByte(), msg.ReadVector2(), msg.ReadVector2());
+					break;
+
+				case Protocol.ServerPosition:
+					playerList[msg.ReadByte()].ReceiveServerPosition(msg.ReadVector2());
 					break;
 			}
 

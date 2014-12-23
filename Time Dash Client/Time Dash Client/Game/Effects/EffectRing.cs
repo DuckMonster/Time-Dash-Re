@@ -14,7 +14,7 @@ public class EffectRing : Effect
 
 	float diameter = 4f, ringWidth = 0.9f;
 
-	public EffectRing(Vector2 pos, float size, float dur, Map m)
+	public EffectRing(Vector2 pos, float size, float dur, Color c, Map m)
 		: base(m)
 	{
 		position = pos;
@@ -24,6 +24,7 @@ public class EffectRing : Effect
 
 		mesh = Mesh.Box;
 		mesh.Texture = ringTexture;
+		mesh.Color = c;
 	}
 
 	public override void Dispose()
@@ -64,7 +65,6 @@ public class EffectRing : Effect
 		mesh.Translate(position);
 		mesh.Scale(r2 * diameter);
 
-		mesh.Color = Color.White;
 		mesh.Draw();
 
 
@@ -77,7 +77,6 @@ public class EffectRing : Effect
 		mesh.Scale(r * diameter);
 
 		mesh.Draw();
-
 
 		GL.Disable(EnableCap.StencilTest);
 	}

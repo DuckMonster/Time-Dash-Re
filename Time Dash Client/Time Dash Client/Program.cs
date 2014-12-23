@@ -11,6 +11,7 @@ using OpenTK.Input;
 
 public class Program : GameWindow
 {
+	public static bool focused = false;
 	Game game;
 
 	static void Main(string[] args)
@@ -22,6 +23,12 @@ public class Program : GameWindow
 		};
 
 		bool valid = false;
+
+		if (args.Length > 0)
+		{
+			Game.hostIP = args[0];
+			valid = true;
+		}
 
 		while (!valid)
 		{
@@ -46,7 +53,7 @@ public class Program : GameWindow
 
 		using (Program p = new Program(1025, 768, new GRFX.GraphicsMode(new GRFX.ColorFormat(32), 24, 8, 3)))
 		{
-			p.Run(180.0, 200.0);
+			p.Run(200.0);
 		}
 	}
 
@@ -66,6 +73,7 @@ public class Program : GameWindow
 	public void KeyHandle(object sender, KeyboardKeyEventArgs a)
 	{
 		if (a.Key == Key.Escape) Exit();
+		if (a.Key == Key.F4) this.WindowState = OpenTK.WindowState.Maximized;
 	}
 
 	protected override void OnLoad(EventArgs e)
@@ -74,7 +82,7 @@ public class Program : GameWindow
 
 		Title = "Time Dash";
 
-		GL.ClearColor(1f, 0f, 0f, 1f);
+		GL.ClearColor(0.4f, 0.4f, 0.4f, 1f);
 		GL.Enable(EnableCap.Blend);
 		GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
 
@@ -101,7 +109,8 @@ public class Program : GameWindow
 	{
 		base.OnUpdateFrame(e);
 
-		if (this.Focused) KeyboardInput.Update();
+		focused = Focused;
+		KeyboardInput.Update();
 		game.Logic();
 	}
 

@@ -5,15 +5,41 @@ using TKTools;
 
 public class PlayerShadow
 {
+	public class ShadowPosition
+	{
+		public Vector2 position;
+		public int tilex, tiley, direction;
+
+		public ShadowPosition(Vector2 pos, Tileset t, int dir)
+		{
+			position = pos;
+			tilex = t.X;
+			tiley = t.Y;
+			direction = dir;
+		}
+		public ShadowPosition(Vector2 pos, int tx, int ty, int dir)
+		{
+			position = pos;
+			tilex = tx;
+			tiley = ty;
+			direction = dir;
+		}
+
+		public static implicit operator Vector2(ShadowPosition pos)
+		{
+			return pos.position;
+		}
+	}
+
 	Player player;
 	Mesh mesh;
 
-	public float updateRate = 0.01f, updateTimer = 0f, bufferLength = 0.5f;
+	public float updateRate = 0.01f, updateTimer = 0f, bufferLength = 0.6f;
 
-	Vector2[] positionBuffer;
+	ShadowPosition[] positionBuffer;
 	int positionBufferIndex = 0;
 
-	public Vector2 CurrentPosition
+	public ShadowPosition CurrentPosition
 	{
 		get
 		{
@@ -26,7 +52,9 @@ public class PlayerShadow
 		player = p;
 		mesh = m;
 
-		positionBuffer = new Vector2[(int)(bufferLength / updateRate)];
+		positionBuffer = new ShadowPosition[(int)(bufferLength / updateRate)];
+		for (int i = 0; i < positionBuffer.Length; i++)
+			positionBuffer[i] = new ShadowPosition(p.position, p.playerTileset, p.dir);
 	}
 
 	public void Logic()
@@ -42,7 +70,7 @@ public class PlayerShadow
 
 	public void UpdateBuffer()
 	{
-		positionBuffer[positionBufferIndex] = player.position;
+		positionBuffer[positionBufferIndex] = new ShadowPosition(player.position, player.playerTileset, player.dir);
 		positionBufferIndex = (positionBufferIndex + 1) % positionBuffer.Length;
 	}
 
@@ -54,11 +82,11 @@ public class PlayerShadow
 		{
 			mesh.Reset();
 
-			mesh.Translate(CurrentPosition);
+			mesh.Translate(CurrentPosition.position);
 			mesh.Scale(player.size);
-			//mesh.Scale(new Vector2(1, 1));
+			mesh.Scale(-CurrentPosition.direction, 1);
 
-			mesh.Draw();
+			mesh.Draw(player.playerTileset, CurrentPosition.tilex, CurrentPosition.tiley);
 		}
 	}
 }

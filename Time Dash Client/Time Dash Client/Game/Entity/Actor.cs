@@ -9,7 +9,8 @@ public class Actor : Entity
 
 	protected Vector2 velocity = Vector2.Zero;
 	protected float currentAcceleration = 0;
-	protected int dir = 1;
+	public int dir = 1;
+	bool previousOnGround = false;
 
 	public Actor(Vector2 position, Map m)
 		: base(position, m)
@@ -60,9 +61,12 @@ public class Actor : Entity
 			velocity = Vector2.Zero;
 
 		position += velocity * Game.delta;
+		if (IsOnGround && !previousOnGround) Land();
 
 		if (velocity.X > 0) dir = 1;
 		if (velocity.X < 0) dir = -1;
+
+		previousOnGround = IsOnGround;
 	}
 
 	public virtual void DoPhysics()
@@ -71,6 +75,10 @@ public class Actor : Entity
 		currentAcceleration = 0;
 
 		velocity.Y -= stats.Gravity * Game.delta;
+	}
+
+	public virtual void Land()
+	{
 	}
 
 	public virtual void Jump()

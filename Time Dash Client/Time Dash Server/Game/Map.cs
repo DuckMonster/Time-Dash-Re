@@ -120,7 +120,7 @@ public class Map
 
 		Vector2 diffVector = end - start, directionVector = diffVector.Normalized();
 
-		int accuracy = (int)(diffVector.Length * 6);
+		int accuracy = (int)(diffVector.Length * 10);
 		float step = diffVector.Length / accuracy;
 		Vector2 checkpos = start;
 
@@ -170,8 +170,16 @@ public class Map
 						p.ReceiveInput(msg.ReadVector2(), msg.ReadVector2(), msg.ReadByte());
 						break;
 
+					case Protocol.PlayerInputPure:
+						p.ReceiveInput(msg.ReadByte());
+						break;
+
 					case Protocol.PlayerPosition:
 						p.ReceivePosition(msg.ReadVector2(), msg.ReadVector2());
+						break;
+
+					case Protocol.PlayerLand:
+						p.ReceiveLand(msg.ReadVector2(), msg.ReadVector2());
 						break;
 
 					case Protocol.PlayerDash:

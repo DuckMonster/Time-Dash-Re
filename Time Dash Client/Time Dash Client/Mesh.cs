@@ -126,11 +126,11 @@ public class Mesh : IDisposable
 		}
 	}
 
-	public ShaderProgram Program
+	public ShaderProgram Shader
 	{
 		get
 		{
-			return Map.defaultProgram;
+			return Map.defaultShader;
 		}
 	}
 
@@ -199,23 +199,41 @@ public class Mesh : IDisposable
 	{
 		DRAW_CALLS++;
 
-		Program.Use();
+		Shader.Use();
 
-		Program["vertexPosition"].SetValue(vertexBuffer);
-		Program["vertexUV"].SetValue(uvBuffer);
-		Program["model"].SetValue(modelMatrix);
-		Program["color"].SetValue(color);
-		Program["fillColor"].SetValue(fillColor);
+		Shader["vertexPosition"].SetValue(vertexBuffer);
+		Shader["vertexUV"].SetValue(uvBuffer);
+		Shader["model"].SetValue(modelMatrix);
+		Shader["color"].SetValue(color);
+		Shader["fillColor"].SetValue(fillColor);
 
 		if (texture != null)
 		{
 			texture.Bind();
-			Program["usingTexture"].SetValue(true);
+			Shader["usingTexture"].SetValue(true);
 		}
 		else
 		{
-			Program["usingTexture"].SetValue(false);
+			Shader["usingTexture"].SetValue(false);
 		}
+
+		GL.DrawArrays(primitiveType, 0, vertexList.Count);
+	}
+
+	public void Draw(Tileset ts) { Draw(ts, ts.X, ts.Y); }
+	public void Draw(Tileset ts, int x, int y)
+	{
+		DRAW_CALLS++;
+
+		ShaderProgram shad = Tileset.tileProgram;
+
+		shad["vertexPosition"].SetValue(vertexBuffer);
+		shad["vertexUV"].SetValue(uvBuffer);
+		shad["model"].SetValue(modelMatrix);
+		shad["color"].SetValue(color);
+		shad["fillColor"].SetValue(fillColor);
+
+		ts.Upload(x, y);
 
 		GL.DrawArrays(primitiveType, 0, vertexList.Count);
 	}
