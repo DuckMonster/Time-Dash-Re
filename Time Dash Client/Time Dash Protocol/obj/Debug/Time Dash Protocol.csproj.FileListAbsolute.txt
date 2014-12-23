@@ -1,0 +1,10 @@
+D:\GitHub\Time-Dash-Re\Time Dash Client\Time Dash Protocol\bin\Debug\Time Dash Protocol.dll
+D:\GitHub\Time-Dash-Re\Time Dash Client\Time Dash Protocol\bin\Debug\Time Dash Protocol.pdb
+D:\GitHub\Time-Dash-Re\Time Dash Client\Time Dash Protocol\obj\Debug\Time Dash Protocol.dll
+D:\GitHub\Time-Dash-Re\Time Dash Client\Time Dash Protocol\obj\Debug\Time Dash Protocol.pdb
+D:\GitHub\Time-Dash-Re\Time Dash Client\Time Dash Protocol\obj\Debug\Time Dash Protocol.csprojResolveAssemblyReference.cache
+D:\GitHub\Time-Dash-Re\Time Dash Client\Time Dash Protocol\bin\Debug\OpenTK.dll
+D:\GitHub\Time-Dash-Re\Time Dash Client\Time Dash Protocol\bin\Debug\TKTools.dll
+D:\GitHub\Time-Dash-Re\Time Dash Client\Time Dash Protocol\bin\Debug\OpenTK.pdb
+D:\GitHub\Time-Dash-Re\Time Dash Client\Time Dash Protocol\bin\Debug\OpenTK.xml
+D:\GitHub\Time-Dash-Re\Time Dash Client\Time Dash Protocol\bin\Debug\TKTools.pdb

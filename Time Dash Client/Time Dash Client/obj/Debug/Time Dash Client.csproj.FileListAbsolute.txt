@@ -1,0 +1,32 @@
+D:\GitHub\Time-Dash-Re\Time Dash Client\Time Dash Client\bin\Debug\Time Dash Client.exe.config
+D:\GitHub\Time-Dash-Re\Time Dash Client\Time Dash Client\bin\Debug\Time Dash Client.exe
+D:\GitHub\Time-Dash-Re\Time Dash Client\Time Dash Client\bin\Debug\Time Dash Client.pdb
+D:\GitHub\Time-Dash-Re\Time Dash Client\Time Dash Client\bin\Debug\OpenTK.Compatibility.dll
+D:\GitHub\Time-Dash-Re\Time Dash Client\Time Dash Client\bin\Debug\OpenTK.dll
+D:\GitHub\Time-Dash-Re\Time Dash Client\Time Dash Client\bin\Debug\OpenTK.GLControl.dll
+D:\GitHub\Time-Dash-Re\Time Dash Client\Time Dash Client\bin\Debug\OpenTK.pdb
+D:\GitHub\Time-Dash-Re\Time Dash Client\Time Dash Client\bin\Debug\OpenTK.xml
+D:\GitHub\Time-Dash-Re\Time Dash Client\Time Dash Client\bin\Debug\OpenTK.GLControl.xml
+D:\GitHub\Time-Dash-Re\Time Dash Client\Time Dash Client\obj\Debug\Time Dash Client.exe
+D:\GitHub\Time-Dash-Re\Time Dash Client\Time Dash Client\obj\Debug\Time Dash Client.pdb
+D:\GitHub\Time-Dash-Re\Time Dash Client\Time Dash Client\bin\Debug\Shaders\standardShader.glsl
+D:\GitHub\Time-Dash-Re\Time Dash Client\Time Dash Client\obj\Debug\Time Dash Client.csprojResolveAssemblyReference.cache
+D:\GitHub\Time-Dash-Re\Time Dash Client\Time Dash Client\bin\Debug\TKTools.dll
+D:\GitHub\Time-Dash-Re\Time Dash Client\Time Dash Client\bin\Debug\TKTools.pdb
+D:\GitHub\Time-Dash-Re\Time Dash Client\Time Dash Client\bin\Debug\Res\grad.png
+D:\GitHub\Time-Dash-Re\Time Dash Client\Time Dash Client\bin\Debug\Res\map.png
+D:\GitHub\Time-Dash-Re\Time Dash Client\Time Dash Client\bin\Debug\Res\test2.png
+D:\GitHub\Time-Dash-Re\Time Dash Client\Time Dash Client\bin\Debug\Res\test3.png
+D:\GitHub\Time-Dash-Re\Time Dash Client\Time Dash Client\bin\Debug\Res\testa.jpg
+D:\GitHub\Time-Dash-Re\Time Dash Client\Time Dash Client\bin\Debug\Res\guy.png
+D:\GitHub\Time-Dash-Re\Time Dash Client\Time Dash Client\bin\Debug\Res\guyHead1.png
+D:\GitHub\Time-Dash-Re\Time Dash Client\Time Dash Client\bin\Debug\Res\guyHead2.png
+D:\GitHub\Time-Dash-Re\Time Dash Client\Time Dash Client\bin\Debug\Res\guyHead3.png
+D:\GitHub\Time-Dash-Re\Time Dash Client\Time Dash Client\bin\Debug\UDPEngine.dll
+D:\GitHub\Time-Dash-Re\Time Dash Client\Time Dash Client\bin\Debug\UDPEngine.pdb
+D:\GitHub\Time-Dash-Re\Time Dash Client\Time Dash Client\bin\Debug\Time Dash Protocol.dll
+D:\GitHub\Time-Dash-Re\Time Dash Client\Time Dash Client\bin\Debug\Time Dash Protocol.pdb
+D:\GitHub\Time-Dash-Re\Time Dash Client\Time Dash Client\bin\Debug\Res\circlebig.png
+D:\GitHub\Time-Dash-Re\Time Dash Client\Time Dash Client\bin\Debug\Shaders\tileShader.glsl
+D:\GitHub\Time-Dash-Re\Time Dash Client\Time Dash Client\bin\Debug\Res\jackTileset.png
+D:\GitHub\Time-Dash-Re\Time Dash Client\Time Dash Client\bin\Debug\.startClients.bat

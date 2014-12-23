@@ -49,13 +49,27 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="TKTools, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\C#\TKTools\TKTools\bin\Release\TKTools.dll</HintPath>
+      <HintPath>..\..\..\C#\TKTools\TKTools\bin\Debug\TKTools.dll</HintPath>
+    </Reference>
+    <Reference Include="UDPEngine, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\C#\UDPEngine\UDPEngine\bin\Debug\UDPEngine.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Game\Camera.cs" />
+    <Compile Include="Game\Effects\Effect.cs" />
+    <Compile Include="Game\Effects\EffectCollision.cs" />
+    <Compile Include="Game\Effects\EffectRing.cs" />
+    <Compile Include="Game\Effects\EffectSkull.cs" />
+    <Compile Include="Game\Effects\EffectLine.cs" />
+    <Compile Include="Game\Effects\EffectSpike.cs" />
     <Compile Include="Game\Entity\Actor.cs" />
     <Compile Include="Game\Entity\Entity.cs" />
+    <Compile Include="Game\Entity\PlayerAbilities.cs" />
+    <Compile Include="Game\Entity\PlayerNetwork.cs" />
+    <Compile Include="Game\Entity\Player.cs" />
+    <Compile Include="Game\Entity\PlayerShadow.cs" />
     <Compile Include="Game\Environment.cs" />
     <Compile Include="Game\Game.cs" />
     <Compile Include="Game\Map.cs" />
@@ -64,23 +78,47 @@
     <Compile Include="Mesh.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Tileset.cs" />
+    <Compile Include="Timer.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include=".startClients.bat">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="App.config" />
+    <None Include="Shaders\tileShader.glsl">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="Shaders\standardShader.glsl">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Res\circlebig.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Res\grad.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Res\guy.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="Res\guyHead1.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Res\guyHead2.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Res\guyHead3.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Res\jackTileset.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Res\map.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="Res\skull.png" />
     <Content Include="Res\test2.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -90,6 +128,12 @@
     <Content Include="Res\testa.jpg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Time Dash Protocol\Time Dash Protocol.csproj">
+      <Project>{0d6edbc7-25e7-41f7-b98f-343b7409a402}</Project>
+      <Name>Time Dash Protocol</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -21,11 +21,16 @@ class Camera
 
 	public void Logic()
 	{
-		Vector2 difference = map.actor.position - position.Xy;
-		position.Xy += difference * 4f * Game.delta;
+		Player p = map.LocalPlayer;
 
-		float targetZ = 5f + difference.Length + 0.6f,
-			ZDifference = targetZ - position.Z;
-		position.Z += ZDifference * 0.8f * Game.delta;
+		if (p != null)
+		{
+			Vector2 difference = p.position - position.Xy;
+			position.Xy += difference * 4f * Game.delta;
+
+			float targetZ = 10f + difference.Length + 0.6f,
+				ZDifference = targetZ - position.Z;
+			position.Z += ZDifference * 0.8f * Game.delta;
+		}
 	}
 }

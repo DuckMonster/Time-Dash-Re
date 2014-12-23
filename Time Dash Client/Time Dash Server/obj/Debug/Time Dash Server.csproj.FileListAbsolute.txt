@@ -1,0 +1,16 @@
+D:\GitHub\Time-Dash-Re\Time Dash Client\Time Dash Server\bin\Debug\Time Dash Server.exe.config
+D:\GitHub\Time-Dash-Re\Time Dash Client\Time Dash Server\obj\Debug\Time Dash Server.exe
+D:\GitHub\Time-Dash-Re\Time Dash Client\Time Dash Server\obj\Debug\Time Dash Server.pdb
+D:\GitHub\Time-Dash-Re\Time Dash Client\Time Dash Server\bin\Debug\Res\map.png
+D:\GitHub\Time-Dash-Re\Time Dash Client\Time Dash Server\bin\Debug\Time Dash Server.exe
+D:\GitHub\Time-Dash-Re\Time Dash Client\Time Dash Server\bin\Debug\Time Dash Server.pdb
+D:\GitHub\Time-Dash-Re\Time Dash Client\Time Dash Server\bin\Debug\OpenTK.dll
+D:\GitHub\Time-Dash-Re\Time Dash Client\Time Dash Server\bin\Debug\Time Dash Protocol.dll
+D:\GitHub\Time-Dash-Re\Time Dash Client\Time Dash Server\bin\Debug\UDPEngine.dll
+D:\GitHub\Time-Dash-Re\Time Dash Client\Time Dash Server\bin\Debug\Time Dash Protocol.pdb
+D:\GitHub\Time-Dash-Re\Time Dash Client\Time Dash Server\bin\Debug\OpenTK.pdb
+D:\GitHub\Time-Dash-Re\Time Dash Client\Time Dash Server\bin\Debug\OpenTK.xml
+D:\GitHub\Time-Dash-Re\Time Dash Client\Time Dash Server\bin\Debug\UDPEngine.pdb
+D:\GitHub\Time-Dash-Re\Time Dash Client\Time Dash Server\obj\Debug\Time Dash Server.csprojResolveAssemblyReference.cache
+D:\GitHub\Time-Dash-Re\Time Dash Client\Time Dash Server\bin\Debug\TKTools.dll
+D:\GitHub\Time-Dash-Re\Time Dash Client\Time Dash Server\bin\Debug\TKTools.pdb

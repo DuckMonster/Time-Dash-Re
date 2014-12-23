@@ -17,15 +17,19 @@ public class Entity
 		mesh = Mesh.Box;
 	}
 
-	public void Logic()
+	public bool CollidesWith(Vector2 pos, Vector2 s)
 	{
-		if (KeyboardInput.Current[Key.Right]) position.X += 5f * Game.delta;
-		if (KeyboardInput.Current[Key.Left]) position.X -= 5f * Game.delta;
-		if (KeyboardInput.Current[Key.Down]) position.Y -= 5f * Game.delta;
-		if (KeyboardInput.Current[Key.Up]) position.Y += 5f * Game.delta;
+		return (pos.X + s.X / 2 >= position.X - size.X / 2 &&
+			pos.X - s.X / 2 < position.X + size.X / 2 &&
+			pos.Y + s.Y / 2 >= position.Y - size.Y / 2 &&
+			pos.Y - s.Y / 2 < position.Y + size.Y / 2);
 	}
 
-	public void Draw()
+	public virtual void Logic()
+	{
+	}
+
+	public virtual void Draw()
 	{
 		mesh.Color = map.GetCollision(this) ? Color.Green : Color.Blue;
 
