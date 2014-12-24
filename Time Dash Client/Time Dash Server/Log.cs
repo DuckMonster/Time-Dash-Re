@@ -50,6 +50,7 @@ class Log
 		}
 	}
 
+	static DateTime startTime;
 	static bool running = false;
 
 	static string[] filterList;
@@ -66,6 +67,8 @@ class Log
 	public static void Init()
 	{
 		if (inputThread != null) return;
+
+		startTime = DateTime.Now;
 
 		running = true;
 
@@ -126,7 +129,12 @@ class Log
 		if (CanDebug) debugTimer = debugInterval;
 		debugTimer -= Game.delta;
 
+		if (CanDebug)
+		{
+			Console.Clear();
+		}
 
+		ShowUptime();
 		ShowFPS();
 
 		if (networkWatch == null) networkWatch = Stopwatch.StartNew();
@@ -157,12 +165,16 @@ class Log
 		currentUp = EzServer.UpBytes;
 	}
 
+	static void ShowUptime()
+	{
+		TimeSpan time = DateTime.Now - startTime;
+		Debug("Uptime {0:00}:{1:00}:{2:00}", time.Hours, time.Minutes, time.Seconds);
+	}
+
 	static void ShowFPS()
 	{
 		if (CanDebug)
 		{
-			Console.Clear();
-
 			//Calculate average
 			int tick = 0, frame = 0;
 
@@ -183,7 +195,7 @@ class Log
 
 	static void ShowNetworkData()
 	{
-		Debug("U: {0} b/s\nD: {1} b/s", currentUp, currentDown);
+		Debug("U: {0} B/s\nD: {1} B/s\n\nTotal\nU: {2} B\nD: {3} B", currentUp, currentDown, EzServer.UpBytesTotal, EzServer.DownBytesTotal);
 	}
 
 	public static void ShowMessages()

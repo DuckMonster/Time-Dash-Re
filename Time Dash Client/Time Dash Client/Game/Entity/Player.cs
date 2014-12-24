@@ -148,7 +148,7 @@ public partial class Player : Actor
 			if (IsOnGround)
 				return !Disabled;
 			else
-				return !Disabled && airDashNmbr > 0;
+				return !Disabled;
 		}
 	}
 	public bool IgnoresGravity
