@@ -1,7 +1,8 @@
 ﻿using OpenTK;
 using OpenTK.Graphics.OpenGL;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
-
 using TKTools;
 
 namespace MapEditor
@@ -10,12 +11,17 @@ namespace MapEditor
 	{
 		public static ShaderProgram program = new ShaderProgram("shaders/standardShader.glsl");
 		public static float screenWidth = 20, screenHeight;
+		public static Camera camera = new Camera();
 
-		Mesh m = Mesh.Box;
-		Camera camera = new Camera();
+		public static float delta = 0f;
+
+		List<EditorObject> objectList = new List<EditorObject>();
+
+		Stopwatch tickWatch;
 
 		public Editor()
 		{
+			objectList.Add(new EditorObject(this));
 		}
 
 		public void UpdateProjection(Vector2 size)
@@ -29,7 +35,20 @@ namespace MapEditor
 
 		public void Logic()
 		{
+			CalculateDelta();
+
 			camera.Logic();
+			foreach (EditorObject obj in objectList) obj.Logic();
+		}
+
+		public void CalculateDelta()
+		{
+			if (tickWatch == null) tickWatch = Stopwatch.StartNew();
+
+			tickWatch.Stop();
+			delta = tickWatch.ElapsedTicks / (float)Stopwatch.Frequency;
+			if (delta > 0.2f) delta = 0;
+			tickWatch.Restart();
 		}
 
 		public void Draw()
@@ -37,14 +56,7 @@ namespace MapEditor
 			GL.Clear(ClearBufferMask.ColorBufferBit);
 			program["view"].SetValue(camera.ViewMatrix);
 
-			for (int x = -1; x <= 1; x++)
-				for (int y = -1; y <= 1; y++)
-				{
-					m.Reset();
-					m.Translate(x * 20f, y * 20f);
-					m.Scale(10f);
-					m.Draw();
-				}
+			foreach (EditorObject obj in objectList) obj.Draw();
 		}
 	}
 }

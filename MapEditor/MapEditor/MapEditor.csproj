@@ -54,6 +54,8 @@
   <ItemGroup>
     <Compile Include="editor\Camera.cs" />
     <Compile Include="editor\Editor.cs" />
+    <Compile Include="editor\editorobject\EditorObject.cs" />
+    <Compile Include="KeyboardInput.cs" />
     <Compile Include="Main.cs" />
     <Compile Include="Mesh.cs" />
     <Compile Include="EditorProgram.cs" />

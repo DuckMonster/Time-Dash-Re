@@ -201,42 +201,6 @@ namespace MapEditor
 			Vertices = vertices;
 			UV = uvs;
 		}
-		public Mesh(TextDrawer td)
-		{
-			primitiveType = PrimitiveType.TriangleStrip;
-			Vector2 size = td.CanvasSize;
-
-			float w = size.X, h = size.Y;
-
-			if (w >= h)
-			{
-				w = w / h;
-				h = 1f;
-			}
-			else
-			{
-				h = h / w;
-				w = 1f;
-			}
-
-			vertexBuffer = new VBO<Vector2>();
-			Vertices = new Vector2[] {
-			new Vector2(-w, h)/2,
-			new Vector2(w, h)/2,
-			new Vector2(-w, -h)/2,
-			new Vector2(w, -h)/2
-		};
-
-			uvBuffer = new VBO<Vector2>();
-			UV = new Vector2[] {
-			new Vector2(0f, 0f),
-			new Vector2(1f, 0f),
-			new Vector2(0f, 1f),
-			new Vector2(1f, 1f)
-		};
-
-			Texture = td;
-		}
 
 		public void Dispose()
 		{

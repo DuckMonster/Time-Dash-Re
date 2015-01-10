@@ -51,7 +51,11 @@ namespace MapEditor
 		{
 			base.OnUpdateFrame(e);
 
-			if (Focused) MouseInput.Update(this);
+			if (Focused)
+			{
+				MouseInput.Update(this);
+				KeyboardInput.Update();
+			}
 
 			Console.Clear();
 			Console.WriteLine("X: {0}, Y: {1}", MouseInput.Current.X, MouseInput.Current.Y);

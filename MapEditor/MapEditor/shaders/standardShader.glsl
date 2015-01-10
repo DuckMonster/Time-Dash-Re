@@ -47,8 +47,6 @@ void main() {
 
 	if (finalColor.a <= 0) discard;
 	else fragment = finalColor;
-
-	fragment = vec4(1, 1, 1, 1);
 }
 
 @-------------------

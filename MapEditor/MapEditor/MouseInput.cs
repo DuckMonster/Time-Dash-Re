@@ -5,7 +5,7 @@ namespace MapEditor
 {
 	public class MouseInput
 	{
-		public struct MouseStatus
+		public class MouseStatus
 		{
 			MouseState state;
 			float x, y;
@@ -34,7 +34,7 @@ namespace MapEditor
 
 			public Vector2 GetPositionAtZ(float z)
 			{
-				return new Vector2(X, Y) * (5 - z);
+				return new Vector2(X, Y) * (Editor.camera.Position.Z - z);
 			}
 
 			public float X
@@ -75,8 +75,24 @@ namespace MapEditor
 			}
 		}
 
-		public static MouseStatus Current, Previous;
+		static MouseStatus current, previous;
 		public static int CurrentX, CurrentY;
+
+		public static MouseStatus Current
+		{
+			get
+			{
+				return current;
+			}
+		}
+
+		public static MouseStatus Previous
+		{
+			get
+			{
+				return previous != null ? previous : current;
+			}
+		}
 
 		public static void Update(GameWindow window)
 		{
@@ -85,8 +101,8 @@ namespace MapEditor
 			float x = ((float)CurrentX / window.ClientSize.Width - 0.5f) * Editor.screenWidth;
 			float y = ((float)CurrentY / window.ClientSize.Height - 0.5f) * Editor.screenHeight * -1;
 
-			Previous = Current;
-			Current = new MouseStatus(x, y, state);
+			previous = current;
+			current = new MouseStatus(x, y, state);
 		}
 	}
 }
