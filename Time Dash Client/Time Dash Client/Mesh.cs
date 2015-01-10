@@ -50,6 +50,30 @@ public class Mesh : IDisposable
 		}
 	}
 
+	public static Mesh OrthoBox
+	{
+		get
+		{
+			Mesh m = new Mesh(PrimitiveType.TriangleStrip);
+			m.Vertices = new Vector2[] {
+				new Vector2(0f, 0f),
+				new Vector2(1f, 0f),
+				new Vector2(0f, -1f),
+				new Vector2(1f, -1f)
+			};
+			m.UV = new Vector2[] {
+				new Vector2(0f, 0f),
+				new Vector2(1f, 0f),
+				new Vector2(0f, 1f),
+				new Vector2(1f, 1f)
+			};
+
+			m.Orthographic = true;
+
+			return m;
+		}
+	}
+
 	#endregion
 
 	PrimitiveType primitiveType;
@@ -60,7 +84,10 @@ public class Mesh : IDisposable
 
 	Color color = Color.White;
 	bool fillColor = false;
+	bool usingBlur = false;
 	Texture texture;
+
+	bool ortho = false;
 
 	public Color Color
 	{
@@ -130,7 +157,19 @@ public class Mesh : IDisposable
 	{
 		get
 		{
-			return Map.defaultShader;
+			return Orthographic ? Map.hudShader : Map.defaultShader;
+		}
+	}
+
+	public bool Orthographic
+	{
+		get
+		{
+			return ortho;
+		}
+		set
+		{
+			ortho = value;
 		}
 	}
 
@@ -160,6 +199,42 @@ public class Mesh : IDisposable
 		Vertices = vertices;
 		UV = uvs;
 	}
+	public Mesh(TextDrawer td)
+	{
+		primitiveType = PrimitiveType.TriangleStrip;
+		Vector2 size = td.CanvasSize;
+
+		float w = size.X, h = size.Y;
+
+		if (w >= h)
+		{
+			w = w / h;
+			h = 1f;
+		}
+		else
+		{
+			h = h / w;
+			w = 1f;
+		}
+
+		vertexBuffer = new VBO<Vector2>();
+		Vertices = new Vector2[] {
+			new Vector2(-w, h)/2,
+			new Vector2(w, h)/2,
+			new Vector2(-w, -h)/2,
+			new Vector2(w, -h)/2
+		};
+
+		uvBuffer = new VBO<Vector2>();
+		UV = new Vector2[] {
+			new Vector2(0f, 0f),
+			new Vector2(1f, 0f),
+			new Vector2(0f, 1f),
+			new Vector2(1f, 1f)
+		};
+
+		Texture = td;
+	}
 
 	public void Dispose()
 	{
@@ -173,10 +248,12 @@ public class Mesh : IDisposable
 	}
 
 	public void Translate(float x, float y) { Translate(new Vector2(x, y)); }
-	public void Translate(Vector2 pos)
+	public void Translate(Vector2 pos, float z = 0) { Translate(new Vector3(pos.X, pos.Y, z)); }
+	public void Translate(float x, float y, float z) { Translate(new Vector3(x, y, z)); }
+	public void Translate(Vector3 pos)
 	{
 		CALCULATIONS++;
-		modelMatrix = Matrix4.CreateTranslation(new Vector3(pos.X, pos.Y, 0)) * modelMatrix;
+		modelMatrix = Matrix4.CreateTranslation(pos) * modelMatrix;
 	}
 
 	public void Scale(float s) { Scale(new Vector2(s, s)); }

@@ -4,35 +4,42 @@ using TKTools;
 
 public class EffectSkull : Effect
 {
-	public static readonly Texture skullTexture = new Texture("Res/skull.png");
+	public static readonly Texture
+		skullTexture = new Texture("Res/skull.png");
 
-	Mesh mesh;
+	Mesh skullMesh, spikeMesh;
 	Vector2 position;
 	float rotation;
+
+	Color color;
 
 	Timer effectTimer = new Timer(1f, false);
 
 	public EffectSkull(Vector2 position, Color c, Map m)
 		: base(m)
 	{
-		mesh = Mesh.Box;
-
-		mesh.Texture = skullTexture;
-
-		mesh.Reset();
-		mesh.Translate(position);
+		this.position = position;
 
 		Random rng = new Random();
 		rotation = (float)(rng.NextDouble() * 2 - 1) * 30f;
 
-		mesh.Rotate(rotation);
-		mesh.Scale(2f);
-		mesh.Color = c;
+		color = c;
+
+		skullMesh = Mesh.Box;
+		spikeMesh = Mesh.Box;
+
+		skullMesh.Texture = skullTexture;
+		spikeMesh.Vertices = new Vector2[] {
+			new Vector2(-0.5f, 0f),
+			new Vector2(-0.3f, 0.5f),
+			new Vector2(-0.3f, -0.5f),
+			new Vector2(0.5f, 0f)
+		};
 	}
 
 	public override void Dispose()
 	{
-		mesh.Dispose();
+		skullMesh.Dispose();
 		base.Dispose();
 	}
 
@@ -44,8 +51,6 @@ public class EffectSkull : Effect
 			return;
 		}
 
-		mesh.Translate(0, 1f * Game.delta);
-
 		effectTimer.Logic();
 	}
 
@@ -53,10 +58,32 @@ public class EffectSkull : Effect
 	{
 		if (effectTimer.IsDone) return;
 
-		Color c = mesh.Color;
-		c.A = 1 - effectTimer.PercentageDone;
+		color.A = 1 - effectTimer.PercentageDone;
 
-		mesh.Color = c;
-		mesh.Draw();
+		skullMesh.Color = color;
+		spikeMesh.Color = color;
+
+		float f = 1 - TKMath.Exp(effectTimer.PercentageDone, 5);
+
+		for (int i = 0; i < 4; i++)
+		{
+			spikeMesh.Reset();
+			spikeMesh.Translate(position);
+			spikeMesh.Rotate(rotation + 90 * i);
+			spikeMesh.Scale(1 + 2 * f, 2 - 2 * f);
+			spikeMesh.Translate(f * 2, 0);
+			spikeMesh.Draw();
+		}
+
+		float pos = (1 - TKMath.Exp(effectTimer.PercentageDone, 3)) * 3f,
+			rot = 20 * effectTimer.PercentageDone;
+
+		skullMesh.Reset();
+
+		skullMesh.Translate(position + new Vector2(0, pos));
+		skullMesh.Rotate(rotation + rot);
+		skullMesh.Scale(3f);
+
+		skullMesh.Draw();
 	}
 }

@@ -46,7 +46,7 @@ class Log
 	static Thread inputThread;
 
 	static Stopwatch networkWatch;
-	static int currentUp = 0, currentDown = 0;
+	static int currentUp = 0, currentDown = 0, maxUp = 0, maxDown = 0;
 	static int ping = 0;
 	static void Ping(int millis) { ping = millis; }
 
@@ -116,6 +116,7 @@ class Log
 		logMessageList.Clear();
 	}
 
+	private static int currentFrame = 0;
 	private static int[] tickAvg = new int[150], frameAvg = new int[500];
 	private static int tickAvgIndex = 0, frameAvgIndex = 0;
 
@@ -140,12 +141,14 @@ class Log
 	{
 		tickAvg[tickAvgIndex] = (int)(1.0 / t);
 		tickAvgIndex = (tickAvgIndex + 1) % tickAvg.Length;
+
+		frameAvg[frameAvgIndex] = currentFrame;
+		frameAvgIndex = (frameAvgIndex + 1) % frameAvg.Length;
 	}
 
 	public static void CalculateFrame(float t)
 	{
-		frameAvg[frameAvgIndex] = (int)(1.0 / t);
-		frameAvgIndex = (frameAvgIndex + 1) % frameAvg.Length;
+		currentFrame = (int)(1.0 / t);
 	}
 
 	public static void CalculateNetworkData()
@@ -154,6 +157,10 @@ class Log
 		{
 			currentDown = EzClient.DownBytes;
 			currentUp = EzClient.UpBytes;
+
+			if (currentDown > maxDown) maxDown = currentDown;
+			if (currentUp > maxUp) maxUp = currentUp;
+
 			Game.client.Ping();
 		}
 	}
@@ -184,7 +191,8 @@ class Log
 
 	static void ShowNetworkData()
 	{
-		Debug("U: {0} b/s\nD: {1} b/s\nPing: {2}", currentUp, currentDown, ping);
+		Debug("U: {0} B/s  \tMax: {4} b/s\nD: {1} B/s  \tMax: {5} b/s\n\nTotal\nU: {2} B\nD: {3} B\n\nPing: {6}",
+			currentUp, currentDown, EzClient.UpBytesTotal, EzClient.DownBytesTotal, maxUp, maxDown, ping);
 	}
 
 	static void ShowMessages()

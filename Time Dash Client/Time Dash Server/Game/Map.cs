@@ -7,7 +7,17 @@ using System.Collections.Generic;
 
 public class Map
 {
-	Environment environment;
+	public static Map currentMap;
+	protected Random rng = new Random();
+	protected Environment environment;
+
+	public string filename;
+	public GameMode mode;
+
+	Player winPlayer;
+	Timer winTimer = new Timer(4f, false);
+
+	public Team[] teamList = new Team[10];
 
 	public Player[] playerList = new Player[10];
 	public Player GetPlayer(int id)
@@ -36,14 +46,18 @@ public class Map
 		return -1;
 	}
 
-	public void PlayerJoin(Client c)
+	public virtual Player PlayerJoin(Client c, string name)
 	{
 		int id = GetFreePlayerSlot();
-		if (id != -1) playerList[id] = new Player(id, c, new Vector2(10, 30), this);
+
+		playerList[id] = CreatePlayer(id, name, c);
+		playerList[id].position = GetFreeSpawnPosition(playerList[id]);
 
 		MessageBuffer msg = new MessageBuffer();
 		msg.WriteShort((short)Protocol.EnterMap);
 		msg.WriteByte(id);
+		msg.WriteString(filename);
+		msg.WriteByte((byte)mode);
 		c.Send(msg);
 
 		foreach (Player p in playerList)
@@ -55,6 +69,31 @@ public class Map
 			else
 				p.SendExistanceToPlayer(playerList[id]);
 		}
+
+		playerList[id].SendPositionToPlayerForce(playerList);
+
+		foreach (Team t in teamList)
+		{
+			if (t != null)
+				t.SendMemberListToPlayer(playerList[id]);
+		}
+
+		Log.Write(ConsoleColor.Yellow, name + " joined!");
+
+		return playerList[id];
+	}
+
+	public virtual Player CreatePlayer(int id, string name, Client c)
+	{
+		return new Player(id, name, c, Vector2.Zero, this);
+	}
+
+	public void PlayerJoinTeam(int id, int team) { if (playerList[id] == null) return; PlayerJoinTeam(playerList[id], team); }
+	public void PlayerJoinTeam(Player p, int team)
+	{
+		if (teamList[team] == null) teamList[team] = new Team(team, this);
+
+		teamList[team].AddMember(p);
 	}
 
 	public void PlayerLeave(Client c)
@@ -68,9 +107,40 @@ public class Map
 		SendToAllPlayers(msg);
 	}
 
-	public Map()
+	public Map(string filename, GameMode mode)
 	{
-		environment = new Environment(this);
+		this.filename = filename;
+		this.mode = mode;
+
+		currentMap = this;
+		environment = new Environment(filename, this);
+	}
+
+	public Map(string filename, GameMode mode, Player[] players)
+	{
+		this.filename = filename;
+		this.mode = mode;
+
+		currentMap = this;
+		environment = new Environment(filename, this);
+
+		foreach (Player p in players)
+		{
+			if (p != null)
+				PlayerJoin(p.client, p.playerName);
+		}
+	}
+
+	public virtual void MapObjectLoad(uint color, Environment.Tile t)
+	{
+	}
+
+	public void PlayerWin(Player p)
+	{
+		if (winPlayer != null) return;
+		winPlayer = p;
+
+		SendPlayerWin(p);
 	}
 
 	public bool GetCollision(Entity e) { return GetCollision(e.position, e.size); }
@@ -80,10 +150,16 @@ public class Map
 		return environment.GetCollision(pos, size);
 	}
 
-	public void Logic()
+	public virtual void Logic()
 	{
 		environment.Logic();
 		foreach (Player p in playerList) if (p != null) p.Logic();
+
+		if (winPlayer != null)
+		{
+			winTimer.Logic();
+			if (winTimer.IsDone) Game.currentGame.LoadMap(filename, mode);
+		}
 	}
 
 	public bool RayTraceCollision(Vector2 start, Vector2 end, Vector2 size, out Vector2 freepos)
@@ -112,7 +188,17 @@ public class Map
 		return false;
 	}
 
-	public List<Player> RayTrace(Vector2 start, Vector2 end, Vector2 size, params Player[] exclude)
+	public List<Player> GetPlayerRadius(Vector2 pos, float radius, params Player[] exclude)
+	{
+		List<Player> excludeList = new List<Player>(exclude);
+		List<Player> returnList = new List<Player>(10);
+
+		foreach (Player p in playerList) if (p != null && !excludeList.Contains(p) && p.CollidesWith(pos, radius)) returnList.Add(p);
+
+		return returnList;
+	}
+
+	public List<Player> RayTracePlayer(Vector2 start, Vector2 end, Vector2 size, params Player[] exclude)
 	{
 		List<Player> excludeList = new List<Player>();
 		excludeList.AddRange(exclude);
@@ -148,6 +234,16 @@ public class Map
 		return null;
 	}
 
+	public void SendPlayerWin(Player p)
+	{
+		MessageBuffer msg = new MessageBuffer();
+
+		msg.WriteShort((short)Protocol.PlayerWin);
+		msg.WriteByte(p.id);
+
+		SendToAllPlayers(msg);
+	}
+
 	public void SendToAllPlayers(MessageBuffer msg, params Player[] exceptions)
 	{
 		List<Player> exceptionList = new List<Player>();
@@ -156,7 +252,20 @@ public class Map
 		foreach (Player p in playerList) if (p != null && !exceptionList.Contains(p)) p.client.Send(msg);
 	}
 
-	public void MessageHandle(Client c, MessageBuffer msg)
+	public virtual Vector2 GetFreeSpawnPosition(Player p)
+	{
+		Vector2 pos;
+
+		do
+		{
+			double x = rng.NextDouble(), y = rng.NextDouble();
+			pos = new Vector2((float)x * environment.Width, (float)y * environment.Height);
+		} while (GetCollision(pos, p.size));
+
+		return pos;
+	}
+
+	public virtual void MessageHandle(Client c, MessageBuffer msg)
 	{
 		try
 		{
@@ -174,6 +283,10 @@ public class Map
 						p.ReceiveInput(msg.ReadByte());
 						break;
 
+					case Protocol.PlayerJump:
+						p.ReceiveJump(msg.ReadVector2());
+						break;
+
 					case Protocol.PlayerPosition:
 						p.ReceivePosition(msg.ReadVector2(), msg.ReadVector2());
 						break;
@@ -182,12 +295,12 @@ public class Map
 						p.ReceiveLand(msg.ReadVector2(), msg.ReadVector2());
 						break;
 
-					case Protocol.PlayerDash:
-						p.ReceiveDash(msg.ReadVector2(), msg.ReadVector2());
+					case Protocol.PlayerDodge:
+						p.ReceiveDodge(msg.ReadVector2(), msg.ReadVector2());
 						break;
 
-					case Protocol.PlayerWarp:
-						p.ReceiveWarp(msg.ReadVector2(), msg.ReadVector2());
+					case Protocol.PlayerDash:
+						p.ReceiveDash(msg.ReadVector2(), msg.ReadVector2());
 						break;
 				}
 			}
@@ -196,7 +309,9 @@ public class Map
 		}
 		catch (Exception e)
 		{
-			Log.Write(ConsoleColor.Red, "Packet corrupt!\n" + e.StackTrace);
+			Log.Write(ConsoleColor.Yellow, "Packet corrupt!");
+			Log.Write(ConsoleColor.Red, e.Message);
+			Log.Write(ConsoleColor.DarkRed, e.StackTrace);
 		}
 	}
 }

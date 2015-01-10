@@ -9,31 +9,6 @@ using System.Collections.Generic;
 
 public partial class Player : Actor
 {
-	public class WarpTarget
-	{
-		public float timeTraveled = 0;
-		public float lastStep = 0;
-
-		public float angle;
-
-		public Vector2 startPosition;
-		public Vector2 endPosition;
-
-		public Vector2 Direction
-		{
-			get
-			{
-				return (endPosition - startPosition).Normalized();
-			}
-		}
-
-		public WarpTarget(Vector2 a, Vector2 b)
-		{
-			startPosition = a;
-			endPosition = b;
-			angle = TKMath.GetAngle(a, b);
-		}
-	}
 	public class DashTarget
 	{
 		public float timeTraveled = 0;
@@ -59,38 +34,70 @@ public partial class Player : Actor
 			angle = TKMath.GetAngle(a, b);
 		}
 	}
+	public class DodgeTarget
+	{
+		public float timeTraveled = 0;
+		public float lastStep = 0;
+
+		public float angle;
+
+		public Vector2 startPosition;
+		public Vector2 endPosition;
+
+		public Vector2 Direction
+		{
+			get
+			{
+				return (endPosition - startPosition).Normalized();
+			}
+		}
+
+		public DodgeTarget(Vector2 a, Vector2 b)
+		{
+			startPosition = a;
+			endPosition = b;
+			angle = TKMath.GetAngle(a, b);
+		}
+	}
 
 	PlayerInput inputData = new PlayerInput();
 	PlayerInput input, oldInput;
 	protected Vector2 inputDirection, oldInputDirection, lastDirection;
 
-	public int playerID;
+	public int id;
+	public string playerName;
 	public Client client;
 
 	protected PlayerShadow shadow;
 
+	public Team team;
+
 	float wallStick = -1;
 	bool canDoublejump = true;
 
-	WarpTarget warpTarget = null;
 	DashTarget dashTarget = null;
+	DodgeTarget dodgeTarget = null;
 
-	Timer warpCooldown;
 	Timer dashCooldown;
+	Timer dodgeCooldown;
 	Timer disableTimer;
 
-	float dashInterval = 0.2f;
-	float dashIntervalTimer = 0;
+	float dodgeInterval = 0.2f;
+	float dodgeIntervalTimer = 0;
 
-	float dashGravityIgnoreTime = 0.2f;
+	float dodgeGravityIgnoreTime = 0.2f;
 	float gravityIgnore = 0f;
+
+	Timer updatePositionTimer = new Timer(0.05f, true);
+
+	Timer respawnTimer = new Timer(2f, false);
 
 	public int WallTouch
 	{
 		get
 		{
-			if (map.GetCollision(this, new Vector2(-0.2f, 0f))) return -1;
-			if (map.GetCollision(this, new Vector2(0.2f, 0))) return 1;
+			if (map.GetCollision(this, new Vector2(-0.1f, 0f)) && velocity.X < 0.1f) return -1;
+			if (map.GetCollision(this, new Vector2(0.1f, 0)) && velocity.X > -0.1f) return 1;
 			return 0;
 		}
 	}
@@ -107,14 +114,6 @@ public partial class Player : Actor
 		}
 	}
 
-	public bool IsWarping
-	{
-		get
-		{
-			return warpTarget != null;
-		}
-	}
-
 	public bool IsDashing
 	{
 		get
@@ -123,18 +122,23 @@ public partial class Player : Actor
 		}
 	}
 
-	public bool CanDash
+	public bool IsDodging
 	{
 		get
 		{
-			if (IsOnGround)
-				return !Disabled;
-			else
-				return !Disabled && airDashNmbr > 0;
+			return dodgeTarget != null;
 		}
 	}
 
-	public bool CanWarp
+	public bool CanDodge
+	{
+		get
+		{
+			return !Disabled;
+		}
+	}
+
+	public bool CanDash
 	{
 		get
 		{
@@ -167,38 +171,66 @@ public partial class Player : Actor
 		}
 	}
 
-	public Player(int id, Client c, Vector2 position, Map m)
+	public Player(int id, string name, Client c, Vector2 position, Map m)
 		: base(position, m)
 	{
-		playerID = id;
+		this.id = id;
+		playerName = name;
 		client = c;
 
 		shadow = new PlayerShadow(this);
 
-		warpCooldown = new Timer(stats.WarpCooldown, false);
-		dashCooldown = new Timer(stats.DashCooldown, true);
+		dashCooldown = new Timer(stats.DashCooldown, false);
+		dodgeCooldown = new Timer(stats.DodgeCooldown, true);
 		disableTimer = new Timer(stats.DisableTime, true);
+	}
+
+	public virtual bool AlliedWith(Player p)
+	{
+		if (p.team == null || team == null) return false;
+		else return p.team == team;
 	}
 
 	public override void Hit()
 	{
 		base.Hit();
 
-		SendDieToPlayer(map.playerList);
-
-		position = new Vector2(4, 30);
-		velocity = Vector2.Zero;
-
-		warpTarget = null;
 		dashTarget = null;
+		dodgeTarget = null;
 
-		SendPositionToPlayerForce(map.playerList);
+		SendDieToPlayer(map.playerList);
+	}
+
+	public virtual void Kill(Player p)
+	{
+		p.Hit();
+
+		SendKillToPlayer(p, map.playerList);
+	}
+
+	public override void Respawn()
+	{
+		base.Respawn();
+		position = map.GetFreeSpawnPosition(this);
+		SendRespawnToPlayer(position, map.playerList);
 	}
 
 	public override void Logic()
 	{
-		warpCooldown.Logic();
+		if (!IsAlive)
+		{
+			respawnTimer.Logic();
+			if (respawnTimer.IsDone)
+			{
+				Respawn();
+				respawnTimer.Reset();
+			}
+
+			return;
+		}
+
 		dashCooldown.Logic();
+		dodgeCooldown.Logic();
 		disableTimer.Logic();
 
 		oldInput = input;
@@ -208,9 +240,9 @@ public partial class Player : Actor
 		if (gravityIgnore > 0 && !input.Equals(oldInput)) gravityIgnore = 0;
 		gravityIgnore -= Game.delta;
 
-		dashIntervalTimer -= Game.delta;
+		dodgeIntervalTimer -= Game.delta;
 
-		if (warpTarget == null && dashTarget == null)
+		if (dashTarget == null && dodgeTarget == null)
 		{
 			Input();
 
@@ -232,17 +264,28 @@ public partial class Player : Actor
 			if (shadow == null && (IsOnGround || WallTouch != 0)) CreateShadow();
 			if (shadow != null) shadow.Logic();
 		}
-		else if (warpTarget != null)
-		{
-			WarpStep();
-		}
 		else if (dashTarget != null)
 		{
 			DashStep();
+		}
+		else if (dodgeTarget != null)
+		{
+			DodgeStep();
 			if (shadow != null) shadow.Logic();
 		}
 
-		if (SEND_SERVER_POSITION) SendServerPositionToPlayer(map.playerList);
+		if (SEND_SERVER_POSITION)
+		{
+			updatePositionTimer.Logic();
+
+			SendServerPositionToPlayer(map.playerList);
+
+			if (updatePositionTimer.IsDone)
+			{
+				SendServerPositionToPlayer(this);
+				updatePositionTimer.Reset();
+			}
+		}
 	}
 
 	public override void DoPhysics()
@@ -273,7 +316,7 @@ public partial class Player : Actor
 
 	public void Land()
 	{
-		airDashNmbr = stats.AirDashMax;
+		airDodgeNmbr = stats.AirDodgeMax;
 	}
 
 	public void Input()
@@ -298,6 +341,7 @@ public partial class Player : Actor
 
 		oldInputDirection = inputDirection;
 
+		/*
 		if (input[PlayerKey.Jump] && !oldInput[PlayerKey.Jump])
 		{
 			if (IsOnGround) Jump();
@@ -307,19 +351,19 @@ public partial class Player : Actor
 				Jump();
 				canDoublejump = false;
 			}
-		}
+		}*/
 		if (input[PlayerKey.Jump]) JumpHold();
-
-		if (warpTargetBuffer != null)
-		{
-			Warp(warpTargetBuffer);
-			warpTargetBuffer = null;
-		}
 
 		if (dashTargetBuffer != null)
 		{
 			Dash(dashTargetBuffer);
 			dashTargetBuffer = null;
+		}
+
+		if (dodgeTargetBuffer != null)
+		{
+			Dodge(dodgeTargetBuffer);
+			dodgeTargetBuffer = null;
 		}
 	}
 }

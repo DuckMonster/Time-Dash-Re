@@ -11,8 +11,6 @@ class Program
 	static bool running = true;
 	static Game game;
 
-	static Stopwatch logicTime;
-
 	public static void Main(string[] args)
 	{
 		bool valid = false;
@@ -43,6 +41,7 @@ class Program
 		while (running)
 		{
 			Thread.Sleep(500);
+			if (!timer.IsRunning) Console.WriteLine("Timer stopped....");
 		}
 	}
 

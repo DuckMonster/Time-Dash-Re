@@ -7,31 +7,15 @@ using TKTools;
 
 public partial class Player : Actor
 {
-	public class WarpTarget
-	{
-		public float timeTraveled = 0;
-		public float lastStep = 0;
+	public static Color[] colorList = new Color[] {
+		Color.Blue,
+		Color.Orange,
+		Color.Green,
+		Color.Violet,
+		Color.Yellow,
+		Color.Teal
+	};
 
-		public float angle;
-
-		public Vector2 startPosition;
-		public Vector2 endPosition;
-
-		public Vector2 Direction
-		{
-			get
-			{
-				return (endPosition - startPosition).Normalized();
-			}
-		}
-
-		public WarpTarget(Vector2 a, Vector2 b)
-		{
-			startPosition = a;
-			endPosition = b;
-			angle = TKMath.GetAngle(a, b);
-		}
-	}
 	public class DashTarget
 	{
 		public float timeTraveled = 0;
@@ -58,53 +42,78 @@ public partial class Player : Actor
 		}
 	}
 
+	public class DodgeTarget
+	{
+		public float timeTraveled = 0;
+		public float lastStep = 0;
+
+		public float angle;
+
+		public Vector2 startPosition;
+		public Vector2 endPosition;
+
+		public Vector2 Direction
+		{
+			get
+			{
+				return (endPosition - startPosition).Normalized();
+			}
+		}
+
+		public DodgeTarget(Vector2 a, Vector2 b)
+		{
+			startPosition = a;
+			endPosition = b;
+			angle = TKMath.GetAngle(a, b);
+		}
+	}
+
+	protected bool updateInput;
 	protected PlayerInput inputData = new PlayerInput();
 	protected PlayerInput input, oldInput;
 	protected Vector2 inputDirection, oldInputDirection, lastDirection;
 
-	public Color[] colorList = new Color[] {
-		Color.Blue,
-		Color.Orange,
-		Color.Green,
-		Color.Teal,
-		Color.Violet,
-		Color.Yellow
-	};	
-
 	protected PlayerShadow shadow;
+
+	public Team team;
 
 	float wallStick = -1;
 	bool canDoublejump = true;
 
-	WarpTarget warpTarget = null;
 	DashTarget dashTarget = null;
+	DodgeTarget dodgeTarget = null;
 
-	Timer warpCooldown;
 	Timer dashCooldown;
+	Timer dodgeCooldown;
 	Timer disableTimer;
 
-	float dashInterval = 0.2f;
-	float dashIntervalTimer = 0;
+	CircleBar dashCooldownBar = new CircleBar(2.5f, 0.5f),
+		dodgeCooldownBar = new CircleBar(2f, 0.3f);
 
-	float dashGravityIgnoreTime = 0.2f;
+	float dodgeInterval = 0.2f;
+	float dodgeIntervalTimer = 0;
+
+	float dodgeGravityIgnoreTime = 0.2f;
 	float gravityIgnore = 0f;
 
-	public Tileset playerTileset = new Tileset(200, 200, "Res/jackTileset.png");
+	public Tileset playerTileset = new Tileset(200, 160, "Res/jackTileset.png"),
+		occlusionTileset = new Tileset(200, 160, "Res/jackShadowTileset.png");
 
 	public int WallTouch
 	{
 		get
 		{
-			if (map.GetCollision(this, new Vector2(-0.2f, 0f))) return -1;
-			if (map.GetCollision(this, new Vector2(0.2f, 0))) return 1;
+			if (map.GetCollision(this, new Vector2(-0.1f, 0f)) && velocity.X < 0.1f) return -1;
+			if (map.GetCollision(this, new Vector2(0.1f, 0)) && velocity.X > -0.1f) return 1;
 			return 0;
 		}
 	}
 
-	public Color MyColor
+	public virtual Color Color
 	{
 		get
 		{
+			if (team != null) return team.Color;
 			return colorList[playerID];
 		}
 	}
@@ -120,13 +129,6 @@ public partial class Player : Actor
 			if (value) wallStick = -1;
 		}
 	}
-	public bool IsWarping
-	{
-		get
-		{
-			return warpTarget != null;
-		}
-	}
 	public bool IsDashing
 	{
 		get
@@ -134,14 +136,21 @@ public partial class Player : Actor
 			return dashTarget != null;
 		}
 	}
-	public bool CanWarp
+	public bool IsDodgeing
 	{
 		get
 		{
-			return shadow != null && warpCooldown.IsDone;
+			return dodgeTarget != null;
 		}
 	}
 	public bool CanDash
+	{
+		get
+		{
+			return shadow != null && dashCooldown.IsDone;
+		}
+	}
+	public bool CanDodge
 	{
 		get
 		{
@@ -171,11 +180,15 @@ public partial class Player : Actor
 		}
 	}
 
-	public Player(int id, Vector2 position, Map m)
+	public Player(int id, string name, Vector2 position, Map m)
 		: base(position, m)
 	{
 		playerID = id;
-		float w = (size.X / size.Y) / 2;
+		playerName = name;
+		//float w = (size.X / size.Y);
+		float w = (float)playerTileset.TileHeight / playerTileset.TileWidth / 2;
+
+		w = w * (size.X / size.Y);
 
 		mesh.UV = new Vector2[] {
 			new Vector2(0.5f-w, 0f),
@@ -186,46 +199,81 @@ public partial class Player : Actor
 
 		shadow = new PlayerShadow(this, mesh);
 
-		warpCooldown = new Timer(stats.WarpCooldown, false);
-		dashCooldown = new Timer(stats.DashCooldown, true);
+		dashCooldown = new Timer(stats.DashCooldown, false);
+		dodgeCooldown = new Timer(stats.DodgeCooldown, true);
 		disableTimer = new Timer(stats.DisableTime, true);
 	}
 
-	public void Die(Vector2 diePos)
+	public override void Dispose()
 	{
-		base.Die();
-		map.AddEffect(new EffectSkull(diePos, MyColor, map));
+		base.Dispose();
+		playerTileset.Dispose();
+	}
 
-		warpTarget = null;
+	public virtual void Hit(Vector2 diePos)
+	{
+		base.Hit();
+		map.AddEffect(new EffectSkull(diePos, Color, map));
+
 		dashTarget = null;
+		dodgeTarget = null;
 
-		warpCooldown.Reset();
+		dashCooldown.Reset();
+	}
+
+	public virtual void Kill(Player p)
+	{
+	}
+
+	public override void Respawn(Vector2 pos)
+	{
+		base.Respawn(pos);
+		map.AddEffect(new EffectRing(position, 4f, 1.5f, Color, map));
 	}
 
 	public override void Logic()
 	{
-		if (shadow != null && !warpCooldown.IsDone)
+		if (!IsAlive) return;
+
+		if (shadow != null && !dashCooldown.IsDone)
 		{
-			warpCooldown.Logic();
-			if (warpCooldown.IsDone)
+			if (!IsDashing) dashCooldown.Logic();
+			dashCooldownBar.Progress = 1 - dashCooldown.PercentageDone;
+			dashCooldownBar.Logic();
+
+			if (dashCooldown.IsDone && IsLocalPlayer)
 			{
-				map.AddEffect(new EffectRing(shadow.CurrentPosition, 1.2f, 0.5f, MyColor, map));
+				map.AddEffect(new EffectRing(shadow.CurrentPosition, 1.2f, 0.5f, Color, map));
 			}
 		}
 
-		dashCooldown.Logic();
+		if (!dodgeCooldown.IsDone)
+		{
+			dodgeCooldown.Logic();
+			dodgeCooldownBar.Progress = 1 - dodgeCooldown.PercentageDone;
+			dodgeCooldownBar.Logic();
+		}
+
 		disableTimer.Logic();
 
 		oldInput = input;
 		input = new PlayerInput(inputData);
 		if (oldInput == null) oldInput = input;
 
+		if (!input.Equals(oldInput) && IsLocalPlayer)
+		{
+			if (IsDodgeing || IsDashing)
+				SendInputPure();
+			else
+				SendInput();
+		}
+
 		if (gravityIgnore > 0 && !input.Equals(oldInput)) { gravityIgnore = 0; }
 		gravityIgnore -= Game.delta;
 
-		dashIntervalTimer -= Game.delta;
+		dodgeIntervalTimer -= Game.delta;
 
-		if (warpTarget == null && dashTarget == null)
+		if (dashTarget == null && dodgeTarget == null)
 		{
 			Input();
 
@@ -247,13 +295,13 @@ public partial class Player : Actor
 			if (shadow == null && (IsOnGround || WallTouch != 0)) CreateShadow();
 			if (shadow != null) shadow.Logic();
 		}
-		else if (warpTarget != null)
-		{
-			WarpStep();
-		}
 		else if (dashTarget != null)
 		{
 			DashStep();
+		}
+		else if (dodgeTarget != null)
+		{
+			DodgeStep();
 			if (shadow != null) shadow.Logic();
 		}
 	}
@@ -266,19 +314,11 @@ public partial class Player : Actor
 
 		if (aboveMaxSpeed)
 		{
-			if (!IsOnGround)
-			{
-				Log.Debug("GOTTA GO FAST!");
-			}
-			else
-			{
+			if (IsOnGround)
 				velocity.X += (currentAcceleration * Game.delta - velocity.X * Friction * Game.delta) * 0.2f;
-			}
 		}
 		else
-		{
 			velocity.X += currentAcceleration * Game.delta - velocity.X * Friction * Game.delta;
-		}
 
 		currentAcceleration = 0;
 		if (!IgnoresGravity) velocity.Y -= stats.Gravity * Game.delta;
@@ -286,11 +326,11 @@ public partial class Player : Actor
 
 	public override void Land()
 	{
-		airDashNmbr = stats.AirDashMax;
+		airDodgeNmbr = stats.AirDodgeMax;
 
 		base.Land();
 
-		if (IsLocalPlayer) SendLand();
+		//if (IsLocalPlayer) SendLand();
 	}
 
 	public void Input()
@@ -304,54 +344,68 @@ public partial class Player : Actor
 
 		if (IsLocalPlayer)
 		{
-			//Dashing hori
+			//Dodging hori
 			if (inputDirection.X != 0)
 			{
-				if (inputDirection.X != lastDirection.X) dashIntervalTimer = 0;
+				if (inputDirection.X != lastDirection.X) dodgeIntervalTimer = 0;
 
 				if (inputDirection.X != oldInputDirection.X)
 				{
-					if (dashIntervalTimer > 0 && dashCooldown.IsDone)
-						Dash((int)inputDirection.X);
+					if (dodgeIntervalTimer > 0 && dodgeCooldown.IsDone)
+						Dodge((int)inputDirection.X);
 					else
-						dashIntervalTimer = dashInterval;
+						dodgeIntervalTimer = dodgeInterval;
 
 					lastDirection.X = inputDirection.X;
 				}
 			}
 
-			//Dashing vert
+			//Dodging vert
 			if (inputDirection.Y != 0)
 			{
 				if (inputDirection.Y != oldInputDirection.Y)
 				{
-					if (dashIntervalTimer > 0 && dashCooldown.IsDone)
-						DashVertical((int)inputDirection.Y);
+					if (dodgeIntervalTimer > 0 && dodgeCooldown.IsDone)
+						DodgeVertical((int)inputDirection.Y);
 					else
-						dashIntervalTimer = dashInterval;
+						dodgeIntervalTimer = dodgeInterval;
 
 					lastDirection.Y = inputDirection.Y;
 				}
 			}
 
-			//Warp
-			if (input[PlayerKey.Warp] && !oldInput[PlayerKey.Warp] && CanWarp)
+			//Jumping
+			if (input[PlayerKey.Jump] && !oldInput[PlayerKey.Jump])
 			{
-				Warp(shadow.CurrentPosition);
+				if (IsOnGround) Jump();
+				else if (WallTouch != 0) WallJump();
+				else if (canDoublejump)
+				{
+					Jump();
+					canDoublejump = false;
+				}
+
+				SendJump();
+			}
+
+			//Dash
+			if (input[PlayerKey.Dash] && !oldInput[PlayerKey.Dash] && CanDash)
+			{
+				Dash(shadow.CurrentPosition);
 			}
 		}
 		else
 		{
-			if (warpTargetBuffer != null)
-			{
-				Warp(warpTargetBuffer);
-				warpTargetBuffer = null;
-			}
-
 			if (dashTargetBuffer != null)
 			{
 				Dash(dashTargetBuffer);
 				dashTargetBuffer = null;
+			}
+
+			if (dodgeTargetBuffer != null)
+			{
+				Dodge(dodgeTargetBuffer);
+				dodgeTargetBuffer = null;
 			}
 		}
 
@@ -365,25 +419,12 @@ public partial class Player : Actor
 
 		oldInputDirection = inputDirection;
 
-		if (input[PlayerKey.Jump] && !oldInput[PlayerKey.Jump])
-		{
-			if (IsOnGround) Jump();
-			else if (WallTouch != 0) WallJump();
-			else if (canDoublejump)
-			{
-				Jump();
-				canDoublejump = false;
-			}
-		}
-
 		if (input[PlayerKey.Jump]) JumpHold();
 	}
 
 	public void LocalInput()
 	{
-		PlayerInput oldInput = new PlayerInput(inputData);
-
-		if (Program.focused)
+		if (Program.client.Focused)
 		{
 			inputData[PlayerKey.Right] = KeyboardInput.Current[Key.Right];
 			inputData[PlayerKey.Left] = KeyboardInput.Current[Key.Left];
@@ -397,22 +438,13 @@ public partial class Player : Actor
 		//inputData[PlayerKey.Up] = KeyboardInput.Current[Key.Up];
 		inputData[PlayerKey.Down] = KeyboardInput.Current[Key.Down];
 		inputData[PlayerKey.Jump] = KeyboardInput.Current[Key.Z];
-		inputData[PlayerKey.Warp] = KeyboardInput.Current[Key.X];
-
-		for (int i = 0; i < inputData.Length; i++)
-			if (inputData[i] != oldInput[i])
-			{
-				if (IsDashing || IsWarping)
-					SendInputPure();
-				else
-					SendInput();
-	
-				break;
-			}
+		inputData[PlayerKey.Dash] = KeyboardInput.Current[Key.X];
 	}
 
 	public override void Draw()
 	{
+		if (!IsAlive) return;
+
 		if (WallTouch != 0 && !IsOnGround)
 		{
 			playerTileset.X = 0;
@@ -434,7 +466,6 @@ public partial class Player : Actor
 			else playerTileset.X = 2;
 		}
 
-		mesh.Color = MyColor;
 		mesh.FillColor = true;
 
 		mesh.Reset();
@@ -442,38 +473,47 @@ public partial class Player : Actor
 		mesh.Translate(position);
 		mesh.Scale(size);
 
-		if (warpTarget != null)
-		{
-			mesh.Rotate(warpTarget.angle);
-			mesh.Scale(1 + warpTarget.lastStep * 8.5f, 1 - warpTarget.lastStep * 2.7f);
-			mesh.Rotate(-warpTarget.angle);
-		}
-
 		if (dashTarget != null)
 		{
 			mesh.Rotate(dashTarget.angle);
-			mesh.Scale(1 + dashTarget.lastStep * 1.5f, 1 - dashTarget.lastStep * 0.7f);
+			mesh.Scale(1 + dashTarget.lastStep * 8.5f, 1 - dashTarget.lastStep * 2.7f);
 			mesh.Rotate(-dashTarget.angle);
+		}
+
+		if (dodgeTarget != null)
+		{
+			mesh.Rotate(dodgeTarget.angle);
+			mesh.Scale(1 + dodgeTarget.lastStep * 1.5f, 1 - dodgeTarget.lastStep * 0.7f);
+			mesh.Rotate(-dodgeTarget.angle);
 		}
 
 		mesh.Scale(new Vector2(-dir, 1));
 
+		mesh.Color = Color.Black;
+		mesh.Draw(occlusionTileset, playerTileset.X, playerTileset.Y);
+		mesh.Color = Color;
+
 		mesh.Draw(playerTileset);
 
-		if (!warpCooldown.IsDone)
+		if (IsLocalPlayer)
 		{
-			mesh.Color = new Color(1, 1, 1, 1 - warpCooldown.PercentageDone);
-			mesh.FillColor = true;
-
-			mesh.Draw(playerTileset);
+			if (!dodgeCooldown.IsDone)
+			{
+				dodgeCooldownBar.Draw(position, Color);
+			}
+			if (!dashCooldown.IsDone)
+			{
+				dashCooldownBar.Draw(position, Color);
+			}
 		}
 
-		if (!dashCooldown.IsDone)
+		float glow = Math.Max(1 - dodgeCooldown.PercentageDone, 1 - dashCooldown.PercentageDone);
+		if (glow > 0)
 		{
-			mesh.Color = new Color(1, 1, 1, 1 - dashCooldown.PercentageDone);
 			mesh.FillColor = true;
+			mesh.Color = new Color(1, 1, 1, glow);
 
-			mesh.Draw(playerTileset);
+			mesh.Draw(playerTileset, playerTileset.X, playerTileset.Y);
 		}
 
 		if (Disabled)
@@ -498,7 +538,7 @@ public partial class Player : Actor
 			mesh.Draw(playerTileset);
 		}
 
-		//if (shadow != null && IsLocalPlayer && (warpCooldown.IsDone || IsWarping) && !Disabled) shadow.Draw();
-		if (IsLocalPlayer && (CanWarp || IsWarping)) shadow.Draw();
+		//if (shadow != null && IsLocalPlayer && (dashCooldown.IsDone || IsDashing) && !Disabled) shadow.Draw();
+		if (IsLocalPlayer && (CanDash || IsDashing)) shadow.Draw();
 	}
 }

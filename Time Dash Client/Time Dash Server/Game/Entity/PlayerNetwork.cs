@@ -5,8 +5,8 @@ public partial class Player : Actor
 {
 	public static bool SEND_SERVER_POSITION = false;
 
+	DodgeTarget dodgeTargetBuffer;
 	DashTarget dashTargetBuffer;
-	WarpTarget warpTargetBuffer;
 
 	public void ReceiveInput(byte k)
 	{
@@ -15,7 +15,7 @@ public partial class Player : Actor
 	}
 	public void ReceiveInput(Vector2 position, Vector2 velocity, byte k)
 	{
-		if (!IsDashing && !IsWarping)
+		if (!IsDodging && !IsDashing)
 		{
 			this.position = position;
 			this.velocity = velocity;
@@ -25,11 +25,26 @@ public partial class Player : Actor
 		SendInputToPlayer(map.playerList);
 	}
 
+	public void ReceiveJump(Vector2 position)
+	{
+		this.position = position;
+
+		if (IsOnGround) Jump();
+		else if (WallTouch != 0) WallJump();
+		else if (canDoublejump)
+		{
+			Jump();
+			canDoublejump = false;
+		}
+
+		SendJumpToPlayer(map.playerList);
+	}
+
 	public void ReceivePosition(Vector2 position, Vector2 velocity)
 	{
 		this.position = position;
 		this.velocity = velocity;
-		if (dashTarget != null) dashTarget = null;
+		if (dodgeTarget != null) dodgeTarget = null;
 		SendPositionToPlayer(map.playerList);
 	}
 
@@ -40,18 +55,18 @@ public partial class Player : Actor
 		Land();
 	}
 
+	public void ReceiveDodge(Vector2 start, Vector2 target)
+	{
+		dodgeTargetBuffer = new DodgeTarget(start, target);
+
+		SendDodgeToPlayer(start, target, map.playerList);
+	}
+
 	public void ReceiveDash(Vector2 start, Vector2 target)
 	{
 		dashTargetBuffer = new DashTarget(start, target);
 
 		SendDashToPlayer(start, target, map.playerList);
-	}
-
-	public void ReceiveWarp(Vector2 start, Vector2 target)
-	{
-		warpTargetBuffer = new WarpTarget(start, target);
-
-		SendWarpToPlayer(start, target, map.playerList);
 	}
 
 	public void SendExistanceToPlayer(params Player[] players)
@@ -75,6 +90,11 @@ public partial class Player : Actor
 		SendMessageToPlayer(GetInputPureMessage(), true, players);
 	}
 
+	public void SendJumpToPlayer(params Player[] players)
+	{
+		SendMessageToPlayer(GetJumpMessage(), true, players);
+	}
+
 	public void SendPositionToPlayer(params Player[] players)
 	{
 		SendMessageToPlayer(GetPositionMessage(), true, players);
@@ -85,9 +105,19 @@ public partial class Player : Actor
 		SendMessageToPlayer(GetPositionMessage(), false, players);
 	}
 
+	public void SendKillToPlayer(Player target, params Player[] players)
+	{
+		SendMessageToPlayer(GetKillMessage(target), false, players);
+	}
+
 	public void SendDieToPlayer(params Player[] players)
 	{
 		SendMessageToPlayer(GetDieMessage(), false, players);
+	}
+
+	public void SendRespawnToPlayer(Vector2 pos, params Player[] players)
+	{
+		SendMessageToPlayer(GetRespawnMessage(pos), false, players);
 	}
 
 	public void SendDisableToPlayer(params Player[] players)
@@ -95,24 +125,24 @@ public partial class Player : Actor
 		SendMessageToPlayer(GetDisableMessage(), false, players);
 	}
 
+	public void SendDodgeToPlayer(Vector2 start, Vector2 target, params Player[] players)
+	{
+		SendMessageToPlayer(GetDodgeMessage(start, target), true, players);
+	}
+
 	public void SendDashToPlayer(Vector2 start, Vector2 target, params Player[] players)
 	{
 		SendMessageToPlayer(GetDashMessage(start, target), true, players);
 	}
 
-	public void SendWarpToPlayer(Vector2 start, Vector2 target, params Player[] players)
+	public void SendDodgeCollisionToPlayer(Player p, params Player[] players)
 	{
-		SendMessageToPlayer(GetWarpMessage(start, target), true, players);
+		SendMessageToPlayer(GetDodgeCollisionMessage(p), false, players);
 	}
 
 	public void SendDashCollisionToPlayer(Player p, params Player[] players)
 	{
 		SendMessageToPlayer(GetDashCollisionMessage(p), false, players);
-	}
-
-	public void SendWarpCollisionToPlayer(Player p, params Player[] players)
-	{
-		SendMessageToPlayer(GetWarpCollisionMessage(p), false, players);
 	}
 
 	public void SendServerPositionToPlayer(params Player[] players)
@@ -130,7 +160,8 @@ public partial class Player : Actor
 		MessageBuffer msg = new MessageBuffer();
 
 		msg.WriteShort((short)Protocol.PlayerJoin);
-		msg.WriteByte(playerID);
+		msg.WriteByte(id);
+		msg.WriteString(playerName);
 
 		return msg;
 	}
@@ -140,7 +171,7 @@ public partial class Player : Actor
 		MessageBuffer msg = new MessageBuffer();
 
 		msg.WriteShort((short)Protocol.PlayerLeave);
-		msg.WriteByte(playerID);
+		msg.WriteByte(id);
 
 		return msg;
 	}
@@ -150,7 +181,7 @@ public partial class Player : Actor
 		MessageBuffer msg = new MessageBuffer();
 
 		msg.WriteShort((short)Protocol.PlayerInput);
-		msg.WriteByte(playerID);
+		msg.WriteByte(id);
 		msg.WriteVector(position);
 		msg.WriteVector(velocity);
 		msg.WriteByte(inputData.GetFlag());
@@ -163,8 +194,19 @@ public partial class Player : Actor
 		MessageBuffer msg = new MessageBuffer();
 
 		msg.WriteShort((short)Protocol.PlayerInputPure);
-		msg.WriteByte(playerID);
+		msg.WriteByte(id);
 		msg.WriteByte(inputData.GetFlag());
+
+		return msg;
+	}
+
+	MessageBuffer GetJumpMessage()
+	{
+		MessageBuffer msg = new MessageBuffer();
+
+		msg.WriteShort((short)Protocol.PlayerJump);
+		msg.WriteByte(id);
+		msg.WriteVector(position);
 
 		return msg;
 	}
@@ -174,9 +216,20 @@ public partial class Player : Actor
 		MessageBuffer msg = new MessageBuffer();
 
 		msg.WriteShort((short)Protocol.PlayerPosition);
-		msg.WriteByte(playerID);
+		msg.WriteByte(id);
 		msg.WriteVector(position);
 		msg.WriteVector(velocity);
+
+		return msg;
+	}
+
+	MessageBuffer GetKillMessage(Player p)
+	{
+		MessageBuffer msg = new MessageBuffer();
+
+		msg.WriteShort((short)Protocol.PlayerKill);
+		msg.WriteByte(id);
+		msg.WriteByte(p.id);
 
 		return msg;
 	}
@@ -186,8 +239,19 @@ public partial class Player : Actor
 		MessageBuffer msg = new MessageBuffer();
 
 		msg.WriteShort((short)Protocol.PlayerDie);
-		msg.WriteByte(playerID);
+		msg.WriteByte(id);
 		msg.WriteVector(position);
+
+		return msg;
+	}
+
+	MessageBuffer GetRespawnMessage(Vector2 pos)
+	{
+		MessageBuffer msg = new MessageBuffer();
+
+		msg.WriteShort((short)Protocol.PlayerRespawn);
+		msg.WriteByte(id);
+		msg.WriteVector(pos);
 
 		return msg;
 	}
@@ -197,7 +261,20 @@ public partial class Player : Actor
 		MessageBuffer msg = new MessageBuffer();
 
 		msg.WriteShort((short)Protocol.PlayerDisable);
-		msg.WriteByte(playerID);
+		msg.WriteByte(id);
+
+		return msg;
+	}
+
+	MessageBuffer GetDodgeMessage(Vector2 start, Vector2 target)
+	{
+		MessageBuffer msg = new MessageBuffer();
+
+		msg.WriteShort((short)Protocol.PlayerDodge);
+		msg.WriteByte(id);
+
+		msg.WriteVector(start);
+		msg.WriteVector(target);
 
 		return msg;
 	}
@@ -207,7 +284,7 @@ public partial class Player : Actor
 		MessageBuffer msg = new MessageBuffer();
 
 		msg.WriteShort((short)Protocol.PlayerDash);
-		msg.WriteByte(playerID);
+		msg.WriteByte(id);
 
 		msg.WriteVector(start);
 		msg.WriteVector(target);
@@ -215,15 +292,15 @@ public partial class Player : Actor
 		return msg;
 	}
 
-	MessageBuffer GetWarpMessage(Vector2 start, Vector2 target)
+	MessageBuffer GetDodgeCollisionMessage(Player p)
 	{
 		MessageBuffer msg = new MessageBuffer();
 
-		msg.WriteShort((short)Protocol.PlayerWarp);
-		msg.WriteByte(playerID);
-
-		msg.WriteVector(start);
-		msg.WriteVector(target);
+		msg.WriteShort((short)Protocol.PlayerDodgeCollision);
+		msg.WriteByte(id);
+		msg.WriteByte(p.id);
+		msg.WriteVector(position);
+		msg.WriteVector(p.position);
 
 		return msg;
 	}
@@ -233,21 +310,8 @@ public partial class Player : Actor
 		MessageBuffer msg = new MessageBuffer();
 
 		msg.WriteShort((short)Protocol.PlayerDashCollision);
-		msg.WriteByte(playerID);
-		msg.WriteByte(p.playerID);
-		msg.WriteVector(position);
-		msg.WriteVector(p.position);
-
-		return msg;
-	}
-
-	MessageBuffer GetWarpCollisionMessage(Player p)
-	{
-		MessageBuffer msg = new MessageBuffer();
-
-		msg.WriteShort((short)Protocol.PlayerWarpCollision);
-		msg.WriteByte(playerID);
-		msg.WriteByte(p.playerID);
+		msg.WriteByte(id);
+		msg.WriteByte(p.id);
 		msg.WriteVector(position);
 		msg.WriteVector(p.position);
 
@@ -259,7 +323,7 @@ public partial class Player : Actor
 		MessageBuffer msg = new MessageBuffer();
 
 		msg.WriteShort((short)Protocol.ServerPosition);
-		msg.WriteByte(playerID);
+		msg.WriteByte(id);
 
 		msg.WriteVector(position);
 

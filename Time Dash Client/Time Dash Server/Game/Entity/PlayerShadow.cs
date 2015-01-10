@@ -3,7 +3,7 @@
 public class PlayerShadow
 {
 	Player player;
-	public float updateRate = 0.01f, updateTimer = 0f, bufferLength = 0.6f;
+	public float updateRate = 0.01f, updateTimer = 0f, bufferLength = 0.8f;
 
 	Vector2[] positionBuffer;
 	int positionBufferIndex = 0;

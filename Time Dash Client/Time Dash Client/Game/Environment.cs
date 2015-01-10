@@ -9,13 +9,13 @@ public class Environment
 {
 	public static float TILE_SIZE = 1.0f;
 
-	enum TileType
+	public enum TileType
 	{
 		Empty,
 		Solid
 	}
 
-	class Tile
+	public class Tile
 	{
 		Environment environment;
 		int x, y;
@@ -59,6 +59,7 @@ public class Environment
 		{
 			get
 			{
+				if (x < 0 || x >= environment.width || y < 0 || y >= environment.height) return -1;
 				return x + (y * environment.width);
 			}
 			set
@@ -127,15 +128,15 @@ public class Environment
 
 	Mesh tileMesh;
 
-	public Environment(Map m)
+	public Environment(string filename, Map m)
 	{
 		map = m;
-		LoadMap();
+		LoadMap(filename);
 	}
 
-	void LoadMap()
+	void LoadMap(string filename)
 	{
-		using (Bitmap bmp = (Bitmap)Image.FromFile("Res/map.png"))
+		using (Bitmap bmp = (Bitmap)Image.FromFile("Maps/" + filename + ".png"))
 		{
 			tileMesh = new Mesh(PrimitiveType.Triangles);
 
@@ -171,8 +172,10 @@ public class Environment
 						vertexUVList.Add(new Vector2(0, 0));
 						vertexUVList.Add(new Vector2(1, 0));
 					}
-					else 
+					else if (data == 0xFFFFFFFF)
 						tile.Type = TileType.Empty;
+					else
+						map.MapObjectLoad(data, tile);
 				}
 
 			tileMesh.Vertices = vertexList.ToArray();
@@ -202,7 +205,11 @@ public class Environment
 
 	public void Draw()
 	{
-		tileMesh.Vertices = tileMesh.Vertices;
+		tileMesh.Translate(0, 0, -1f);
+		tileMesh.Color = TKTools.Color.Gray;
+		tileMesh.Draw();
+		tileMesh.Translate(0, 0, 1f);
+		tileMesh.Color = TKTools.Color.White;
 		tileMesh.Draw();
 	}
 }

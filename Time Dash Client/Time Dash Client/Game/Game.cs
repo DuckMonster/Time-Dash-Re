@@ -9,17 +9,19 @@ using TKTools;
 using EZUDP;
 using EZUDP.Client;
 using System.Collections.Generic;
+using System.IO;
 
 public class Game
 {
 	public const int portTCP = Port.TCP, portUDP = Port.UDP;
 	public static string hostIP;
 
+	public static string myName;
+
 	public static float delta;
 	public static EzClient client;
 
 	Program program;
-
 	Map map;
 	Stopwatch tickWatch, frameWatch;
 
@@ -46,10 +48,64 @@ public class Game
 		client = null;
 	}
 
-	public void UpdateProjection(Matrix4 proj)
+	public void UpdateProjection(int width, int height)
 	{
-		Map.defaultShader["projection"].SetValue(proj);
-		Tileset.tileProgram["projection"].SetValue(proj);
+		float ratio = (float)width / height;
+
+		Matrix4 pers = Matrix4.CreatePerspectiveOffCenter(-1, 1, -1 / ratio, 1 / ratio, 1, 200f);
+		Matrix4 orth = Matrix4.CreateOrthographicOffCenter(0, 1, -1, 0, 1, 200f);
+
+		Map.defaultShader["projection"].SetValue(pers);
+		Map.hudShader["projection"].SetValue(orth);
+		Map.hudShader["view"].SetValue(Matrix4.LookAt(new Vector3(0, 0, 3), Vector3.Zero, Vector3.UnitY));
+	
+		Tileset.tileProgram["projection"].SetValue(pers);
+
+		if (map != null)
+		{
+			//map.hudDrawer.CanvasSize = new System.Drawing.Size(width, height);
+			//map.hudDrawer.UpdateTexture();
+		}
+	}
+
+	public void LoadMap(int id, string filename, GameMode mode)
+	{
+		if (!File.Exists("Maps/" + filename + ".png"))
+		{
+			Log.Write(ConsoleColor.Red, "Map \"" + filename + "\" doesn't exist!");
+			return;
+		}
+
+		if (map != null)
+		{
+			client.OnMessage -= map.MessageHandle;
+			map.Dispose();
+			map = null;
+		}
+
+		string modeName = "Unknown";
+
+		switch (mode)
+		{
+			case GameMode.KingOfTheHill:
+				map = new KothMap(id, filename);
+				modeName = "King of the Hill";
+				break;
+
+			case GameMode.DeathMatch:
+				map = new DMMap(id, filename);
+				modeName = "Deathmatch";
+				break;
+
+			case GameMode.ControlPoints:
+				map = new CPMap(id, filename);
+				modeName = "Control Points";
+				break;
+		}
+
+		client.OnMessage += map.MessageHandle;
+
+		Log.Write(ConsoleColor.Yellow, "Loaded \"" + filename + "\" | " + modeName);
 	}
 
 	public virtual void Logic()
@@ -90,13 +146,28 @@ public class Game
 		CalculateFrameDelta();
 		Mesh.DRAW_CALLS = Mesh.CALCULATIONS = 0;
 
-		if (map != null) map.Draw();
+		if (map != null)
+		{
+			map.environment.Draw();
+			map.Draw();
+		}
+	}
+
+	public void SendName()
+	{
+		MessageBuffer msg = new MessageBuffer();
+
+		msg.WriteShort((short)Protocol.PlayerName);
+		msg.WriteString(myName);
+
+		client.Send(msg);
 	}
 
 	//ONLINE
 	public void OnConnect()
 	{
 		Log.Write(ConsoleColor.Green, "Connected to server!");
+		SendName();
 		//client.Ping();
 	}
 	public void OnDisconnect()
@@ -111,8 +182,7 @@ public class Game
 			switch ((Protocol)msg.ReadShort())
 			{
 				case Protocol.EnterMap:
-					map = new Map(msg.ReadByte());
-					client.OnMessage += map.MessageHandle;
+					LoadMap(msg.ReadByte(), msg.ReadString(), (GameMode)msg.ReadByte());
 					break;
 			}
 
@@ -120,7 +190,9 @@ public class Game
 		}
 		catch (Exception e)
 		{
-			Log.Write(ConsoleColor.Red, "Packet corrupt!\n" + e.Message);
+			Log.Write(ConsoleColor.Yellow, "Packet corrupt!");
+			Log.Write(ConsoleColor.Red, e.Message);
+			Log.Write(ConsoleColor.DarkRed, e.StackTrace);
 		}
 	}
 	public void OnException(Exception e)

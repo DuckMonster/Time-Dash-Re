@@ -10,6 +10,8 @@ public class Actor : Entity
 	protected float currentAcceleration = 0;
 	protected int dir = 1;
 
+	public int health = 1;
+
 	public float Acceleration
 	{
 		get
@@ -36,18 +38,47 @@ public class Actor : Entity
 		}
 	}
 
+	public bool IsAlive
+	{
+		get
+		{
+			return health > 0;
+		}
+	}
+
 	public Actor(Vector2 position, Map m)
 		: base(position, m)
 	{
 		stats = new Stats();
 	}
 
+	public override bool CollidesWith(Vector2 pos, Vector2 s)
+	{
+		if (!IsAlive) return false;
+		return base.CollidesWith(pos, s);
+	}
+
+	public override bool CollidesWith(Vector2 pos, float radius)
+	{
+		if (!IsAlive) return false;
+		return base.CollidesWith(pos, radius);
+	}
+
 	public virtual void Hit()
 	{
+		health--;
+		velocity = Vector2.Zero;
+	}
+
+	public virtual void Respawn()
+	{
+		health = 1;
 	}
 
 	public override void Logic()
 	{
+		if (!IsAlive) return;
+
 		DoPhysics();
 
 		if (map.GetCollision(this, new Vector2(0, velocity.Y) * Game.delta))

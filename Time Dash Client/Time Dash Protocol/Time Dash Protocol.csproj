@@ -46,7 +46,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Physics.cs" />
+    <Compile Include="GameMode.cs" />
+    <Compile Include="Stats.cs" />
     <Compile Include="PlayerInput.cs" />
     <Compile Include="Protocol.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

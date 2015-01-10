@@ -37,6 +37,20 @@ public class Tileset : IDisposable
 			tiley = value;
 		}
 	}
+	public int TileWidth
+	{
+		get
+		{
+			return tileWidth;
+		}
+	}
+	public int TileHeight
+	{
+		get
+		{
+			return tileHeight;
+		}
+	}
 
 	public Tileset(int width, int height, string filename)
 	{

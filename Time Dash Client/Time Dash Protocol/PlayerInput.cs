@@ -99,6 +99,6 @@ public enum PlayerKey : short
 	Up,
 	Down,
 	Jump,
-	Warp,
+	Dash,
 	Parry
 }

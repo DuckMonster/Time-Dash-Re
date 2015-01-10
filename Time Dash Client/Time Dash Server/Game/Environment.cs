@@ -9,13 +9,13 @@ public class Environment
 {
 	public static float TILE_SIZE = 1.0f;
 
-	enum TileType
+	public enum TileType
 	{
 		Empty,
 		Solid
 	}
 
-	class Tile
+	public class Tile
 	{
 		Environment environment;
 		int x, y;
@@ -59,6 +59,7 @@ public class Environment
 		{
 			get
 			{
+				if (x < 0 || x >= environment.width || y < 0 || y >= environment.height) return -1;
 				return x + (y * environment.width);
 			}
 			set
@@ -125,15 +126,31 @@ public class Environment
 	TileType[] tileList;
 	int width, height;
 
-	public Environment(Map m)
+	public float Width
 	{
-		map = m;
-		LoadMap();
+		get
+		{
+			return width * TILE_SIZE;
+		}
 	}
 
-	void LoadMap()
+	public float Height
 	{
-		using (Bitmap bmp = (Bitmap)Image.FromFile("Res/map.png"))
+		get
+		{
+			return height * TILE_SIZE;
+		}
+	}
+
+	public Environment(string filename, Map m)
+	{
+		map = m;
+		LoadMap(filename);
+	}
+
+	void LoadMap(string filename)
+	{
+		using (Bitmap bmp = (Bitmap)Image.FromFile("Maps/" + filename + ".png"))
 		{
 			width = bmp.Width;
 			height = bmp.Height;
@@ -151,8 +168,10 @@ public class Environment
 
 					if (data == 0xFF000000)
 						tile.Type = TileType.Solid;
-					else 
+					else if (data == 0xFFFFFFFF)
 						tile.Type = TileType.Empty;
+					else
+						map.MapObjectLoad(data, tile);
 				}
 		}
 	}

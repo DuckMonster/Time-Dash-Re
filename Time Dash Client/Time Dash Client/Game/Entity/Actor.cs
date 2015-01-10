@@ -7,15 +7,28 @@ public class Actor : Entity
 {
 	protected Stats stats = Stats.defaultStats;
 
-	protected Vector2 velocity = Vector2.Zero;
+	public Vector2 velocity = Vector2.Zero;
 	protected float currentAcceleration = 0;
 	public int dir = 1;
 	bool previousOnGround = false;
+
+	public int health = 1;
 
 	public Actor(Vector2 position, Map m)
 		: base(position, m)
 	{
 		stats = new Stats();
+	}
+
+	public override bool CollidesWith(Vector2 pos, Vector2 s)
+	{
+		if (!IsAlive) return false;
+		return base.CollidesWith(pos, s);
+	}
+	public override bool CollidesWith(Vector2 pos, float radius)
+	{
+		if (!IsAlive) return false;
+		return base.CollidesWith(pos, radius);
 	}
 
 	public float Acceleration
@@ -44,13 +57,34 @@ public class Actor : Entity
 		}
 	}
 
-	public virtual void Die()
+	public bool IsAlive
 	{
+		get
+		{
+			return health > 0;
+		}
+		set
+		{
+			if (!value) health = 0;
+		}
+	}
 
+	public virtual void Hit()
+	{
+		health--;
+		velocity = Vector2.Zero;
+	}
+
+	public virtual void Respawn(Vector2 pos)
+	{
+		position = pos;
+		health = 1;
 	}
 
 	public override void Logic()
 	{
+		if (!IsAlive) return;
+
 		DoPhysics();
 
 		if (map.GetCollision(this, new Vector2(0, velocity.Y) * Game.delta))
@@ -93,6 +127,8 @@ public class Actor : Entity
 
 	public override void Draw()
 	{
+		if (!IsAlive) return;
+
 		mesh.Reset();
 
 		mesh.Scale(size);

@@ -5,10 +5,12 @@ using TKTools;
 
 public partial class Player
 {
+	DodgeTarget dodgeTargetBuffer;
 	DashTarget dashTargetBuffer;
-	WarpTarget warpTargetBuffer;
 
 	public int playerID;
+	public string playerName;
+
 	public bool IsLocalPlayer
 	{
 		get
@@ -26,13 +28,26 @@ public partial class Player
 	}
 	public void ReceiveInput(Vector2 position, Vector2 velocity, byte k)
 	{
-		if (!IsDashing && !IsWarping)
+		if (!IsDodgeing && !IsDashing)
 		{
 			this.position = position;
 			this.velocity = velocity;
 		}
 
 		inputData.DecodeFlag(k);
+	}
+
+	public void ReceiveJump(Vector2 position)
+	{
+		this.position = position;
+
+		if (IsOnGround) Jump();
+		else if (WallTouch != 0) WallJump();
+		else if (canDoublejump)
+		{
+			Jump();
+			canDoublejump = false;
+		}
 	}
 
 	public void ReceivePosition(Vector2 position, Vector2 velocity)
@@ -47,9 +62,22 @@ public partial class Player
 		serverPosition = position;
 	}
 
-	public void ReceiveDash(Vector2 start, Vector2 target)
+	public void ReceiveDodge(Vector2 start, Vector2 target)
 	{
-		dashTargetBuffer = new DashTarget(start, target);
+		dodgeTargetBuffer = new DodgeTarget(start, target);
+	}
+
+	public void ReceiveDodgeCollision(byte player, Vector2 myPos, Vector2 colPos)
+	{
+		Player p = map.playerList[player];
+
+		position = myPos;
+		p.position = colPos;
+
+		DodgeEnd(p);
+		p.DodgeEnd(this);
+
+		map.AddEffect(new EffectCollision(this, p, map));
 	}
 
 	public void ReceiveDashCollision(byte player, Vector2 myPos, Vector2 colPos)
@@ -65,22 +93,9 @@ public partial class Player
 		map.AddEffect(new EffectCollision(this, p, map));
 	}
 
-	public void ReceiveWarpCollision(byte player, Vector2 myPos, Vector2 colPos)
+	public void ReceiveDash(Vector2 start, Vector2 target)
 	{
-		Player p = map.playerList[player];
-
-		position = myPos;
-		p.position = colPos;
-
-		WarpEnd(p);
-		p.WarpEnd(this);
-
-		map.AddEffect(new EffectCollision(this, p, map));
-	}
-
-	public void ReceiveWarp(Vector2 start, Vector2 target)
-	{
-		warpTargetBuffer = new WarpTarget(start, target);
+		dashTargetBuffer = new DashTarget(start, target);
 	}
 
 	void SendInput()
@@ -101,6 +116,16 @@ public partial class Player
 
 		msg.WriteShort((short)Protocol.PlayerInputPure);
 		msg.WriteByte(inputData.GetFlag());
+
+		Game.client.Send(msg);
+	}
+
+	void SendJump()
+	{
+		MessageBuffer msg = new MessageBuffer();
+
+		msg.WriteShort((short)Protocol.PlayerJump);
+		msg.WriteVector(position);
 
 		Game.client.Send(msg);
 	}
@@ -127,22 +152,22 @@ public partial class Player
 		Game.client.Send(msg);
 	}
 
-	void SendDash(DashTarget target)
+	void SendDodge(DodgeTarget target)
 	{
 		MessageBuffer msg = new MessageBuffer();
 
-		msg.WriteShort((short)Protocol.PlayerDash);
+		msg.WriteShort((short)Protocol.PlayerDodge);
 		msg.WriteVector(target.startPosition);
 		msg.WriteVector(target.endPosition);
 
 		Game.client.Send(msg);
 	}
 
-	void SendWarp(WarpTarget target)
+	void SendDash(DashTarget target)
 	{
 		MessageBuffer msg = new MessageBuffer();
 
-		msg.WriteShort((short)Protocol.PlayerWarp);
+		msg.WriteShort((short)Protocol.PlayerDash);
 		msg.WriteVector(target.startPosition);
 		msg.WriteVector(target.endPosition);
 

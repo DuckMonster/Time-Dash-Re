@@ -5,16 +5,33 @@ using TKTools;
 using EZUDP;
 using System.Collections.Generic;
 
-public class Map
+public class Map : IDisposable
 {
 	public static ShaderProgram defaultShader = new ShaderProgram("Shaders/standardShader.glsl");
+	public static ShaderProgram hudShader = new ShaderProgram("Shaders/standardShader.glsl");
+
+	public string filename;
+	public GameMode mode;
+
 	public int myID;
 	Camera camera;
-	Environment environment;
+	public Environment environment;
+
+	public Team[] teamList = new Team[10];
+	public Team GetTeam(int id)
+	{
+		if (id < 0 || id >= teamList.Length) return null;
+		return teamList[id];
+	}
 
 	public Player[] playerList = new Player[10];
 	List<Effect> effectList = new List<Effect>(), effectBufferList = new List<Effect>();
 
+	public TextDrawer hudDrawer = new TextDrawer(2000, 2000);
+	Mesh hudMesh;
+
+	Player winPlayer = null;
+	
 	public void AddEffect(Effect e)
 	{
 		effectList.Add(e);
@@ -34,24 +51,83 @@ public class Map
 		}
 	}
 
-	public void PlayerJoin(int id)
+	public int NumberOfPlayers
 	{
-		playerList[id] = new Player(id, new Vector2(4, 10), this);
-		Log.Write("Player " + id + " joined!");
+		get
+		{
+			int n = 0;
+			foreach (Player p in playerList) if (p != null) n++;
+			return n;
+		}
+	}
+
+	public virtual void PlayerJoin(int id, string name)
+	{
+		playerList[id] = new Player(id, name, new Vector2(4, 10), this);
+	}
+
+	public void PlayerJoinTeam(int id, int teamID)
+	{
+		if (playerList[id] == null) return;
+		PlayerJoinTeam(playerList[id], teamID);
+	}
+	public void PlayerJoinTeam(Player p, int teamID)
+	{
+		if (teamList[teamID] == null) teamList[teamID] = new Team(teamID);
+		if (teamList[teamID].IsMember(p)) return;
+
+		teamList[teamID].AddMember(p);
 	}
 
 	public void PlayerLeave(int id)
 	{
+		if (playerList[id].team != null) playerList[id].team.RemoveMember(playerList[id]);
+
+		playerList[id].Dispose();
 		playerList[id] = null;
 	}
 
-	public Map(int id)
+	public void PlayerWin(Player p)
 	{
-		myID = id;
-		Log.Write("My id is " + id);
+		winPlayer = p;
+		hudDrawer.Clear();
 
-		environment = new Environment(this);
+		Vector2 nameSize = hudDrawer.MeasureString(p.playerName, 0.4f);
+		Vector2 winSize = hudDrawer.MeasureString("WINS", 0.2f);
+
+		hudDrawer.Write(p.playerName, 0.5f, 0.5f, 0.4f);
+		hudDrawer.Write("WINS", 0.5f, 0.5f + nameSize.Y / 2 + winSize.Y / 2 + 0.016f, 0.2f);
+
+		hudDrawer.UpdateTexture();
+	}
+
+	public Map(int id, string filename, GameMode mode)
+	{
+		this.filename = filename;
+		this.mode = mode;
+
+		myID = id;
+
+		environment = new Environment(filename, this);
 		camera = new Camera(this);
+
+		hudDrawer.Write("Hello!", 0.5f, 0.5f, 0.2f);
+		hudDrawer.Write("Hello to you too!", 0.5f, 0.8f, 0.2f);
+
+		hudMesh = new Mesh(hudDrawer);
+		hudDrawer.UpdateTexture();
+	}
+
+	public virtual void Dispose()
+	{
+		foreach (Player p in playerList)
+			if (p != null) p.Dispose();
+
+		foreach (Effect e in effectList)
+			if (e != null) e.Dispose();
+
+		hudMesh.Dispose();
+		hudDrawer.Dispose();
 	}
 
 	public bool GetCollision(Entity e) { return GetCollision(e.position, e.size); }
@@ -59,6 +135,10 @@ public class Map
 	public bool GetCollision(Vector2 pos, Vector2 size)
 	{
 		return environment.GetCollision(pos, size);
+	}
+
+	public virtual void MapObjectLoad(uint color, Environment.Tile t)
+	{
 	}
 
 	public Player GetPlayerAtPos(Vector2 pos, Vector2 size, params Player[] exclude)
@@ -96,11 +176,20 @@ public class Map
 		return false;
 	}
 
-	public List<Player> RayTrace(Vector2 start, Vector2 end, Vector2 size, params Player[] exclude)
+	public List<Player> GetPlayerRadius(Vector2 pos, float radius, params Player[] exclude)
 	{
-		List<Player> excludeList = new List<Player>();
-		excludeList.AddRange(exclude);
-		List<Player> returnList = new List<Player>();
+		List<Player> excludeList = new List<Player>(exclude);
+		List<Player> returnList = new List<Player>(10);
+
+		foreach (Player p in playerList) if (p != null && !excludeList.Contains(p) && p.CollidesWith(pos, radius)) returnList.Add(p);
+
+		return returnList;
+	}
+
+	public List<Player> RayTracePlayer(Vector2 start, Vector2 end, Vector2 size, params Player[] exclude)
+	{
+		List<Player> excludeList = new List<Player>(exclude);
+		List<Player> returnList = new List<Player>(10);
 
 		Vector2 diffVector = end - start, directionVector = diffVector.Normalized();
 
@@ -123,7 +212,7 @@ public class Map
 		return returnList;
 	}
 
-	public void Logic()
+	public virtual void Logic()
 	{
 		camera.Logic();
 		environment.Logic();
@@ -137,26 +226,41 @@ public class Map
 			effectBufferList.Clear();
 			effectBufferList.AddRange(effectList.ToArray());
 		}
+
+		if (winPlayer != null)
+			Log.Debug(winPlayer.playerID + " WINS!");
 	}
 
-	public void Draw()
+	public virtual void Draw()
 	{
 		defaultShader["view"].SetValue(camera.ViewMatrix);
 		Tileset.tileProgram["view"].SetValue(camera.ViewMatrix);
-		environment.Draw();
 		foreach (Player p in playerList) if (p != null) p.Draw();
 		foreach (Effect e in effectList) e.Draw();
+
+		Map.hudShader["view"].SetValue(Matrix4.LookAt(new Vector3(0, 0, 3), Vector3.Zero, Vector3.UnitY));
+
+		if (winPlayer != null)
+		{
+			hudMesh.Color = Player.colorList[winPlayer.playerID];
+
+			hudMesh.Reset();
+			hudMesh.Translate(camera.position.Xy);
+			hudMesh.Scale(20f);
+
+			hudMesh.Draw();
+		}
 	}
 
 	//ONLINE
-	public void MessageHandle(MessageBuffer msg)
+	public virtual void MessageHandle(MessageBuffer msg)
 	{
 		try
 		{
 			switch ((Protocol)msg.ReadShort())
 			{
 				case Protocol.PlayerJoin:
-					PlayerJoin(msg.ReadByte());
+					PlayerJoin(msg.ReadByte(), msg.ReadString());
 					break;
 
 				case Protocol.PlayerLeave:
@@ -171,44 +275,66 @@ public class Map
 					playerList[msg.ReadByte()].ReceiveInput(msg.ReadByte());
 					break;
 
+				case Protocol.PlayerJump:
+					playerList[msg.ReadByte()].ReceiveJump(msg.ReadVector2());
+					break;
+
 				case Protocol.PlayerPosition:
 					playerList[msg.ReadByte()].ReceivePosition(msg.ReadVector2(), msg.ReadVector2());
 					break;
 
+				case Protocol.PlayerKill:
+					playerList[msg.ReadByte()].Kill(playerList[msg.ReadByte()]);
+					break;
+
 				case Protocol.PlayerDie:
-					playerList[msg.ReadByte()].Die(msg.ReadVector2());
+					playerList[msg.ReadByte()].Hit(msg.ReadVector2());
+					break;
+
+				case Protocol.PlayerRespawn:
+					playerList[msg.ReadByte()].Respawn(msg.ReadVector2());
 					break;
 
 				case Protocol.PlayerDisable:
 					playerList[msg.ReadByte()].Disabled = true;
 					break;
 
+				case Protocol.PlayerDodge:
+					playerList[msg.ReadByte()].ReceiveDodge(msg.ReadVector2(), msg.ReadVector2());
+					break;
+
 				case Protocol.PlayerDash:
 					playerList[msg.ReadByte()].ReceiveDash(msg.ReadVector2(), msg.ReadVector2());
 					break;
 
-				case Protocol.PlayerWarp:
-					playerList[msg.ReadByte()].ReceiveWarp(msg.ReadVector2(), msg.ReadVector2());
+				case Protocol.PlayerDodgeCollision:
+					playerList[msg.ReadByte()].ReceiveDodgeCollision(msg.ReadByte(), msg.ReadVector2(), msg.ReadVector2());
 					break;
 
 				case Protocol.PlayerDashCollision:
 					playerList[msg.ReadByte()].ReceiveDashCollision(msg.ReadByte(), msg.ReadVector2(), msg.ReadVector2());
 					break;
-
-				case Protocol.PlayerWarpCollision:
-					playerList[msg.ReadByte()].ReceiveWarpCollision(msg.ReadByte(), msg.ReadVector2(), msg.ReadVector2());
+				
+				case Protocol.PlayerWin:
+					PlayerWin(playerList[msg.ReadByte()]);
 					break;
 
+				case Protocol.PlayerJoinTeam:
+					PlayerJoinTeam(msg.ReadByte(), msg.ReadByte());
+					break;
+	
 				case Protocol.ServerPosition:
 					playerList[msg.ReadByte()].ReceiveServerPosition(msg.ReadVector2());
 					break;
 			}
-
-			msg.Reset();
 		}
 		catch (Exception e)
 		{
-			Log.Write(ConsoleColor.Red, "Packet corrupt!\n" + e.Message);
+			Log.Write(ConsoleColor.Yellow, "Packet corrupt!");
+			Log.Write(ConsoleColor.Red, e.Message);
+			Log.Write(ConsoleColor.DarkRed, e.StackTrace);
 		}
+
+		if (msg != null) msg.Reset();
 	}
 }

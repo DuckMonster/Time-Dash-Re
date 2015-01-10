@@ -58,11 +58,11 @@ class Log
 	public static LogMode mode = LogMode.Message;
 	static Thread inputThread;
 
-	private static int[] tickAvg = new int[150], frameAvg = new int[500];
-	private static int tickAvgIndex = 0, frameAvgIndex = 0;
+	private static int[] tickAvg = new int[150];
+	private static int tickAvgIndex = 0;
 
 	static Stopwatch networkWatch;
-	static int currentUp = 0, currentDown = 0;
+	static int currentUp = 0, currentDown = 0, maxUp = 0, maxDown = 0;
 
 	public static void Init()
 	{
@@ -153,16 +153,13 @@ class Log
 		tickAvgIndex = (tickAvgIndex + 1) % tickAvg.Length;
 	}
 
-	public static void CalculateFrame(float t)
-	{
-		frameAvg[frameAvgIndex] = (int)(1.0 / t);
-		frameAvgIndex = (frameAvgIndex + 1) % frameAvg.Length;
-	}
-
 	public static void CalculateNetworkData()
 	{
 		currentDown = EzServer.DownBytes;
 		currentUp = EzServer.UpBytes;
+
+		if (currentDown > maxDown) maxDown = currentDown;
+		if (currentUp > maxUp) maxUp = currentUp;
 	}
 
 	static void ShowUptime()
@@ -176,26 +173,23 @@ class Log
 		if (CanDebug)
 		{
 			//Calculate average
-			int tick = 0, frame = 0;
+			int tick = 0;
 
 			for (int i = 0; i < tickAvg.Length; i++)
 				tick += tickAvg[i];
 
-			for (int i = 0; i < frameAvg.Length; i++)
-				frame += frameAvg[i];
-
 			tick /= tickAvg.Length;
-			frame /= frameAvg.Length;
 
 			//
 
-			Debug("Ticks/S: {1} ~ {0:0}\nFrames/S: {3} ~ {2:0}", tickAvg[tickAvgIndex], tick, frameAvg[frameAvgIndex], frame);
+			Debug("Ticks/S: {1} ~ {0:0}", tickAvg[tickAvgIndex], tick);
 		}
 	}
 
 	static void ShowNetworkData()
 	{
-		Debug("U: {0} B/s\nD: {1} B/s\n\nTotal\nU: {2} B\nD: {3} B", currentUp, currentDown, EzServer.UpBytesTotal, EzServer.DownBytesTotal);
+		Debug("U: {0} B/s  \tMax: {4} b/s\nD: {1} B/s  \tMax: {5} b/s\n\nTotal\nU: {2} B\nD: {3} B",
+			currentUp, currentDown, EzServer.UpBytesTotal, EzServer.DownBytesTotal, maxUp, maxDown);
 	}
 
 	public static void ShowMessages()
@@ -259,6 +253,8 @@ class Log
 
 		Console.Clear();
 		LogCommand.RunCommand(command);
+
+		ShowMessages();
 	}
 
 	public static void SetMessageFilter(string[] filter)

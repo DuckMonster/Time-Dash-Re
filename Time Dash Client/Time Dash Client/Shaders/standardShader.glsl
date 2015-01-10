@@ -31,6 +31,8 @@ in vec2 uv;
 
 out vec4 fragment;
 
+vec4 blur(float, int);
+
 void main() {
 	vec4 finalColor;
 

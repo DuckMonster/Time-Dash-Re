@@ -4,7 +4,7 @@ using OpenTK.Input;
 class Camera
 {
 	Map map;
-	Vector3 position = new Vector3(0, 0, 5);
+	public Vector3 position = new Vector3(0, 0, 5);
 
 	public Matrix4 ViewMatrix
 	{
@@ -25,10 +25,11 @@ class Camera
 
 		if (p != null)
 		{
-			Vector2 difference = p.position - position.Xy;
-			position.Xy += difference * 4f * Game.delta;
+			Vector2 target = p.position + p.velocity * 0.1f;
+			Vector2 difference = target - position.Xy;
+			position.Xy += difference * 5f * Game.delta;
 
-			float targetZ = 10f + difference.Length + 0.6f,
+			float targetZ = 10f + difference.Length * 2.2f,
 				ZDifference = targetZ - position.Z;
 			position.Z += ZDifference * 0.8f * Game.delta;
 		}

@@ -53,6 +53,14 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="GameModes\CP\CPMap.cs" />
+    <Compile Include="GameModes\CP\CPPoint.cs" />
+    <Compile Include="GameModes\DM\DMMap.cs" />
+    <Compile Include="GameModes\DM\DMPlayer.cs" />
+    <Compile Include="GameModes\Koth\KothPlayer.cs" />
+    <Compile Include="GameModes\Koth\KothPoint.cs" />
+    <Compile Include="GameModes\Koth\KothMap.cs" />
+    <Compile Include="GameModes\Scoreboard.cs" />
     <Compile Include="Game\Entity\Actor.cs" />
     <Compile Include="Game\Entity\Entity.cs" />
     <Compile Include="Game\Entity\PlayerAbilities.cs" />
@@ -60,6 +68,7 @@
     <Compile Include="Game\Entity\PlayerShadow.cs" />
     <Compile Include="Game\Environment.cs" />
     <Compile Include="Game\Game.cs" />
+    <Compile Include="Game\Team.cs" />
     <Compile Include="Log.cs" />
     <Compile Include="Game\Map.cs" />
     <Compile Include="Game\Entity\Player.cs" />
@@ -79,7 +88,16 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Res\map.png">
+    <Folder Include="Res\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Maps\factory.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Maps\ffa.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Maps\temple.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

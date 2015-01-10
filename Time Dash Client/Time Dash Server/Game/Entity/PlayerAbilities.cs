@@ -21,92 +21,92 @@ public partial class Player : Actor
 		wallStick = 0f;
 
 		canDoublejump = true;
-		airDashNmbr = stats.AirDashMax;
+		airDodgeNmbr = stats.AirDodgeMax;
 	}
 
-	#region Dashing
-	int airDashNmbr = 1;
+	#region Dodgeing
+	int airDodgeNmbr = 1;
 
-	public void Dash(int dir)
+	public void Dodge(int dir)
 	{
-		if (!CanDash) return;
-		Dash(position + new Vector2(stats.DashLength * dir, 0));
+		if (!CanDodge) return;
+		Dodge(position + new Vector2(stats.DodgeLength * dir, 0));
 	}
 
-	public void DashVertical(int dir)
+	public void DodgeVertical(int dir)
 	{
-		if (!CanDash) return;
-		Dash(position + new Vector2(0, stats.DashLength * dir));
+		if (!CanDodge) return;
+		Dodge(position + new Vector2(0, stats.DodgeLength * dir));
 	}
 
-	public void Dash(DashTarget t)
+	public void Dodge(DodgeTarget t)
 	{
-		if (!CanDash) return;
+		if (!CanDodge) return;
 		position = t.startPosition;
-		Dash(t.endPosition);
+		Dodge(t.endPosition);
 	}
 
-	public void Dash(Vector2 target)
+	public void Dodge(Vector2 target)
 	{
 		map.RayTraceCollision(position, target, size, out target); //Raytrace
-		dashTarget = new DashTarget(position, target);
-		dashCooldown.Reset();
+		dodgeTarget = new DodgeTarget(position, target);
+		dodgeCooldown.Reset();
 
 		if (!IsOnGround)
 		{
-			gravityIgnore = dashGravityIgnoreTime;
-			airDashNmbr--;
+			gravityIgnore = dodgeGravityIgnoreTime;
+			airDodgeNmbr--;
 		}
 	}
 
-	public void DashStep()
+	public void DodgeStep()
 	{
-		dashTarget.timeTraveled += Game.delta;
+		dodgeTarget.timeTraveled += Game.delta;
 
-		Vector2 dir = (dashTarget.endPosition - position).Normalized();
-		float speedFactor = TKMath.Exp(Math.Max(0, 0.4f - dashTarget.timeTraveled * 5), 2f, 30);
-		Vector2 stepSize = dir * stats.DashVelocity * speedFactor * Game.delta;
+		Vector2 dir = (dodgeTarget.endPosition - position).Normalized();
+		float speedFactor = TKMath.Exp(Math.Max(0, 0.4f - dodgeTarget.timeTraveled * 5), 2f, 30);
+		Vector2 stepSize = dir * stats.DodgeVelocity * speedFactor * Game.delta;
 
 		//If youre there, just end it
-		if (stepSize.Length > (dashTarget.endPosition - position).Length || (dashTarget.endPosition - position).Length <= 0.1f)
+		if (stepSize.Length > (dodgeTarget.endPosition - position).Length || (dodgeTarget.endPosition - position).Length <= 0.1f)
 		{
-			DashEnd();
+			DodgeEnd();
 			return;
 		}
 
 		Vector2 stepTarget = position + stepSize;
 
-		//Check for dashing players
-		List<Player> playerCol = map.RayTrace(position, stepTarget, size, this);
-		if (playerCol.Count > 0 && playerCol[0].IsDashing)
+		//Check for dodgeing players
+		List<Player> playerCol = map.RayTracePlayer(position, stepTarget, size, this);
+		if (playerCol.Count > 0 && playerCol[0].IsDodging)
 		{
-			DashEnd(playerCol[0]);
-			playerCol[0].DashEnd(this);
+			DodgeEnd(playerCol[0]);
+			playerCol[0].DodgeEnd(this);
 
-			SendDashCollisionToPlayer(playerCol[0], map.playerList);
+			SendDodgeCollisionToPlayer(playerCol[0], map.playerList);
 
 			return;
 		}
 
 		position = stepTarget;
-		dashTarget.lastStep = speedFactor;
+		dodgeTarget.lastStep = speedFactor;
 	}
 
-	public void DashEnd(Player p)
+	public void DodgeEnd(Player p)
 	{
 		velocity = ((position - p.position).Normalized() + new Vector2(0, 1)).Normalized() * 20f;
-		dashTarget = null;
+		dodgeTarget = null;
 	}
 
-	public void DashEnd()
+	public void DodgeEnd()
 	{
-		position = dashTarget.endPosition;
-		velocity = (dashTarget.endPosition - dashTarget.startPosition).Normalized() * stats.DashEndVelocity;
-		dashTarget = null;
+		position = dodgeTarget.endPosition;
+		velocity = (dodgeTarget.endPosition - dodgeTarget.startPosition).Normalized() * stats.DodgeEndVelocity;
+		dodgeTarget = null;
 	}
 	#endregion
 
-	#region Warping
+	#region Dashing
 	public void CreateShadow()
 	{
 		if (shadow == null)
@@ -115,57 +115,57 @@ public partial class Player : Actor
 		}
 	}
 
-	public void Warp(WarpTarget t)
+	public void Dash(DashTarget t)
 	{
 		if (Disabled) return;
 
 		position = t.startPosition;
-		Warp(t.endPosition);
+		Dash(t.endPosition);
 	}
 
-	public void Warp(Vector2 target)
+	public void Dash(Vector2 target)
 	{
 		if (Disabled) return;
 
-		warpTarget = new WarpTarget(position, target);
-		warpCooldown.Reset();
+		dashTarget = new DashTarget(position, target);
+		dashCooldown.Reset();
 	}
 
-	public void WarpStep()
+	public void DashStep()
 	{
-		warpTarget.timeTraveled += Game.delta;
+		dashTarget.timeTraveled += Game.delta;
 
-		Vector2 direction = (warpTarget.endPosition - position).Normalized();
-		float speedFactor = TKMath.Exp(Math.Max(0, 0.4f - warpTarget.timeTraveled), 2f, 20);
+		Vector2 direction = (dashTarget.endPosition - position).Normalized();
+		float speedFactor = TKMath.Exp(Math.Max(0, 0.4f - dashTarget.timeTraveled), 2f, 20);
 
-		Vector2 stepSize = direction * speedFactor * stats.WarpVelocity * Game.delta;
+		Vector2 stepSize = direction * speedFactor * stats.DashVelocity * Game.delta;
 
-		if (stepSize.Length > (warpTarget.endPosition - position).Length)
+		if (stepSize.Length > (dashTarget.endPosition - position).Length)
 		{
-			WarpEnd();
+			DashEnd();
 			return;
 		}
 
 		Vector2 stepTarget = position + stepSize;
 
-		//Check for dashing players
-		List<Player> playerCol = map.RayTrace(position, stepTarget, size, this);
+		//Check for players
+		List<Player> playerCol = map.RayTracePlayer(position, stepTarget, size, this);
 		if (playerCol.Count > 0)
 		{
 			foreach (Player p in playerCol)
 			{
-				if (p.IsWarping)
+				if (p.IsDashing)
 				{
-					WarpEnd(playerCol[0]);
-					playerCol[0].WarpEnd(this);
+					DashEnd(playerCol[0]);
+					playerCol[0].DashEnd(this);
 
-					SendWarpCollisionToPlayer(playerCol[0], map.playerList);
+					SendDashCollisionToPlayer(playerCol[0], map.playerList);
 
 					return;
 				}
-				else
+				else if (!p.IsDodging && !AlliedWith(p))
 				{
-					p.Hit();
+					Kill(p);
 				}
 			}
 		} 
@@ -173,26 +173,26 @@ public partial class Player : Actor
 		position += stepSize;
 	}
 
-	public void WarpEnd()
+	public void DashEnd()
 	{
-		WarpEnd(warpTarget.startPosition, warpTarget.endPosition, (warpTarget.endPosition - warpTarget.startPosition).Normalized() * stats.WarpEndVelocity);
+		DashEnd(dashTarget.startPosition, dashTarget.endPosition, (dashTarget.endPosition - dashTarget.startPosition).Normalized() * stats.DashEndVelocity);
 	}
 
-	public void WarpEnd(Player p)
+	public void DashEnd(Player p)
 	{
 		velocity = ((position - p.position).Normalized() + new Vector2(0, 1)).Normalized() * 20f;
-		warpTarget = null;
+		dashTarget = null;
 	}
 
-	public void WarpEnd(Vector2 start, Vector2 end, Vector2 velo)
+	public void DashEnd(Vector2 start, Vector2 end, Vector2 velo)
 	{
 		position = end;
 		velocity = velo;
 
-		warpTarget = null;
+		dashTarget = null;
 
 		canDoublejump = true;
-		airDashNmbr = stats.AirDashMax;
+		airDodgeNmbr = stats.AirDodgeMax;
 	}
 	#endregion
 }

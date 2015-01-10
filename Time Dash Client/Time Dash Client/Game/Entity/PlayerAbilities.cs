@@ -21,60 +21,60 @@ public partial class Player : Actor
 		wallStick = 0f;
 
 		canDoublejump = true;
-		airDashNmbr = stats.AirDashMax;
+		airDodgeNmbr = stats.AirDodgeMax;
 	}
 
-	#region Dashing
-	int airDashNmbr = 1;
+	#region Dodging
+	int airDodgeNmbr = 1;
 
-	public void Dash(int dir)
+	public void Dodge(int dir)
 	{
-		if (!CanDash) return;
-		Dash(position + new Vector2(stats.DashLength * dir, 0));
+		if (!CanDodge) return;
+		Dodge(position + new Vector2(stats.DodgeLength * dir, 0));
 	}
 
-	public void DashVertical(int dir)
+	public void DodgeVertical(int dir)
 	{
-		if (!CanDash) return;
-		Dash(position + new Vector2(0, stats.DashLength * dir));
+		if (!CanDodge) return;
+		Dodge(position + new Vector2(0, stats.DodgeLength * dir));
 	}
 
-	public void Dash(DashTarget t)
+	public void Dodge(DodgeTarget t)
 	{
-		if (!CanDash) return;
+		if (!CanDodge) return;
 		position = t.startPosition;
-		Dash(t.endPosition);
+		Dodge(t.endPosition);
 	}
 
-	public void Dash(Vector2 target)
+	public void Dodge(Vector2 target)
 	{
 		map.RayTraceCollision(position, target, size, out target); //Raytrace
 		if ((target - position).Length < 0.1f) return;
 
-		dashTarget = new DashTarget(position, target);
+		dodgeTarget = new DodgeTarget(position, target);
 
-		dashCooldown.Reset();
+		dodgeCooldown.Reset();
 
 		if (!IsOnGround)
 		{
-			gravityIgnore = dashGravityIgnoreTime;
-			airDashNmbr--;
+			gravityIgnore = dodgeGravityIgnoreTime;
+			airDodgeNmbr--;
 		}
-		if (IsLocalPlayer) SendDash(dashTarget);
+		if (IsLocalPlayer) SendDodge(dodgeTarget);
 	}
 
-	public void DashStep()
+	public void DodgeStep()
 	{
-		dashTarget.timeTraveled += Game.delta;
+		dodgeTarget.timeTraveled += Game.delta;
 
-		Vector2 dir = (dashTarget.endPosition - position).Normalized();
-		float speedFactor = TKMath.Exp(Math.Max(0, 0.4f - dashTarget.timeTraveled * 5), 2f, 30);
-		Vector2 stepSize = dir * stats.DashVelocity * speedFactor * Game.delta;
+		Vector2 dir = (dodgeTarget.endPosition - position).Normalized();
+		float speedFactor = TKMath.Exp(Math.Max(0, 0.4f - dodgeTarget.timeTraveled * 5), 2f, 30);
+		Vector2 stepSize = dir * stats.DodgeVelocity * speedFactor * Game.delta;
 
 		//If youre there, just end it
-		if (stepSize.Length > (dashTarget.endPosition - position).Length || (dashTarget.endPosition - position).Length <= 0.1f)
+		if (stepSize.Length > (dodgeTarget.endPosition - position).Length || (dodgeTarget.endPosition - position).Length <= 0.1f)
 		{
-			DashEnd();
+			DodgeEnd();
 			return;
 		}
 
@@ -82,32 +82,32 @@ public partial class Player : Actor
 
 		//Add line effect
 		map.AddEffect(new EffectLine(position, stepTarget,
-				dashTarget.lastStep * 0.4f, speedFactor * 0.4f, 0.8f, MyColor, map));
+				dodgeTarget.lastStep * 0.4f, speedFactor * 0.4f, 0.8f, Color, map));
 
 		position = stepTarget;
 
-		dashTarget.lastStep = speedFactor;
+		dodgeTarget.lastStep = speedFactor;
 	}
 
-	public void DashEnd(Player p)
+	public void DodgeEnd(Player p)
 	{
 		velocity = ((position - p.position).Normalized() + new Vector2(0, 1)).Normalized() * 20f;
-		dashTarget = null;
+		dodgeTarget = null;
 	}
 
-	public void DashEnd()
+	public void DodgeEnd()
 	{
-		position = dashTarget.endPosition;
-		velocity = (dashTarget.endPosition - dashTarget.startPosition).Normalized() * stats.DashEndVelocity;
-		dashTarget = null;
+		position = dodgeTarget.endPosition;
+		velocity = (dodgeTarget.endPosition - dodgeTarget.startPosition).Normalized() * stats.DodgeEndVelocity;
+		dodgeTarget = null;
 
-		map.AddEffect(new EffectRing(position, 4f, 0.5f, MyColor, map));
+		map.AddEffect(new EffectRing(position, 4f, 0.5f, Color, map));
 
 		//if (IsLocalPlayer) SendPosition();
 	}
 	#endregion
 
-	#region Warping
+	#region Dashing
 	public void CreateShadow()
 	{
 		if (shadow == null)
@@ -116,65 +116,65 @@ public partial class Player : Actor
 		}
 	}
 
-	public void Warp(WarpTarget t)
+	public void Dash(DashTarget t)
 	{
 		if (Disabled || (t.endPosition - position).Length < 0.1f) return;
 
 		position = t.startPosition;
-		Warp(t.endPosition);
+		Dash(t.endPosition);
 	}
 
-	public void Warp(Vector2 target)
+	public void Dash(Vector2 target)
 	{
 		if (Disabled || (target - position).Length < 0.1f) return;
 
-		warpTarget = new WarpTarget(position, target);
-		warpCooldown.Reset();
+		dashTarget = new DashTarget(position, target);
+		dashCooldown.Reset();
 
-		if (IsLocalPlayer) SendWarp(warpTarget);
+		if (IsLocalPlayer) SendDash(dashTarget);
 	}
 
-	public void WarpStep()
+	public void DashStep()
 	{
-		warpTarget.timeTraveled += Game.delta;
+		dashTarget.timeTraveled += Game.delta;
 
-		Vector2 direction = (warpTarget.endPosition - position).Normalized();
-		float speedFactor = TKMath.Exp(Math.Max(0, 0.4f - warpTarget.timeTraveled), 2f, 20);
+		Vector2 direction = (dashTarget.endPosition - position).Normalized();
+		float speedFactor = TKMath.Exp(Math.Max(0, 0.4f - dashTarget.timeTraveled), 2f, 20);
 
-		Vector2 stepSize = direction * speedFactor * stats.WarpVelocity * Game.delta;
+		Vector2 stepSize = direction * speedFactor * stats.DashVelocity * Game.delta;
 
-		if (stepSize.Length > (warpTarget.endPosition - position).Length)
+		if (stepSize.Length > (dashTarget.endPosition - position).Length)
 		{
-			WarpEnd();
+			DashEnd();
 			return;
 		}
 
 		Vector2 stepTarget = position + stepSize;
 
 		position = stepTarget;
-		warpTarget.lastStep = speedFactor;
+		dashTarget.lastStep = speedFactor;
 	}
 
-	public void WarpEnd()
+	public void DashEnd()
 	{
-		WarpEnd(warpTarget.startPosition, warpTarget.endPosition, (warpTarget.endPosition - warpTarget.startPosition).Normalized() * stats.WarpEndVelocity);
+		DashEnd(dashTarget.startPosition, dashTarget.endPosition, (dashTarget.endPosition - dashTarget.startPosition).Normalized() * stats.DashEndVelocity);
 	}
 
-	public void WarpEnd(Player p)
+	public void DashEnd(Player p)
 	{
 		Vector2 velo = ((position - p.position).Normalized() + new Vector2(0, 1)).Normalized() * 20f;
-		WarpEnd(warpTarget.startPosition, position, velo);
+		DashEnd(dashTarget.startPosition, position, velo);
 	}
 
-	public void WarpEnd(Vector2 start, Vector2 end, Vector2 velo)
+	public void DashEnd(Vector2 start, Vector2 end, Vector2 velo)
 	{
 		position = end;
-		map.AddEffect(new EffectSpike(start, end, 1f, 0.8f, MyColor, map));
-		map.AddEffect(new EffectRing(end, 4f, 1f, MyColor, map));
+		map.AddEffect(new EffectSpike(start, end, 1.5f, 0.8f, Color, map));
+		map.AddEffect(new EffectRing(end, 6f, 0.8f, Color, map));
 
 		velocity = velo;
 
-		warpTarget = null;
+		dashTarget = null;
 
 		canDoublejump = true;
 		shadow = null;

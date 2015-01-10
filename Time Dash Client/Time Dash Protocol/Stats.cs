@@ -33,10 +33,10 @@ public class Stats
 	float jumpForce = 12f, jumpAddForce = 20f, jumpAddLimit = 2f;
 
 	float acceleration, accelerationAir, accFriction, accFrictionAir, decFriction, decFrictionAir;
-	float warpVelocity = 250f, warpEndVelocity = 18f;
+	float dashVelocity = 250f, dashEndVelocity = 18f;
 
 	float wallJumpVelocity = 15f, wallJumpAngle = 50f;
-	float dashVelocity = 50f, dashEndVelocity = 13f, dashLength = 3.5f;
+	float dodgeVelocity = 40f, dodgeEndVelocity = 13f, dodgeLength = 3.5f;
 
 	float GetFriction(float speed)
 	{
@@ -126,8 +126,8 @@ public class Stats
 	public float JumpAddForce { get { return jumpAddForce; } set { jumpAddForce = value; } }
 	public float JumpAddLimit { get { return jumpAddLimit; } set { jumpAddLimit = value; } }
 
-	public float WarpVelocity { get { return warpVelocity; } set { warpVelocity = value; } }
-	public float WarpEndVelocity { get { return warpEndVelocity; } set { warpEndVelocity = value; } }
+	public float DashVelocity { get { return dashVelocity; } set { dashVelocity = value; } }
+	public float DashEndVelocity { get { return dashEndVelocity; } set { dashEndVelocity = value; } }
 
 	public float WallJumpVelocity { get { return wallJumpVelocity; } set { wallJumpVelocity = value; } }
 	public float WallJumpAngle { get { return wallJumpAngle; } set { wallJumpAngle = value; } }
@@ -140,21 +140,21 @@ public class Stats
 		}
 	}
 
-	public float DashVelocity { get { return dashVelocity; } set { dashVelocity = value; } }
-	public float DashEndVelocity { get { return dashEndVelocity; } set { dashEndVelocity = value; } }
-	public float DashLength { get { return dashLength; } set { dashLength = value; } }
+	public float DodgeVelocity { get { return dodgeVelocity; } set { dodgeVelocity = value; } }
+	public float DodgeEndVelocity { get { return dodgeEndVelocity; } set { dodgeEndVelocity = value; } }
+	public float DodgeLength { get { return dodgeLength; } set { dodgeLength = value; } }
 
 	#endregion
 
 	#region Cooldowns
 
-	float warpCooldown = 0.6f, dashCooldown = 1f, disabledTime = 0.8f;
-	int airDashMax = 1;
+	float dashCooldown = 0.8f, dodgeCooldown = 1f, disabledTime = 0.8f;
+	int airDodgeMax = 1;
 
 	public float DisableTime { get { return disabledTime; } set { disabledTime = value; } }
+	public float DodgeCooldown { get { return dodgeCooldown; } set { dodgeCooldown = value; } }
 	public float DashCooldown { get { return dashCooldown; } set { dashCooldown = value; } }
-	public float WarpCooldown { get { return warpCooldown; } set { warpCooldown = value; } }
-	public int AirDashMax { get { return airDashMax; } set { airDashMax = value; } }
+	public int AirDodgeMax { get { return airDodgeMax; } set { airDodgeMax = value; } }
 
 	#endregion
 

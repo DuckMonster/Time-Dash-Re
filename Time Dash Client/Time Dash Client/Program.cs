@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,19 +9,37 @@ using OpenTK;
 using GRFX = OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Input;
+using System.Drawing;
 
 public class Program : GameWindow
 {
-	public static bool focused = false;
+	public static Program client;
 	Game game;
 
 	static void Main(string[] args)
 	{
+		#region Name
+
+		Console.Write("Name: ");
+		Game.myName = Console.ReadLine();
+		Console.Clear();
+
+		#endregion
 		#region Server ip
-		string[] serverList = new string[] {
-			"127.0.0.1",
-			"90.224.59.61"
-		};
+		List<string> ipList = new List<string>();
+
+		if (!File.Exists(".serverlist")) File.Create(".serverlist");
+
+		using (StreamReader str = new StreamReader(".serverlist"))
+		{
+			while (!str.EndOfStream)
+			{
+				string ip = str.ReadLine();
+
+				if (ip.Split('.').Length == 4)
+					ipList.Add(ip);
+			}
+		}
 
 		bool valid = false;
 
@@ -35,19 +54,41 @@ public class Program : GameWindow
 			try
 			{
 				Console.WriteLine("Connect to:");
-				for (int i = 0; i < serverList.Length; i++)
-					Console.WriteLine("({0}) {1}", i, serverList[i]);
+				for (int i = 0; i < ipList.Count; i++)
+					Console.WriteLine("({0}) {1}", i, ipList[i]);
+				Console.WriteLine("\n(N) Add...");
 
-				int n = int.Parse(Console.ReadKey().KeyChar.ToString());
+				char input = Console.ReadKey().KeyChar;
 
-				Game.hostIP = serverList[n];
+				if (input == 'n' || input == 'N')
+				{
+					Console.Clear();
+					Console.Write("New IP: ");
+					string ip = Console.ReadLine();
+
+					using (StreamWriter str = new StreamWriter(".serverlist", true))
+					{
+						str.WriteLine(ip);
+					}
+
+					ipList.Add(ip);
+
+					Console.Clear();
+					continue;
+				}
+
+				int n = int.Parse(input.ToString());
+
+				Game.hostIP = ipList[n];
 				valid = true;
 			}
+#pragma warning disable
 			catch (Exception e)
 			{
 				Console.Clear();
 				Console.WriteLine("Invalid input.");
 			}
+#pragma warning enable
 		}
 		#endregion
 
@@ -62,6 +103,8 @@ public class Program : GameWindow
 	{
 		KeyDown += KeyHandle;
 		Closed += OnClose;
+
+		client = this;
 	}
 
 	public void OnClose(object sender, EventArgs e)
@@ -73,7 +116,11 @@ public class Program : GameWindow
 	public void KeyHandle(object sender, KeyboardKeyEventArgs a)
 	{
 		if (a.Key == Key.Escape) Exit();
-		if (a.Key == Key.F4) this.WindowState = OpenTK.WindowState.Maximized;
+		if (a.Key == Key.F4)
+		{
+			if (WindowState == OpenTK.WindowState.Maximized) this.WindowState = OpenTK.WindowState.Normal;
+			else this.WindowState = OpenTK.WindowState.Maximized;
+		}
 	}
 
 	protected override void OnLoad(EventArgs e)
@@ -86,8 +133,7 @@ public class Program : GameWindow
 		GL.Enable(EnableCap.Blend);
 		GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
 
-		Width = 400;
-		Height = 300;
+		//GL.Enable(EnableCap.DepthTest);
 
 		WindowBorder = OpenTK.WindowBorder.Resizable;
 		VSync = VSyncMode.Off;
@@ -100,17 +146,14 @@ public class Program : GameWindow
 		base.OnResize(e);
 
 		GL.Viewport(ClientRectangle.X, ClientRectangle.Y, ClientRectangle.Width, ClientRectangle.Height);
-
-		float ratio = Width / (float)Height;
-		game.UpdateProjection(Matrix4.CreatePerspectiveOffCenter(-1, 1, -1 / ratio, 1 / ratio, 1, 1000));
+		game.UpdateProjection(ClientSize.Width, ClientSize.Height);
 	}
 
 	protected override void OnUpdateFrame(FrameEventArgs e)
 	{
 		base.OnUpdateFrame(e);
 
-		focused = Focused;
-		KeyboardInput.Update();
+		if (Focused) KeyboardInput.Update();
 		game.Logic();
 	}
 
@@ -118,7 +161,7 @@ public class Program : GameWindow
 	{
 		base.OnRenderFrame(e);
 
-		GL.Clear(ClearBufferMask.ColorBufferBit);
+		GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
 		game.Draw();
 
