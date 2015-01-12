@@ -24,7 +24,6 @@ namespace MapEditor
 
 		public Camera()
 		{
-
 		}
 
 		public void Logic()

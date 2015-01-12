@@ -34,18 +34,18 @@ namespace MapEditor
 		{
 			get
 			{
-				Mesh m = new Mesh(PrimitiveType.TriangleStrip);
+				Mesh m = new Mesh(PrimitiveType.Quads);
 				m.Vertices = new Vector2[] {
 				new Vector2(-0.5f, 0.5f),
 				new Vector2(0.5f, 0.5f),
-				new Vector2(-0.5f, -0.5f),
-				new Vector2(0.5f, -0.5f)
+				new Vector2(0.5f, -0.5f),
+				new Vector2(-0.5f, -0.5f)
 			};
 				m.UV = new Vector2[] {
 				new Vector2(0f, 0f),
 				new Vector2(1f, 0f),
-				new Vector2(0f, 1f),
-				new Vector2(1f, 1f)
+				new Vector2(1f, 1f),
+				new Vector2(0f, 1f)
 			};
 
 				return m;
@@ -172,6 +172,18 @@ namespace MapEditor
 			set
 			{
 				ortho = value;
+			}
+		}
+
+		public Polygon Polygon
+		{
+			get
+			{
+				Vector2[] vert = Vertices;
+				for (int i = 0; i < vert.Length; i++)
+					vert[i] = Vector4.Transform(new Vector4(vert[i].X, vert[i].Y, 0, 1), modelMatrix).Xy;
+
+				return new Polygon(vert);
 			}
 		}
 

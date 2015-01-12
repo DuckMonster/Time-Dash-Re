@@ -13,6 +13,16 @@ namespace MapEditor
 				state = ks;
 			}
 
+			public bool KeyDown(Key k)
+			{
+				return this[k] && !KeyboardInput.Previous[k];
+			}
+
+			public bool KeyUp(Key k)
+			{
+				return !this[k] && KeyboardInput.Previous[k];
+			}
+
 			public bool this[Key k]
 			{
 				get

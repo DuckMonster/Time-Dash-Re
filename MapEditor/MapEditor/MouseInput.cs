@@ -94,6 +94,24 @@ namespace MapEditor
 			}
 		}
 
+		public static Vector2 Delta
+		{
+			get
+			{
+				return current.Position - previous.Position;
+			}
+		}
+
+		public static bool ButtonPressed(MouseButton mb)
+		{
+			return Current[mb] && !Previous[mb];
+		}
+
+		public static bool ButtonReleased(MouseButton mb)
+		{
+			return !Current[mb] && Previous[mb];
+		}
+
 		public static void Update(GameWindow window)
 		{
 			MouseState state = Mouse.GetState();

@@ -1,12 +1,20 @@
 ﻿using OpenTK;
 using OpenTK.Graphics.OpenGL;
+using OpenTK.Input;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Drawing;
 using TKTools;
 
 namespace MapEditor
 {
+	public enum EditMode
+	{
+		Select,
+		Move,
+		Scale,
+		Rotate
+	}
+
 	public class Editor
 	{
 		public static ShaderProgram program = new ShaderProgram("shaders/standardShader.glsl");
@@ -15,12 +23,19 @@ namespace MapEditor
 
 		public static float delta = 0f;
 
-		List<EditorObject> objectList = new List<EditorObject>();
+		public List<EditorObject> objectList = new List<EditorObject>();
+		public List<EditorObject> selectedList = new List<EditorObject>(50);
 
 		Stopwatch tickWatch;
 
+		public EditMode editMode = EditMode.Move;
+		public bool manipulating = false;
+
+		SelectionBox selectionBox;
+
 		public Editor()
 		{
+			objectList.Add(new EditorObject(this));
 			objectList.Add(new EditorObject(this));
 		}
 
@@ -33,12 +48,83 @@ namespace MapEditor
 			program["projection"].SetValue(proj);
 		}
 
+		public EditorObject GetObjectAt(Vector2 pos)
+		{
+			foreach (EditorObject obj in objectList) if (obj.Hovered) return obj;
+			return null;
+		}
+
 		public void Logic()
 		{
 			CalculateDelta();
 
+			UpdateEditMode();
+
+			if (MouseInput.Current[MouseButton.Left])
+			{
+				if (!MouseInput.Previous[MouseButton.Left])
+				{
+					if (selectedList.Count == 0)
+						SelectAt(MouseInput.Current.Position);
+
+					foreach (EditorObject obj in selectedList)
+					{
+						obj.BeginManipulate();
+						if (obj.Hovered) manipulating = true;
+					}
+
+					if (!manipulating)
+						selectionBox = new SelectionBox(MouseInput.Current.Position, this);
+				}
+
+				if (manipulating)
+					foreach (EditorObject obj in selectedList) obj.Manipulate();
+				else
+					selectionBox.Logic();
+			}
+			else
+			{
+				manipulating = false;
+
+				if (selectionBox != null)
+				{
+					Select(selectionBox.GetObjects().ToArray());
+					selectionBox.Dispose();
+					selectionBox = null;
+				}
+			}
+
 			camera.Logic();
 			foreach (EditorObject obj in objectList) obj.Logic();
+		}
+
+		public void UpdateEditMode()
+		{
+			if (KeyboardInput.Current.KeyDown(Key.Q)) SetEditMode(EditMode.Select);
+			if (KeyboardInput.Current.KeyDown(Key.W)) SetEditMode(EditMode.Move);
+			if (KeyboardInput.Current.KeyDown(Key.E)) SetEditMode(EditMode.Scale);
+			if (KeyboardInput.Current.KeyDown(Key.R)) SetEditMode(EditMode.Rotate);
+		}
+
+		public void SelectAt(Vector2 pos)
+		{
+			EditorObject obj = GetObjectAt(pos);
+			Select(obj);
+		}
+
+		public void Select(params EditorObject[] objects)
+		{
+			if (!KeyboardInput.Current[Key.LShift]) selectedList.Clear();
+			foreach (EditorObject obj in objects)
+			{
+				if (obj != null && !selectedList.Contains(obj))
+					selectedList.Add(obj);
+			}
+		}
+
+		public void SetEditMode(EditMode em)
+		{
+			editMode = em;
 		}
 
 		public void CalculateDelta()
@@ -54,9 +140,11 @@ namespace MapEditor
 		public void Draw()
 		{
 			GL.Clear(ClearBufferMask.ColorBufferBit);
+
 			program["view"].SetValue(camera.ViewMatrix);
 
 			foreach (EditorObject obj in objectList) obj.Draw();
+			if (selectionBox != null) selectionBox.Draw();
 		}
 	}
 }
