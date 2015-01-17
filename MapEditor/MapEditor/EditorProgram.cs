@@ -39,6 +39,13 @@ namespace MapEditor
 			MouseInput.CurrentY = e.Y;
 		}
 
+		protected override void OnKeyDown(KeyboardKeyEventArgs e)
+		{
+			base.OnKeyDown(e);
+
+			if (e.Key == Key.Escape) Exit();
+		}
+
 		protected override void OnResize(EventArgs e)
 		{
 			base.OnResize(e);

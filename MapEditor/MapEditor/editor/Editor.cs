@@ -7,6 +7,8 @@ using TKTools;
 
 namespace MapEditor
 {
+	using Manipulators;
+
 	public enum EditMode
 	{
 		Select,
@@ -32,11 +34,14 @@ namespace MapEditor
 		public bool manipulating = false;
 
 		SelectionBox selectionBox;
+		Manipulator manipulator;
 
 		public Editor()
 		{
 			objectList.Add(new EditorObject(this));
 			objectList.Add(new EditorObject(this));
+
+			manipulator = new MoveManipulator(this);
 		}
 
 		public void UpdateProjection(Vector2 size)
@@ -60,39 +65,24 @@ namespace MapEditor
 
 			UpdateEditMode();
 
-			if (MouseInput.Current[MouseButton.Left])
+			if (MouseInput.ButtonPressed(MouseButton.Left) && !manipulator.Hovered)
 			{
-				if (!MouseInput.Previous[MouseButton.Left])
-				{
-					if (selectedList.Count == 0)
-						SelectAt(MouseInput.Current.Position);
+				EditorObject obj = GetObjectAt(MouseInput.Current.Position);
+				Select(obj);
 
-					foreach (EditorObject obj in selectedList)
-					{
-						obj.BeginManipulate();
-						if (obj.Hovered) manipulating = true;
-					}
-
-					if (!manipulating)
-						selectionBox = new SelectionBox(MouseInput.Current.Position, this);
-				}
-
-				if (manipulating)
-					foreach (EditorObject obj in selectedList) obj.Manipulate();
-				else
-					selectionBox.Logic();
+				if (obj == null) selectionBox = new SelectionBox(MouseInput.Current.Position, this);
 			}
-			else
+
+			if (MouseInput.ButtonReleased(MouseButton.Left) && selectionBox != null)
 			{
-				manipulating = false;
+				Select(selectionBox.GetObjects().ToArray());
 
-				if (selectionBox != null)
-				{
-					Select(selectionBox.GetObjects().ToArray());
-					selectionBox.Dispose();
-					selectionBox = null;
-				}
+				selectionBox.Dispose();
+				selectionBox = null;
 			}
+
+			manipulator.Logic();
+			if (selectionBox != null) selectionBox.Logic();
 
 			camera.Logic();
 			foreach (EditorObject obj in objectList) obj.Logic();
@@ -145,6 +135,7 @@ namespace MapEditor
 
 			foreach (EditorObject obj in objectList) obj.Draw();
 			if (selectionBox != null) selectionBox.Draw();
+			manipulator.Draw();
 		}
 	}
 }

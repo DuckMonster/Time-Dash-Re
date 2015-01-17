@@ -116,6 +116,11 @@ namespace MapEditor
 			position += delta;
 		}
 
+		public void MoveTo(Vector2 pos)
+		{
+			position = pos;
+		}
+
 		public void Scale(Vector2 delta)
 		{
 			scale += delta;

@@ -55,6 +55,8 @@
     <Compile Include="editor\Camera.cs" />
     <Compile Include="editor\Editor.cs" />
     <Compile Include="editor\editorobject\EditorObject.cs" />
+    <Compile Include="editor\manipulator\Manipulator.cs" />
+    <Compile Include="editor\manipulator\MoveManipulator.cs" />
     <Compile Include="KeyboardInput.cs" />
     <Compile Include="Main.cs" />
     <Compile Include="Mesh.cs" />
