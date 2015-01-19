@@ -26,22 +26,68 @@ namespace MapEditor
 		public static float delta = 0f;
 
 		public List<EditorObject> objectList = new List<EditorObject>();
-		public List<EditorObject> selectedList = new List<EditorObject>(50);
+		public List<Vertex> selectedList = new List<Vertex>(50);
+
+		Dictionary<EditMode, Manipulator> manipulators = new Dictionary<EditMode, Manipulator>();
 
 		Stopwatch tickWatch;
 
 		public EditMode editMode = EditMode.Move;
-		public bool manipulating = false;
 
 		SelectionBox selectionBox;
-		Manipulator manipulator;
+
+		Mesh gridMesh;
+
+		public Manipulator CurrentManipulator
+		{
+			get
+			{
+				switch (editMode)
+				{
+					case EditMode.Move:
+						return manipulators[EditMode.Move];
+
+					case EditMode.Rotate:
+						return manipulators[EditMode.Rotate];
+
+					case EditMode.Scale:
+						return manipulators[EditMode.Scale];
+
+					default:
+						return manipulators[EditMode.Select];
+				}
+			}
+		}
 
 		public Editor()
 		{
+			manipulators.Add(EditMode.Select, new SelectManipulator(this));
+			manipulators.Add(EditMode.Move, new MoveManipulator(this));
+			manipulators.Add(EditMode.Rotate, new RotateManipulator(this));
+			manipulators.Add(EditMode.Scale, new ScaleManipulator(this));
+
 			objectList.Add(new EditorObject(this));
 			objectList.Add(new EditorObject(this));
 
-			manipulator = new MoveManipulator(this);
+			gridMesh = new Mesh(PrimitiveType.Quads);
+			gridMesh.Color = new Color(1, 1, 1, 0.2f);
+
+			Polygon poly = new Polygon();
+
+			for (int x = -50; x <= 50; x++)
+			{
+				poly.AddPoint(new Vector2(1 * x - 0.01f, -50));
+				poly.AddPoint(new Vector2(1 * x + 0.01f, -50));
+				poly.AddPoint(new Vector2(1 * x + 0.01f, 50));
+				poly.AddPoint(new Vector2(1 * x - 0.01f, 50));
+
+				poly.AddPoint(new Vector2(-50, 1 * x - 0.01f));
+				poly.AddPoint(new Vector2(-50, 1 * x + 0.01f));
+				poly.AddPoint(new Vector2(50, 1 * x + 0.01f));
+				poly.AddPoint(new Vector2(50, 1 * x - 0.01f));
+			}
+
+			gridMesh.Vertices = poly;
 		}
 
 		public void UpdateProjection(Vector2 size)
@@ -59,29 +105,47 @@ namespace MapEditor
 			return null;
 		}
 
+		public Vertex GetVertexAt(Vector2 pos)
+		{
+			foreach (EditorObject obj in objectList)
+				foreach (Vertex v in obj.Vertices)
+					if (v.Hovered) return v;
+
+			return null;
+		}
+
 		public void Logic()
 		{
 			CalculateDelta();
 
 			UpdateEditMode();
 
-			if (MouseInput.ButtonPressed(MouseButton.Left) && !manipulator.Hovered)
+			if (MouseInput.ButtonPressed(MouseButton.Right)) DeselectAll();
+			if (MouseInput.ButtonPressed(MouseButton.Left) && !CurrentManipulator.Hovered)
 			{
+				Vertex v = GetVertexAt(MouseInput.Current.Position);
 				EditorObject obj = GetObjectAt(MouseInput.Current.Position);
-				Select(obj);
 
-				if (obj == null) selectionBox = new SelectionBox(MouseInput.Current.Position, this);
+				if (v != null)
+					Select(v);
+				else if (obj != null)
+					Select(obj.Vertices);
+				else
+					selectionBox = new SelectionBox(MouseInput.Current.Position, this);
 			}
 
 			if (MouseInput.ButtonReleased(MouseButton.Left) && selectionBox != null)
 			{
-				Select(selectionBox.GetObjects().ToArray());
+				if (KeyboardInput.Current[Key.LControl])
+					Deselect(selectionBox.GetObjects().ToArray());
+				else
+					Select(selectionBox.GetObjects().ToArray());
 
 				selectionBox.Dispose();
 				selectionBox = null;
 			}
 
-			manipulator.Logic();
+			CurrentManipulator.Logic();
 			if (selectionBox != null) selectionBox.Logic();
 
 			camera.Logic();
@@ -92,24 +156,37 @@ namespace MapEditor
 		{
 			if (KeyboardInput.Current.KeyDown(Key.Q)) SetEditMode(EditMode.Select);
 			if (KeyboardInput.Current.KeyDown(Key.W)) SetEditMode(EditMode.Move);
-			if (KeyboardInput.Current.KeyDown(Key.E)) SetEditMode(EditMode.Scale);
-			if (KeyboardInput.Current.KeyDown(Key.R)) SetEditMode(EditMode.Rotate);
+			if (KeyboardInput.Current.KeyDown(Key.E)) SetEditMode(EditMode.Rotate);
+			if (KeyboardInput.Current.KeyDown(Key.R)) SetEditMode(EditMode.Scale);
 		}
 
 		public void SelectAt(Vector2 pos)
 		{
-			EditorObject obj = GetObjectAt(pos);
-			Select(obj);
+			Vertex v = GetVertexAt(pos);
+			Select(v);
 		}
 
-		public void Select(params EditorObject[] objects)
+		public void Select(params Vertex[] objects)
 		{
+			Manipulator.snapVertex = null;
+
 			if (!KeyboardInput.Current[Key.LShift]) selectedList.Clear();
-			foreach (EditorObject obj in objects)
+			foreach (Vertex v in objects)
 			{
-				if (obj != null && !selectedList.Contains(obj))
-					selectedList.Add(obj);
+				if (v != null && !selectedList.Contains(v))
+					selectedList.Add(v);
 			}
+		}
+
+		public void Deselect(params Vertex[] objects)
+		{
+			foreach (Vertex v in objects)
+				selectedList.Remove(v);
+		}
+
+		public void DeselectAll()
+		{
+			selectedList.Clear();
 		}
 
 		public void SetEditMode(EditMode em)
@@ -130,12 +207,13 @@ namespace MapEditor
 		public void Draw()
 		{
 			GL.Clear(ClearBufferMask.ColorBufferBit);
-
 			program["view"].SetValue(camera.ViewMatrix);
+
+			gridMesh.Draw();
 
 			foreach (EditorObject obj in objectList) obj.Draw();
 			if (selectionBox != null) selectionBox.Draw();
-			manipulator.Draw();
+			CurrentManipulator.Draw();
 		}
 	}
 }

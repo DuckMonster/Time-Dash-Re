@@ -26,15 +26,14 @@ namespace MapEditor
 			mesh.Dispose();
 		}
 
-		public List<EditorObject> GetObjects()
+		public List<Vertex> GetObjects()
 		{
-			List<EditorObject> returnList = new List<EditorObject>();
+			List<Vertex> returnList = new List<Vertex>();
 			Polygon poly = mesh.Polygon;
 
 			foreach (EditorObject obj in editor.objectList)
-			{
-				if (obj.GetCollision(poly)) returnList.Add(obj);
-			}
+				foreach (Vertex v in obj.Vertices)
+					if (poly.Intersects(v.Position)) returnList.Add(v);
 
 			return returnList;
 		}

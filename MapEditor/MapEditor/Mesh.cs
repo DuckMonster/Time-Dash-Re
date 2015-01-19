@@ -177,6 +177,13 @@ namespace MapEditor
 
 		public Polygon Polygon
 		{
+			set
+			{
+				vertexList.Clear();
+				vertexList.AddRange(value.pointList);
+
+				vertexBuffer.UploadData(vertexList.ToArray());
+			}
 			get
 			{
 				Vector2[] vert = Vertices;

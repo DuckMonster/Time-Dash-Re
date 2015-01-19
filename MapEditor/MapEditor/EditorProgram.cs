@@ -64,14 +64,6 @@ namespace MapEditor
 				KeyboardInput.Update();
 			}
 
-			Console.Clear();
-			Console.WriteLine("X: {0}, Y: {1}", MouseInput.Current.X, MouseInput.Current.Y);
-			Console.WriteLine("LB: {0}, RB: {1}, MB: {2}, X1: {3}, X2: {4}",
-				MouseInput.Current[MouseButton.Left], MouseInput.Current[MouseButton.Right], MouseInput.Current[MouseButton.Middle],
-				MouseInput.Current[MouseButton.Button1], MouseInput.Current[MouseButton.Button2]);
-
-			Console.WriteLine("Scroll: {0}", MouseInput.Current.Wheel);
-
 			editor.Logic();
 		}
 

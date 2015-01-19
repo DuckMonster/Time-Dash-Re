@@ -55,8 +55,14 @@
     <Compile Include="editor\Camera.cs" />
     <Compile Include="editor\Editor.cs" />
     <Compile Include="editor\editorobject\EditorObject.cs" />
+    <Compile Include="editor\editorobject\Vertex.cs" />
+    <Compile Include="editor\manipulator\Arrow.cs" />
+    <Compile Include="editor\manipulator\Button.cs" />
     <Compile Include="editor\manipulator\Manipulator.cs" />
     <Compile Include="editor\manipulator\MoveManipulator.cs" />
+    <Compile Include="editor\manipulator\RotateManipulator.cs" />
+    <Compile Include="editor\manipulator\ScaleManipulator.cs" />
+    <Compile Include="editor\manipulator\SelectManipulator.cs" />
     <Compile Include="KeyboardInput.cs" />
     <Compile Include="Main.cs" />
     <Compile Include="Mesh.cs" />
@@ -70,6 +76,11 @@
     <None Include="shaders\standardShader.glsl">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="res\circle.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

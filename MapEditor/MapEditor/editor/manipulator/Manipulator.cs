@@ -3,20 +3,26 @@ using DRAW = System.Drawing;
 using TKTools;
 using OpenTK;
 using System;
+using OpenTK.Input;
+using System.Drawing;
 
 namespace MapEditor.Manipulators
 {
 	public class Manipulator : IDisposable
 	{
+		public static Vertex snapVertex;
 		protected Editor editor;
-		protected Mesh mesh = new Mesh(OpenTK.Graphics.OpenGL.PrimitiveType.Quads);
 
-		public bool Hovered
+		protected Dictionary<Vertex, Vector2> vertexOffsetList = new Dictionary<Vertex, Vector2>();
+
+		bool useEgdeNormal = true;
+		bool active = false;
+
+		public virtual bool Hovered
 		{
 			get
 			{
-				if (!Enabled) return false;
-				return mesh.Polygon.Intersects(new Polygon(MouseInput.Current.Position));
+				return false;
 			}
 		}
 
@@ -28,6 +34,41 @@ namespace MapEditor.Manipulators
 			}
 		}
 
+		public bool Active
+		{
+			get
+			{
+				return active;
+			}
+		}
+
+		public virtual Vector2 Origin
+		{
+			get
+			{
+				if (snapVertex != null) return snapVertex.Position;
+
+				Polygon p = new Polygon();
+				foreach (Vertex v in editor.selectedList)
+					p.AddPoint(v);
+
+				RectangleF rect = p.Bounds;
+
+				return new Vector2(rect.X + rect.Width / 2, rect.Y + rect.Height / 2);
+			}
+		}
+
+		public virtual Vector2 Normal
+		{
+			get
+			{
+				if (useEgdeNormal && editor.selectedList.Count >= 2 && (editor.selectedList[0].Position - editor.selectedList[1].Position != Vector2.Zero))
+					return Vertex.GetNormal(editor.selectedList[0], editor.selectedList[1]);
+				else
+					return new Vector2(0, 1);
+			}
+		}
+
 		public Manipulator(Editor editor)
 		{
 			this.editor = editor;
@@ -35,34 +76,68 @@ namespace MapEditor.Manipulators
 
 		public virtual void Dispose()
 		{
-			mesh.Dispose();
+		}
+
+		public virtual void Enable(Vector2 pos)
+		{
+			vertexOffsetList.Clear();
+
+			foreach (Vertex v in editor.selectedList)
+				vertexOffsetList.Add(v, v.Position - Origin);
+
+			active = true;
+		}
+
+		public virtual void Disable()
+		{
+			active = false;
 		}
 
 		public virtual void Logic()
 		{
 			if (!Enabled) return;
 
-			Polygon combined = new Polygon();
+			if (KeyboardInput.Current[Key.N] && !KeyboardInput.Previous[Key.N]) useEgdeNormal = !useEgdeNormal;
+			if (KeyboardInput.Current[Key.S]) snapVertex = null;
+			if (KeyboardInput.Current[Key.D])
+			{
+				Vertex closest = null;
+				float closestDistance = 0;
 
-			foreach (EditorObject obj in editor.selectedList)
-				combined.AddPoint(obj.mesh.Polygon);
+				foreach (EditorObject obj in editor.objectList)
+					foreach (Vertex v in obj.Vertices)
+					{
+						if (closest == null)
+						{
+							closest = v;
+							closestDistance = (v.Position - MouseInput.Current.Position).Length;
+						}
 
-			DRAW.RectangleF bounds = combined.Bounds;
+						float vDistance = (v.Position - MouseInput.Current.Position).Length;
+						if (vDistance < closestDistance)
+						{
+							closest = v;
+							closestDistance = vDistance;
+						}
+					}
 
-			mesh.Vertices = new Vector2[] {
-				new Vector2(bounds.X, bounds.Y),
-				new Vector2(bounds.X + bounds.Width, bounds.Y),
-				new Vector2(bounds.X + bounds.Width, bounds.Y + bounds.Height),
-				new Vector2(bounds.X, bounds.Y + bounds.Height)
-			};
+				snapVertex = closest;
+			}
+
+			if (MouseInput.ButtonPressed(MouseButton.Left) && Hovered) Enable(MouseInput.Current.Position);
+			if (Active && MouseInput.ButtonReleased(MouseButton.Left)) Disable();
+
+			if (Active)
+				Manipulate();
+		}
+
+		public virtual void Manipulate()
+		{
 		}
 
 		public virtual void Draw()
 		{
 			if (!Enabled) return;
-
-			mesh.Color = new Color(1, 1, 1, Hovered ? 0.2f : 0.05f);
-			mesh.Draw();
 		}
 	}
 }
