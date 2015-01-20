@@ -56,5 +56,15 @@ namespace MapEditor
 			previous = current;
 			current = new KeyboardStatus(state);
 		}
+
+		public static bool KeyPressed(Key k)
+		{
+			return Current.KeyDown(k) && !Previous.KeyDown(k);
+		}
+
+		public static bool KeyReleased(Key k)
+		{
+			return !Current.KeyDown(k) && !Previous.KeyDown(k);
+		}
 	}
 }

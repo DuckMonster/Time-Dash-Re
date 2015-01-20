@@ -65,6 +65,7 @@ namespace MapEditor.Manipulators
 		{
 			get
 			{
+				RecalculateMesh();
 				return (mesh.Polygon * 2f).Intersects(new Polygon(MouseInput.Current.Position));
 			}
 		}

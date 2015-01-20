@@ -99,6 +99,8 @@ namespace MapEditor.Manipulators
 
 		public override void Enable(Vector2 pos)
 		{
+			moveButton.Logic();
+
 			moveStart = Origin;
 			moveOrigin = pos - moveStart;
 			moveAxis = moveButton.Axis;
@@ -111,10 +113,6 @@ namespace MapEditor.Manipulators
 
 			base.Logic();
 			moveButton.Logic();
-
-			Console.Clear();
-			Console.WriteLine(moveButton.Axis);
-			Console.WriteLine(Normal);
 		}
 
 		public override void Manipulate()

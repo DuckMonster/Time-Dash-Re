@@ -132,10 +132,6 @@ namespace MapEditor.Manipulators
 				Vector2 scalevecx = scaleNormal.PerpendicularRight * scalex * scaleAxis.X,
 						scalevecy = scaleNormal * scaley * scaleAxis.Y;
 
-				Console.Clear();
-				Console.WriteLine(scalex + ", " + scaley);
-				Console.WriteLine(scalevecx + ", " + scalevecy);
-
 				foreach (Vertex v in editor.selectedList)
 				{
 					Vector2 posx = Vector2.Dot(vertexOffsetList[v], scaleNormal.PerpendicularRight) * scaleNormal.PerpendicularRight * scalex;

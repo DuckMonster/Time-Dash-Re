@@ -4,17 +4,21 @@ using TKTools;
 
 namespace MapEditor
 {
-	public class Vertex
+	public class Vertex : System.IDisposable
 	{
+		static float hoverRange = 0.2f;
+
 		Editor editor;
 		Vector2 position;
 		Mesh mesh;
+
+		Vector2 uv;
 
 		public bool Hovered
 		{
 			get
 			{
-				return (mesh.Polygon * 2).Intersects(new Polygon(MouseInput.Current.Position));
+				return (MouseInput.Current.Position - position).LengthFast <= hoverRange;
 			}
 		}
 
@@ -30,6 +34,18 @@ namespace MapEditor
 			}
 		}
 
+		public Vector2 UV
+		{
+			get
+			{
+				return uv;
+			}
+			set
+			{
+				uv = value;
+			}
+		}
+
 		public bool Selected
 		{
 			get
@@ -38,11 +54,17 @@ namespace MapEditor
 			}
 		}
 
-		public Vertex(Vector2 position, Editor e)
+		public Vertex(Vector2 position, Vector2 UV, Editor e)
 		{
 			editor = e;
 			this.position = position;
+			this.UV = UV;
 			mesh = Mesh.Box;
+		}
+
+		public void Dispose()
+		{
+			mesh.Dispose();
 		}
 
 		public void Move(Vector2 delta)

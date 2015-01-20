@@ -8,6 +8,7 @@ using TKTools;
 namespace MapEditor
 {
 	using Manipulators;
+	using System;
 
 	public enum EditMode
 	{
@@ -24,18 +25,21 @@ namespace MapEditor
 		public static Camera camera = new Camera();
 
 		public static float delta = 0f;
+		Stopwatch tickWatch;
+
+		public List<Template> templateList = new List<Template>();
+		TemplateMenu templateMenu;
 
 		public List<EditorObject> objectList = new List<EditorObject>();
 		public List<Vertex> selectedList = new List<Vertex>(50);
+		public List<Action> actionList = new List<Action>(100);
+		int actionIndex = -1;
 
 		Dictionary<EditMode, Manipulator> manipulators = new Dictionary<EditMode, Manipulator>();
-
-		Stopwatch tickWatch;
 
 		public EditMode editMode = EditMode.Move;
 
 		SelectionBox selectionBox;
-
 		Mesh gridMesh;
 
 		public Manipulator CurrentManipulator
@@ -61,13 +65,18 @@ namespace MapEditor
 
 		public Editor()
 		{
+			templateMenu = new TemplateMenu(this);
+
+			AddTemplate(new Template(new Texture("res/portal.png"), new System.Drawing.RectangleF(0, 0, 1f, 0.5f)));
+			AddTemplate(new Template(new Texture("res/portal.png"), new System.Drawing.RectangleF(0.5f, 0.5f, 0.5f, 0.5f)));
+
 			manipulators.Add(EditMode.Select, new SelectManipulator(this));
 			manipulators.Add(EditMode.Move, new MoveManipulator(this));
 			manipulators.Add(EditMode.Rotate, new RotateManipulator(this));
 			manipulators.Add(EditMode.Scale, new ScaleManipulator(this));
 
-			objectList.Add(new EditorObject(this));
-			objectList.Add(new EditorObject(this));
+			objectList.Add(new EditorObject(templateList[0], this));
+			objectList.Add(new EditorObject(templateList[1], this));
 
 			gridMesh = new Mesh(PrimitiveType.Quads);
 			gridMesh.Color = new Color(1, 1, 1, 0.2f);
@@ -88,6 +97,60 @@ namespace MapEditor
 			}
 
 			gridMesh.Vertices = poly;
+		}
+
+		public void Logic()
+		{
+			CalculateDelta();
+			UpdateEditMode();
+
+			templateMenu.Logic();
+
+			if (KeyboardInput.Current[Key.LControl])
+			{
+				if (KeyboardInput.KeyPressed(Key.Z))
+					Undo();
+
+				if (KeyboardInput.KeyPressed(Key.Y))
+					Redo();
+
+				if (KeyboardInput.KeyPressed(Key.D))
+					DuplicateSelected();
+			}
+
+			if (KeyboardInput.KeyPressed(Key.Delete))
+				DeleteSelected();
+
+			if (MouseInput.ButtonPressed(MouseButton.Right)) DeselectAll();
+			if (MouseInput.ButtonPressed(MouseButton.Left) && !CurrentManipulator.Hovered && !templateMenu.Hovered)
+			{
+				Vertex v = GetVertexAt(MouseInput.Current.Position);
+				EditorObject obj = GetObjectAt(MouseInput.Current.Position);
+
+				if (v != null)
+					Select(v);
+				else if (obj != null)
+					obj.Select();
+				else
+					selectionBox = new SelectionBox(MouseInput.Current.Position, this);
+			}
+
+			if (MouseInput.ButtonReleased(MouseButton.Left) && selectionBox != null)
+			{
+				if (KeyboardInput.Current[Key.LControl])
+					Deselect(selectionBox.GetObjects().ToArray());
+				else
+					Select(selectionBox.GetObjects().ToArray());
+
+				selectionBox.Dispose();
+				selectionBox = null;
+			}
+
+			CurrentManipulator.Logic();
+			if (selectionBox != null) selectionBox.Logic();
+
+			camera.Logic();
+			foreach (EditorObject obj in objectList) obj.Logic();
 		}
 
 		public void UpdateProjection(Vector2 size)
@@ -114,46 +177,95 @@ namespace MapEditor
 			return null;
 		}
 
-		public void Logic()
+		public void AddTemplate(Template t)
 		{
-			CalculateDelta();
+			templateList.Add(t);
+			templateMenu.AddTemplate(t);
+		}
 
-			UpdateEditMode();
+		public void AddAction(Action a)
+		{
+			if (actionList.Count > actionIndex + 1)
+				actionList.RemoveRange(actionIndex + 1, actionList.Count - (actionIndex + 1));
 
-			if (MouseInput.ButtonPressed(MouseButton.Right)) DeselectAll();
-			if (MouseInput.ButtonPressed(MouseButton.Left) && !CurrentManipulator.Hovered)
+			actionIndex++;
+			actionList.Add(a);
+
+			Console.WriteLine("Added, " + actionIndex);
+		}
+
+		public void Undo()
+		{
+			if (actionIndex < 0) return;
+
+			actionList[actionIndex].Undo();
+			actionIndex--;
+
+			Console.WriteLine("Undo, " + actionIndex);
+		}
+
+		public void Redo()
+		{
+			if (actionIndex >= actionList.Count - 1) return;
+
+			actionIndex++;
+			actionList[actionIndex].Redo();
+
+			Console.WriteLine("Redo, " + actionIndex);
+		}
+
+
+		public void DeleteSelected()
+		{
+			List<EditorObject> deletedObjects = new List<EditorObject>();
+
+			foreach (EditorObject obj in objectList)
 			{
-				Vertex v = GetVertexAt(MouseInput.Current.Position);
-				EditorObject obj = GetObjectAt(MouseInput.Current.Position);
-
-				if (v != null)
-					Select(v);
-				else if (obj != null)
-					Select(obj.Vertices);
-				else
-					selectionBox = new SelectionBox(MouseInput.Current.Position, this);
+				if (obj.Selected) deletedObjects.Add(obj);
 			}
 
-			if (MouseInput.ButtonReleased(MouseButton.Left) && selectionBox != null)
+			foreach (EditorObject obj in deletedObjects)
 			{
-				if (KeyboardInput.Current[Key.LControl])
-					Deselect(selectionBox.GetObjects().ToArray());
-				else
-					Select(selectionBox.GetObjects().ToArray());
+				objectList.Remove(obj);
+				Deselect(obj.Vertices);
 
-				selectionBox.Dispose();
-				selectionBox = null;
+				obj.Dispose();
+			}
+		}
+
+		public void CreateObject(EditorObject obj)
+		{
+			objectList.Add(obj);
+		}
+
+		public void DuplicateSelected()
+		{
+			List<EditorObject> newObjects = new List<EditorObject>();
+
+			foreach (EditorObject obj in objectList)
+			{
+				if (obj.Selected)
+				{
+					EditorObject copy = new EditorObject(obj, this);
+					newObjects.Add(copy);
+				}
 			}
 
-			CurrentManipulator.Logic();
-			if (selectionBox != null) selectionBox.Logic();
+			if (newObjects.Count > 0)
+			{
+				objectList.AddRange(newObjects);
 
-			camera.Logic();
-			foreach (EditorObject obj in objectList) obj.Logic();
+				DeselectAll();
+
+				foreach (EditorObject obj in newObjects)
+					SelectAdd(obj.Vertices);
+			}
 		}
 
 		public void UpdateEditMode()
 		{
+			if (CurrentManipulator.Active) return;
+
 			if (KeyboardInput.Current.KeyDown(Key.Q)) SetEditMode(EditMode.Select);
 			if (KeyboardInput.Current.KeyDown(Key.W)) SetEditMode(EditMode.Move);
 			if (KeyboardInput.Current.KeyDown(Key.E)) SetEditMode(EditMode.Rotate);
@@ -168,9 +280,14 @@ namespace MapEditor
 
 		public void Select(params Vertex[] objects)
 		{
+			if (!KeyboardInput.Current[Key.LShift]) selectedList.Clear();
+			SelectAdd(objects);
+		}
+
+		public void SelectAdd(params Vertex[] objects)
+		{
 			Manipulator.snapVertex = null;
 
-			if (!KeyboardInput.Current[Key.LShift]) selectedList.Clear();
 			foreach (Vertex v in objects)
 			{
 				if (v != null && !selectedList.Contains(v))
@@ -180,12 +297,16 @@ namespace MapEditor
 
 		public void Deselect(params Vertex[] objects)
 		{
+			Manipulator.snapVertex = null;
+
 			foreach (Vertex v in objects)
 				selectedList.Remove(v);
 		}
 
 		public void DeselectAll()
 		{
+			Manipulator.snapVertex = null;
+
 			selectedList.Clear();
 		}
 
@@ -209,11 +330,13 @@ namespace MapEditor
 			GL.Clear(ClearBufferMask.ColorBufferBit);
 			program["view"].SetValue(camera.ViewMatrix);
 
-			gridMesh.Draw();
-
 			foreach (EditorObject obj in objectList) obj.Draw();
 			if (selectionBox != null) selectionBox.Draw();
 			CurrentManipulator.Draw();
+
+			gridMesh.Draw();
+
+			templateMenu.Draw();
 		}
 	}
 }

@@ -87,7 +87,9 @@ namespace MapEditor
 		Color color = Color.White;
 		bool fillColor = false;
 		bool usingBlur = false;
+
 		Texture texture;
+		bool usingTexture = true;
 
 		bool ortho = false;
 
@@ -152,6 +154,18 @@ namespace MapEditor
 			get
 			{
 				return texture;
+			}
+		}
+
+		public bool UsingTexture
+		{
+			get
+			{
+				return usingTexture;
+			}
+			set
+			{
+				usingTexture = value;
 			}
 		}
 
@@ -269,7 +283,7 @@ namespace MapEditor
 			Shader["color"].SetValue(color);
 //			Shader["fillColor"].SetValue(fillColor);
 
-			if (texture != null)
+			if (texture != null && UsingTexture)
 			{
 				texture.Bind();
 				Shader["usingTexture"].SetValue(true);

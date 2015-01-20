@@ -2,13 +2,13 @@
 using DRAW = System.Drawing;
 using TKTools;
 using OpenTK;
-using System;
 using OpenTK.Input;
 using System.Drawing;
+using System;
 
 namespace MapEditor.Manipulators
 {
-	public class Manipulator : IDisposable
+	public class Manipulator : System.IDisposable
 	{
 		public static Vertex snapVertex;
 		protected Editor editor;
@@ -17,6 +17,8 @@ namespace MapEditor.Manipulators
 
 		bool useEgdeNormal = true;
 		bool active = false;
+
+		Vector2 startOrigin;
 
 		public virtual bool Hovered
 		{
@@ -82,8 +84,10 @@ namespace MapEditor.Manipulators
 		{
 			vertexOffsetList.Clear();
 
+			startOrigin = Origin;
+
 			foreach (Vertex v in editor.selectedList)
-				vertexOffsetList.Add(v, v.Position - Origin);
+				vertexOffsetList.Add(v, v.Position - startOrigin);
 
 			active = true;
 		}
@@ -91,37 +95,50 @@ namespace MapEditor.Manipulators
 		public virtual void Disable()
 		{
 			active = false;
+
+			Action a = new Action(editor);
+
+			foreach (Vertex v in editor.selectedList)
+			{
+				Vector2 delta = (v.Position - startOrigin) - vertexOffsetList[v];
+				a.AddVertexAction(v, ActionType.Move, delta);
+			}
+
+			editor.AddAction(a);
 		}
 
 		public virtual void Logic()
 		{
 			if (!Enabled) return;
 
-			if (KeyboardInput.Current[Key.N] && !KeyboardInput.Previous[Key.N]) useEgdeNormal = !useEgdeNormal;
-			if (KeyboardInput.Current[Key.S]) snapVertex = null;
-			if (KeyboardInput.Current[Key.D])
+			if (!KeyboardInput.Current[Key.LControl])
 			{
-				Vertex closest = null;
-				float closestDistance = 0;
+				if (KeyboardInput.Current[Key.N] && !KeyboardInput.Previous[Key.N]) useEgdeNormal = !useEgdeNormal;
+				if (KeyboardInput.Current[Key.S]) snapVertex = null;
+				if (KeyboardInput.Current[Key.D])
+				{
+					Vertex closest = null;
+					float closestDistance = 0;
 
-				foreach (EditorObject obj in editor.objectList)
-					foreach (Vertex v in obj.Vertices)
-					{
-						if (closest == null)
+					foreach (EditorObject obj in editor.objectList)
+						foreach (Vertex v in obj.Vertices)
 						{
-							closest = v;
-							closestDistance = (v.Position - MouseInput.Current.Position).Length;
+							if (closest == null)
+							{
+								closest = v;
+								closestDistance = (v.Position - MouseInput.Current.Position).Length;
+							}
+
+							float vDistance = (v.Position - MouseInput.Current.Position).Length;
+							if (vDistance < closestDistance)
+							{
+								closest = v;
+								closestDistance = vDistance;
+							}
 						}
 
-						float vDistance = (v.Position - MouseInput.Current.Position).Length;
-						if (vDistance < closestDistance)
-						{
-							closest = v;
-							closestDistance = vDistance;
-						}
-					}
-
-				snapVertex = closest;
+					snapVertex = closest;
+				}
 			}
 
 			if (MouseInput.ButtonPressed(MouseButton.Left) && Hovered) Enable(MouseInput.Current.Position);

@@ -52,9 +52,11 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="editor\Action.cs" />
     <Compile Include="editor\Camera.cs" />
     <Compile Include="editor\Editor.cs" />
     <Compile Include="editor\editorobject\EditorObject.cs" />
+    <Compile Include="editor\editorobject\Template.cs" />
     <Compile Include="editor\editorobject\Vertex.cs" />
     <Compile Include="editor\manipulator\Arrow.cs" />
     <Compile Include="editor\manipulator\Button.cs" />
@@ -63,6 +65,7 @@
     <Compile Include="editor\manipulator\RotateManipulator.cs" />
     <Compile Include="editor\manipulator\ScaleManipulator.cs" />
     <Compile Include="editor\manipulator\SelectManipulator.cs" />
+    <Compile Include="editor\TemplateMenu.cs" />
     <Compile Include="KeyboardInput.cs" />
     <Compile Include="Main.cs" />
     <Compile Include="Mesh.cs" />
@@ -79,6 +82,9 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="res\circle.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="res\portal.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
