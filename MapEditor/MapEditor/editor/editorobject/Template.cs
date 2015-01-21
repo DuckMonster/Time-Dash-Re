@@ -2,19 +2,36 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.IO;
 using TKTools;
 
 namespace MapEditor
 {
-	public class Template
+	public class Template : IDisposable
 	{
-		Texture texture;
+		Editor editor;
+
+		int id;
+		int tilesetIndex;
 		RectangleF uv;
 
 		Mesh displayMesh;
+
+		public int ID
+		{
+			get
+			{
+				return id;
+			}
+		}
+
+		public Texture Texture
+		{
+			get
+			{
+				return editor.tilesetList[tilesetIndex];
+			}
+		}
 
 		public Mesh Mesh
 		{
@@ -37,7 +54,7 @@ namespace MapEditor
 					new Vector2(uv.X, uv.Y + uv.Height)
 				};
 
-				m.Texture = texture;
+				m.Texture = Texture;
 
 				return m;
 			}
@@ -56,19 +73,51 @@ namespace MapEditor
 			}
 		}
 
-		public Template(Texture texture, RectangleF uv)
+		public Template(int tilesetIndex, RectangleF uv, int id, Editor e)
 		{
-			this.texture = texture;
+			editor = e;
+
+			this.id = id;
+			this.tilesetIndex = tilesetIndex;
 			this.uv = uv;
 
 			displayMesh = Mesh;
+			displayMesh.UIElement = true;
 		}
 
-		public void Draw(Vector2 position)
+		public Template(BinaryReader reader, int id, Editor e)
+		{
+			editor = e;
+
+			tilesetIndex = reader.ReadInt32();
+			uv = new RectangleF(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
+
+			displayMesh = Mesh;
+			displayMesh.UIElement = true;
+		}
+
+		public void Dispose()
+		{
+			displayMesh.Dispose();
+		}
+
+		public void WriteToFile(BinaryWriter writer)
+		{
+			writer.Write(tilesetIndex);
+			writer.Write(uv.X);
+			writer.Write(uv.Y);
+			writer.Write(uv.Width);
+			writer.Write(uv.Height);
+		}
+
+		public void Draw(Vector2 position) { Draw(position, 1f); }
+		public void Draw(Vector2 position, float size) { Draw(position, new Vector2(size, size)); }
+		public void Draw(Vector2 position, Vector2 size)
 		{
 			displayMesh.Reset();
 
 			displayMesh.Translate(position);
+			displayMesh.Scale(size);
 
 			displayMesh.Draw();
 		}

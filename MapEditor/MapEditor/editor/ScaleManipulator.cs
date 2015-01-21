@@ -54,9 +54,9 @@ namespace MapEditor.Manipulators
 
 				centerButton.Position = pos;
 				centerButton.Rotation = angle;
-				xAxisButton.Position = pos + normal.PerpendicularRight;
+				xAxisButton.Position = pos + normal.PerpendicularRight * Editor.camera.Position.Z;
 				xAxisButton.Rotation = angle - 90;
-				yAxisButton.Position = pos + normal;
+				yAxisButton.Position = pos + normal * Editor.camera.Position.Z;
 				yAxisButton.Rotation = angle;
 
 				centerButton.Logic();

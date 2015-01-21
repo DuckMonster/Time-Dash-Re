@@ -111,38 +111,42 @@ namespace MapEditor.Manipulators
 		{
 			if (!Enabled) return;
 
-			if (!KeyboardInput.Current[Key.LControl])
+			if (!editor.Paused)
 			{
-				if (KeyboardInput.Current[Key.N] && !KeyboardInput.Previous[Key.N]) useEgdeNormal = !useEgdeNormal;
-				if (KeyboardInput.Current[Key.S]) snapVertex = null;
-				if (KeyboardInput.Current[Key.D])
+				if (!KeyboardInput.Current[Key.LControl])
 				{
-					Vertex closest = null;
-					float closestDistance = 0;
+					if (KeyboardInput.Current[Key.N] && !KeyboardInput.Previous[Key.N]) useEgdeNormal = !useEgdeNormal;
+					if (KeyboardInput.Current[Key.S]) snapVertex = null;
+					if (KeyboardInput.Current[Key.D])
+					{
+						Vertex closest = null;
+						float closestDistance = 0;
 
-					foreach (EditorObject obj in editor.objectList)
-						foreach (Vertex v in obj.Vertices)
-						{
-							if (closest == null)
+						foreach (EditorObject obj in editor.objectList)
+							foreach (Vertex v in obj.Vertices)
 							{
-								closest = v;
-								closestDistance = (v.Position - MouseInput.Current.Position).Length;
+								if (closest == null)
+								{
+									closest = v;
+									closestDistance = (v.Position - MouseInput.Current.Position).Length;
+								}
+
+								float vDistance = (v.Position - MouseInput.Current.Position).Length;
+								if (vDistance < closestDistance)
+								{
+									closest = v;
+									closestDistance = vDistance;
+								}
 							}
 
-							float vDistance = (v.Position - MouseInput.Current.Position).Length;
-							if (vDistance < closestDistance)
-							{
-								closest = v;
-								closestDistance = vDistance;
-							}
-						}
-
-					snapVertex = closest;
+						snapVertex = closest;
+					}
 				}
+
+				if (MouseInput.ButtonPressed(MouseButton.Left) && Hovered) Enable(MouseInput.Current.Position);
 			}
 
-			if (MouseInput.ButtonPressed(MouseButton.Left) && Hovered) Enable(MouseInput.Current.Position);
-			if (Active && MouseInput.ButtonReleased(MouseButton.Left)) Disable();
+			if (Active && !MouseInput.Current[MouseButton.Left]) Disable();
 
 			if (Active)
 				Manipulate();

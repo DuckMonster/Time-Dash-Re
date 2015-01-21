@@ -2,22 +2,23 @@
 using OpenTK.Input;
 using System;
 using System.Diagnostics;
+using System.IO;
 using TKTools;
 namespace MapEditor
 {
 	public class EditorObject : IDisposable
 	{
-		//static Texture tempTexture = new Texture("res/portal.png");
-
 		Editor editor;
 		Vertex[] vertices = new Vertex[4];
 		public Mesh mesh;
+
+		Template template;
 
 		public bool Hovered
 		{
 			get
 			{
-				if (editor.CurrentManipulator.Active || editor.CurrentManipulator.Hovered) return false;
+				if (editor.CurrentManipulator.Active || editor.CurrentManipulator.Hovered || editor.Paused) return false;
 
 				foreach (Vertex v in vertices)
 					if (v.Hovered) return false;
@@ -79,11 +80,30 @@ namespace MapEditor
 		public EditorObject(Template template, Editor e)
 		{
 			editor = e;
+			LoadTemplate(template);
+		}
 
-			mesh = template.Mesh;
+		public EditorObject(BinaryReader reader, Editor e)
+		{
+			editor = e;
+
+			int templateID = reader.ReadInt32();
+			LoadTemplate(e.templateList[templateID]);
+
+			foreach (Vertex v in Vertices)
+			{
+				v.Position = new Vector2(reader.ReadSingle(), reader.ReadSingle());
+			}
+		}
+
+		public void LoadTemplate(Template t)
+		{
+			template = t;
+
+			mesh = t.Mesh;
 
 			for (int i = 0; i < vertices.Length; i++)
-				vertices[i] = new Vertex(mesh.Vertices[i], mesh.UV[i], e);
+				vertices[i] = new Vertex(mesh.Vertices[i], mesh.UV[i], editor);
 		}
 
 		public void Dispose()
@@ -115,6 +135,16 @@ namespace MapEditor
 		public void Select()
 		{
 			editor.Select(Vertices);
+		}
+
+		public void WriteToFile(BinaryWriter writer)
+		{
+			writer.Write(template.ID);
+			foreach (Vertex v in Vertices)
+			{
+				writer.Write(v.Position.X);
+				writer.Write(v.Position.Y);
+			}
 		}
 
 		public void Draw()

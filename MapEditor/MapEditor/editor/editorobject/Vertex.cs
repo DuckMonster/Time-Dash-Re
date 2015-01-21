@@ -18,6 +18,7 @@ namespace MapEditor
 		{
 			get
 			{
+				if (editor.Paused) return false;
 				return (MouseInput.Current.Position - position).LengthFast <= hoverRange;
 			}
 		}

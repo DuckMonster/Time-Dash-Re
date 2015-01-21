@@ -80,7 +80,7 @@ namespace MapEditor.Manipulators
 			mesh.Reset();
 
 			mesh.Translate(position);
-			mesh.Scale(size);
+			mesh.Scale(size * Editor.camera.Position.Z);
 			mesh.Rotate(rotation);
 
 			Size = new Vector2(0.4f, 0.4f);
@@ -95,6 +95,9 @@ namespace MapEditor.Manipulators
 		{
 			Color c = Color;
 			c.A = Hovered ? 0.8f : 0.4f;
+
+			mesh.Color = new Color(0, 0, 0, 0.5f);
+			mesh.Draw();
 
 			mesh.Color = c;
 			mesh.Draw();

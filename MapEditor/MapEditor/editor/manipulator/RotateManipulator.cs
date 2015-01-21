@@ -54,13 +54,25 @@ namespace MapEditor.Manipulators
 				mesh.Reset();
 
 				mesh.Translate(position);
-				mesh.Scale(5f);
+				mesh.Scale(4.8f);
 
 				mesh.Draw();
 
 				GL.StencilFunc(StencilFunction.Notequal, 1, 0xff);
+				GL.StencilOp(StencilOp.Keep, StencilOp.Keep, StencilOp.Keep);
 
-				mesh.Scale(1.02f);
+				mesh.Color = new Color(0, 0, 0, 0.5f);
+
+				mesh.Reset();
+				mesh.Translate(position);
+				mesh.Scale(5.2f);
+				mesh.Draw();
+
+				mesh.Color = c;
+
+				mesh.Reset();
+				mesh.Translate(position);
+				mesh.Scale(5.2f);
 				mesh.Draw();
 
 				GL.Disable(EnableCap.StencilTest);

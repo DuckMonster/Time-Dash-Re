@@ -26,6 +26,7 @@ uniform sampler2D texture;
 uniform bool usingTexture;
 uniform vec4 color;
 uniform bool fillColor;
+uniform bool invertColor;
 
 in vec2 uv;
 
@@ -43,6 +44,12 @@ void main() {
 	if (fillColor) 
 	{
 		finalColor.rgb = color.rgb;
+	}
+
+	if (invertColor) {
+		finalColor.r = 1.0 - finalColor.r;
+		finalColor.g = 1.0 - finalColor.g;
+		finalColor.b = 1.0 - finalColor.b;
 	}
 
 	if (finalColor.a <= 0) discard;

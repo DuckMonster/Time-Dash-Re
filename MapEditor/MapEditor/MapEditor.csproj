@@ -55,17 +55,23 @@
     <Compile Include="editor\Action.cs" />
     <Compile Include="editor\Camera.cs" />
     <Compile Include="editor\Editor.cs" />
+    <Compile Include="editor\EditorActions.cs" />
     <Compile Include="editor\editorobject\EditorObject.cs" />
     <Compile Include="editor\editorobject\Template.cs" />
     <Compile Include="editor\editorobject\Vertex.cs" />
+    <Compile Include="editor\EditorSaveLoad.cs" />
+    <Compile Include="editor\EditorTemplate.cs" />
+    <Compile Include="editor\Log.cs" />
     <Compile Include="editor\manipulator\Arrow.cs" />
     <Compile Include="editor\manipulator\Button.cs" />
     <Compile Include="editor\manipulator\Manipulator.cs" />
     <Compile Include="editor\manipulator\MoveManipulator.cs" />
     <Compile Include="editor\manipulator\RotateManipulator.cs" />
-    <Compile Include="editor\manipulator\ScaleManipulator.cs" />
+    <Compile Include="editor\ScaleManipulator.cs" />
     <Compile Include="editor\manipulator\SelectManipulator.cs" />
+    <Compile Include="editor\TemplateCreator.cs" />
     <Compile Include="editor\TemplateMenu.cs" />
+    <Compile Include="editor\TilesetList.cs" />
     <Compile Include="KeyboardInput.cs" />
     <Compile Include="Main.cs" />
     <Compile Include="Mesh.cs" />
@@ -85,6 +91,12 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="res\portal.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="res\rainbow.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="res\skull.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

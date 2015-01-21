@@ -86,12 +86,13 @@ namespace MapEditor
 
 		Color color = Color.White;
 		bool fillColor = false;
-		bool usingBlur = false;
+		bool invertColors = false;
 
 		Texture texture;
 		bool usingTexture = true;
 
 		bool ortho = false;
+		bool uiElement = false;
 
 		public Color Color
 		{
@@ -114,6 +115,18 @@ namespace MapEditor
 			set
 			{
 				fillColor = value;
+			}
+		}
+
+		public bool InvertColors
+		{
+			get
+			{
+				return invertColors;
+			}
+			set
+			{
+				invertColors = value;
 			}
 		}
 
@@ -173,7 +186,19 @@ namespace MapEditor
 		{
 			get
 			{
-				return Orthographic ? Editor.program : Editor.program;
+				return UIElement ? Editor.uiProgram : Editor.program;
+			}
+		}
+
+		public bool UIElement
+		{
+			get
+			{
+				return uiElement;
+			}
+			set
+			{
+				uiElement = value;
 			}
 		}
 
@@ -239,6 +264,9 @@ namespace MapEditor
 		{
 			if (vertexBuffer != null) vertexBuffer.Dispose();
 			if (uvBuffer != null) uvBuffer.Dispose();
+
+			vertexBuffer = null;
+			uvBuffer = null;
 		}
 
 		public void Reset()
@@ -281,7 +309,8 @@ namespace MapEditor
 			Shader["vertexUV"].SetValue(uvBuffer);
 			Shader["model"].SetValue(modelMatrix);
 			Shader["color"].SetValue(color);
-//			Shader["fillColor"].SetValue(fillColor);
+			Shader["invertColor"].SetValue(invertColors);
+			Shader["fillColor"].SetValue(fillColor);
 
 			if (texture != null && UsingTexture)
 			{

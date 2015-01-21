@@ -43,7 +43,7 @@ namespace MapEditor
 		{
 			base.OnKeyDown(e);
 
-			if (e.Key == Key.Escape) Exit();
+			//if (e.Key == Key.Escape) Exit();
 		}
 
 		protected override void OnResize(EventArgs e)

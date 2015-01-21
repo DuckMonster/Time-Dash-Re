@@ -10,9 +10,9 @@ using TKTools;
 
 namespace MapEditor
 {
-	public class TemplateMenu
+	public class TemplateMenu : IDisposable
 	{
-		class TemplateButton
+		class TemplateButton : IDisposable
 		{
 			Template template;
 			TemplateMenu menu;
@@ -33,7 +33,7 @@ namespace MapEditor
 			{
 				get
 				{
-					return GetCollision(MouseInput.Current.Position);
+					return GetCollision(MouseInput.Current.PositionOrtho);
 				}
 			}
 
@@ -46,6 +46,12 @@ namespace MapEditor
 				size = t.Size;
 
 				buttonMesh = Mesh.Box;
+				buttonMesh.UIElement = true;
+			}
+
+			public void Dispose()
+			{
+				buttonMesh.Dispose();
 			}
 
 			public bool GetCollision(Vector2 position)
@@ -66,8 +72,6 @@ namespace MapEditor
 
 			public void CloneToMap()
 			{
-				menu.templateGrabbed = true;
-
 				EditorObject obj = new EditorObject(template, menu.editor);
 				menu.editor.CreateObject(obj);
 				menu.editor.DeselectAll();
@@ -85,7 +89,12 @@ namespace MapEditor
 			{
 				DrawBox();
 
-				template.Draw(Position);
+				template.Draw(Position, 1f);
+
+				if (Hovered)
+				{
+					template.Draw(Position + new Vector2(4f, 0f), 5f);
+				}
 			}
 
 			public void DrawBox()
@@ -133,13 +142,13 @@ namespace MapEditor
 		Vector2 position;
 		Vector2 size;
 
-		bool templateGrabbed = false;
+		Mesh menuMesh = Mesh.Box;
 
 		Vector2 TargetPosition
 		{
 			get
 			{
-				return new Vector2(-Editor.screenWidth + 1.5f - 4f * (templateGrabbed ? 1 : 0), 0f);
+				return new Vector2(-Editor.screenWidth/2 + 1.5f - 4f * (Hidden ? 1 : 0), 0f);
 			}
 		}
 
@@ -159,7 +168,7 @@ namespace MapEditor
 		{
 			get
 			{
-				return new Vector2(2f, Editor.screenHeight * 2);
+				return new Vector2(2f, Editor.screenHeight);
 			}
 			set
 			{
@@ -178,11 +187,30 @@ namespace MapEditor
 			}
 		}
 
+		public bool Hidden
+		{
+			get
+			{
+				return editor.CurrentManipulator.Active;
+			}
+		}
+
 		public TemplateMenu(Editor e)
 		{
 			editor = e;
 			position = new Vector2(-Editor.screenWidth + 1.5f, 0f);
 			size = new Vector2(2f, Editor.screenHeight * 2);
+
+			menuMesh.Color = new Color(1, 1, 1, 0.2f);
+			menuMesh.UIElement = true;
+		}
+
+		public void Dispose()
+		{
+			foreach (TemplateButton btn in buttonList)
+				btn.Dispose();
+
+			buttonList.Clear();
 		}
 
 		public void AddTemplate(Template t)
@@ -193,8 +221,6 @@ namespace MapEditor
 
 		public void Logic()
 		{
-			if (templateGrabbed && !MouseInput.Current[OpenTK.Input.MouseButton.Left]) templateGrabbed = false;
-
 			position += (TargetPosition - position) * 5f * Editor.delta;
 
 			foreach (TemplateButton btn in buttonList)
@@ -203,6 +229,13 @@ namespace MapEditor
 
 		public void Draw()
 		{
+			menuMesh.Reset();
+
+			menuMesh.Translate(Position);
+			menuMesh.Scale(Size);
+
+			menuMesh.Draw();
+
 			foreach (TemplateButton btn in buttonList)
 				btn.Draw();
 		}
