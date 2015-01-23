@@ -9,7 +9,7 @@ namespace MapEditor.Manipulators
 {
 	public class RotateManipulator : Manipulator
 	{
-		class RotateButton
+		class RotateButton : IDisposable
 		{
 			RotateManipulator manipulator;
 			Mesh mesh = Mesh.Box;
@@ -31,6 +31,12 @@ namespace MapEditor.Manipulators
 			{
 				manipulator = mani;
 				mesh.Texture = circleTexture;
+			}
+
+			public void Dispose()
+			{
+				mesh.Dispose();
+				circleTexture.Dispose();
 			}
 
 			public void Logic()
@@ -105,6 +111,12 @@ namespace MapEditor.Manipulators
 			: base(editor)
 		{
 			rotateButton = new RotateButton(this);
+		}
+
+		public override void Dispose()
+		{
+			rotateButton.Dispose();
+			base.Dispose();
 		}
 
 		public override void Enable(Vector2 pos)

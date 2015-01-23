@@ -6,7 +6,7 @@ namespace MapEditor.Manipulators
 {
 	public class MoveManipulator : Manipulator
 	{
-		class MoveButton
+		class MoveButton : IDisposable
 		{
 			public bool Hovered
 			{
@@ -43,6 +43,13 @@ namespace MapEditor.Manipulators
 				centerButton.Color = Color.Yellow;
 				xAxisButton.Color = Color.Red;
 				yAxisButton.Color = Color.Green;
+			}
+
+			public void Dispose()
+			{
+				centerButton.Dispose();
+				xAxisButton.Dispose();
+				yAxisButton.Dispose();
 			}
 
 			public void Logic()
@@ -94,6 +101,7 @@ namespace MapEditor.Manipulators
 
 		public override void Dispose()
 		{
+			moveButton.Dispose();
 			base.Dispose();
 		}
 

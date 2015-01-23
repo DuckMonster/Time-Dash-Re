@@ -1,8 +1,9 @@
 ﻿using OpenTK;
 using OpenTK.Graphics.OpenGL;
-
+using OpenTK.Input;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -14,7 +15,7 @@ namespace MapEditor
 	{
 		class TemplateButton : IDisposable
 		{
-			Template template;
+			public Template template;
 			TemplateMenu menu;
 			Vector2 offset;
 			Vector2 size;
@@ -25,7 +26,7 @@ namespace MapEditor
 			{
 				get
 				{
-					return menu.Position + new Vector2(0, menu.Size.Y/2 - offset.Y);
+					return menu.Position + new Vector2(0, menu.Size.Y/2 - offset.Y) - new Vector2(0, menu.TotalScroll * 1.5f * menu.scrollPosition);
 				}
 			}
 
@@ -135,7 +136,7 @@ namespace MapEditor
 			}
 		}
 
-		List<TemplateButton> buttonList = new List<TemplateButton>();
+		List<TemplateButton>[] tabList = new List<TemplateButton>[10];
 
 		Editor editor;
 
@@ -143,6 +144,12 @@ namespace MapEditor
 		Vector2 size;
 
 		Mesh menuMesh = Mesh.Box;
+		Mesh tabMesh;
+		Mesh scrollMesh;
+
+		int tabIndex = 0;
+
+		float scrollPosition = 0f;
 
 		Vector2 TargetPosition
 		{
@@ -180,7 +187,7 @@ namespace MapEditor
 		{
 			get
 			{
-				foreach (TemplateButton btn in buttonList)
+				foreach (TemplateButton btn in CurrentTab)
 					if (btn.Hovered) return true;
 
 				return false;
@@ -195,6 +202,26 @@ namespace MapEditor
 			}
 		}
 
+		public float TotalScroll
+		{
+			get
+			{
+				float sizey = Size.Y;
+
+				float totalButtonSize = CurrentTab.Count * 1.5f;
+				float buttonSizeAvailable = Size.Y / 1.5f;
+				return (float)Math.Max(1, (totalButtonSize - buttonSizeAvailable) / buttonSizeAvailable);
+			}
+		}
+
+		List<TemplateButton> CurrentTab
+		{
+			get
+			{
+				return tabList[tabIndex];
+			}
+		}
+
 		public TemplateMenu(Editor e)
 		{
 			editor = e;
@@ -203,27 +230,87 @@ namespace MapEditor
 
 			menuMesh.Color = new Color(1, 1, 1, 0.2f);
 			menuMesh.UIElement = true;
-		}
 
+			for (int i = 0; i < tabList.Length; i++)
+				tabList[i] = new List<TemplateButton>();
+
+			tabMesh = new Mesh(PrimitiveType.Quads);
+			tabMesh.UIElement = true;
+			tabMesh.Vertices = new Vector2[] {
+				new Vector2(0, -0.5f),
+				new Vector2(1, -0.5f),
+				new Vector2(1, 0.5f),
+				new Vector2(0, 0.5f)
+			};
+
+			scrollMesh = Mesh.Box;
+			scrollMesh.UIElement = true;
+		}
+		
 		public void Dispose()
 		{
-			foreach (TemplateButton btn in buttonList)
-				btn.Dispose();
+			foreach (List<TemplateButton> tab in tabList)
+			{
+				foreach (TemplateButton btn in tab)
+					btn.Dispose();
 
-			buttonList.Clear();
+				tab.Clear();
+			}
+
+			tabMesh.Dispose();
+			scrollMesh.Dispose();
 		}
 
-		public void AddTemplate(Template t)
+		public void AddTemplate(Template t) { AddTemplate(t, tabIndex); }
+		public void AddTemplate(Template t, int tabIndex)
 		{
-			int index = buttonList.Count;
-			buttonList.Add(new TemplateButton(t, index, this));
+			int index = tabList[tabIndex].Count;
+			tabList[tabIndex].Add(new TemplateButton(t, index, this));
+		}
+
+		public void WriteToFile(BinaryWriter writer)
+		{
+			int n = 0;
+
+			foreach (List<TemplateButton> tab in tabList)
+				n += tab.Count;
+
+			writer.Write(n);
+
+			for (int i = 0; i < tabList.Length; i++)
+				foreach (TemplateButton btn in tabList[i])
+				{
+					writer.Write(i);
+					writer.Write(btn.template.ID);
+				}
+		}
+
+		public void ReadFromFile(BinaryReader reader)
+		{
+			int nmbr = reader.ReadInt32();
+
+			for (int i = 0; i < nmbr; i++)
+			{
+				int tab = reader.ReadInt32(), temp = reader.ReadInt32();
+
+				AddTemplate(editor.templateList[temp], tab);
+			}
 		}
 
 		public void Logic()
 		{
 			position += (TargetPosition - position) * 5f * Editor.delta;
 
-			foreach (TemplateButton btn in buttonList)
+			//Change tab
+			if (KeyboardInput.Current[Key.LAlt])
+			{
+				if (KeyboardInput.KeyPressed(Key.Down)) tabIndex++;
+				if (KeyboardInput.KeyPressed(Key.Up)) tabIndex--;
+
+				tabIndex = MathHelper.Clamp(tabIndex, 0, tabList.Length - 1);
+			}
+
+			foreach (TemplateButton btn in CurrentTab)
 				btn.Logic();
 		}
 
@@ -236,8 +323,30 @@ namespace MapEditor
 
 			menuMesh.Draw();
 
-			foreach (TemplateButton btn in buttonList)
+			foreach (TemplateButton btn in CurrentTab)
 				btn.Draw();
+
+			Vector2 tabPosition = Position + new Vector2(Size.X / 2, Size.Y / 2 - 1f);
+
+			for (int i = 0; i < tabList.Length; i++)
+			{
+				bool selected = tabIndex == i;
+
+				tabMesh.Color = new Color(1, 1, 1, selected ? 0.8f : 0.4f);
+
+				tabMesh.Reset();
+
+				tabMesh.Translate(tabPosition - new Vector2(0, 1.0f * i));
+				tabMesh.Scale(selected ? 0.6f : 0.3f, 0.8f);
+
+				tabMesh.Draw();
+			}
+
+			tabMesh.Reset();
+			tabMesh.Translate(Position + new Vector2(-Size.X / 2, Size.Y/2 - (1f / TotalScroll)/2 * Size.Y));
+			tabMesh.Scale(0.2f, (1f / TotalScroll) * Size.Y);
+
+			tabMesh.Draw();
 		}
 	}
 }

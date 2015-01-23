@@ -18,7 +18,7 @@ namespace MapEditor
 		Rotate
 	}
 
-	public partial class Editor
+	public partial class Editor : IDisposable
 	{
 		public static ShaderProgram program = new ShaderProgram("shaders/standardShader.glsl"), uiProgram = new ShaderProgram("shaders/standardShader.glsl");
 		public static float screenWidth = 20, screenHeight;
@@ -26,6 +26,8 @@ namespace MapEditor
 
 		public static float delta = 0f;
 		Stopwatch tickWatch;
+
+		public Container container;
 
 		public List<EditorObject> objectList = new List<EditorObject>();
 		public List<Vertex> selectedList = new List<Vertex>(50);
@@ -36,8 +38,6 @@ namespace MapEditor
 
 		SelectionBox selectionBox;
 		Mesh gridMesh;
-
-		Log log;
 
 		public Manipulator CurrentManipulator
 		{
@@ -68,7 +68,21 @@ namespace MapEditor
 			}
 		}
 
-		public Editor()
+		public Editor(Container c)
+		{
+			container = c;
+			Init();
+		}
+
+		public Editor(string filename, Container c)
+		{
+			container = c;
+			Init();
+
+			LoadMap(filename);
+		}
+
+		public void Init()
 		{
 			templateMenu = new TemplateMenu(this);
 			tilesetList = new TilesetList(this);
@@ -99,8 +113,6 @@ namespace MapEditor
 			gridMesh.Vertices = gridVectorList.ToArray();
 
 			templateCreator = new TemplateCreator(this);
-
-			log = new Log(this);
 		}
 
 		public void Logic()
@@ -125,15 +137,6 @@ namespace MapEditor
 
 				if (KeyboardInput.KeyPressed(Key.D))
 					DuplicateSelected();
-
-				if (KeyboardInput.KeyPressed(Key.S))
-					SaveMap("temp.mp");
-
-				if (KeyboardInput.KeyPressed(Key.O))
-					LoadMap("temp.mp");
-
-				if (KeyboardInput.KeyPressed(Key.P))
-					CloseMap();
 			}
 
 			if (!Paused)
@@ -177,9 +180,9 @@ namespace MapEditor
 			float ratio = size.Y / size.X;
 			screenHeight = screenWidth * ratio;
 
-			Matrix4 proj = Matrix4.CreatePerspectiveOffCenter(-screenWidth / 2, screenWidth / 2, -screenHeight / 2, screenHeight / 2, 1, 1000);
+			Matrix4 proj = Matrix4.CreatePerspectiveOffCenter(-screenWidth / 2, screenWidth / 2, -screenHeight / 2, screenHeight / 2, 1f, 1000);
 			program["projection"].SetValue(proj);
-			uiProgram["projection"].SetValue(Matrix4.CreateOrthographic(screenWidth, screenHeight, 1, 1000));
+			uiProgram["projection"].SetValue(Matrix4.CreateOrthographic(screenWidth, screenHeight, 1f, 1000));
 			uiProgram["view"].SetValue(Matrix4.LookAt(new Vector3(0, 0, 2), Vector3.Zero, Vector3.UnitY));
 		}
 

@@ -30,6 +30,8 @@ namespace MapEditor
 
 		public void AddAction(Action a)
 		{
+			saveFlag = true;
+
 			if (actionList.Count > actionIndex + 1)
 				actionList.RemoveRange(actionIndex + 1, actionList.Count - (actionIndex + 1));
 

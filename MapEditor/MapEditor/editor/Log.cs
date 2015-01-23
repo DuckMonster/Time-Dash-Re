@@ -4,11 +4,11 @@ namespace MapEditor
 {
 	public class Log
 	{
-		Editor editor;
+		Container container;
 
-		public Log(Editor e)
+		public Log(Container c)
 		{
-			editor = e;
+			container = c;
 
 			new Thread(InputThread).Start();
 		}
@@ -19,9 +19,11 @@ namespace MapEditor
 			{
 				string[] input = Console.ReadLine().Split(' ');
 
+				/*
 				if (input[0] == "load") editor.LoadMap(input[1]);
 				if (input[0] == "save") editor.SaveMap(input[1]);
 				if (input[0] == "tileset") editor.tilesetList.LoadTileset(input[1]);
+				 * */
 			}
 		}
 	}

@@ -7,7 +7,7 @@ namespace MapEditor.Manipulators
 {
 	public class ScaleManipulator : Manipulator
 	{
-		class ScaleButton
+		class ScaleButton : IDisposable
 		{
 			public bool Hovered
 			{
@@ -44,6 +44,13 @@ namespace MapEditor.Manipulators
 				centerButton.Color = Color.Yellow;
 				xAxisButton.Color = Color.Red;
 				yAxisButton.Color = Color.Green;
+			}
+
+			public void Dispose()
+			{
+				centerButton.Dispose();
+				xAxisButton.Dispose();
+				yAxisButton.Dispose();
 			}
 
 			public void Logic()
@@ -91,6 +98,12 @@ namespace MapEditor.Manipulators
 			: base(e)
 		{
 			scaleButton = new ScaleButton(this);
+		}
+
+		public override void Dispose()
+		{
+			scaleButton.Dispose();
+			base.Dispose();
 		}
 
 		public override void Enable(Vector2 pos)

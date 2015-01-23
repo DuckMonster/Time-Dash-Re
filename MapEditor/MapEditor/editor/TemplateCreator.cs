@@ -73,9 +73,9 @@ namespace MapEditor
 				a = Vector2.Clamp(a, new Vector2(-0.5f, -0.5f), new Vector2(0.5f, 0.5f));
 				b = Vector2.Clamp(b, new Vector2(-0.5f, -0.5f), new Vector2(0.5f, 0.5f));
 
-				if (KeyboardInput.KeyPressed(Key.Enter))
+				if (KeyboardInput.KeyPressed(Key.Enter) && Active)
 				{
-					creator.editor.AddTemplate(creator.tilesetIndex, UV);
+					creator.editor.CreateTemplate(creator.tilesetIndex, UV);
 					Active = false;
 				}
 
@@ -175,8 +175,14 @@ namespace MapEditor
 
 		public void Logic()
 		{
-			if (KeyboardInput.KeyPressed(Key.Tab) && editor.tilesetList.Count > 0)
-				active = true;
+			if (KeyboardInput.KeyPressed(Key.Tab))
+			{
+				if (editor.tilesetList.Count == 0)
+					editor.tilesetList.PromptLoad();
+
+				if (editor.tilesetList.Count > 0)
+					active = true;
+			}
 
 			if (!Active) return;
 

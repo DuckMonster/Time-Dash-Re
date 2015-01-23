@@ -89,6 +89,8 @@ namespace MapEditor
 		{
 			editor = e;
 
+			this.id = id;
+
 			tilesetIndex = reader.ReadInt32();
 			uv = new RectangleF(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
 

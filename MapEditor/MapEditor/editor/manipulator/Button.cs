@@ -4,7 +4,7 @@ using TKTools;
 
 namespace MapEditor.Manipulators
 {
-	public class Button
+	public class Button : IDisposable
 	{
 		Vector2 position, size;
 		float rotation;
@@ -73,6 +73,11 @@ namespace MapEditor.Manipulators
 		public Button(Editor e)
 		{
 			mesh = Mesh.Box;
+		}
+
+		public void Dispose()
+		{
+			mesh.Dispose();
 		}
 
 		public void RecalculateMesh()

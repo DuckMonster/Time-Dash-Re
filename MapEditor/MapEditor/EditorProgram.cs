@@ -7,9 +7,9 @@ using OpenTK.Input;
 
 namespace MapEditor
 {
-	class EditorProgram : GameWindow
+	public class EditorProgram : GameWindow
 	{
-		Editor editor;
+		Container container;
 
 		public EditorProgram(int w, int h, GRFX.GraphicsMode mode)
 			: base(w, h, mode)
@@ -29,7 +29,7 @@ namespace MapEditor
 			WindowBorder = OpenTK.WindowBorder.Resizable;
 			VSync = VSyncMode.Off;
 
-			editor = new Editor();
+			container = new Container(this);
 		}
 
 		protected override void OnMouseMove(MouseMoveEventArgs e)
@@ -51,7 +51,7 @@ namespace MapEditor
 			base.OnResize(e);
 
 			GL.Viewport(ClientRectangle);
-			editor.UpdateProjection(new Vector2(ClientSize.Width, ClientSize.Height));
+			container.editor.UpdateProjection(new Vector2(Width, Height));
 		}
 
 		protected override void OnUpdateFrame(FrameEventArgs e)
@@ -64,14 +64,14 @@ namespace MapEditor
 				KeyboardInput.Update();
 			}
 
-			editor.Logic();
+			container.Logic();
 		}
 
 		protected override void OnRenderFrame(FrameEventArgs e)
 		{
 			base.OnRenderFrame(e);
 
-			editor.Draw();
+			container.Draw();
 
 			SwapBuffers();
 		}

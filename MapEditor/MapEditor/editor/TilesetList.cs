@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using TKTools;
 using MapEditor;
 using System.IO;
+using System.Windows.Forms;
 
 namespace MapEditor
 {
@@ -42,7 +43,6 @@ namespace MapEditor
 		}
 
 		public List<Tileset> tilesetList = new List<Tileset>();
-		List<string> tilesetLoadBuffer = new List<string>();
 		Editor editor;
 
 		public int Count
@@ -66,30 +66,30 @@ namespace MapEditor
 			tilesetList.Clear();
 		}
 
-		void LoadTilesetBuffer()
-		{
-			while (tilesetLoadBuffer.Count > 0)
-			{
-				LoadTilesetFromBuffer(tilesetLoadBuffer[0]);
-				tilesetLoadBuffer.RemoveAt(0);
-			}
-		}
-
-		void LoadTilesetFromBuffer(string path)
+		public void LoadTileset(string path)
 		{
 			Texture text = new Texture(path);
 			tilesetList.Add(new Tileset(text, path));
 		}
 
-		public void LoadTileset(string path)
+		public void PromptLoad()
 		{
-			if (!File.Exists(path)) return;
-			tilesetLoadBuffer.Add(path);
+			using (OpenFileDialog dialog = new OpenFileDialog())
+			{
+				dialog.Filter = "Image files (*.png;*.jpg)|*.png;*.jpg";
+				dialog.Multiselect = true;
+
+				if (dialog.ShowDialog() == DialogResult.OK)
+				{
+					string[] files = dialog.FileNames;
+					foreach (string fn in files)
+						LoadTileset(fn);
+				}
+			}
 		}
 
 		public void Logic()
 		{
-			LoadTilesetBuffer();
 		}
 
 		public void WriteToFile(BinaryWriter writer)
