@@ -33,22 +33,6 @@ public class CPMap : Map
 		return p;
 	}
 
-	public override void MapObjectLoad(uint color, Environment.Tile t)
-	{
-		base.MapObjectLoad(color, t);
-
-		switch (color)
-		{
-			case 0xFFFF0000:
-				pointList.Add(new CPPoint(pointList.Count, t.World + new Vector2(Environment.TILE_SIZE / 2, 0), this));
-				break;
-
-			case 0xFF00FF00:
-				spawnPoint.Add(t.World + new Vector2(0, 1));
-				break;
-		}
-	}
-
 	public override Vector2 GetFreeSpawnPosition(Player p)
 	{
 		if (p.team == null) return base.GetFreeSpawnPosition(p);

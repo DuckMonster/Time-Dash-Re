@@ -67,8 +67,11 @@ namespace MapEditor
 
 			public void Logic()
 			{
-				if (MouseInput.ButtonPressed(MouseButton.Left)) a = MouseInput.Current.PositionOrtho / creator.Size.X;
-				if (MouseInput.Current[MouseButton.Left]) b = MouseInput.Current.PositionOrtho / creator.Size.Y;
+				if (!KeyboardInput.Current[Key.LAlt])
+				{
+					if (MouseInput.ButtonPressed(MouseButton.Left)) a = (MouseInput.Current.PositionOrtho - creator.Position) / creator.Size.X;
+					if (MouseInput.Current[MouseButton.Left]) b = (MouseInput.Current.PositionOrtho - creator.Position) / creator.Size.Y;
+				}
 
 				a = Vector2.Clamp(a, new Vector2(-0.5f, -0.5f), new Vector2(0.5f, 0.5f));
 				b = Vector2.Clamp(b, new Vector2(-0.5f, -0.5f), new Vector2(0.5f, 0.5f));
@@ -98,10 +101,11 @@ namespace MapEditor
 
 			public void Draw()
 			{
-				mesh.Texture = creator.Texture;
+				mesh.Texture = creator.CurrentTileset.Texture;
 
 				mesh.Reset();
 
+				mesh.Translate(creator.Position);
 				mesh.Scale(creator.Size);
 
 				mesh.Draw();
@@ -116,6 +120,9 @@ namespace MapEditor
 
 		int tilesetIndex = 0;
 
+		float zoom = 1f, zoomSpeed = 0f;
+		Vector2 positionOffset = Vector2.Zero;
+
 		public bool Active
 		{
 			get
@@ -128,6 +135,14 @@ namespace MapEditor
 			}
 		}
 
+		public Vector2 Position
+		{
+			get
+			{
+				return positionOffset;
+			}
+		}
+
 		public Vector2 Size
 		{
 			get
@@ -135,13 +150,13 @@ namespace MapEditor
 				float ratio = TextureRatio;
 
 				if (ratio < 1)
-					return new Vector2(1, ratio) * 10f;
+					return new Vector2(1, ratio) * 10f * zoom;
 				else
-					return new Vector2(1 / ratio, 1) * 10f;
+					return new Vector2(1 / ratio, 1) * 10f * zoom;
 			}
 		}
 
-		public Texture Texture
+		public TilesetList.Tileset CurrentTileset
 		{
 			get
 			{
@@ -153,7 +168,7 @@ namespace MapEditor
 		{
 			get
 			{
-				Texture text = Texture;
+				Texture text = CurrentTileset.Texture;
 				return (float)text.Height / text.Width;
 			}
 		}
@@ -173,6 +188,20 @@ namespace MapEditor
 			tilesetIndex = 0;
 		}
 
+		public void RemoveTileset(TilesetList.Tileset tileset)
+		{
+			editor.tilesetList.RemoveTileset(tileset);
+
+			if (editor.tilesetList.Count > 0)
+			{
+				tilesetIndex = Math.Max(0, tilesetIndex - 1);
+			}
+			else
+			{
+				Active = false;
+			}
+		}
+
 		public void Logic()
 		{
 			if (KeyboardInput.KeyPressed(Key.Tab))
@@ -188,6 +217,12 @@ namespace MapEditor
 
 			marker.Logic();
 
+			if (KeyboardInput.KeyPressed(Key.N))
+				editor.tilesetList.PromptLoad();
+
+			if (KeyboardInput.KeyPressed(Key.Delete))
+				RemoveTileset(CurrentTileset);
+
 			if (KeyboardInput.KeyPressed(Key.Escape))
 				active = false;
 
@@ -197,7 +232,21 @@ namespace MapEditor
 					SwitchTileset(1);
 				if (KeyboardInput.KeyPressed(Key.Left))
 					SwitchTileset(-1);
+
+				if (MouseInput.Current[MouseButton.Left])
+				{
+					positionOffset += MouseInput.Current.PositionOrtho - MouseInput.Previous.PositionOrtho;
+				}
 			}
+
+			if (MouseInput.Current[MouseButton.Middle])
+				positionOffset += MouseInput.Current.PositionOrtho - MouseInput.Previous.PositionOrtho;
+
+			zoomSpeed += (MouseInput.Current.Wheel - MouseInput.Previous.Wheel) * 0.2f;
+
+			zoom += zoomSpeed * 5 * Editor.delta;
+			zoomSpeed -= zoomSpeed * 5 * Editor.delta;
+			zoom = MathHelper.Clamp(zoom, 0.4f, 5f);
 		}
 
 		public void SwitchTileset(int delta)
@@ -212,21 +261,26 @@ namespace MapEditor
 		{
 			if (!Active) return;
 
-			mesh.Texture = Texture;
-
 			mesh.Color = new Color(0, 0, 0, 0.8f);
 			mesh.UsingTexture = false;
 
 			mesh.Reset();
-			mesh.Scale(Editor.screenWidth, Editor.screenHeight);
+			mesh.Scale(new Vector2(Editor.screenWidth, Editor.screenHeight));
 			mesh.Draw();
 
 			DrawBox();
+			Draw(CurrentTileset, 0);
+		}
+
+		public void Draw(TilesetList.Tileset tileset, int indexoffset)
+		{
+			mesh.Texture = tileset.Texture;
 
 			mesh.Color = Color.White;
 			mesh.UsingTexture = true;
 
 			mesh.Reset();
+			mesh.Translate(Position);
 			mesh.Scale(Size);
 
 			mesh.Draw();
@@ -249,6 +303,7 @@ namespace MapEditor
 			mesh.Color = c * new Color(1, 1, 1, 0.2f);
 
 			mesh.Reset();
+			mesh.Translate(positionOffset);
 			mesh.Scale(Size);
 
 			mesh.Draw();
@@ -258,6 +313,7 @@ namespace MapEditor
 			mesh.Color = c;
 
 			mesh.Reset();
+			mesh.Translate(positionOffset);
 			mesh.Scale(Size + new Vector2(0.2f, 0.2f));
 
 			mesh.Draw();

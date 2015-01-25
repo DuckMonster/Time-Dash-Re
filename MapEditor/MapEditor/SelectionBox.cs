@@ -31,7 +31,7 @@ namespace MapEditor
 			List<Vertex> returnList = new List<Vertex>();
 			Polygon poly = mesh.Polygon;
 
-			foreach (EditorObject obj in editor.objectList)
+			foreach (EditorObject obj in editor.ActiveObjects)
 				foreach (Vertex v in obj.Vertices)
 					if (poly.Intersects(v.Position)) returnList.Add(v);
 

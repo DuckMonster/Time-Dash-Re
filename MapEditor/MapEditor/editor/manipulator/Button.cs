@@ -84,7 +84,7 @@ namespace MapEditor.Manipulators
 		{
 			mesh.Reset();
 
-			mesh.Translate(position);
+			mesh.Translate(position.X, position.Y, Editor.camera.TargetBaseZ);
 			mesh.Scale(size * Editor.camera.Position.Z);
 			mesh.Rotate(rotation);
 

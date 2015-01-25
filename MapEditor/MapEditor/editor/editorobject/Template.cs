@@ -29,7 +29,7 @@ namespace MapEditor
 		{
 			get
 			{
-				return editor.tilesetList[tilesetIndex];
+				return editor.tilesetList[tilesetIndex].Texture;
 			}
 		}
 

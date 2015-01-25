@@ -9,24 +9,13 @@ public class DMMap : Map
 	public DMMap(int id, string filename)
 		: base(id, filename, GameMode.DeathMatch)
 	{
+		scoreboard = new Scoreboard(20, 5f, 6f, new Vector2(5, 5), this);
 	}
 
 	public override void PlayerJoin(int id, string name)
 	{
 		playerList[id] = new DMPlayer(id, name, new Vector2(4, 10), this);
 		scoreboard.SetName(id, name);
-	}
-
-	public override void MapObjectLoad(uint color, Environment.Tile t)
-	{
-		base.MapObjectLoad(color, t);
-
-		switch (color)
-		{
-			case 0xFFFF0000:
-				scoreboard = new Scoreboard(15, 10f, 5f, t.World + new Vector2(Environment.TILE_SIZE / 2, 0), this);
-				break;
-		}
 	}
 
 	public override void Dispose()
@@ -42,7 +31,7 @@ public class DMMap : Map
 
 	public override void Draw()
 	{
-		scoreboard.Draw();
+		//scoreboard.Draw();
 		base.Draw();
 	}
 

@@ -30,18 +30,6 @@ public class KothMap : Map
 		return new KothPlayer(id, name, c, Vector2.Zero, this);
 	}
 
-	public override void MapObjectLoad(uint color, Environment.Tile t)
-	{
-		base.MapObjectLoad(color, t);
-
-		switch (color)
-		{
-			case 0xFFFF0000:
-				point = new KothPoint(t.World + new Vector2(Environment.TILE_SIZE / 2, 0), this);
-				break;
-		}
-	}
-
 	public override void Logic()
 	{
 		base.Logic();
@@ -55,7 +43,7 @@ public class KothMap : Map
 		do
 		{
 			double x = rng.NextDouble(), y = rng.NextDouble();
-			pos = new Vector2((float)x * environment.Width, (float)y * environment.Height);
+			pos = new Vector2((float)x * scene.Width, (float)y * scene.Height);
 		} while (GetCollision(pos, p.size) || (point.position - pos).Length <= 15f);
 
 		return pos;

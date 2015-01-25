@@ -111,7 +111,7 @@ public class LogCommand
 	{
 		GameMode m;
 
-		if (!File.Exists("Maps/" + args[1] + ".png"))
+		if (!File.Exists("Maps/" + args[1] + ".tdm"))
 		{
 			Log.Write(ConsoleColor.Red, "Map \"" + args[1] + "\" doesn't exist!");
 			return;

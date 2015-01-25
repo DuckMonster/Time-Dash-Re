@@ -1,0 +1,3 @@
+Subreddit for the game "Time Dash" which is currently in development. In here we will host playable versions of the game as well as info on development.
+
+Time Dash is an online action PvP platformer, in which the main mechanic is dashing 1 second into the past, obliterating all opponents on the way. Your goal is to outmaneuver your opponents while completing various objectives on different game modes.

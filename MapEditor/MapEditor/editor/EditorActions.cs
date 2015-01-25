@@ -14,14 +14,14 @@ namespace MapEditor
 
 		public EditorObject GetObjectAt(Vector2 pos)
 		{
-			for (int i = objectList.Count - 1; i >= 0; i--)
-				if (objectList[i].Hovered) return objectList[i];
+			for (int i = ActiveObjects.Count - 1; i >= 0; i--)
+				if (ActiveObjects[i].Hovered) return ActiveObjects[i];
 			return null;
 		}
 
 		public Vertex GetVertexAt(Vector2 pos)
 		{
-			foreach (EditorObject obj in objectList)
+			foreach (EditorObject obj in ActiveObjects)
 				foreach (Vertex v in obj.Vertices)
 					if (v.Hovered) return v;
 
@@ -60,14 +60,14 @@ namespace MapEditor
 		{
 			List<EditorObject> deletedObjects = new List<EditorObject>();
 
-			foreach (EditorObject obj in objectList)
+			foreach (EditorObject obj in ActiveObjects)
 			{
 				if (obj.Selected) deletedObjects.Add(obj);
 			}
 
 			foreach (EditorObject obj in deletedObjects)
 			{
-				objectList.Remove(obj);
+				ActiveObjects.Remove(obj);
 				Deselect(obj.Vertices);
 
 				obj.Dispose();
@@ -76,31 +76,12 @@ namespace MapEditor
 
 		public void CreateObject(EditorObject obj)
 		{
-			objectList.Add(obj);
+			ActiveLayer.CreateObject(obj);
 		}
 
 		public void DuplicateSelected()
 		{
-			List<EditorObject> newObjects = new List<EditorObject>();
-
-			foreach (EditorObject obj in objectList)
-			{
-				if (obj.Selected)
-				{
-					EditorObject copy = new EditorObject(obj, this);
-					newObjects.Add(copy);
-				}
-			}
-
-			if (newObjects.Count > 0)
-			{
-				objectList.AddRange(newObjects);
-
-				DeselectAll();
-
-				foreach (EditorObject obj in newObjects)
-					SelectAdd(obj.Vertices);
-			}
+			ActiveLayer.DuplicateSelected();
 		}
 
 		public void SelectAt(Vector2 pos)

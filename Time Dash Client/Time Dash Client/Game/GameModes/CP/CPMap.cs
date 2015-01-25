@@ -10,18 +10,6 @@ public class CPMap : Map
 	{
 	}
 
-	public override void MapObjectLoad(uint color, Environment.Tile t)
-	{
-		base.MapObjectLoad(color, t);
-
-		switch (color)
-		{
-			case 0xFFFF0000:
-				pointList.Add(new CPPoint(pointList.Count, t.World + new Vector2(Environment.TILE_SIZE / 2, 0), this));
-				break;
-		}
-	}
-
 	public override void Logic()
 	{
 		base.Logic();

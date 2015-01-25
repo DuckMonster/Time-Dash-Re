@@ -96,6 +96,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="App.config" />
+    <None Include="Maps\temple.tdm">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="Shaders\tileShader.glsl">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

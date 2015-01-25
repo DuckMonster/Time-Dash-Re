@@ -7,23 +7,13 @@ public class DMMap : Map
 	public DMMap(string filename)
 		: base(filename, GameMode.DeathMatch)
 	{
+		scoreboard = new Scoreboard(20, new Vector2(5, 5), this);
 	}
 
 	public DMMap(string filename, Player[] players)
 		: base(filename, GameMode.DeathMatch, players)
 	{
-	}
-
-	public override void MapObjectLoad(uint color, Environment.Tile t)
-	{
-		base.MapObjectLoad(color, t);
-
-		switch (color)
-		{
-			case 0xFFFF0000:
-				scoreboard = new Scoreboard(15, t.World + new Vector2(Environment.TILE_SIZE / 2, 0), this);
-				break;
-		}
+		scoreboard = new Scoreboard(20, new Vector2(5, 5), this);
 	}
 
 	public override Player CreatePlayer(int id, string name, EZUDP.Server.Client c)
@@ -41,13 +31,15 @@ public class DMMap : Map
 
 	public override Vector2 GetFreeSpawnPosition(Player e)
 	{
+		return new Vector2(0, 10);
+
 		Vector2 pos;
 		bool alone = true;
 
 		do
 		{
 			double x = rng.NextDouble(), y = rng.NextDouble();
-			pos = new Vector2((float)x * environment.Width, (float)y * environment.Height);
+			pos = new Vector2((float)x * scene.Width, (float)y * scene.Height);
 
 			alone = true;
 

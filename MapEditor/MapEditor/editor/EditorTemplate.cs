@@ -9,7 +9,7 @@ namespace MapEditor
 	public partial class Editor
 	{
 		public List<Template> templateList = new List<Template>();
-		TemplateMenu templateMenu;
+		public TemplateMenu templateMenu;
 		public TemplateCreator templateCreator;
 
 		public TilesetList tilesetList;

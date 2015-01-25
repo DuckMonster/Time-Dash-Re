@@ -32,6 +32,13 @@ namespace MapEditor
 			container = new Container(this);
 		}
 
+		protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
+		{
+			base.OnClosing(e);
+
+			container.DisposeEditor();
+		}
+
 		protected override void OnMouseMove(MouseMoveEventArgs e)
 		{
 			base.OnMouseMove(e);
@@ -69,6 +76,8 @@ namespace MapEditor
 
 		protected override void OnRenderFrame(FrameEventArgs e)
 		{
+			if (MouseInput.Current == null || KeyboardInput.Current == null) return;
+
 			base.OnRenderFrame(e);
 
 			container.Draw();

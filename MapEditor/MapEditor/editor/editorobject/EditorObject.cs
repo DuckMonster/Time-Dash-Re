@@ -1,5 +1,6 @@
 ﻿using OpenTK;
 using OpenTK.Input;
+using OpenTK.Graphics.OpenGL;
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -8,9 +9,11 @@ namespace MapEditor
 {
 	public class EditorObject : IDisposable
 	{
-		Editor editor;
-		Vertex[] vertices = new Vertex[4];
+		protected Editor editor;
+		protected Vertex[] vertices = new Vertex[4];
 		public Mesh mesh;
+
+		protected Layer layer;
 
 		Template template;
 
@@ -18,7 +21,7 @@ namespace MapEditor
 		{
 			get
 			{
-				if (editor.CurrentManipulator.Active || editor.CurrentManipulator.Hovered || editor.Paused) return false;
+				if (!Active || editor.CurrentManipulator.Active || editor.CurrentManipulator.Hovered || editor.Paused) return false;
 
 				foreach (Vertex v in vertices)
 					if (v.Hovered) return false;
@@ -56,18 +59,40 @@ namespace MapEditor
 			}
 		}
 
-		public EditorObject(Editor e)
+		public bool Active
+		{
+			get
+			{
+				return layer.Active;
+			}
+		}
+
+		public virtual Color Color
+		{
+			get
+			{
+				if (layer.ButtonHovered)
+					return new Color(1, 1, 0, Active ? 1f : 0.4f);
+				else
+					return new Color(1, 1, 1, Active ? 1f : 0.4f);
+			}
+		}
+
+		public EditorObject(Layer layer, Editor e)
 		{
 			editor = e;
+			this.layer = layer;
 
 			mesh = Mesh.Box;
 			for (int i = 0; i < mesh.Vertices.Length; i++)
 				vertices[i] = new Vertex(mesh.Vertices[i], mesh.UV[i], editor);
 		}
 
-		public EditorObject(EditorObject copy, Editor e)
+		public EditorObject(Layer layer, EditorObject copy, Editor e)
 		{
 			editor = e;
+			this.layer = layer;
+			template = copy.template;
 
 			mesh = new Mesh(copy.mesh.Vertices, copy.mesh.UV, OpenTK.Graphics.OpenGL.PrimitiveType.Quads);
 
@@ -77,15 +102,18 @@ namespace MapEditor
 			mesh.Texture = copy.mesh.Texture;
 		}
 
-		public EditorObject(Template template, Editor e)
+		public EditorObject(Layer layer, Template template, Editor e)
 		{
 			editor = e;
+			this.layer = layer;
+
 			LoadTemplate(template);
 		}
 
-		public EditorObject(BinaryReader reader, Editor e)
+		public EditorObject(Layer layer, BinaryReader reader, Editor e)
 		{
 			editor = e;
+			this.layer = layer;
 
 			int templateID = reader.ReadInt32();
 			LoadTemplate(e.templateList[templateID]);
@@ -125,7 +153,7 @@ namespace MapEditor
 			mesh.Vertices = vectorList;
 		}
 
-		public void Logic()
+		public virtual void Logic()
 		{
 			foreach (Vertex v in vertices)
 				v.Logic();
@@ -137,7 +165,7 @@ namespace MapEditor
 			editor.Select(Vertices);
 		}
 
-		public void WriteToFile(BinaryWriter writer)
+		public virtual void WriteToFile(BinaryWriter writer)
 		{
 			writer.Write(template.ID);
 			foreach (Vertex v in Vertices)
@@ -147,11 +175,17 @@ namespace MapEditor
 			}
 		}
 
-		public void Draw()
+		public virtual void Draw()
 		{
-			mesh.Color = Color.White;
+			if (layer.Z < editor.ActiveLayer.Z) return;
+
+			GL.Enable(EnableCap.DepthTest);
+			mesh.Color = Color;
 			mesh.UsingTexture = true;
+			mesh.Reset();
+			mesh.Translate(0, 0, -layer.Z);
 			mesh.Draw();
+			GL.Disable(EnableCap.DepthTest);
 
 			if (Hovered)
 			{
@@ -161,6 +195,11 @@ namespace MapEditor
 				mesh.Draw();
 			}
 
+			if (Active) DrawVertices();
+		}
+
+		public void DrawVertices()
+		{
 			foreach (Vertex v in vertices)
 				v.Draw();
 		}

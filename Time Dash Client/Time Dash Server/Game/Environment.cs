@@ -1,198 +1,216 @@
-﻿using System;
-using System.Drawing;
+﻿using OpenTK;
 using System.Collections.Generic;
+using System.Drawing;
+using System.IO;
+using TKTools;
+using System;
 
-using OpenTK;
-using OpenTK.Graphics.OpenGL;
-
-public class Environment
+namespace MapScene
 {
-	public static float TILE_SIZE = 1.0f;
-
-	public enum TileType
+	public class Scene : IDisposable
 	{
-		Empty,
-		Solid
-	}
+		Map map;
+		public List<EnvTileset> tilesetList = new List<EnvTileset>();
+		public List<EnvTemplate> templateList = new List<EnvTemplate>();
+		public List<EnvSolid> solidList = new List<EnvSolid>();
+		public List<EnvObject> objectList = new List<EnvObject>();
 
-	public class Tile
-	{
-		Environment environment;
-		int x, y;
+		public float width = 40f, height = 40;
 
-		public int X
+		public float Width
 		{
 			get
 			{
-				return x;
-			}
-			set
-			{
-				x = value;
+				return width;
 			}
 		}
-		public int Y
+
+		public float Height
 		{
 			get
 			{
-				return y;
+				return height;
 			}
-			set
+		}
+
+		public Scene(string filename, Map map)
+		{
+			this.map = map;
+			LoadMap(filename);
+		}
+
+		public void Dispose()
+		{
+
+		}
+
+		public void LoadMap(string filename)
+		{
+			using (BinaryReader reader = new BinaryReader(new FileStream("Maps/" + filename + ".tdm", FileMode.Open)))
 			{
-				y = value;
-			}
-		}
-		public Vector2 World
-		{
-			get
-			{
-				return new Vector2(x * Environment.TILE_SIZE, y * Environment.TILE_SIZE);
-			}
-			set
-			{
-				x = (int)(value.X / Environment.TILE_SIZE);
-				y = (int)(value.Y / Environment.TILE_SIZE);
-			}
-		}
+				int nmbrOfTilesets = reader.ReadInt32();
+				for (int i = 0; i < nmbrOfTilesets; i++)
+					tilesetList.Add(new EnvTileset(reader));
 
-		public int Index
-		{
-			get
-			{
-				if (x < 0 || x >= environment.width || y < 0 || y >= environment.height) return -1;
-				return x + (y * environment.width);
-			}
-			set
-			{
-				x = value % environment.width;
-				y = value / environment.width;
-			}
-		}
+				int nmbrOfTemplates = reader.ReadInt32();
+				for (int i = 0; i < nmbrOfTemplates; i++)
+					templateList.Add(new EnvTemplate(reader, this));
 
-		public bool Collision
-		{
-			get
-			{
-				TileType type = Type;
-				return type == TileType.Solid;
-			}
-		}
-
-		public TileType Type
-		{
-			get
-			{
-				if (Index < 0 || Index >= environment.tileList.Length) return TileType.Solid;
-				else return environment.tileList[Index];
-			}
-			set
-			{
-				if (Index >= 0 || Index < environment.tileList.Length)
-					environment.tileList[Index] = value;
-			}
-		}
-
-		public Tile(int index, Environment env)
-		{
-			environment = env;
-
-			Index = index;
-		}
-		public Tile(int x, int y, Environment env)
-		{
-			environment = env;
-
-			X = x;
-			Y = y;
-		}
-		public Tile(Vector2 pos, Environment env)
-		{
-			environment = env;
-
-			World = pos;
-		}
-
-		public static bool operator true(Tile t)
-		{
-			return t.Collision;
-		}
-		public static bool operator false(Tile t)
-		{
-			return !t.Collision;
-		}
-	}
-
-	Map map;
-	TileType[] tileList;
-	int width, height;
-
-	public float Width
-	{
-		get
-		{
-			return width * TILE_SIZE;
-		}
-	}
-
-	public float Height
-	{
-		get
-		{
-			return height * TILE_SIZE;
-		}
-	}
-
-	public Environment(string filename, Map m)
-	{
-		map = m;
-		LoadMap(filename);
-	}
-
-	void LoadMap(string filename)
-	{
-		using (Bitmap bmp = (Bitmap)Image.FromFile("Maps/" + filename + ".png"))
-		{
-			width = bmp.Width;
-			height = bmp.Height;
-
-			tileList = new TileType[width * height];
-
-			List<Vector2> vertexList = new List<Vector2>();
-			List<Vector2> vertexUVList = new List<Vector2>();
-
-			for (int x = 0; x < width; x++)
-				for (int y = 0; y < height; y++)
+				int nmbrOfLayers = reader.ReadInt32();
+				for (int i = 0; i < nmbrOfLayers; i++)
 				{
-					uint data = (uint)bmp.GetPixel(x, height - 1 - y).ToArgb();
-					Tile tile = new Tile(x, y, this);
+					float depth = 0;
 
-					if (data == 0xFF000000)
-						tile.Type = TileType.Solid;
-					else if (data == 0xFFFFFFFF)
-						tile.Type = TileType.Empty;
+					if (i == 0)
+					{
+						int nmbrOfObjects = reader.ReadInt32();
+
+						for (int j = 0; j < nmbrOfObjects; j++)
+							solidList.Add(new EnvSolid(reader, this));
+					}
 					else
-						map.MapObjectLoad(data, tile);
+					{
+						depth = reader.ReadSingle();
+
+						int nmbrOfObjects = reader.ReadInt32();
+
+						for (int j = 0; j < nmbrOfObjects; j++)
+							objectList.Add(new EnvObject(reader, depth, this));
+					}
 				}
+			}
+		}
+
+		public bool GetCollision(Vector2 pos, Vector2 size)
+		{
+			Vector2 sizex = new Vector2(size.X / 2, 0);
+			Vector2 sizey = new Vector2(0, size.Y / 2);
+
+			Polygon p = new Polygon(new Vector2[] {
+				pos + sizex + sizey,
+				pos - sizex + sizey,
+				pos - sizex - sizey,
+				pos + sizex - sizey
+			});
+
+			foreach (EnvSolid solid in solidList)
+				if (solid.GetCollision(p)) return true;
+
+			return false;
+		}
+
+		public void Logic()
+		{
 		}
 	}
 
-	public bool GetCollision(Entity e) { return GetCollision(e.position, e.size); }
-	public bool GetCollision(Vector2 pos, Vector2 size)
+	public class EnvObject
 	{
-		Vector2 sizex = new Vector2(size.X / 2, 0),
-			sizey = new Vector2(0, size.Y / 2);
+		Scene scene;
+		Polygon polygon;
 
-		if (new Tile(pos + sizex + sizey, this)) return true;
-		if (new Tile(pos + sizex - sizey, this)) return true;
-		if (new Tile(pos - sizex + sizey, this)) return true;
-		if (new Tile(pos - sizex - sizey, this)) return true;
-		if (new Tile(pos + sizex, this)) return true;
-		if (new Tile(pos - sizex, this)) return true;
+		float depth;
 
-		return false;
+		public EnvObject(BinaryReader reader, float depth, Scene s)
+		{
+			scene = s;
+			this.depth = depth;
+
+			EnvTemplate t = s.templateList[reader.ReadInt32()];
+
+			polygon = new Polygon(new Vector2[] {
+				new Vector2(reader.ReadSingle(), reader.ReadSingle()),
+				new Vector2(reader.ReadSingle(), reader.ReadSingle()),
+				new Vector2(reader.ReadSingle(), reader.ReadSingle()),
+				new Vector2(reader.ReadSingle(), reader.ReadSingle())
+			});
+		}
 	}
 
-	public void Logic()
+	public class EnvSolid
 	{
+		Scene scene;
+		Polygon polygon;
+
+		public EnvSolid(BinaryReader reader, Scene s)
+		{
+			scene = s;
+			polygon = new Polygon(new Vector2[] {
+				new Vector2(reader.ReadSingle(), reader.ReadSingle()),
+				new Vector2(reader.ReadSingle(), reader.ReadSingle()),
+				new Vector2(reader.ReadSingle(), reader.ReadSingle()),
+				new Vector2(reader.ReadSingle(), reader.ReadSingle())
+			});
+		}
+
+		public bool GetCollision(Polygon p)
+		{
+			return polygon.Intersects(p);
+		}
+	}
+
+	public class EnvTemplate
+	{
+		Scene scene;
+		int tilesetIndex;
+		RectangleF uv;
+
+		public Vector2 Size
+		{
+			get
+			{
+				float ratio = uv.Height / uv.Width;
+
+				if (uv.Width > uv.Height)
+					return new Vector2(1f, ratio);
+				else
+					return new Vector2(1 / ratio, 1f);
+			}
+		}
+
+		public EnvTemplate(BinaryReader reader, Scene s)
+		{
+			scene = s;
+			tilesetIndex = reader.ReadInt32();
+			uv = new RectangleF(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
+		}
+	}
+
+	public class EnvTileset
+	{
+		public EnvTileset(BinaryReader reader)
+		{
+			using (FileStream str = new FileStream("temp", FileMode.Create))
+			{
+				byte[] buffer = new byte[reader.ReadInt32()];
+				reader.Read(buffer, 0, buffer.Length);
+
+				str.Write(buffer, 0, buffer.Length);
+			}
+
+			File.Delete("temp");
+		}
+	}
+
+	public class EnvLayer
+	{
+		float depth;
+
+		public float Depth
+		{
+			get
+			{
+				return depth;
+			}
+			set
+			{
+				depth = value;
+			}
+		}
+
+		public EnvLayer(BinaryReader reader)
+		{
+			Depth = depth;
+		}
 	}
 }

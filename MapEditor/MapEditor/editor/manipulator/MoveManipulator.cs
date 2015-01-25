@@ -160,7 +160,7 @@ namespace MapEditor.Manipulators
 				Vertex closest = null;
 				float closestDistance = 0;
 
-				foreach (EditorObject obj in editor.objectList)
+				foreach (EditorObject obj in editor.ActiveObjects)
 					foreach (Vertex v in obj.Vertices)
 					{
 						if (editor.selectedList.Contains(v)) continue;

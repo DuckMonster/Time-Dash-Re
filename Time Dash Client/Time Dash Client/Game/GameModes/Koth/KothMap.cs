@@ -17,18 +17,6 @@ public class KothMap : Map
 		point.SetName(id, name);
 	}
 
-	public override void MapObjectLoad(uint color, Environment.Tile t)
-	{
-		base.MapObjectLoad(color, t);
-
-		switch (color)
-		{
-			case 0xFFFF0000:
-				point = new KothPoint(t.World + new Vector2(Environment.TILE_SIZE / 2, 0), this);
-				break;
-		}
-	}
-
 	public override void Dispose()
 	{
 		base.Dispose();

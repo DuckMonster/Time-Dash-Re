@@ -33,10 +33,8 @@ namespace MapEditor
 		{
 			gridMesh.Dispose();
 
-			foreach (EditorObject obj in objectList)
-				obj.Dispose();
-
-			objectList.Clear();
+			foreach (Layer l in layerList)
+				l.Dispose();
 
 			foreach (Template t in templateList)
 				t.Dispose();
@@ -68,9 +66,9 @@ namespace MapEditor
 				foreach (Template t in templateList)
 					t.WriteToFile(writer);
 
-				writer.Write(objectList.Count);
-				foreach (EditorObject obj in objectList)
-					obj.WriteToFile(writer);
+				writer.Write(layerList.Count);
+				foreach (Layer l in layerList)
+					l.WriteToFile(writer);
 
 				templateMenu.WriteToFile(writer);
 			}
@@ -88,9 +86,16 @@ namespace MapEditor
 				for (int i = 0; i < templateNmbr; i++)
 					CreateTemplate(reader);
 
-				int objectNmbr = reader.ReadInt32();
-				for (int i = 0; i < objectNmbr; i++)
-					CreateObject(new EditorObject(reader, this));
+				int layerNmbr = reader.ReadInt32();
+				for (int i = 0; i < layerNmbr; i++)
+				{
+					if (i == 0)
+						layerList.Add(new SolidLayer(this));
+					else
+						layerList.Add(new Layer(i, reader.ReadSingle(), this));
+
+					layerList[i].ReadFromFile(reader);
+				}
 
 				templateMenu.ReadFromFile(reader);
 			}

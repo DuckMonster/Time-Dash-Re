@@ -122,22 +122,21 @@ namespace MapEditor.Manipulators
 						Vertex closest = null;
 						float closestDistance = 0;
 
-						foreach (EditorObject obj in editor.objectList)
-							foreach (Vertex v in obj.Vertices)
+						foreach (Vertex v in editor.selectedList)
+						{
+							if (closest == null)
 							{
-								if (closest == null)
-								{
-									closest = v;
-									closestDistance = (v.Position - MouseInput.Current.Position).Length;
-								}
-
-								float vDistance = (v.Position - MouseInput.Current.Position).Length;
-								if (vDistance < closestDistance)
-								{
-									closest = v;
-									closestDistance = vDistance;
-								}
+								closest = v;
+								closestDistance = (v.Position - MouseInput.Current.Position).Length;
 							}
+
+							float vDistance = (v.Position - MouseInput.Current.Position).Length;
+							if (vDistance < closestDistance)
+							{
+								closest = v;
+								closestDistance = vDistance;
+							}
+						}
 
 						snapVertex = closest;
 					}

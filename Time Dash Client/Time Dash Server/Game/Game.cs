@@ -14,7 +14,7 @@ public class Game
 	public static Game currentGame;
 
 	public static EzServer server;
-
+	
 	public static float delta;
 	Stopwatch tickWatch;
 
@@ -42,12 +42,12 @@ public class Game
 		server.OnDebug += OnDebug;
 		server.OnException += OnException;
 
-		LoadMap("temple", GameMode.KingOfTheHill);
+		LoadMap("temple", GameMode.DeathMatch);
 	}
 
 	public void LoadMap(string filename, GameMode mode)
 	{
-		if (!File.Exists("Maps/" + filename + ".png"))
+		if (!File.Exists("Maps/" + filename + ".tdm"))
 		{
 			Log.Write(ConsoleColor.Red, "Map \"" + filename + "\" doesn't exist!");
 			return;

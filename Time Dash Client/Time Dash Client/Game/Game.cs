@@ -148,7 +148,7 @@ public class Game
 
 		if (map != null)
 		{
-			map.environment.Draw();
+			map.scene.Draw();
 			map.Draw();
 		}
 	}

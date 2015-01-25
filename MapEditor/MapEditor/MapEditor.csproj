@@ -59,10 +59,13 @@
     <Compile Include="editor\Editor.cs" />
     <Compile Include="editor\EditorActions.cs" />
     <Compile Include="editor\editorobject\EditorObject.cs" />
+    <Compile Include="editor\editorobject\SolidObject.cs" />
     <Compile Include="editor\editorobject\Template.cs" />
     <Compile Include="editor\editorobject\Vertex.cs" />
     <Compile Include="editor\EditorSaveLoad.cs" />
     <Compile Include="editor\EditorTemplate.cs" />
+    <Compile Include="editor\layer\Layer.cs" />
+    <Compile Include="editor\layer\SolidLayer.cs" />
     <Compile Include="editor\Log.cs" />
     <Compile Include="editor\manipulator\Arrow.cs" />
     <Compile Include="editor\manipulator\Button.cs" />
@@ -102,6 +105,7 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

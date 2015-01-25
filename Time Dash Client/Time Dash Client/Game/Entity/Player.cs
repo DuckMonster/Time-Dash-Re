@@ -193,8 +193,8 @@ public partial class Player : Actor
 		mesh.UV = new Vector2[] {
 			new Vector2(0.5f-w, 0f),
 			new Vector2(0.5f+w, 0f),
-			new Vector2(0.5f-w, 1f),
-			new Vector2(0.5f+w, 1f)
+			new Vector2(0.5f+w, 1f),
+			new Vector2(0.5f-w, 1f)
 		};
 
 		shadow = new PlayerShadow(this, mesh);

@@ -59,7 +59,7 @@ namespace MapEditor.Manipulators
 
 				mesh.Reset();
 
-				mesh.Translate(position);
+				mesh.Translate(position.X, position.Y, Editor.camera.TargetBaseZ);
 				mesh.Scale(4.8f);
 
 				mesh.Draw();
@@ -70,14 +70,14 @@ namespace MapEditor.Manipulators
 				mesh.Color = new Color(0, 0, 0, 0.5f);
 
 				mesh.Reset();
-				mesh.Translate(position);
+				mesh.Translate(position.X, position.Y, Editor.camera.TargetBaseZ);
 				mesh.Scale(5.2f);
 				mesh.Draw();
 
 				mesh.Color = c;
 
 				mesh.Reset();
-				mesh.Translate(position);
+				mesh.Translate(position.X, position.Y, Editor.camera.TargetBaseZ);
 				mesh.Scale(5.2f);
 				mesh.Draw();
 

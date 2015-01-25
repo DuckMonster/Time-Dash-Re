@@ -4,7 +4,6 @@ using OpenTK.Input;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TKTools;
@@ -15,6 +14,7 @@ namespace MapEditor
 	{
 		class TemplateButton : IDisposable
 		{
+			int index;
 			public Template template;
 			TemplateMenu menu;
 			Vector2 offset;
@@ -26,7 +26,7 @@ namespace MapEditor
 			{
 				get
 				{
-					return menu.Position + new Vector2(0, menu.Size.Y/2 - offset.Y) - new Vector2(0, menu.TotalScroll * 1.5f * menu.scrollPosition);
+					return menu.Position + new Vector2(0, menu.Size.Y / 2 - offset.Y + menu.scrollAmount[menu.tabIndex]);
 				}
 			}
 
@@ -38,12 +38,25 @@ namespace MapEditor
 				}
 			}
 
+			public int Index
+			{
+				get
+				{
+					return index;
+				}
+				set
+				{
+					index = value;
+					offset = new Vector2(0f, 1.5f + 1.5f * index);
+				}
+			}
+
 			public TemplateButton(Template t, int index, TemplateMenu menu)
 			{
 				this.menu = menu;
 
+				Index = index;
 				template = t;
-				offset = new Vector2(0f, 1.5f + 1.5f * index);
 				size = t.Size;
 
 				buttonMesh = Mesh.Box;
@@ -67,13 +80,18 @@ namespace MapEditor
 
 			public void Logic()
 			{
-				if (Hovered && MouseInput.ButtonPressed(OpenTK.Input.MouseButton.Left))
-					CloneToMap();
+				if (Hovered)
+				{
+					if (MouseInput.ButtonPressed(MouseButton.Left))
+						CloneToMap();
+					if (MouseInput.ButtonPressed(MouseButton.Right))
+						menu.removeBuffer = this;
+				}
 			}
 
 			public void CloneToMap()
 			{
-				EditorObject obj = new EditorObject(template, menu.editor);
+				EditorObject obj = new EditorObject(menu.editor.ActiveLayer, template, menu.editor);
 				menu.editor.CreateObject(obj);
 				menu.editor.DeselectAll();
 
@@ -88,19 +106,21 @@ namespace MapEditor
 
 			public void Draw()
 			{
+				Vector2 position = Position;
 				DrawBox();
 
-				template.Draw(Position, 1f);
+				template.Draw(position, 1f);
 
 				if (Hovered)
 				{
-					template.Draw(Position + new Vector2(4f, 0f), 5f);
+					template.Draw(position + new Vector2(4f, 0f), 5f);
 				}
 			}
 
 			public void DrawBox()
 			{
 				bool hovered = Hovered;
+				Vector2 position = Position;
 
 				Color c = Color.White;
 
@@ -115,7 +135,7 @@ namespace MapEditor
 				buttonMesh.Color = c;
 				
 				buttonMesh.Reset();
-				buttonMesh.Translate(Position);
+				buttonMesh.Translate(position);
 				buttonMesh.Scale(size);
 
 				buttonMesh.Draw();
@@ -127,7 +147,7 @@ namespace MapEditor
 				buttonMesh.Color = c;
 
 				buttonMesh.Reset();
-				buttonMesh.Translate(Position);
+				buttonMesh.Translate(position);
 				buttonMesh.Scale(size + new Vector2(0.2f, 0.2f));
 
 				buttonMesh.Draw();
@@ -145,11 +165,13 @@ namespace MapEditor
 
 		Mesh menuMesh = Mesh.Box;
 		Mesh tabMesh;
-		Mesh scrollMesh;
 
 		int tabIndex = 0;
 
-		float scrollPosition = 0f;
+		float[] scrollAmount = new float[10];
+		float scrollSpeed = 0f;
+
+		TemplateButton removeBuffer = null;
 
 		Vector2 TargetPosition
 		{
@@ -187,10 +209,17 @@ namespace MapEditor
 		{
 			get
 			{
-				foreach (TemplateButton btn in CurrentTab)
-					if (btn.Hovered) return true;
+				if (GetCollision(MouseInput.Current.PositionOrtho)) return true;
 
 				return false;
+			}
+		}
+
+		public bool TabHovered
+		{
+			get
+			{
+				return GetTabCollision(MouseInput.Current.PositionOrtho);
 			}
 		}
 
@@ -198,19 +227,15 @@ namespace MapEditor
 		{
 			get
 			{
-				return editor.CurrentManipulator.Active;
+				return editor.CurrentManipulator.Active || editor.ActiveLayer.ID == 0;
 			}
 		}
 
-		public float TotalScroll
+		public float ScrollAvailable
 		{
 			get
 			{
-				float sizey = Size.Y;
-
-				float totalButtonSize = CurrentTab.Count * 1.5f;
-				float buttonSizeAvailable = Size.Y / 1.5f;
-				return (float)Math.Max(1, (totalButtonSize - buttonSizeAvailable) / buttonSizeAvailable);
+				return Math.Max(0, (CurrentTab.Count * 1.5f + 1.5f) - Size.Y);
 			}
 		}
 
@@ -234,6 +259,9 @@ namespace MapEditor
 			for (int i = 0; i < tabList.Length; i++)
 				tabList[i] = new List<TemplateButton>();
 
+			for (int i = 0; i < scrollAmount.Length; i++)
+				scrollAmount[i] = 0f;
+
 			tabMesh = new Mesh(PrimitiveType.Quads);
 			tabMesh.UIElement = true;
 			tabMesh.Vertices = new Vector2[] {
@@ -242,11 +270,30 @@ namespace MapEditor
 				new Vector2(1, 0.5f),
 				new Vector2(0, 0.5f)
 			};
-
-			scrollMesh = Mesh.Box;
-			scrollMesh.UIElement = true;
 		}
-		
+
+		public bool GetCollision(Vector2 p)
+		{
+			Vector2 pos = Position;
+			Vector2 size = Size;
+
+			return (p.X > pos.X - size.X / 2 &&
+				p.X < pos.X + size.X / 2 &&
+				p.Y > pos.Y - size.Y / 2 &&
+				p.Y < pos.Y + size.Y / 2);
+		}
+
+		public bool GetTabCollision(Vector2 position)
+		{
+			Vector2 tabSize = new Vector2(0.7f, Size.Y);
+			Vector2 pos = Position + new Vector2(size.X / 2 + tabSize.X / 2, 0);
+
+			return (position.X >= pos.X - tabSize.X / 2 &&
+				position.X <= pos.X + tabSize.X / 2 &&
+				position.Y >= pos.Y - tabSize.Y / 2 &&
+				position.Y <= pos.Y + tabSize.Y / 2);
+		}
+
 		public void Dispose()
 		{
 			foreach (List<TemplateButton> tab in tabList)
@@ -258,7 +305,6 @@ namespace MapEditor
 			}
 
 			tabMesh.Dispose();
-			scrollMesh.Dispose();
 		}
 
 		public void AddTemplate(Template t) { AddTemplate(t, tabIndex); }
@@ -266,6 +312,25 @@ namespace MapEditor
 		{
 			int index = tabList[tabIndex].Count;
 			tabList[tabIndex].Add(new TemplateButton(t, index, this));
+		}
+
+		void RemoveTemplate(TemplateButton tb)
+		{
+			foreach (List<TemplateButton> t in tabList)
+			{
+				if (t.Contains(tb))
+				{
+					int index = t.IndexOf(tb);
+
+					for (int i = index+1; i < t.Count; i++)
+					{
+						t[i].Index -= 1;
+						tb.Dispose();
+					}
+
+					t.Remove(tb);
+				}
+			}
 		}
 
 		public void WriteToFile(BinaryWriter writer)
@@ -306,12 +371,38 @@ namespace MapEditor
 			{
 				if (KeyboardInput.KeyPressed(Key.Down)) tabIndex++;
 				if (KeyboardInput.KeyPressed(Key.Up)) tabIndex--;
-
-				tabIndex = MathHelper.Clamp(tabIndex, 0, tabList.Length - 1);
 			}
+
+			if (MouseInput.Current.Wheel != MouseInput.Previous.Wheel)
+			{
+				if (Hovered)
+				{
+					float delta = MouseInput.Current.Wheel - MouseInput.Previous.Wheel;
+
+					scrollSpeed -= 4.5f * delta;
+				}
+				else if (TabHovered)
+				{
+					tabIndex -= (int)(MouseInput.Current.Wheel - MouseInput.Previous.Wheel);
+				}
+			}
+
+			tabIndex = MathHelper.Clamp(tabIndex, 0, tabList.Length - 1);
+
+			if (scrollSpeed != 0)
+			{
+				scrollAmount[tabIndex] += scrollSpeed * Editor.delta;
+				scrollSpeed -= scrollSpeed * 5 * Editor.delta;
+			}
+
+			scrollAmount[tabIndex] = MathHelper.Clamp(scrollAmount[tabIndex], 0, ScrollAvailable);
+
+			removeBuffer = null;
 
 			foreach (TemplateButton btn in CurrentTab)
 				btn.Logic();
+
+			if (removeBuffer != null) RemoveTemplate(removeBuffer);
 		}
 
 		public void Draw()
@@ -341,12 +432,6 @@ namespace MapEditor
 
 				tabMesh.Draw();
 			}
-
-			tabMesh.Reset();
-			tabMesh.Translate(Position + new Vector2(-Size.X / 2, Size.Y/2 - (1f / TotalScroll)/2 * Size.Y));
-			tabMesh.Scale(0.2f, (1f / TotalScroll) * Size.Y);
-
-			tabMesh.Draw();
 		}
 	}
 }

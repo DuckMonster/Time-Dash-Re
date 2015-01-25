@@ -54,7 +54,7 @@ public class PlayerShadow : IDisposable
 	public PlayerShadow(Player p, Mesh m)
 	{
 		player = p;
-		mesh = new Mesh(PrimitiveType.TriangleStrip);
+		mesh = new Mesh(PrimitiveType.Quads);
 		mesh.Vertices = m.Vertices;
 		mesh.UV = m.UV;
 
@@ -64,7 +64,6 @@ public class PlayerShadow : IDisposable
 
 		circleMesh = Mesh.Box;
 		circleMesh.Texture = circleTexture;
-
 		arrowMesh = new Mesh(PrimitiveType.TriangleStrip);
 
 		arrowMesh.Vertices = new Vector2[] {

@@ -4,6 +4,7 @@ using OpenTK;
 using TKTools;
 using EZUDP;
 using System.Collections.Generic;
+using MapScene;
 
 public class Map : IDisposable
 {
@@ -15,7 +16,7 @@ public class Map : IDisposable
 
 	public int myID;
 	Camera camera;
-	public Environment environment;
+	public Scene scene;
 
 	public Team[] teamList = new Team[10];
 	public Team GetTeam(int id)
@@ -108,7 +109,7 @@ public class Map : IDisposable
 
 		myID = id;
 
-		environment = new Environment(filename, this);
+		scene = new Scene(filename, this);
 		camera = new Camera(this);
 
 		hudDrawer.Write("Hello!", 0.5f, 0.5f, 0.2f);
@@ -134,11 +135,7 @@ public class Map : IDisposable
 	public bool GetCollision(Entity e, Vector2 offset) { return GetCollision(e.position + offset, e.size); }
 	public bool GetCollision(Vector2 pos, Vector2 size)
 	{
-		return environment.GetCollision(pos, size);
-	}
-
-	public virtual void MapObjectLoad(uint color, Environment.Tile t)
-	{
+		return scene.GetCollision(pos, size);
 	}
 
 	public Player GetPlayerAtPos(Vector2 pos, Vector2 size, params Player[] exclude)
@@ -215,7 +212,7 @@ public class Map : IDisposable
 	public virtual void Logic()
 	{
 		camera.Logic();
-		environment.Logic();
+		scene.Logic();
 		 
 		if (LocalPlayer != null) LocalPlayer.LocalInput();
 		foreach (Player p in playerList) if (p != null) p.Logic();

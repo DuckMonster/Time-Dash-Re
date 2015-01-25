@@ -22,15 +22,17 @@ namespace MapEditor
 	{
 		public static ShaderProgram program = new ShaderProgram("shaders/standardShader.glsl"), uiProgram = new ShaderProgram("shaders/standardShader.glsl");
 		public static float screenWidth = 20, screenHeight;
-		public static Camera camera = new Camera();
+		public static Camera camera;
 
 		public static float delta = 0f;
 		Stopwatch tickWatch;
 
 		public Container container;
 
-		public List<EditorObject> objectList = new List<EditorObject>();
+		public List<Layer> layerList = new List<Layer>();
 		public List<Vertex> selectedList = new List<Vertex>(50);
+
+		int selectedLayerIndex = 0;
 
 		Dictionary<EditMode, Manipulator> manipulators = new Dictionary<EditMode, Manipulator>();
 
@@ -68,9 +70,29 @@ namespace MapEditor
 			}
 		}
 
+		public Layer ActiveLayer
+		{
+			get
+			{
+				return layerList[selectedLayerIndex];
+			}
+		}
+
+		public List<EditorObject> ActiveObjects
+		{
+			get
+			{
+				return ActiveLayer.Objects;
+			}
+		}
+
 		public Editor(Container c)
 		{
 			container = c;
+
+			layerList.Add(new SolidLayer(this));
+			layerList.Add(new Layer(1, 0, this));
+
 			Init();
 		}
 
@@ -84,6 +106,8 @@ namespace MapEditor
 
 		public void Init()
 		{
+			camera = new Camera(this);
+
 			templateMenu = new TemplateMenu(this);
 			tilesetList = new TilesetList(this);
 
@@ -123,6 +147,7 @@ namespace MapEditor
 			tilesetList.Logic();
 			templateCreator.Logic();
 			templateMenu.Logic();
+
 			camera.Logic();
 
 			CurrentManipulator.Logic();
@@ -137,6 +162,9 @@ namespace MapEditor
 
 				if (KeyboardInput.KeyPressed(Key.D))
 					DuplicateSelected();
+
+				if (KeyboardInput.KeyPressed(Key.L))
+					CreateLayer(0f);
 			}
 
 			if (!Paused)
@@ -145,11 +173,14 @@ namespace MapEditor
 					DeleteSelected();
 
 				if (MouseInput.ButtonPressed(MouseButton.Right)) DeselectAll();
-				if (MouseInput.ButtonPressed(MouseButton.Left) && !KeyboardInput.Current[Key.AltLeft] && !CurrentManipulator.Hovered && !templateMenu.Hovered)
+				if (MouseInput.ButtonPressed(MouseButton.Left) && !CurrentManipulator.Hovered && !templateMenu.Hovered)
 				{
 					Vertex v = GetVertexAt(MouseInput.Current.Position);
 					EditorObject obj = GetObjectAt(MouseInput.Current.Position);
+					Layer layer = GetHoveredLayer();
 
+					if (layer != null)
+						SetActiveLayer(layer);
 					if (v != null)
 						Select(v);
 					else if (obj != null)
@@ -171,7 +202,7 @@ namespace MapEditor
 
 				if (selectionBox != null) selectionBox.Logic();
 
-				foreach (EditorObject obj in objectList) obj.Logic();
+				ActiveLayer.Logic();
 			}
 		}
 
@@ -201,6 +232,35 @@ namespace MapEditor
 			editMode = em;
 		}
 
+		public Layer GetHoveredLayer()
+		{
+			Layer closestLayer = null;
+
+			foreach (Layer l in layerList)
+			{
+				if (l.ButtonHovered && (closestLayer == null || l.Z < closestLayer.Z))
+					closestLayer = l;
+			}
+
+			return closestLayer;
+		}
+
+		public void CreateLayer(float depth)
+		{
+			layerList.Add(new Layer(layerList.Count, depth, this));
+		}
+
+		public void SetActiveLayer(Layer l)
+		{
+			if (l == ActiveLayer) return;
+
+			selectedLayerIndex = l.ID;
+			DeselectAll();
+
+			gridMesh.Reset();
+			gridMesh.Translate(0, 0, -l.Z);
+		}
+
 		public void CalculateDelta()
 		{
 			if (tickWatch == null) tickWatch = Stopwatch.StartNew();
@@ -211,19 +271,41 @@ namespace MapEditor
 			tickWatch.Restart();
 		}
 
+		Stopwatch frameWatch;
+		float displayFrameFreq = 0.2f;
+		float displayFrameTime = 0f;
+
 		public void Draw()
 		{
-			GL.Clear(ClearBufferMask.ColorBufferBit);
+			if (frameWatch == null)
+				frameWatch = Stopwatch.StartNew();
+			else
+			{
+				frameWatch.Stop();
+				float time = frameWatch.ElapsedTicks / (float)Stopwatch.Frequency;
+				frameWatch.Restart();
+
+				displayFrameTime -= time;
+
+				if (displayFrameTime <= 0)
+				{
+					Console.Clear();
+					Console.WriteLine(1 / time);
+
+					displayFrameTime = displayFrameFreq;
+				}
+			}
+
+			GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+			GL.DepthFunc(DepthFunction.Lequal);
 			program["view"].SetValue(camera.ViewMatrix);
 
-			foreach (EditorObject obj in objectList) obj.Draw();
+			foreach (Layer l in layerList) l.Draw();
 			if (selectionBox != null) selectionBox.Draw();
-			CurrentManipulator.Draw();
-
-			templateMenu.Draw();
-
 			gridMesh.Draw();
 
+			templateMenu.Draw();
+			CurrentManipulator.Draw();
 			templateCreator.Draw();
 		}
 	}

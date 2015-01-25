@@ -11,7 +11,7 @@ namespace MapEditor
 		{
 			using (EditorProgram p = new EditorProgram(1025, 768, new GRFX.GraphicsMode(new GRFX.ColorFormat(32), 24, 8, 3)))
 			{
-				p.Run(80.0, 150.0);
+				p.Run(150.0);
 			}
 		}
 	}

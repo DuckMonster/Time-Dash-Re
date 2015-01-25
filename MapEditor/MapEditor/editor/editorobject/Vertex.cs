@@ -122,7 +122,7 @@ namespace MapEditor
 
 			mesh.Reset();
 
-			mesh.Translate(position);
+			mesh.Translate(position.X, position.Y, Editor.camera.TargetBaseZ);
 			mesh.Scale(0.2f);
 
 			mesh.Draw();
@@ -142,7 +142,7 @@ namespace MapEditor
 
 			mesh.Reset();
 
-			mesh.Translate(position);
+			mesh.Translate(position, Editor.camera.TargetBaseZ);
 			mesh.Scale(0.3f);
 
 			mesh.Draw();

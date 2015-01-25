@@ -5,11 +5,13 @@ using EZUDP.Server;
 using EZUDP;
 using System.Collections.Generic;
 
+using MapScene;
+
 public class Map
 {
 	public static Map currentMap;
 	protected Random rng = new Random();
-	protected Environment environment;
+	protected Scene scene;
 
 	public string filename;
 	public GameMode mode;
@@ -113,7 +115,7 @@ public class Map
 		this.mode = mode;
 
 		currentMap = this;
-		environment = new Environment(filename, this);
+		scene = new Scene(filename, this);
 	}
 
 	public Map(string filename, GameMode mode, Player[] players)
@@ -122,17 +124,13 @@ public class Map
 		this.mode = mode;
 
 		currentMap = this;
-		environment = new Environment(filename, this);
+		scene = new Scene(filename, this);
 
 		foreach (Player p in players)
 		{
 			if (p != null)
 				PlayerJoin(p.client, p.playerName);
 		}
-	}
-
-	public virtual void MapObjectLoad(uint color, Environment.Tile t)
-	{
 	}
 
 	public void PlayerWin(Player p)
@@ -147,12 +145,12 @@ public class Map
 	public bool GetCollision(Entity e, Vector2 offset) { return GetCollision(e.position + offset, e.size); }
 	public bool GetCollision(Vector2 pos, Vector2 size)
 	{
-		return environment.GetCollision(pos, size);
+		return scene.GetCollision(pos, size);
 	}
 
 	public virtual void Logic()
 	{
-		environment.Logic();
+		scene.Logic();
 		foreach (Player p in playerList) if (p != null) p.Logic();
 
 		if (winPlayer != null)
@@ -259,7 +257,7 @@ public class Map
 		do
 		{
 			double x = rng.NextDouble(), y = rng.NextDouble();
-			pos = new Vector2((float)x * environment.Width, (float)y * environment.Height);
+			pos = new Vector2((float)x * scene.Width, (float)y * scene.Height);
 		} while (GetCollision(pos, p.size));
 
 		return pos;
