@@ -16,6 +16,9 @@ namespace MapScene
 		public List<EnvObject> objectList = new List<EnvObject>();
 
 		public float width = 40f, height = 40;
+		public Vector2 originOffset;
+
+		Mesh combinedMesh;
 
 		public float Width
 		{
@@ -81,7 +84,23 @@ namespace MapScene
 						int nmbrOfObjects = reader.ReadInt32();
 
 						for (int j = 0; j < nmbrOfObjects; j++)
-							solidList.Add(new EnvSolid(reader, this));
+						{
+							int type = reader.ReadInt32();
+
+							if (type == 0)
+								solidList.Add(new EnvSolid(reader, this));
+							else
+							{
+								Polygon p = new Polygon(new Vector2[] {
+								new Vector2(reader.ReadSingle(), reader.ReadSingle()),
+								new Vector2(reader.ReadSingle(), reader.ReadSingle()),
+								new Vector2(reader.ReadSingle(), reader.ReadSingle()),
+								new Vector2(reader.ReadSingle(), reader.ReadSingle())
+							});
+
+								map.SceneZone(type, p);
+							}
+						}
 					}
 					else
 					{
@@ -93,6 +112,21 @@ namespace MapScene
 							objectList.Add(new EnvObject(reader, depth, this));
 					}
 				}
+
+				Polygon combinedPoly = new Polygon();
+				foreach (EnvSolid solid in solidList)
+					combinedPoly.AddPoint(solid.polygon);
+
+				RectangleF rect = combinedPoly.Bounds;
+
+				originOffset = new Vector2(rect.X, rect.Y) + new Vector2(rect.Width / 2, rect.Height / 2);
+
+				width = rect.Width;
+				height = rect.Height;
+
+				combinedMesh = new Mesh(OpenTK.Graphics.OpenGL.PrimitiveType.Quads);
+				combinedMesh.Vertices = combinedPoly;
+				combinedMesh.UV = combinedPoly;
 			}
 		}
 
@@ -108,8 +142,10 @@ namespace MapScene
 				pos + sizex - sizey
 			});
 
+			RectangleF pbounds = p.Bounds;
+
 			foreach(EnvSolid solid in solidList)
-				if (solid.GetCollision(p)) return true;
+				if (solid.GetCollision(p, pbounds)) return true;
 
 			return false;
 		}
@@ -120,18 +156,22 @@ namespace MapScene
 
 		public void Draw()
 		{
+			/*
 			foreach (EnvSolid solid in solidList)
 				solid.Draw();
 
 			foreach (EnvObject obj in objectList)
 				obj.Draw();
+			 * */
+
+			combinedMesh.Draw();
 		}
 	}
 
 	public class EnvObject : IDisposable
 	{
 		Scene scene;
-		Polygon polygon;
+		public Polygon polygon;
 		Mesh mesh;
 
 		float depth;
@@ -169,7 +209,9 @@ namespace MapScene
 	public class EnvSolid
 	{
 		Scene scene;
-		Polygon polygon;
+		public Polygon polygon;
+		RectangleF rectangle;
+		Vector2 center;
 
 		Mesh mesh;
 
@@ -185,6 +227,9 @@ namespace MapScene
 
 			mesh = Mesh.Box;
 			mesh.Vertices = polygon;
+
+			rectangle = polygon.Bounds;
+			center = polygon.Center;
 		}
 
 		public void Dispose()
@@ -192,9 +237,14 @@ namespace MapScene
 			mesh.Dispose();
 		}
 
-		public bool GetCollision(Polygon p)
+		public bool GetCollision(Polygon p, RectangleF pb)
 		{
-			return polygon.Intersects(p);
+			//return (pb.X + pb.Width >= rectangle.X &&
+			//	pb.X < rectangle.X + rectangle.Width &&
+			//	pb.Y + pb.Height >= rectangle.Y &&
+			//	pb.Y < rectangle.Y + rectangle.Height);
+
+			return p.Intersects(polygon);
 		}
 
 		public void Draw()

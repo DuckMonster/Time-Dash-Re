@@ -13,7 +13,7 @@ namespace MapEditor.Manipulators
 		{
 			RotateManipulator manipulator;
 			Mesh mesh = Mesh.Box;
-			Texture circleTexture = new Texture("res/circle.png");
+			Texture circleTexture = new Texture(Container.FindLocalFile("res/circle.png"));
 
 			Vector2 position;
 

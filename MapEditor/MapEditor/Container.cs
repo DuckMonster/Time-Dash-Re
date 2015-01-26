@@ -4,6 +4,18 @@ namespace MapEditor
 {
 	public class Container
 	{
+		public static string ExecutableLocation;
+		public static string FindLocalFile(string filename)
+		{
+			string final = "";
+			string[] split = filename.Split('/');
+
+			foreach(string s in split)
+				final += "\\" + s;
+
+			return ExecutableLocation + final;
+		}
+
 		public EditorProgram program;
 		public Editor editor;
 
@@ -21,7 +33,7 @@ namespace MapEditor
 		{
 			string file = editor.FileName;
 
-			if (file == null)
+			if (file == null || KeyboardInput.Current[Key.ShiftLeft])
 			{
 				using (SaveFileDialog dialog = new SaveFileDialog())
 				{
@@ -49,6 +61,12 @@ namespace MapEditor
 					editor = new Editor(dialog.FileName, this);
 				}
 			}
+		}
+
+		public void Load(string path)
+		{
+			DisposeEditor();
+			editor = new Editor(path, this);
 		}
 
 		public void DisposeEditor()

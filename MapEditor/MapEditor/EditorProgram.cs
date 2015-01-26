@@ -10,10 +10,19 @@ namespace MapEditor
 	public class EditorProgram : GameWindow
 	{
 		Container container;
+		string startFile = null;
 
 		public EditorProgram(int w, int h, GRFX.GraphicsMode mode)
 			: base(w, h, mode)
 		{
+		}
+
+		public void OpenFile(string path)
+		{
+			if (container != null)
+				container.Load(path);
+			else
+				startFile = path;
 		}
 
 		protected override void OnLoad(EventArgs e)
@@ -30,6 +39,7 @@ namespace MapEditor
 			VSync = VSyncMode.Off;
 
 			container = new Container(this);
+			if (startFile != null) container.Load(startFile);
 		}
 
 		protected override void OnClosing(System.ComponentModel.CancelEventArgs e)

@@ -8,9 +8,21 @@ namespace MapEditor
 {
 	public class SolidLayer : Layer
 	{
+		public static Color[] colorList = new Color[] {
+			Color.White,
+			Color.Red,
+			Color.Green,
+			Color.Blue,
+			Color.Orange,
+			Color.Yellow
+		};
+
 		Vector2 origin;
 		Vector2 a, b;
 		Mesh creatorMesh;
+		Mesh colorMesh = Mesh.Box;
+
+		int typeIndex = 0;
 
 		public SolidLayer(Editor e)
 			: base(0, 0, e)
@@ -24,6 +36,8 @@ namespace MapEditor
 			};
 
 			creatorMesh.Color = new Color(1, 1, 1, 0.4f);
+
+			colorMesh.UIElement = true;
 		}
 
 		public override void Dispose()
@@ -34,7 +48,7 @@ namespace MapEditor
 
 		public void CreateSolid(Vector2 a, Vector2 b)
 		{
-			SolidObject obj = new SolidObject(this, a, b, editor);
+			SolidObject obj = new SolidObject(this, a, b, typeIndex, editor);
 			objectList.Add(obj);
 
 			obj.Select();
@@ -109,6 +123,13 @@ namespace MapEditor
 			{
 				CreateSolid(a, b);
 			}
+
+			if (KeyboardInput.KeyPressed(Key.Number1)) typeIndex = 0;
+			if (KeyboardInput.KeyPressed(Key.Number2)) typeIndex = 1;
+			if (KeyboardInput.KeyPressed(Key.Number3)) typeIndex = 2;
+			if (KeyboardInput.KeyPressed(Key.Number4)) typeIndex = 3;
+			if (KeyboardInput.KeyPressed(Key.Number5)) typeIndex = 4;
+			if (KeyboardInput.KeyPressed(Key.Number6)) typeIndex = 5;
 		}
 
 		public override void WriteToFile(System.IO.BinaryWriter writer)
@@ -146,10 +167,29 @@ namespace MapEditor
 
 			if (MouseInput.Current[MouseButton.Right])
 			{
+				creatorMesh.Color = colorList[typeIndex] * new Color(1, 1, 1, 0.5f);
+
 				creatorMesh.Reset();
 				creatorMesh.Translate(a);
 				creatorMesh.Scale(b - a);
 				creatorMesh.Draw();
+			}
+
+			if (Active)
+			{
+				Vector2 colorPosition = new Vector2(-Editor.screenWidth / 2 + 1f, Editor.screenHeight / 2 - 1f);
+
+				for (int i = 0; i < colorList.Length; i++)
+				{
+					colorMesh.Color = colorList[i] * new Color(1, 1, 1, typeIndex == i ? 1f : 0.4f);
+
+					colorMesh.Reset();
+
+					colorMesh.Translate(colorPosition + new Vector2(1f * i, 0f));
+					colorMesh.Scale(0.8f);
+
+					colorMesh.Draw();
+				}
 			}
 		}
 	}

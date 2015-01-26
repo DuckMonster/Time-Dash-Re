@@ -16,6 +16,7 @@ namespace MapScene
 		public List<EnvObject> objectList = new List<EnvObject>();
 
 		public float width = 40f, height = 40;
+		public Vector2 originOffset;
 
 		public float Width
 		{
@@ -66,7 +67,23 @@ namespace MapScene
 						int nmbrOfObjects = reader.ReadInt32();
 
 						for (int j = 0; j < nmbrOfObjects; j++)
-							solidList.Add(new EnvSolid(reader, this));
+						{
+							int type = reader.ReadInt32();
+
+							if (type == 0)
+								solidList.Add(new EnvSolid(reader, this));
+							else
+							{
+								Polygon p = new Polygon(new Vector2[] {
+								new Vector2(reader.ReadSingle(), reader.ReadSingle()),
+								new Vector2(reader.ReadSingle(), reader.ReadSingle()),
+								new Vector2(reader.ReadSingle(), reader.ReadSingle()),
+								new Vector2(reader.ReadSingle(), reader.ReadSingle())
+							});
+
+								map.SceneZone(type, p);
+							}
+						}
 					}
 					else
 					{
@@ -78,6 +95,17 @@ namespace MapScene
 							objectList.Add(new EnvObject(reader, depth, this));
 					}
 				}
+
+				Polygon combinedPoly = new Polygon();
+				foreach (EnvSolid solid in solidList)
+					combinedPoly.AddPoint(solid.polygon);
+
+				RectangleF rect = combinedPoly.Bounds;
+
+				originOffset = new Vector2(rect.X, rect.Y) + new Vector2(rect.Width / 2, rect.Height / 2);
+
+				width = rect.Width;
+				height = rect.Height;
 			}
 		}
 
@@ -107,7 +135,7 @@ namespace MapScene
 	public class EnvObject
 	{
 		Scene scene;
-		Polygon polygon;
+		public Polygon polygon;
 
 		float depth;
 
@@ -130,7 +158,7 @@ namespace MapScene
 	public class EnvSolid
 	{
 		Scene scene;
-		Polygon polygon;
+		public Polygon polygon;
 
 		public EnvSolid(BinaryReader reader, Scene s)
 		{

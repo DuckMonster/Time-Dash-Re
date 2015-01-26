@@ -131,6 +131,10 @@ public class Map : IDisposable
 		hudDrawer.Dispose();
 	}
 
+	public virtual void SceneZone(int typeID, Polygon pos)
+	{
+	}
+
 	public bool GetCollision(Entity e) { return GetCollision(e.position, e.size); }
 	public bool GetCollision(Entity e, Vector2 offset) { return GetCollision(e.position + offset, e.size); }
 	public bool GetCollision(Vector2 pos, Vector2 size)

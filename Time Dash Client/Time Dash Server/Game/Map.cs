@@ -6,6 +6,7 @@ using EZUDP;
 using System.Collections.Generic;
 
 using MapScene;
+using TKTools;
 
 public class Map
 {
@@ -139,6 +140,11 @@ public class Map
 		winPlayer = p;
 
 		SendPlayerWin(p);
+	}
+
+	public virtual void SceneZone(int typeID, Polygon p)
+	{
+
 	}
 
 	public bool GetCollision(Entity e) { return GetCollision(e.position, e.size); }

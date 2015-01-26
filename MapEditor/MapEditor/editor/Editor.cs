@@ -20,7 +20,7 @@ namespace MapEditor
 
 	public partial class Editor : IDisposable
 	{
-		public static ShaderProgram program = new ShaderProgram("shaders/standardShader.glsl"), uiProgram = new ShaderProgram("shaders/standardShader.glsl");
+		public static ShaderProgram program = new ShaderProgram(Container.FindLocalFile("shaders/standardShader.glsl")), uiProgram = new ShaderProgram(Container.FindLocalFile("shaders/standardShader.glsl"));
 		public static float screenWidth = 20, screenHeight;
 		public static Camera camera;
 
@@ -40,6 +40,7 @@ namespace MapEditor
 
 		SelectionBox selectionBox;
 		Mesh gridMesh;
+		Mesh originMesh;
 
 		public Manipulator CurrentManipulator
 		{
@@ -135,6 +136,23 @@ namespace MapEditor
 			}
 
 			gridMesh.Vertices = gridVectorList.ToArray();
+
+			originMesh = new Mesh(PrimitiveType.Quads);
+			originMesh.Color = new Color(1, 1, 1, 0.4f);
+
+			gridVectorList.Clear();
+
+			gridVectorList.Add(new Vector2(- 0.02f, -50));
+			gridVectorList.Add(new Vector2(+ 0.02f, -50));
+			gridVectorList.Add(new Vector2(+ 0.02f, 50));
+			gridVectorList.Add(new Vector2(- 0.02f, 50));
+
+			gridVectorList.Add(new Vector2(-50, - 0.02f));
+			gridVectorList.Add(new Vector2(-50, + 0.02f));
+			gridVectorList.Add(new Vector2(50, + 0.02f));
+			gridVectorList.Add(new Vector2(50, - 0.02f));
+
+			originMesh.Vertices = gridVectorList.ToArray();
 
 			templateCreator = new TemplateCreator(this);
 		}
@@ -303,6 +321,7 @@ namespace MapEditor
 			foreach (Layer l in layerList) l.Draw();
 			if (selectionBox != null) selectionBox.Draw();
 			gridMesh.Draw();
+			originMesh.Draw();
 
 			templateMenu.Draw();
 			CurrentManipulator.Draw();

@@ -1,4 +1,5 @@
 ﻿using OpenTK;
+using OpenTK.Graphics.OpenGL;
 using System.Collections.Generic;
 using TKTools;
 
@@ -34,7 +35,7 @@ public class Scoreboard : Entity
 			new Vector2(0.5f, 1f)
 		};
 
-		nameMesh = Mesh.Box;
+		nameMesh = new Mesh(PrimitiveType.TriangleStrip);
 
 		nameMesh.Vertices = new Vector2[] {
 			new Vector2(-0.5f, 0f),

@@ -9,7 +9,6 @@ public class DMMap : Map
 	public DMMap(int id, string filename)
 		: base(id, filename, GameMode.DeathMatch)
 	{
-		scoreboard = new Scoreboard(20, 5f, 6f, new Vector2(5, 5), this);
 	}
 
 	public override void PlayerJoin(int id, string name)
@@ -23,6 +22,16 @@ public class DMMap : Map
 		base.Dispose();
 	}
 
+	public override void SceneZone(int typeID, TKTools.Polygon pos)
+	{
+		base.SceneZone(typeID, pos);
+
+		if (typeID == 1)
+		{
+			scoreboard = new Scoreboard(25, pos.Bounds.Width, pos.Bounds.Height, new Vector2(pos.Bounds.X + pos.Bounds.Width / 2, pos.Bounds.Y), this);
+		}
+	}
+
 	public override void Logic()
 	{
 		base.Logic();
@@ -31,7 +40,7 @@ public class DMMap : Map
 
 	public override void Draw()
 	{
-		//scoreboard.Draw();
+		scoreboard.Draw();
 		base.Draw();
 	}
 

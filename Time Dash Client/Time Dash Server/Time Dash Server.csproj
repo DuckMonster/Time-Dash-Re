@@ -66,8 +66,7 @@
     <Compile Include="Game\Entity\PlayerAbilities.cs" />
     <Compile Include="Game\Entity\PlayerNetwork.cs" />
     <Compile Include="Game\Entity\PlayerShadow.cs" />
-    <Compile Include="Game\EnvironmentOld.cs" />
-    <Compile Include="Game\Environment.cs" />
+    <Compile Include="Game\Scene.cs" />
     <Compile Include="Game\Game.cs" />
     <Compile Include="Game\Team.cs" />
     <Compile Include="Log.cs" />
@@ -82,6 +81,9 @@
   <ItemGroup>
     <None Include="App.config" />
     <None Include="Maps\temple.tdm">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Maps\test.tdm">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

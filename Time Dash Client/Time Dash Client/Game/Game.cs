@@ -70,7 +70,7 @@ public class Game
 
 	public void LoadMap(int id, string filename, GameMode mode)
 	{
-		if (!File.Exists("Maps/" + filename + ".png"))
+		if (!File.Exists("Maps/" + filename + ".tdm"))
 		{
 			Log.Write(ConsoleColor.Red, "Map \"" + filename + "\" doesn't exist!");
 			return;
