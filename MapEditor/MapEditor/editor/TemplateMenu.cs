@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using TKTools;
 
 namespace MapEditor
@@ -84,7 +85,7 @@ namespace MapEditor
 				{
 					if (MouseInput.ButtonPressed(MouseButton.Left))
 						CloneToMap();
-					if (MouseInput.ButtonPressed(MouseButton.Right))
+					if (MouseInput.ButtonPressed(MouseButton.Right) && MessageBox.Show("Are you sure you want to delete this template?", "Please confirm", MessageBoxButtons.YesNo) == DialogResult.Yes)
 						menu.removeBuffer = this;
 				}
 			}
@@ -314,6 +315,16 @@ namespace MapEditor
 			tabList[tabIndex].Add(new TemplateButton(t, index, this));
 		}
 
+		public void RemoveTemplate(Template t)
+		{
+			TemplateButton button = null;
+
+			foreach (List<TemplateButton> tl in tabList)
+				foreach (TemplateButton tb in tl)
+					if (tb.template == t) button = tb;
+
+			if (button != null) RemoveTemplate(button);
+		}
 		void RemoveTemplate(TemplateButton tb)
 		{
 			foreach (List<TemplateButton> t in tabList)
@@ -326,6 +337,7 @@ namespace MapEditor
 					{
 						t[i].Index -= 1;
 						tb.Dispose();
+						editor.DeleteTemplate(tb.template);
 					}
 
 					t.Remove(tb);
@@ -389,7 +401,7 @@ namespace MapEditor
 
 			tabIndex = MathHelper.Clamp(tabIndex, 0, tabList.Length - 1);
 
-			if (scrollSpeed != 0)
+			if (Math.Abs(scrollSpeed) > 0.001f)
 			{
 				scrollAmount[tabIndex] += scrollSpeed * Editor.delta;
 				scrollSpeed -= scrollSpeed * 5 * Editor.delta;

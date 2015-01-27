@@ -9,6 +9,7 @@ namespace MapEditor
 {
 	using Manipulators;
 	using System;
+	using System.Windows.Forms;
 
 	public enum EditMode
 	{
@@ -32,15 +33,22 @@ namespace MapEditor
 		public List<Layer> layerList = new List<Layer>();
 		public List<Vertex> selectedList = new List<Vertex>(50);
 
+		LayerCreator layerCreator;
+
 		int selectedLayerIndex = 0;
 
 		Dictionary<EditMode, Manipulator> manipulators = new Dictionary<EditMode, Manipulator>();
 
 		public EditMode editMode = EditMode.Move;
 
+		Background background;
+
 		SelectionBox selectionBox;
-		Mesh gridMesh;
-		Mesh originMesh;
+		public Mesh gridMesh;
+		public Mesh originMesh;
+		bool showGrid = true;
+
+		public bool preview = false;
 
 		public Manipulator CurrentManipulator
 		{
@@ -67,7 +75,7 @@ namespace MapEditor
 		{
 			get
 			{
-				return !CurrentManipulator.Active && (KeyboardInput.Current[Key.LAlt] || templateMenu.Hovered || templateCreator.Active);
+				return !CurrentManipulator.Active && (KeyboardInput.Current[Key.LAlt] || templateMenu.Hovered || templateCreator.Active || layerCreator.Active);
 			}
 		}
 
@@ -108,6 +116,7 @@ namespace MapEditor
 		public void Init()
 		{
 			camera = new Camera(this);
+			background = new Background();
 
 			templateMenu = new TemplateMenu(this);
 			tilesetList = new TilesetList(this);
@@ -155,6 +164,7 @@ namespace MapEditor
 			originMesh.Vertices = gridVectorList.ToArray();
 
 			templateCreator = new TemplateCreator(this);
+			layerCreator = new LayerCreator(this);
 		}
 
 		public void Logic()
@@ -165,28 +175,41 @@ namespace MapEditor
 			tilesetList.Logic();
 			templateCreator.Logic();
 			templateMenu.Logic();
+			layerCreator.Logic();
 
 			camera.Logic();
 
 			CurrentManipulator.Logic();
 
-			if (KeyboardInput.Current[Key.LControl])
-			{
-				if (KeyboardInput.KeyPressed(Key.Z))
-					Undo();
-
-				if (KeyboardInput.KeyPressed(Key.Y))
-					Redo();
-
-				if (KeyboardInput.KeyPressed(Key.D))
-					DuplicateSelected();
-
-				if (KeyboardInput.KeyPressed(Key.L))
-					CreateLayer(0f);
-			}
-
 			if (!Paused)
 			{
+				if (KeyboardInput.Current[Key.LControl])
+				{
+					if (KeyboardInput.KeyPressed(Key.Z))
+						Undo();
+
+					if (KeyboardInput.KeyPressed(Key.Y))
+						Redo();
+
+					if (KeyboardInput.KeyPressed(Key.D))
+						DuplicateSelected();
+
+					if (KeyboardInput.KeyPressed(Key.B))
+						background.LoadTexture();
+
+					if (KeyboardInput.KeyPressed(Key.Delete) && MessageBox.Show("Are you sure you want to delete this layer?", "Please confirm", MessageBoxButtons.YesNo) == DialogResult.Yes)
+						DeleteLayer(ActiveLayer);
+				}
+
+				if (KeyboardInput.KeyPressed(Key.G) && !KeyboardInput.Current[Key.LControl])
+					showGrid = !showGrid;
+
+				if (KeyboardInput.KeyPressed(Key.B) && !KeyboardInput.Current[Key.LControl])
+					background.show = !background.show;
+
+				if (KeyboardInput.KeyPressed(Key.L) && !KeyboardInput.Current[Key.LControl])
+					preview = !preview;
+
 				if (KeyboardInput.KeyPressed(Key.Delete))
 					DeleteSelected();
 
@@ -229,7 +252,8 @@ namespace MapEditor
 			float ratio = size.Y / size.X;
 			screenHeight = screenWidth * ratio;
 
-			Matrix4 proj = Matrix4.CreatePerspectiveOffCenter(-screenWidth / 2, screenWidth / 2, -screenHeight / 2, screenHeight / 2, 1f, 1000);
+			//Matrix4 proj = Matrix4.CreatePerspectiveOffCenter(-screenWidth / 2, screenWidth / 2, -screenHeight / 2, screenHeight / 2, 1f, 1000);
+			Matrix4 proj = Matrix4.CreatePerspectiveOffCenter(-1, 1, -ratio, ratio, 1f, 1000);
 			program["projection"].SetValue(proj);
 			uiProgram["projection"].SetValue(Matrix4.CreateOrthographic(screenWidth, screenHeight, 1f, 1000));
 			uiProgram["view"].SetValue(Matrix4.LookAt(new Vector3(0, 0, 2), Vector3.Zero, Vector3.UnitY));
@@ -265,7 +289,9 @@ namespace MapEditor
 
 		public void CreateLayer(float depth)
 		{
-			layerList.Add(new Layer(layerList.Count, depth, this));
+			Layer l = new Layer(layerList.Count, depth, this);
+			layerList.Add(l);
+			SetActiveLayer(l);
 		}
 
 		public void SetActiveLayer(Layer l)
@@ -277,6 +303,22 @@ namespace MapEditor
 
 			gridMesh.Reset();
 			gridMesh.Translate(0, 0, -l.Z);
+
+			originMesh.Reset();
+			originMesh.Translate(0, 0, -l.Z);
+		}
+
+		public void DeleteLayer(Layer l)
+		{
+			if (l.ID == 0) return;
+			if (l == ActiveLayer) SetActiveLayer(layerList[0]);
+
+			l.Dispose();
+
+			for (int i = l.ID; i < layerList.Count; i++)
+				layerList[i].ID--;
+
+			layerList.Remove(l);
 		}
 
 		public void CalculateDelta()
@@ -285,7 +327,7 @@ namespace MapEditor
 
 			tickWatch.Stop();
 			delta = tickWatch.ElapsedTicks / (float)Stopwatch.Frequency;
-			if (delta > 0.2f) delta = 0;
+			if (delta > 0.2f) delta = 0f;
 			tickWatch.Restart();
 		}
 
@@ -318,14 +360,22 @@ namespace MapEditor
 			GL.DepthFunc(DepthFunction.Lequal);
 			program["view"].SetValue(camera.ViewMatrix);
 
+			background.Draw();
+
 			foreach (Layer l in layerList) l.Draw();
 			if (selectionBox != null) selectionBox.Draw();
-			gridMesh.Draw();
-			originMesh.Draw();
+
+			if (showGrid && !layerCreator.Active)
+			{
+				gridMesh.Draw();
+				originMesh.Draw();
+			}
 
 			templateMenu.Draw();
 			CurrentManipulator.Draw();
 			templateCreator.Draw();
+
+			layerCreator.Draw();
 		}
 	}
 }

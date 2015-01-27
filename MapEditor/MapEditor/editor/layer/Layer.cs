@@ -29,6 +29,10 @@ namespace MapEditor
 			{
 				return id;
 			}
+			set
+			{
+				id = value;
+			}
 		}
 
 		public bool Active
@@ -45,7 +49,7 @@ namespace MapEditor
 			{
 				float splitx = ((1f / SplitNmbr) * SplitIndex + 0.05f) * ButtonMaxSize.X;
 
-				return new Vector2(Editor.screenWidth / 2 - 2f - zposition * 0.8f - ButtonMaxSize.X/2 + splitx, -Editor.screenHeight/2 + 2f + zposition * 0.8f);
+				return new Vector2(Editor.screenWidth / 2 - 2f - zposition * 0.08f - ButtonMaxSize.X/2 + splitx, -Editor.screenHeight/2 + 2f + zposition * 0.08f);
 			}
 		}
 
@@ -53,7 +57,7 @@ namespace MapEditor
 		{
 			get
 			{
-				return new Vector2(1, 0.7f) * (3f - zposition);
+				return new Vector2(1, 0.7f) * (3f - zposition * 0.1f);
 			}
 		}
 
@@ -90,7 +94,7 @@ namespace MapEditor
 				int nmbrOfLayers = 0;
 
 				foreach (Layer l in editor.layerList)
-					if (l.Z == Z) nmbrOfLayers++;
+					if (Math.Abs(l.Z - Z) < 6) nmbrOfLayers++;
 
 				return nmbrOfLayers;
 			}
@@ -112,7 +116,7 @@ namespace MapEditor
 
 				for (int i = 0; i < editor.layerList.Count; i++)
 				{
-					if (editor.layerList[i].Z != Z) continue;
+					if (Math.Abs(editor.layerList[i].Z - Z) >= 6) continue;
 
 					if (editor.layerList[i].ID > ID) index++;
 				}

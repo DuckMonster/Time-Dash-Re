@@ -34,7 +34,7 @@ namespace MapEditor
 
 			public Vector2 GetPositionAtZ(float z)
 			{
-				return new Vector2(X, Y) * (Editor.camera.Position.Z - z) + Editor.camera.Position.Xy;
+				return new Vector2(X / Editor.screenWidth * 2, Y / Editor.screenWidth * 2) * (Editor.camera.Position.Z - z) + Editor.camera.Position.Xy;
 			}
 
 			public float X

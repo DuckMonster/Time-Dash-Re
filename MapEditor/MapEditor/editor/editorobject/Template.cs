@@ -9,6 +9,8 @@ namespace MapEditor
 {
 	public class Template : IDisposable
 	{
+		public List<EditorObject> references = new List<EditorObject>();
+
 		Editor editor;
 
 		int id;
@@ -22,6 +24,10 @@ namespace MapEditor
 			get
 			{
 				return id;
+			}
+			set
+			{
+				id = value;
 			}
 		}
 
@@ -81,6 +87,8 @@ namespace MapEditor
 			this.tilesetIndex = tilesetIndex;
 			this.uv = uv;
 
+			editor.tilesetList[tilesetIndex].references.Add(this);
+
 			displayMesh = Mesh;
 			displayMesh.UIElement = true;
 		}
@@ -93,6 +101,8 @@ namespace MapEditor
 
 			tilesetIndex = reader.ReadInt32();
 			uv = new RectangleF(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
+
+			editor.tilesetList[tilesetIndex].references.Add(this);
 
 			displayMesh = Mesh;
 			displayMesh.UIElement = true;

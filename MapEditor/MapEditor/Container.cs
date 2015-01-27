@@ -92,7 +92,7 @@ namespace MapEditor
 
 			if (editor != null)
 			{
-				string fn = editor.FileName == null ? "Unnamed" : editor.FileName;
+				string fn = editor.FileName == null ? "Untitled" : editor.FileName;
 
 				if (editor.SaveFlag) fn += " *";
 				program.Title = fn + " - Map Editor";

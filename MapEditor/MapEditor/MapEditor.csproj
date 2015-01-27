@@ -55,6 +55,7 @@
   <ItemGroup>
     <Compile Include="Container.cs" />
     <Compile Include="editor\Action.cs" />
+    <Compile Include="editor\Background.cs" />
     <Compile Include="editor\Camera.cs" />
     <Compile Include="editor\Editor.cs" />
     <Compile Include="editor\EditorActions.cs" />
@@ -65,6 +66,7 @@
     <Compile Include="editor\EditorSaveLoad.cs" />
     <Compile Include="editor\EditorTemplate.cs" />
     <Compile Include="editor\layer\Layer.cs" />
+    <Compile Include="editor\layer\LayerCreator.cs" />
     <Compile Include="editor\layer\SolidLayer.cs" />
     <Compile Include="editor\Log.cs" />
     <Compile Include="editor\manipulator\Arrow.cs" />

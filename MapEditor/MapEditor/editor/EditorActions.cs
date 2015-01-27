@@ -66,12 +66,16 @@ namespace MapEditor
 			}
 
 			foreach (EditorObject obj in deletedObjects)
-			{
-				ActiveObjects.Remove(obj);
-				Deselect(obj.Vertices);
+				DeleteObject(obj);
+		}
 
-				obj.Dispose();
-			}
+		public void DeleteObject(EditorObject obj)
+		{
+			obj.layer.Objects.Remove(obj);
+			Deselect(obj.Vertices);
+
+			obj.template.references.Remove(obj);
+			obj.Dispose();
 		}
 
 		public void CreateObject(EditorObject obj)

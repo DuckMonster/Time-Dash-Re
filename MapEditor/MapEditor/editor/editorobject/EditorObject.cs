@@ -13,15 +13,15 @@ namespace MapEditor
 		protected Vertex[] vertices = new Vertex[4];
 		public Mesh mesh;
 
-		protected Layer layer;
+		public Layer layer;
 
-		Template template;
+		public Template template;
 
 		public bool Hovered
 		{
 			get
 			{
-				if (!Active || editor.CurrentManipulator.Active || editor.CurrentManipulator.Hovered || editor.Paused) return false;
+				if (!Active || editor.CurrentManipulator.Active || editor.CurrentManipulator.Hovered || editor.Paused || editor.preview) return false;
 
 				foreach (Vertex v in vertices)
 					if (v.Hovered) return false;
@@ -63,7 +63,7 @@ namespace MapEditor
 		{
 			get
 			{
-				return layer.Active;
+				return layer.Active || editor.preview;
 			}
 		}
 
@@ -100,6 +100,8 @@ namespace MapEditor
 				vertices[i] = new Vertex(copy.vertices[i].Position, copy.vertices[i].UV, e);
 
 			mesh.Texture = copy.mesh.Texture;
+
+			template.references.Add(this);
 		}
 
 		public EditorObject(Layer layer, Template template, Editor e)
@@ -132,6 +134,8 @@ namespace MapEditor
 
 			for (int i = 0; i < vertices.Length; i++)
 				vertices[i] = new Vertex(mesh.Vertices[i], mesh.UV[i], editor);
+
+			t.references.Add(this);
 		}
 
 		public void Dispose()
@@ -177,7 +181,7 @@ namespace MapEditor
 
 		public virtual void Draw()
 		{
-			if (layer.Z < editor.ActiveLayer.Z) return;
+			if (layer.Z < editor.ActiveLayer.Z && !editor.preview) return;
 
 			GL.Enable(EnableCap.DepthTest);
 			mesh.Color = Color;
@@ -195,7 +199,7 @@ namespace MapEditor
 				mesh.Draw();
 			}
 
-			if (Active) DrawVertices();
+			if (Active && !editor.preview) DrawVertices();
 		}
 
 		public void DrawVertices()

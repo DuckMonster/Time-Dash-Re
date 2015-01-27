@@ -52,6 +52,8 @@ namespace MapEditor
 
 		public void Draw()
 		{
+			mesh.Reset();
+			mesh.Translate(0, 0, -editor.ActiveLayer.Z);
 			mesh.Draw();
 		}
 	}

@@ -34,5 +34,21 @@ namespace MapEditor
 		{
 			templateList.Add(t);
 		}
+
+		public void DeleteTemplate(Template t)
+		{
+			if (!templateList.Contains(t)) return;
+
+			for (int i = t.ID; i < templateList.Count; i++)
+				templateList[i].ID--;
+
+			templateList.Remove(t);
+
+			EditorObject[] refe = t.references.ToArray();
+			foreach (EditorObject obj in refe)
+				DeleteObject(obj);
+
+			t.Dispose();
+		}
 	}
 }

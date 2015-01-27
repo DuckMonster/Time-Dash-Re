@@ -1,5 +1,6 @@
 ﻿using OpenTK;
 using OpenTK.Input;
+using System;
 namespace MapEditor
 {
 	public class Camera
@@ -15,7 +16,7 @@ namespace MapEditor
 		{
 			get
 			{
-				return Matrix4.LookAt(position + new Vector3(0, 0, baseZ), new Vector3(position.X, position.Y, 0), Vector3.UnitY);
+				return Matrix4.LookAt(position + new Vector3(0, 0, baseZ), new Vector3(position.X, position.Y, baseZ), Vector3.UnitY);
 			}
 		}
 
@@ -46,11 +47,11 @@ namespace MapEditor
 			{
 				if (MouseInput.Current[OpenTK.Input.MouseButton.Middle] || (KeyboardInput.Current[OpenTK.Input.Key.LAlt] && MouseInput.Current[OpenTK.Input.MouseButton.Left]))
 				{
-					position.Xy -= (MouseInput.Current.PositionOrtho - MouseInput.Previous.PositionOrtho) * position.Z;
+					position.Xy -= (MouseInput.Current.Position - MouseInput.Previous.Position);
 				}
 				if (KeyboardInput.Current[Key.LAlt] && MouseInput.ButtonPressed(MouseButton.Right))
 				{
-					mouseZoomPositionOrigin = MouseInput.Current.PositionOrtho;
+					mouseZoomPositionOrigin = MouseInput.Current.Position;
 					mouseZoomOrigin = position.Z;
 				}
 				if (KeyboardInput.Current[Key.LAlt] && MouseInput.Current[MouseButton.Right])
@@ -68,14 +69,19 @@ namespace MapEditor
 			}
 
 			baseZ += (TargetBaseZ - baseZ) * 5f * Editor.delta;
+			if (Math.Abs(TargetBaseZ - baseZ) < 0.1f) baseZ = TargetBaseZ;
 
-			if (scrollSpeed != 0)
+			if (Math.Abs(scrollSpeed) > 0.001f)
 			{
-				position.Z += scrollSpeed * Editor.delta;
+				position.Z += scrollSpeed * position.Z * 0.8f * Editor.delta;
 				scrollSpeed -= scrollSpeed * 5 * Editor.delta;
 			}
 
-			if (position.Z < 1f + baseZ) position.Z = 1f + baseZ;
+			if (position.Z < 1.01f) position.Z = 1.01f;
+
+			Console.Clear();
+			Console.WriteLine(position.Z + baseZ);
+			Console.WriteLine(editor.ActiveLayer.Z);
 		}
 	}
 }

@@ -4,6 +4,7 @@ using OpenTK.Graphics.OpenGL;
 using TKTools;
 using DRAW = System.Drawing;
 using System;
+using System.Windows.Forms;
 
 namespace MapEditor
 {
@@ -69,8 +70,8 @@ namespace MapEditor
 			{
 				if (!KeyboardInput.Current[Key.LAlt])
 				{
-					if (MouseInput.ButtonPressed(MouseButton.Left)) a = (MouseInput.Current.PositionOrtho - creator.Position) / creator.Size.X;
-					if (MouseInput.Current[MouseButton.Left]) b = (MouseInput.Current.PositionOrtho - creator.Position) / creator.Size.Y;
+					if (MouseInput.ButtonPressed(MouseButton.Left)) a = (MouseInput.Current.PositionOrtho - creator.Position) * new Vector2(1 / creator.Size.X, 1 / creator.Size.Y);
+					if (MouseInput.Current[MouseButton.Left]) b = (MouseInput.Current.PositionOrtho - creator.Position) * new Vector2(1 / creator.Size.X, 1 / creator.Size.Y);
 				}
 
 				a = Vector2.Clamp(a, new Vector2(-0.5f, -0.5f), new Vector2(0.5f, 0.5f));
@@ -78,8 +79,18 @@ namespace MapEditor
 
 				if (KeyboardInput.KeyPressed(Key.Enter) && Active)
 				{
-					creator.editor.CreateTemplate(creator.tilesetIndex, UV);
-					Active = false;
+					DRAW.RectangleF uv = UV;
+
+					float right, left, up, down;
+					creator.CurrentTileset.GetOpaqueOffset(uv, out left, out right, out up, out down);
+
+					System.Drawing.RectangleF uvOpaque = new DRAW.RectangleF(uv.X + left, uv.Y + up, uv.Width - right - left, uv.Height - down - up);
+
+					if (uvOpaque.Width * creator.CurrentTileset.Width > 1f && uvOpaque.Height * creator.CurrentTileset.Height > 1f)
+					{
+						creator.editor.CreateTemplate(creator.tilesetIndex, uvOpaque);
+						Active = false;
+					}
 				}
 
 				DRAW.RectangleF meshRect = UV;
@@ -220,7 +231,10 @@ namespace MapEditor
 			if (KeyboardInput.KeyPressed(Key.N))
 				editor.tilesetList.PromptLoad();
 
-			if (KeyboardInput.KeyPressed(Key.Delete))
+			if (KeyboardInput.KeyPressed(Key.R))
+				CurrentTileset.LoadNewFile();
+
+			if (KeyboardInput.KeyPressed(Key.Delete) && MessageBox.Show("Are you sure you want to delete this tileset?", "Please confirm", MessageBoxButtons.YesNo) == DialogResult.Yes)
 				RemoveTileset(CurrentTileset);
 
 			if (KeyboardInput.KeyPressed(Key.Escape))
@@ -242,11 +256,11 @@ namespace MapEditor
 			if (MouseInput.Current[MouseButton.Middle])
 				positionOffset += MouseInput.Current.PositionOrtho - MouseInput.Previous.PositionOrtho;
 
-			zoomSpeed += (MouseInput.Current.Wheel - MouseInput.Previous.Wheel) * 0.2f;
+			zoomSpeed += (MouseInput.Current.Wheel - MouseInput.Previous.Wheel) * 0.5f;
 
 			zoom += zoomSpeed * 5 * Editor.delta;
 			zoomSpeed -= zoomSpeed * 5 * Editor.delta;
-			zoom = MathHelper.Clamp(zoom, 0.4f, 5f);
+			zoom = MathHelper.Clamp(zoom, 1f, 5f);
 		}
 
 		public void SwitchTileset(int delta)

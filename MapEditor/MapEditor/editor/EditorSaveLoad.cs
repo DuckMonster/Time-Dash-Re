@@ -60,6 +60,8 @@ namespace MapEditor
 
 			using (BinaryWriter writer = new BinaryWriter(new FileStream(path, FileMode.Create)))
 			{
+				background.WriteToFile(writer);
+
 				tilesetList.WriteToFile(writer);
 
 				writer.Write(templateList.Count);
@@ -80,6 +82,8 @@ namespace MapEditor
 
 			using (BinaryReader reader = new BinaryReader(new FileStream(path, FileMode.Open)))
 			{
+				background.ReadFromFile(reader);
+
 				tilesetList.ReadFromFile(reader);
 
 				int templateNmbr = reader.ReadInt32();

@@ -65,7 +65,7 @@ namespace MapEditor
 
 		public override void Draw()
 		{
-			if (layer.Z < editor.ActiveLayer.Z) return;
+			if (layer.Z < editor.ActiveLayer.Z || editor.preview) return;
 
 			GL.Enable(EnableCap.DepthTest);
 			mesh.Color = Color;
