@@ -152,6 +152,8 @@ namespace MapEditor
 
 		public override void Draw()
 		{
+			if (editor.preview) return;
+
 			foreach (EditorObject obj in objectList)
 				obj.Draw();
 

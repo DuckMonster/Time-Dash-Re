@@ -155,6 +155,14 @@ namespace MapEditor
 				vectorList[i] = vertices[i].Position;
 
 			mesh.Vertices = vectorList;
+
+			Vector2 center = mesh.Polygon.Center;
+			for (int i = 0; i < vectorList.Length; i++)
+			{
+				vectorList[i] = (vectorList[i] - center) * 1.03f + center;
+			}
+
+			mesh.Vertices = vectorList;
 		}
 
 		public virtual void Logic()
