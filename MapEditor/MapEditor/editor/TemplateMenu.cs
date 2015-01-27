@@ -13,7 +13,7 @@ namespace MapEditor
 {
 	public class TemplateMenu : IDisposable
 	{
-		class TemplateButton : IDisposable
+		public class TemplateButton : IDisposable
 		{
 			int index;
 			public Template template;
@@ -87,6 +87,12 @@ namespace MapEditor
 						CloneToMap();
 					if (MouseInput.ButtonPressed(MouseButton.Right) && MessageBox.Show("Are you sure you want to delete this template?", "Please confirm", MessageBoxButtons.YesNo) == DialogResult.Yes)
 						menu.removeBuffer = this;
+
+					if (KeyboardInput.KeyPressed(Key.R))
+					{
+						menu.editor.templateCreator.replaceReference = this;
+						menu.editor.templateCreator.Active = true;
+					}
 				}
 			}
 

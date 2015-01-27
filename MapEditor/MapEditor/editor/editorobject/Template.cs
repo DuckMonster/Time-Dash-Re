@@ -79,6 +79,24 @@ namespace MapEditor
 			}
 		}
 
+		public RectangleF UV
+		{
+			get
+			{
+				return uv;
+			}
+			set
+			{
+				uv = value;
+				foreach (EditorObject obj in references)
+					obj.mesh.UV = Mesh.UV;
+
+				if (displayMesh != null) displayMesh.Dispose();
+				displayMesh = Mesh;
+				displayMesh.UIElement = true;
+			}
+		}
+
 		public Template(int tilesetIndex, RectangleF uv, int id, Editor e)
 		{
 			editor = e;

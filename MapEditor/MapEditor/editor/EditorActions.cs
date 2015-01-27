@@ -74,7 +74,8 @@ namespace MapEditor
 			obj.layer.Objects.Remove(obj);
 			Deselect(obj.Vertices);
 
-			obj.template.references.Remove(obj);
+			if (obj.template != null)
+				obj.template.references.Remove(obj);
 			obj.Dispose();
 		}
 

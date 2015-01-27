@@ -88,7 +88,21 @@ namespace MapEditor
 
 					if (uvOpaque.Width * creator.CurrentTileset.Width > 1f && uvOpaque.Height * creator.CurrentTileset.Height > 1f)
 					{
-						creator.editor.CreateTemplate(creator.tilesetIndex, uvOpaque);
+						if (creator.replaceReference == null)
+						{
+							creator.editor.CreateTemplate(creator.tilesetIndex, uvOpaque);
+							Active = false;
+						}
+						else
+						{
+							Template t = creator.replaceReference.template;
+
+							t.UV = uvOpaque;
+							creator.Active = false;
+
+							creator.replaceReference = null;
+						}
+
 						Active = false;
 					}
 				}
@@ -133,6 +147,8 @@ namespace MapEditor
 
 		float zoom = 1f, zoomSpeed = 0f;
 		Vector2 positionOffset = Vector2.Zero;
+
+		public TemplateMenu.TemplateButton replaceReference;
 
 		public bool Active
 		{
