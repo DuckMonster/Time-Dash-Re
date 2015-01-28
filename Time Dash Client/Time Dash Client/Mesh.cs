@@ -78,8 +78,10 @@ public class Mesh : IDisposable
 
 	PrimitiveType primitiveType;
 
-	VBO<Vector2> vertexBuffer, uvBuffer;
-	List<Vector2> vertexList = new List<Vector2>(), uvList = new List<Vector2>();
+	VBO<Vector3> vertexBuffer;
+	VBO<Vector2> uvBuffer;
+	List<Vector3> vertexList = new List<Vector3>();
+	List<Vector2> uvList = new List<Vector2>();
 	Matrix4 modelMatrix = Matrix4.Identity;
 
 	Color color = Color.White;
@@ -114,6 +116,27 @@ public class Mesh : IDisposable
 	}
 
 	public Vector2[] Vertices
+	{
+		set
+		{
+			Vector3[] vect3D = new Vector3[value.Length];
+			for (int i = 0; i < vect3D.Length; i++)
+				vect3D[i] = new Vector3(value[i].X, value[i].Y, 0);
+
+			Vertices3D = vect3D;
+		}
+		get
+		{
+			Vector3[] vect3D = Vertices3D;
+			Vector2[] vect2D = new Vector2[vect3D.Length];
+
+			for (int i = 0; i < vect2D.Length; i++)
+				vect2D[i] = vect3D[i].Xy;
+
+			return vect2D;
+		}
+	}
+	public Vector3[] Vertices3D
 	{
 		set
 		{
@@ -177,26 +200,45 @@ public class Mesh : IDisposable
 	{
 		primitiveType = pt;
 
-		vertexBuffer = new VBO<Vector2>();
+		vertexBuffer = new VBO<Vector3>();
 		uvBuffer = new VBO<Vector2>();
 	}
 	public Mesh(Vector2[] vertices, PrimitiveType pt)
 	{
 		primitiveType = pt;
 
-		vertexBuffer = new VBO<Vector2>();
+		vertexBuffer = new VBO<Vector3>();
 		uvBuffer = new VBO<Vector2>();
 
 		Vertices = vertices;
+	}
+	public Mesh(Vector3[] vertices, PrimitiveType pt)
+	{
+		primitiveType = pt;
+
+		vertexBuffer = new VBO<Vector3>();
+		uvBuffer = new VBO<Vector2>();
+
+		Vertices3D = vertices;
 	}
 	public Mesh(Vector2[] vertices, Vector2[] uvs, PrimitiveType pt)
 	{
 		primitiveType = pt;
 
-		vertexBuffer = new VBO<Vector2>();
+		vertexBuffer = new VBO<Vector3>();
 		uvBuffer = new VBO<Vector2>();
 
 		Vertices = vertices;
+		UV = uvs;
+	}
+	public Mesh(Vector3[] vertices, Vector2[] uvs, PrimitiveType pt)
+	{
+		primitiveType = pt;
+
+		vertexBuffer = new VBO<Vector3>();
+		uvBuffer = new VBO<Vector2>();
+
+		Vertices3D = vertices;
 		UV = uvs;
 	}
 	public Mesh(TextDrawer td)
@@ -217,7 +259,7 @@ public class Mesh : IDisposable
 			w = 1f;
 		}
 
-		vertexBuffer = new VBO<Vector2>();
+		vertexBuffer = new VBO<Vector3>();
 		Vertices = new Vector2[] {
 			new Vector2(-w, h)/2,
 			new Vector2(w, h)/2,

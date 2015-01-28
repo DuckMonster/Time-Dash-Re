@@ -78,10 +78,6 @@ namespace MapEditor
 			}
 
 			if (position.Z < 1.01f) position.Z = 1.01f;
-
-			Console.Clear();
-			Console.WriteLine(position.Z + baseZ);
-			Console.WriteLine(editor.ActiveLayer.Z);
 		}
 	}
 }

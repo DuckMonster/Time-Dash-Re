@@ -68,9 +68,11 @@ public class Game
 		}
 	}
 
-	public void LoadMap(int id, string filename, GameMode mode)
+	public void LoadMap(int id, string filename)
 	{
-		if (!File.Exists("Maps/" + filename + ".tdm"))
+		if (!filename.EndsWith(".tdm")) filename += ".tdm";
+
+		if (!File.Exists("Maps/" + filename))
 		{
 			Log.Write(ConsoleColor.Red, "Map \"" + filename + "\" doesn't exist!");
 			return;
@@ -83,7 +85,15 @@ public class Game
 			map = null;
 		}
 
+		string mapname;
+		GameMode mode;
 		string modeName = "Unknown";
+
+		using (BinaryReader reader = new BinaryReader(new FileStream("Maps/" + filename, FileMode.Open)))
+		{
+			mapname = reader.ReadString();
+			mode = (GameMode)reader.ReadInt32();
+		}
 
 		switch (mode)
 		{
@@ -105,7 +115,7 @@ public class Game
 
 		client.OnMessage += map.MessageHandle;
 
-		Log.Write(ConsoleColor.Yellow, "Loaded \"" + filename + "\" | " + modeName);
+		Log.Write(ConsoleColor.Yellow, "Loaded \"" + mapname + "\" | " + modeName);
 	}
 
 	public virtual void Logic()
@@ -182,7 +192,7 @@ public class Game
 			switch ((Protocol)msg.ReadShort())
 			{
 				case Protocol.EnterMap:
-					LoadMap(msg.ReadByte(), msg.ReadString(), (GameMode)msg.ReadByte());
+					LoadMap(msg.ReadByte(), msg.ReadString());
 					break;
 			}
 

@@ -1,6 +1,6 @@
 ﻿public enum GameMode
 {
-	KingOfTheHill,
 	DeathMatch,
+	KingOfTheHill,
 	ControlPoints
 }

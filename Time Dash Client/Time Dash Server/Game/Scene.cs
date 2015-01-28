@@ -47,8 +47,17 @@ namespace MapScene
 
 		public void LoadMap(string filename)
 		{
-			using (BinaryReader reader = new BinaryReader(new FileStream("Maps/" + filename + ".tdm", FileMode.Open)))
+			using (BinaryReader reader = new BinaryReader(new FileStream("Maps/" + filename, FileMode.Open)))
 			{
+				reader.ReadString();
+				reader.ReadInt32();
+
+				if (reader.ReadBoolean())
+				{
+					byte[] buffer = new byte[reader.ReadInt32()];
+					reader.Read(buffer, 0, buffer.Length);
+				}
+
 				int nmbrOfTilesets = reader.ReadInt32();
 				for (int i = 0; i < nmbrOfTilesets; i++)
 					tilesetList.Add(new EnvTileset(reader));

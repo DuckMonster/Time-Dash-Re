@@ -101,7 +101,8 @@ namespace MapEditor
 
 			mesh.Texture = copy.mesh.Texture;
 
-			template.references.Add(this);
+			if (template != null)
+				template.references.Add(this);
 		}
 
 		public EditorObject(Layer layer, Template template, Editor e)
@@ -159,10 +160,10 @@ namespace MapEditor
 			Vector2 center = mesh.Polygon.Center;
 			for (int i = 0; i < vectorList.Length; i++)
 			{
-				vectorList[i] = (vectorList[i] - center) * 1.03f + center;
+				vectorList[i] = (vectorList[i] - center) * 1.015f + center;
 			}
 
-			mesh.Vertices = vectorList;
+			//mesh.Vertices = vectorList;
 		}
 
 		public virtual void Logic()

@@ -83,9 +83,6 @@
     <None Include="Maps\temple.tdm">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Maps\test.tdm">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Time Dash Protocol\Time Dash Protocol.csproj">

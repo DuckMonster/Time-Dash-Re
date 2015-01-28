@@ -162,7 +162,7 @@ public class Map
 		if (winPlayer != null)
 		{
 			winTimer.Logic();
-			if (winTimer.IsDone) Game.currentGame.LoadMap(filename, mode);
+			if (winTimer.IsDone) Game.currentGame.LoadMap(filename);
 		}
 	}
 

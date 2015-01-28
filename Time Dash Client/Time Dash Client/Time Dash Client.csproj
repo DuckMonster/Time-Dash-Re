@@ -99,9 +99,6 @@
     <None Include="Maps\temple.tdm">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Maps\test.tdm">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Include="Shaders\tileShader.glsl">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -110,15 +107,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Maps\factory.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Maps\ffa.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Maps\temple.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <Content Include="Res\circlebig.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

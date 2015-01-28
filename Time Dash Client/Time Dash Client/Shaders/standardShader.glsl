@@ -2,7 +2,7 @@
 
 #version 330
 
-in vec2 vertexPosition;
+in vec3 vertexPosition;
 in vec2 vertexUV;
 
 uniform mat4 projection;
@@ -13,7 +13,7 @@ out vec2 uv;
 
 void main() {
 	uv = vertexUV;
-	gl_Position = projection * view * model * vec4(vertexPosition, 0.0, 1.0);
+	gl_Position = projection * view * model * vec4(vertexPosition, 1.0);
 }
 	
 @------------------

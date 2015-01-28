@@ -69,6 +69,16 @@ namespace MapEditor
 				DeleteObject(obj);
 		}
 
+		public void MoveSelected(int delta)
+		{
+			List<EditorObject> selectedObjects = new List<EditorObject>();
+			foreach (EditorObject obj in ActiveObjects)
+				if (obj.Selected) selectedObjects.Add(obj);
+
+			foreach (EditorObject obj in selectedObjects)
+				obj.layer.MoveObject(obj, delta);
+		}
+
 		public void DeleteObject(EditorObject obj)
 		{
 			obj.layer.Objects.Remove(obj);

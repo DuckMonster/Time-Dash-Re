@@ -49,6 +49,7 @@ namespace MapEditor
 		bool showGrid = true;
 
 		public bool preview = false;
+		public bool hideVertices = false;
 
 		public Manipulator CurrentManipulator
 		{
@@ -210,8 +211,16 @@ namespace MapEditor
 				if (KeyboardInput.KeyPressed(Key.L) && !KeyboardInput.Current[Key.LControl])
 					preview = !preview;
 
+				if (KeyboardInput.KeyPressed(Key.H) && !KeyboardInput.Current[Key.LControl])
+					hideVertices = !hideVertices;
+
 				if (KeyboardInput.KeyPressed(Key.Delete))
 					DeleteSelected();
+
+				if (KeyboardInput.KeyPressed(Key.Minus))
+					MoveSelected(1);
+				if (KeyboardInput.KeyPressed(Key.Slash))
+					MoveSelected(-1);
 
 				if (MouseInput.ButtonPressed(MouseButton.Right)) DeselectAll();
 				if (MouseInput.ButtonPressed(MouseButton.Left) && !CurrentManipulator.Hovered && !templateMenu.Hovered)
@@ -362,7 +371,9 @@ namespace MapEditor
 
 			background.Draw();
 
-			foreach (Layer l in layerList) l.Draw();
+			foreach (Layer l in layerList) if (l != ActiveLayer || preview) l.Draw();
+			if (!preview) ActiveLayer.Draw();
+
 			if (selectionBox != null) selectionBox.Draw();
 
 			if (showGrid && !layerCreator.Active)

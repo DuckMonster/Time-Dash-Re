@@ -125,7 +125,7 @@ namespace MapEditor
 					{
 						if (!u && opaquePixels[srcX + x, srcY + y])
 						{
-							up = (float)y / height;
+							up = (float)y / height + (1f / height);
 							u = true;
 							break;
 						}
@@ -140,7 +140,7 @@ namespace MapEditor
 					{
 						if (!d && opaquePixels[srcX + x, srcY + y])
 						{
-							down = (float)(srcHeight - y) / height;
+							down = (float)(srcHeight - y) / height + (1f / height);
 							d = true;
 							break;
 						}
@@ -155,7 +155,7 @@ namespace MapEditor
 					{
 						if (!r && opaquePixels[srcX + x, srcY + y])
 						{
-							right = (float)(srcWidth - x) / width;
+							right = (float)(srcWidth - x) / width + (1f / width);
 							r = true;
 							break;
 						}
@@ -170,7 +170,7 @@ namespace MapEditor
 					{
 						if (!l && opaquePixels[srcX + x, srcY + y])
 						{
-							left = (float)x / width;
+							left = (float)x / width + (1f / width);
 							l = true;
 							break;
 						}

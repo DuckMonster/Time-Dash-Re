@@ -1,6 +1,7 @@
 ﻿using OpenTK;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Input;
+using System;
 using System.Collections.Generic;
 using TKTools;
 namespace MapEditor
@@ -82,7 +83,7 @@ namespace MapEditor
 
 		public void Logic()
 		{
-			if (KeyboardInput.KeyPressed(Key.L) && KeyboardInput.Current[Key.LControl])
+			if (!Active && KeyboardInput.KeyPressed(Key.L) && KeyboardInput.Current[Key.LControl])
 			{
 				active = true;
 				sliderPosition = 0f;
@@ -92,7 +93,15 @@ namespace MapEditor
 			if (!Active) return;
 
 			if (MouseInput.Current[OpenTK.Input.MouseButton.Left])
+			{
 				sliderPosition = MouseInput.Current.X;
+				if (KeyboardInput.Current[Key.LControl])
+				{
+					sliderPosition *= 4f;
+					sliderPosition = (float)Math.Round(sliderPosition);
+					sliderPosition /= 4f;
+				}
+			}
 
 			if (KeyboardInput.KeyPressed(Key.Enter))
 			{

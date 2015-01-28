@@ -188,7 +188,7 @@ namespace MapEditor.Manipulators
 			//targetPosition = moveStart + (targetPosition - moveStart) * moveAxis;
 
 			foreach (Vertex v in editor.selectedList)
-				v.MoveTo(vertexOffsetList[v] + targetPosition);
+				if (vertexOffsetList.ContainsKey(v)) v.MoveTo(vertexOffsetList[v] + targetPosition);
 
 			base.Manipulate();
 		}

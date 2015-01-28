@@ -99,6 +99,7 @@ namespace MapEditor
 
 							t.UV = uvOpaque;
 							creator.Active = false;
+							creator.replaceReference.size = t.Size;
 
 							creator.replaceReference = null;
 						}

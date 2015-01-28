@@ -42,48 +42,56 @@ public class Game
 		server.OnDebug += OnDebug;
 		server.OnException += OnException;
 
-		LoadMap("temple", GameMode.DeathMatch);
+		LoadMap("temple");
 	}
 
-	public void LoadMap(string filename, GameMode mode)
+	public void LoadMap(string filename)
 	{
-		if (!File.Exists("Maps/" + filename + ".tdm"))
+		if (!filename.EndsWith(".tdm")) filename += ".tdm";
+
+		if (!File.Exists("Maps/" + filename))
 		{
 			Log.Write(ConsoleColor.Red, "Map \"" + filename + "\" doesn't exist!");
 			return;
 		}
 
-		Player[] playerList = new Player[0];
-
 		if (map != null)
 		{
 			server.OnMessage -= map.MessageHandle;
-			playerList = map.playerList;
+			map = null;
 		}
 
+		string mapname;
+		GameMode mode;
 		string modeName = "Unknown";
+
+		using (BinaryReader reader = new BinaryReader(new FileStream("Maps/" + filename, FileMode.Open)))
+		{
+			mapname = reader.ReadString();
+			mode = (GameMode)reader.ReadInt32();
+		}
 
 		switch (mode)
 		{
 			case GameMode.KingOfTheHill:
-				map = new KothMap(filename, playerList);
+				map = new KothMap(filename);
 				modeName = "King of the Hill";
 				break;
 
 			case GameMode.DeathMatch:
-				map = new DMMap(filename, playerList);
+				map = new DMMap(filename);
 				modeName = "Deathmatch";
 				break;
-				
+
 			case GameMode.ControlPoints:
-				map = new CPMap(filename, playerList);
+				map = new CPMap(filename);
 				modeName = "Control Points";
 				break;
 		}
 
 		server.OnMessage += map.MessageHandle;
 
-		Log.Write(ConsoleColor.Yellow, "Loaded \"" + filename + "\" | " + modeName);
+		Log.Write(ConsoleColor.Yellow, "Loaded \"" + mapname + "\" | " + modeName);
 	}
 
 	public void Dispose()

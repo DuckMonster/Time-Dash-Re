@@ -1,4 +1,5 @@
 ﻿using OpenTK;
+using OpenTK.Graphics.OpenGL;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -15,10 +16,13 @@ namespace MapScene
 		public List<EnvSolid> solidList = new List<EnvSolid>();
 		public List<EnvObject> objectList = new List<EnvObject>();
 
+		Texture backgroundTexture;
+
 		public float width = 40f, height = 40;
 		public Vector2 originOffset;
 
-		Mesh combinedMesh;
+		public List<Mesh> combinedMeshes = new List<Mesh>();
+		Mesh backgroundMesh;
 
 		public float Width
 		{
@@ -39,6 +43,10 @@ namespace MapScene
 		public Scene(string filename, Map map)
 		{
 			this.map = map;
+			backgroundMesh = Mesh.Box;
+			backgroundMesh.Orthographic = true;
+			backgroundMesh.Translate(0.5f, -0.5f);
+
 			LoadMap(filename);
 		}
 
@@ -60,12 +68,34 @@ namespace MapScene
 			templateList.Clear();
 			solidList.Clear();
 			objectList.Clear();
+
+			backgroundMesh.Dispose();
+			backgroundTexture.Dispose();
 		}
 
 		public void LoadMap(string filename)
 		{
-			using (BinaryReader reader = new BinaryReader(new FileStream("Maps/" + filename + ".tdm", FileMode.Open)))
+			using (BinaryReader reader = new BinaryReader(new FileStream("Maps/" + filename, FileMode.Open)))
 			{
+				reader.ReadString();
+				reader.ReadInt32();
+
+				if (reader.ReadBoolean())
+				{
+					using (FileStream str = new FileStream("temp", FileMode.Create))
+					{
+						byte[] buffer = new byte[reader.ReadInt32()];
+						reader.Read(buffer, 0, buffer.Length);
+
+						str.Write(buffer, 0, buffer.Length);
+					}
+
+					backgroundTexture = new Texture("temp");
+					backgroundMesh.Texture = backgroundTexture;
+
+					File.Delete("temp");
+				}
+
 				int nmbrOfTilesets = reader.ReadInt32();
 				for (int i = 0; i < nmbrOfTilesets; i++)
 					tilesetList.Add(new EnvTileset(reader));
@@ -112,8 +142,8 @@ namespace MapScene
 							objectList.Add(new EnvObject(reader, depth, this));
 					}
 				}
-
 				Polygon combinedPoly = new Polygon();
+
 				foreach (EnvSolid solid in solidList)
 					combinedPoly.AddPoint(solid.polygon);
 
@@ -124,9 +154,25 @@ namespace MapScene
 				width = rect.Width;
 				height = rect.Height;
 
-				combinedMesh = new Mesh(OpenTK.Graphics.OpenGL.PrimitiveType.Quads);
-				combinedMesh.Vertices = combinedPoly;
-				combinedMesh.UV = combinedPoly;
+				for (int i = 0; i < tilesetList.Count; i++)
+				{
+					List<Vector3> combinedVectors = new List<Vector3>();
+					List<Vector2> combinedUVs = new List<Vector2>();
+
+					foreach (EnvObject obj in objectList)
+					{
+						if (obj.template.tilesetIndex != i) continue;
+
+						combinedVectors.AddRange(obj.mesh.Vertices3D);
+						combinedUVs.AddRange(obj.mesh.UV);
+					}
+
+					combinedMeshes.Add(new Mesh(OpenTK.Graphics.OpenGL.PrimitiveType.Quads));
+					combinedMeshes[i].Vertices3D = combinedVectors.ToArray();
+					combinedMeshes[i].UV = combinedUVs.ToArray();
+
+					combinedMeshes[i].Texture = tilesetList[i].Texture;
+				}
 			}
 		}
 
@@ -164,7 +210,13 @@ namespace MapScene
 				obj.Draw();
 			 * */
 
-			combinedMesh.Draw();
+			if (backgroundTexture != null)
+				backgroundMesh.Draw();
+
+			GL.Enable(EnableCap.DepthTest);
+			foreach (Mesh m in combinedMeshes)
+				m.Draw();
+			GL.Disable(EnableCap.DepthTest);
 		}
 	}
 
@@ -172,7 +224,8 @@ namespace MapScene
 	{
 		Scene scene;
 		public Polygon polygon;
-		Mesh mesh;
+		public Mesh mesh;
+		public EnvTemplate template;
 
 		float depth;
 
@@ -181,18 +234,16 @@ namespace MapScene
 			scene = s;
 			this.depth = depth;
 
-			EnvTemplate t = s.templateList[reader.ReadInt32()];
+			template = s.templateList[reader.ReadInt32()];
 
-			mesh = t.Mesh;
+			mesh = template.Mesh;
 
-			polygon = new Polygon(new Vector2[] {
-				new Vector2(reader.ReadSingle(), reader.ReadSingle()),
-				new Vector2(reader.ReadSingle(), reader.ReadSingle()),
-				new Vector2(reader.ReadSingle(), reader.ReadSingle()),
-				new Vector2(reader.ReadSingle(), reader.ReadSingle())
-			});
-
-			mesh.Vertices = polygon;
+			mesh.Vertices3D = new Vector3[] {
+				new Vector3(reader.ReadSingle(), reader.ReadSingle(), -depth),
+				new Vector3(reader.ReadSingle(), reader.ReadSingle(), -depth),
+				new Vector3(reader.ReadSingle(), reader.ReadSingle(), -depth),
+				new Vector3(reader.ReadSingle(), reader.ReadSingle(), -depth)
+			};
 		}
 
 		public void Dispose()
@@ -256,7 +307,7 @@ namespace MapScene
 	public class EnvTemplate : IDisposable
 	{
 		Scene scene;
-		int tilesetIndex;
+		public int tilesetIndex;
 		RectangleF uv;
 
 		public Texture Texture

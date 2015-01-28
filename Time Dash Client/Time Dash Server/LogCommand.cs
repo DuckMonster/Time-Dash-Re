@@ -109,33 +109,12 @@ public class LogCommand
 
 	static void Load(string[] args)
 	{
-		GameMode m;
-
 		if (!File.Exists("Maps/" + args[1] + ".tdm"))
 		{
 			Log.Write(ConsoleColor.Red, "Map \"" + args[1] + "\" doesn't exist!");
 			return;
 		}
 
-		switch (args[2])
-		{
-			case "koth":
-				m = GameMode.KingOfTheHill;
-				break;
-
-			case "dm":
-				m = GameMode.DeathMatch;
-				break;
-
-			case "cp":
-				m = GameMode.ControlPoints;
-				break;
-
-			default:
-				Log.Write(ConsoleColor.Red, "That gamemode doesn't exist!");
-				return;
-		}
-
-		Game.currentGame.LoadMap(args[1], m);
+		Game.currentGame.LoadMap(args[1]);
 	}
 }

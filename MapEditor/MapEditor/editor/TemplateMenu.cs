@@ -19,7 +19,7 @@ namespace MapEditor
 			public Template template;
 			TemplateMenu menu;
 			Vector2 offset;
-			Vector2 size;
+			public Vector2 size;
 
 			Mesh buttonMesh;
 

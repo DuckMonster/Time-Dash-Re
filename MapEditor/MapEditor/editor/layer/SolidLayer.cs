@@ -167,7 +167,7 @@ namespace MapEditor
 
 			buttonMesh.Draw();
 
-			if (MouseInput.Current[MouseButton.Right])
+			if (MouseInput.Current[MouseButton.Right] && Active)
 			{
 				creatorMesh.Color = colorList[typeIndex] * new Color(1, 1, 1, 0.5f);
 

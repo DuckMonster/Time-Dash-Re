@@ -163,6 +163,13 @@ namespace MapEditor
 			}
 		}
 
+		public void MoveObject(EditorObject obj, int delta)
+		{
+			int index = objectList.IndexOf(obj);
+			objectList.Remove(obj);
+			objectList.Insert(MathHelper.Clamp(index + delta, 0, objectList.Count), obj);
+		}
+
 		public virtual void DuplicateSelected()
 		{
 			List<EditorObject> newObjects = new List<EditorObject>();

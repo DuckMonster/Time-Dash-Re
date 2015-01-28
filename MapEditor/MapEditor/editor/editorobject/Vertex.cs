@@ -55,6 +55,14 @@ namespace MapEditor
 			}
 		}
 
+		public bool Hidden
+		{
+			get
+			{
+				return editor.preview || (editor.hideVertices && !Selected && !Hovered);
+			}
+		}
+
 		public Vertex(Vector2 position, Vector2 UV, Editor e)
 		{
 			editor = e;
@@ -118,12 +126,14 @@ namespace MapEditor
 
 		public void Draw()
 		{
+			if (Hidden) return;
+
 			mesh.Color = new Color(1, 1, 1, Hovered ? 0.5f : 0.2f);
 
 			mesh.Reset();
 
 			mesh.Translate(position.X, position.Y, Editor.camera.TargetBaseZ);
-			mesh.Scale(0.2f);
+			mesh.Scale(0.2f * Editor.camera.Position.Z * 0.1f);
 
 			mesh.Draw();
 
