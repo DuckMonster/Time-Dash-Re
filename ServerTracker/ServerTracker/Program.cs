@@ -22,25 +22,43 @@ namespace ServerTracker
 			}
 		}
 
-		UdpClient socket;
+		public TcpListener listener;
 		List<Server> serverList = new List<Server>();
 
 		public Program()
 		{
-			socket = new UdpClient(12345);
+			listener = new TcpListener(IPAddress.Any, 12345);
 			new Thread(ListenThread).Start();
+			new Thread(AcceptThread).Start();
 		}
 
 		public void Update()
 		{
+			Server[] serverBuffer = serverList.ToArray();
+
+			foreach (Server s in serverBuffer)
+				s.Ping();
+		}
+
+		public void AcceptThread()
+		{
+			listener.Start();
+
+			while (true)
+			{
+				Socket s = listener.AcceptSocket();
+				serverList.Add(new Server(s, this));
+			}
 		}
 
 		public void ListenThread()
 		{
+			UdpClient udp = new UdpClient(12345);
+
 			while (true)
 			{
 				IPEndPoint ip = new IPEndPoint(IPAddress.Any, 0);
-				var data = socket.Receive(ref ip);
+				var data = udp.Receive(ref ip);
 
 				MessageBuffer msg = new MessageBuffer(data);
 				int type = msg.ReadByte();
@@ -48,21 +66,22 @@ namespace ServerTracker
 				if (type == 0)
 				{
 					Console.WriteLine("Sending servers to " + ip);
-					socket.Send(BitConverter.GetBytes(serverList.Count), 4, ip);
+
+					MessageBuffer serverMsg = new MessageBuffer();
+					serverMsg.WriteInt(serverList.Count);
 
 					foreach (Server s in serverList)
-						s.SendInfoTo(ip, socket);
-				}
-				if (type == 1)
-				{
-					serverList.Add(new Server(ip, msg.ReadString()));
+						s.WriteInfoTo(serverMsg);
+
+					udp.SendAsync(serverMsg.Array, serverMsg.Size, ip);
 				}
 			}
 		}
 
-		public void AddServer(string name, IPEndPoint ip)
+		public void ServerDisconnected(Server s)
 		{
-			serverList.Add(new Server(ip, name));
+			serverList.Remove(s);
+			Console.WriteLine("{0} went offline!", s.ip);
 		}
 	}
 }

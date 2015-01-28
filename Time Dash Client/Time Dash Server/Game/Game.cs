@@ -21,7 +21,7 @@ public class Game
 	Stopwatch tickWatch;
 
 	List<Client> clientList = new List<Client>();
-	Map map;
+	public Map map;
 
 	TrackerHandler trackerHandler;
 
@@ -110,6 +110,8 @@ public class Game
 
 	public void Logic()
 	{
+		trackerHandler.CheckConnection();
+
 		CalculateDelta();
 		Log.Logic();
 

@@ -23,6 +23,18 @@ public class Map
 	public Team[] teamList = new Team[10];
 
 	public Player[] playerList = new Player[10];
+
+	public int NumberOfPlayers
+	{
+		get
+		{
+			int n = 0;
+			foreach (Player p in playerList) if (p != null) n++;
+
+			return n;
+		}
+	}
+
 	public Player GetPlayer(int id)
 	{
 		return playerList[id];

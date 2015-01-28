@@ -1,4 +1,5 @@
-﻿using System;
+﻿using EZUDP;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -17,21 +18,15 @@ class Program
 	public static void Main(string[] args)
 	{
 		Console.Write("Server name: ");
-		string name = Console.ReadLine();
+		Game.serverName = Console.ReadLine();
 
 		UdpClient client = new UdpClient();
-		client.Connect(new IPEndPoint(IPAddress.Parse("127.0.0.1"), 12345));
 
-		MemoryStream stream = new MemoryStream();
-		stream.WriteByte(1);
-		stream.Write(BitConverter.GetBytes(name.Length), 0, 4);
-		foreach (char c in name)
-			stream.WriteByte((byte)c);
+		MessageBuffer msg = new MessageBuffer();
+		msg.WriteByte(1);
+		msg.WriteShort(Port.UDP);
 
-		var data = stream.ToArray();
-		client.Send(data, data.Length);
-
-		stream.Dispose();
+		client.Send(msg.Array, msg.Size, new IPEndPoint(IPAddress.Parse("127.0.0.1"), 12345));
 		client.Close();
 
 		game = new Game();

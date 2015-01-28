@@ -10,31 +10,38 @@ namespace ServerTracker
 {
 	class Server
 	{
-		string name;
-		public IPEndPoint ip;
+		Program program;
 
-		MessageBuffer buffer;
+		public string ip;
+		IPEndPoint endpoint;
+		Socket socket;
 
-		public Server(IPEndPoint ip, string name)
+		public Server(Socket s, Program prog)
 		{
-			this.ip = ip;
-			this.name = name;
+			this.program = prog;
+			socket = s;
 
-			buffer = new MessageBuffer();
-			buffer.WriteString(name);
-			buffer.WriteString(ip.Address.ToString());
-			buffer.WriteShort(ip.Port);
+			endpoint = (IPEndPoint)s.RemoteEndPoint;
+			ip = endpoint.Address.ToString();
 
-			Console.WriteLine("Server \"{0}\" started at {1}", name, ip.ToString());
+			Console.WriteLine("Server started at {0}", ip.ToString());
 		}
 
-		public void SendInfoTo(IPEndPoint ip, UdpClient client)
+		public void WriteInfoTo(MessageBuffer msg)
 		{
-			client.Send(buffer.Array, buffer.Size, ip);
+			msg.WriteString(ip);
 		}
 
 		public void Ping()
 		{
+			try
+			{
+				socket.Send(new byte[] { });
+			}
+			catch (Exception e)
+			{
+				program.ServerDisconnected(this);
+			}
 		}
 	}
 }
