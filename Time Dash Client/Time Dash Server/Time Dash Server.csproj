@@ -69,6 +69,7 @@
     <Compile Include="Game\Scene.cs" />
     <Compile Include="Game\Game.cs" />
     <Compile Include="Game\Team.cs" />
+    <Compile Include="Game\TrackerHandler.cs" />
     <Compile Include="Log.cs" />
     <Compile Include="Game\Map.cs" />
     <Compile Include="Game\Entity\Player.cs" />

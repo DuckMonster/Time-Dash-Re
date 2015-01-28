@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -13,21 +16,23 @@ class Program
 
 	public static void Main(string[] args)
 	{
-		bool valid = false;
+		Console.Write("Server name: ");
+		string name = Console.ReadLine();
 
-		while (!valid)
-		{
-			Console.Write("Host locally? ");
-			char answer = Console.ReadKey().KeyChar;
+		UdpClient client = new UdpClient();
+		client.Connect(new IPEndPoint(IPAddress.Parse("127.0.0.1"), 12345));
 
-			if (answer == 'y') { Game.hostIP = "127.0.0.1"; valid = true; }
-			else if (answer == 'n') { valid = true; }
-			else
-			{
-				Console.Clear();
-				Console.WriteLine("y/n only!");
-			}
-		}
+		MemoryStream stream = new MemoryStream();
+		stream.WriteByte(1);
+		stream.Write(BitConverter.GetBytes(name.Length), 0, 4);
+		foreach (char c in name)
+			stream.WriteByte((byte)c);
+
+		var data = stream.ToArray();
+		client.Send(data, data.Length);
+
+		stream.Dispose();
+		client.Close();
 
 		game = new Game();
 

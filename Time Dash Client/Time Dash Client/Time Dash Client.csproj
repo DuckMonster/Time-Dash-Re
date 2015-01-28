@@ -85,6 +85,7 @@
     <Compile Include="Game\UI\CircleBar.cs" />
     <Compile Include="KeyboardInput.cs" />
     <Compile Include="Log.cs" />
+    <Compile Include="Main.cs" />
     <Compile Include="Mesh.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

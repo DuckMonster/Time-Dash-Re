@@ -7,6 +7,8 @@ public class Port
 
 public enum Protocol
 {
+	RequestInfo,
+
 	EnterMap,
 	PlayerName,
 	PlayerJoin,

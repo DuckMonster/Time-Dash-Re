@@ -27,15 +27,12 @@ namespace ServerTracker
 
 		public Program()
 		{
-			socket = new UdpClient(6556);
+			socket = new UdpClient(12345);
 			new Thread(ListenThread).Start();
-
-			AddServer("Awesome server!", new IPEndPoint(IPAddress.Parse("48.22.53.11"), 12345));
 		}
 
 		public void Update()
 		{
-
 		}
 
 		public void ListenThread()
@@ -58,8 +55,6 @@ namespace ServerTracker
 				}
 				if (type == 1)
 				{
-					Console.WriteLine("New server started at " + ip);
-
 					serverList.Add(new Server(ip, msg.ReadString()));
 				}
 			}

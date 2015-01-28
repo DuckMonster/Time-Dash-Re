@@ -24,6 +24,8 @@ namespace ServerTracker
 			buffer.WriteString(name);
 			buffer.WriteString(ip.Address.ToString());
 			buffer.WriteShort(ip.Port);
+
+			Console.WriteLine("Server \"{0}\" started at {1}", name, ip.ToString());
 		}
 
 		public void SendInfoTo(IPEndPoint ip, UdpClient client)

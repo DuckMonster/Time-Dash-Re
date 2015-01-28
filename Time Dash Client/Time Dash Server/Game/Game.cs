@@ -5,11 +5,13 @@ using EZUDP;
 using EZUDP.Server;
 using System.Diagnostics;
 using System.IO;
+using System.Net;
 
 public class Game
 {
 	public const int portTCP = Port.TCP, portUDP = Port.UDP;
 	public static string hostIP;
+	public static string serverName;
 
 	public static Game currentGame;
 
@@ -20,6 +22,8 @@ public class Game
 
 	List<Client> clientList = new List<Client>();
 	Map map;
+
+	TrackerHandler trackerHandler;
 
 	public Game()
 	{
@@ -33,6 +37,7 @@ public class Game
 		server.OnDisconnect += OnDisconnect;
 		server.OnStart += OnStart;
 		server.OnMessage += OnMessage;
+		server.OnMessageExternal += OnMessageExternal;
 
 		if (hostIP == null)
 			server.StartUp();
@@ -41,6 +46,8 @@ public class Game
 
 		server.OnDebug += OnDebug;
 		server.OnException += OnException;
+
+		trackerHandler = new TrackerHandler(this);
 
 		LoadMap("temple");
 	}
@@ -161,6 +168,27 @@ public class Game
 		catch (Exception e)
 		{
 			Log.Write(ConsoleColor.Yellow, "Packet corrupt!");
+			Log.Write(ConsoleColor.Red, e.Message);
+			Log.Write(ConsoleColor.DarkRed, e.StackTrace);
+		}
+	}
+
+	public void OnMessageExternal(IPEndPoint ip, MessageBuffer msg)
+	{
+		try
+		{
+			switch ((Protocol)msg.ReadShort())
+			{
+				case Protocol.RequestInfo:
+					trackerHandler.SendInfoTo(ip);
+					break;
+			}
+
+			msg.Reset();
+		}
+		catch (Exception e)
+		{
+			Log.Write(ConsoleColor.Yellow, "Packet corrupt from external!");
 			Log.Write(ConsoleColor.Red, e.Message);
 			Log.Write(ConsoleColor.DarkRed, e.StackTrace);
 		}

@@ -73,7 +73,7 @@ public class CPPoint : Entity
 		return returnList;
 	}
 	
-	public void Logic()
+	public override void Logic()
 	{
 		List<Team> contenders = GetContenders();
 		if (contenders.Count == 1)
