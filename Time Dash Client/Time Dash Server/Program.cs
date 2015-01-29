@@ -50,6 +50,11 @@ class Program
 		game.Logic();
 	}
 
+	static void shit_Tick(object sender, EventArgs e)
+	{
+		Console.WriteLine("Shit");
+	}
+
 	public static void ShutDown()
 	{
 		running = false;

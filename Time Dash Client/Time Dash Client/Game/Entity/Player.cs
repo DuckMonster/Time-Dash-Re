@@ -99,6 +99,9 @@ public partial class Player : Actor
 	public Tileset playerTileset = new Tileset(200, 160, "Res/jackTileset.png"),
 		occlusionTileset = new Tileset(200, 160, "Res/jackShadowTileset.png");
 
+	public Sound jumpSound = new Sound(@"C:\GitHub\Project-Time-Dash\Java\res\snd\jump.wav"),
+		dashSound = new Sound(@"C:\GitHub\Project-Time-Dash\Java\res\snd\dash.wav");
+
 	public int WallTouch
 	{
 		get

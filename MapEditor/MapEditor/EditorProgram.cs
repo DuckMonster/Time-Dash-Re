@@ -79,9 +79,9 @@ namespace MapEditor
 			{
 				MouseInput.Update(this);
 				KeyboardInput.Update();
-			}
 
-			container.Logic();
+				container.Logic();
+			}
 		}
 
 		protected override void OnRenderFrame(FrameEventArgs e)

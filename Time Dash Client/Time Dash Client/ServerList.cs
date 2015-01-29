@@ -123,12 +123,19 @@ public class ServerList
 				break;
 
 			case ConsoleKey.DownArrow:
-				if (cursor < serverList.Count) cursor++;
+				if (cursor < serverList.Count-1) cursor++;
 				break;
 
 			case ConsoleKey.R:
 				serverList.Clear();
 				FetchServers();
+				break;
+
+			case ConsoleKey.C:
+				Console.Clear();
+				Console.Write("Server IP: ");
+				Console.CursorVisible = true;
+				ip = Console.ReadLine();
 				break;
 		}
 	}
@@ -152,7 +159,7 @@ public class ServerList
 	{
 		Console.Clear();
 
-		for (int i = 0; i < serverList.Count + 1; i++)
+		for (int i = 0; i < serverList.Count; i++)
 		{
 			if (cursor == i)
 			{
@@ -166,24 +173,36 @@ public class ServerList
 			}
 
 			if (i < serverList.Count)
-				Console.WriteLine("({0}) {1} [{2}] | Map: {3} | {4}/6 players - Ping: {5}", i, serverList[i].name, serverList[i].ip, serverList[i].mapname, serverList[i].numberOfPlayers, serverList[i].PingString);
-			else
-				Console.WriteLine("(N) Custom...");
+				Console.WriteLine("{1} [{2}] | Map: {3} | {4}/6 players - Ping: {5}", i, serverList[i].name, serverList[i].ip, serverList[i].mapname, serverList[i].numberOfPlayers, serverList[i].PingString);
 		}
 
 		Console.ForegroundColor = ConsoleColor.White;
 		Console.BackgroundColor = ConsoleColor.Black;
+
+		Console.WriteLine("-------");
+		Console.WriteLine("(C) Custom, (R) Refresh server list");
+
+		Console.CursorVisible = false;
 	}
 
 	void FetchServers()
 	{
-		client.Send(new byte[] { 0 }, 1, trackerIP);
-		var data = client.Receive(ref trackerIP);
+		try
+		{
+			client.Send(new byte[] { 0 }, 1, trackerIP);
+			var data = client.Receive(ref trackerIP);
 
-		MessageBuffer msg = new MessageBuffer(data);
-		int nmbr = msg.ReadInt();
+			MessageBuffer msg = new MessageBuffer(data);
+			int nmbr = msg.ReadInt();
 
-		for (int i = 0; i < nmbr; i++)
-			serverList.Add(new Server(msg.ReadString(), this));
+			for (int i = 0; i < nmbr; i++)
+				serverList.Add(new Server(msg.ReadString(), this));
+		}
+		catch (Exception e)
+		{
+			Console.ForegroundColor = ConsoleColor.Red;
+			Console.WriteLine("Couldn't connect to server tracker");
+			Console.ForegroundColor = ConsoleColor.Gray;
+		}
 	}
 }

@@ -110,7 +110,7 @@ public class Game
 
 	public void Logic()
 	{
-		trackerHandler.CheckConnection();
+		//trackerHandler.CheckConnection();
 
 		CalculateDelta();
 		Log.Logic();

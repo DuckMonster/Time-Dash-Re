@@ -14,13 +14,16 @@ public class MainClass
 		Game.myName = Console.ReadLine();
 		Console.Clear();
 
-		new ServerList(ConnectTo);
+		while (true)
+		{
+			new ServerList(ConnectTo);
+		}
 	}
 
 	static void ConnectTo(string ip)
 	{
 		Game.hostIP = ip;
-
+		
 		using (Program p = new Program(1025, 768, new GraphicsMode(new ColorFormat(32), 24, 8, 3)))
 		{
 			p.Run(200.0);

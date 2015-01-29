@@ -46,8 +46,10 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
     <Reference Include="TKTools">
       <HintPath>..\..\..\C#\TKTools\TKTools\bin\Debug\TKTools.dll</HintPath>
     </Reference>
@@ -80,6 +82,12 @@
     <Compile Include="editor\TemplateMenu.cs" />
     <Compile Include="editor\TilesetList.cs" />
     <Compile Include="KeyboardInput.cs" />
+    <Compile Include="LevelDataForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="LevelDataForm.Designer.cs">
+      <DependentUpon>LevelDataForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Main.cs" />
     <Compile Include="Mesh.cs" />
     <Compile Include="EditorProgram.cs" />
@@ -107,7 +115,11 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <EmbeddedResource Include="LevelDataForm.resx">
+      <DependentUpon>LevelDataForm.cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

@@ -28,6 +28,10 @@ namespace MapEditor
 		public static float delta = 0f;
 		Stopwatch tickWatch;
 
+		public string mapName = null;
+		public int gameModeID = 0;
+		LevelDataForm dataForm;
+
 		public Container container;
 
 		public List<Layer> layerList = new List<Layer>();
@@ -213,6 +217,20 @@ namespace MapEditor
 
 				if (KeyboardInput.KeyPressed(Key.H) && !KeyboardInput.Current[Key.LControl])
 					hideVertices = !hideVertices;
+
+				if (KeyboardInput.KeyPressed(Key.F1))
+				{
+					if (dataForm == null)
+					{
+						dataForm = new LevelDataForm(this);
+						dataForm.Show();
+					}
+					else
+					{
+						dataForm.Dispose();
+						dataForm = null; ;
+					}
+				}
 
 				if (KeyboardInput.KeyPressed(Key.Delete))
 					DeleteSelected();

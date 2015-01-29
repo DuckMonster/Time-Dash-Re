@@ -60,8 +60,8 @@ namespace MapEditor
 
 			using (BinaryWriter writer = new BinaryWriter(new FileStream(path, FileMode.Create)))
 			{
-				writer.Write("Temple");
-				writer.Write((int)0);
+				writer.Write(mapName == null ? "Untitled" : mapName);
+				writer.Write(gameModeID);
 
 				background.WriteToFile(writer);
 
@@ -85,8 +85,8 @@ namespace MapEditor
 
 			using (BinaryReader reader = new BinaryReader(new FileStream(path, FileMode.Open)))
 			{
-				reader.ReadString();
-				reader.ReadInt32();
+				mapName = reader.ReadString();
+				gameModeID = reader.ReadInt32();
 
 				background.ReadFromFile(reader);
 

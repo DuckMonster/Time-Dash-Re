@@ -1,6 +1,7 @@
 ﻿using System;
 using OpenTK;
 using EZUDP;
+using System.Drawing;
 
 public class KothMap : Map
 {
@@ -9,6 +10,17 @@ public class KothMap : Map
 	public KothMap(int id, string filename)
 		: base(id, filename, GameMode.KingOfTheHill)
 	{
+	}
+
+	public override void SceneZone(int typeID, TKTools.Polygon p)
+	{
+		RectangleF rect = p.Bounds;
+
+		if (typeID == 1)
+		{
+			point = new KothPoint(new Vector2(rect.X + rect.Width / 2, rect.Y), this);
+		}
+		base.SceneZone(typeID, p);
 	}
 
 	public override void PlayerJoin(int id, string name)

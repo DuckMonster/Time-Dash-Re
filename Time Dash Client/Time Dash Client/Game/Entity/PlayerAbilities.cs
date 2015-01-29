@@ -9,6 +9,7 @@ public partial class Player : Actor
 {
 	public override void Jump()
 	{
+		jumpSound.Play();
 		base.Jump();
 	}
 
@@ -178,6 +179,8 @@ public partial class Player : Actor
 
 		canDoublejump = true;
 		shadow = null;
+
+		dashSound.Play();
 	}
 	#endregion
 }
