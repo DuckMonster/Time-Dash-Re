@@ -10,7 +10,7 @@ public class Team
 	Map map;
 
 	public int id;
-	List<Player> memberList = new List<Player>(10);
+	public List<Player> memberList = new List<Player>(10);
 
 	public int Size
 	{

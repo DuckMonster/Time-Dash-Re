@@ -99,8 +99,8 @@ public partial class Player : Actor
 	public Tileset playerTileset = new Tileset(200, 160, "Res/jackTileset.png"),
 		occlusionTileset = new Tileset(200, 160, "Res/jackShadowTileset.png");
 
-	public Sound jumpSound = new Sound(@"C:\GitHub\Project-Time-Dash\Java\res\snd\jump.wav"),
-		dashSound = new Sound(@"C:\GitHub\Project-Time-Dash\Java\res\snd\dash.wav");
+	public Sound jumpSound = new Sound(@"Res\Snd\jump.wav"),
+		dashSound = new Sound(@"Res\Snd\dash.wav");
 
 	public int WallTouch
 	{
@@ -215,13 +215,13 @@ public partial class Player : Actor
 
 	public virtual void Hit(Vector2 diePos)
 	{
-		base.Hit();
 		map.AddEffect(new EffectSkull(diePos, Color, map));
 
 		dashTarget = null;
 		dodgeTarget = null;
 
 		dashCooldown.Reset();
+		Hit();
 	}
 
 	public virtual void Kill(Player p)

@@ -11,11 +11,15 @@ public class ServerList
 	{
 		ServerList list;
 
+		public int index;
+
 		public string name;
 		public string mapname;
 		public int numberOfPlayers;
 		public string ip;
 		long? ping = null;
+
+		bool connected = true;
 
 		public IPEndPoint IP
 		{
@@ -34,27 +38,42 @@ public class ServerList
 			}
 		}
 
-		public Server(string ip, ServerList list)
+		public Server(int index, string ip, ServerList list)
 		{
+			this.index = index;
 			this.list = list;
 			this.ip = ip;
 		}
 
 		public void RequestInfo()
 		{
-			IPEndPoint serverIP = IP;
+			new Thread(RequestInfoThread).Start();
+		}
 
-			MessageBuffer msg = new MessageBuffer();
-			msg.WriteShort((short)Protocol.RequestInfo);
+		void RequestInfoThread()
+		{
+			try
+			{
+				IPEndPoint serverIP = IP;
 
-			list.client.Send(msg.Array, msg.Size, serverIP);
-			var answer = list.client.Receive(ref serverIP);
+				MessageBuffer msg = new MessageBuffer();
+				msg.WriteShort((short)Protocol.RequestInfo);
 
-			msg = new MessageBuffer(answer);
+				list.client.Send(msg.Array, msg.Size, serverIP);
+				var answer = list.client.Receive(ref serverIP);
 
-			name = msg.ReadString();
-			mapname = msg.ReadString();
-			numberOfPlayers = msg.ReadInt();
+				msg = new MessageBuffer(answer);
+
+				name = msg.ReadString();
+				mapname = msg.ReadString();
+				numberOfPlayers = msg.ReadInt();
+			}
+			catch (Exception e)
+			{
+				connected = false;
+			}
+
+			Print();
 		}
 
 		public void Ping()
@@ -65,14 +84,44 @@ public class ServerList
 		void PingThread()
 		{
 			ping = EZUDP.Client.EzClient.Ping(IP);
+			Print();
+		}
+
+		public static object Lock = new object();
+
+		public void Print()
+		{
+			lock (Lock)
+			{
+				Console.SetCursorPosition(0, index);
+
+				if (list.cursor == index)
+				{
+					Console.ForegroundColor = ConsoleColor.Black;
+					Console.BackgroundColor = ConsoleColor.White;
+				}
+				else
+				{
+					Console.ForegroundColor = ConsoleColor.White;
+					Console.BackgroundColor = ConsoleColor.Black;
+				}
+
+				if (!connected)
+					Console.ForegroundColor = ConsoleColor.Red;
+
+				Console.WriteLine("{0} [{1}] | Map: {2} | {3}/6 players - Ping: {4}", name, ip, mapname, numberOfPlayers, connected ? PingString : "DISCONNECTED");
+
+				Console.ForegroundColor = ConsoleColor.White;
+				Console.BackgroundColor = ConsoleColor.Black;
+			}
 		}
 	}
 
 	public delegate void ConnectTo(string ip);
 
-	IPEndPoint trackerIP = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 12345);
+	IPEndPoint trackerIP = new IPEndPoint(Dns.GetHostAddresses("tracker.timedashgame.com")[0], 1260);
 
-	List<Server> serverList = new List<Server>();
+	List<Server> serverList = null;
 
 	int cursor = 0;
 	string ip = null;
@@ -91,6 +140,8 @@ public class ServerList
 	public ServerList(ConnectTo connectMethod)
 	{
 		client = new UdpClient();
+		client.Client.ReceiveTimeout = 1000;
+
 		FetchServers();
 
 		while (ip == null)
@@ -103,11 +154,12 @@ public class ServerList
 
 	void Update()
 	{
-		foreach (Server s in serverList)
-		{
-			s.RequestInfo();
-			s.Ping();
-		}
+		if (serverList != null)
+			foreach (Server s in serverList)
+			{
+				s.RequestInfo();
+				s.Ping();
+			}
 
 		DrawList();
 
@@ -115,19 +167,21 @@ public class ServerList
 		switch (key)
 		{
 			case ConsoleKey.Enter:
-				ip = SelectedServer.ip;
+				if (serverList != null && SelectedServer != null)
+					ip = SelectedServer.ip;
 				break;
 
 			case ConsoleKey.UpArrow:
-				if (cursor > 0) cursor--;
+				if (serverList != null)
+					if (cursor > 0) cursor--;
 				break;
 
 			case ConsoleKey.DownArrow:
-				if (cursor < serverList.Count-1) cursor++;
+				if (serverList != null)
+					if (cursor < serverList.Count-1) cursor++;
 				break;
 
 			case ConsoleKey.R:
-				serverList.Clear();
 				FetchServers();
 				break;
 
@@ -159,34 +213,45 @@ public class ServerList
 	{
 		Console.Clear();
 
-		for (int i = 0; i < serverList.Count; i++)
+		if (serverList != null)
 		{
-			if (cursor == i)
-			{
-				Console.ForegroundColor = ConsoleColor.Black;
-				Console.BackgroundColor = ConsoleColor.White;
-			}
+			if (serverList.Count > 0)
+				foreach (Server s in serverList)
+					s.Print();
 			else
 			{
 				Console.ForegroundColor = ConsoleColor.White;
-				Console.BackgroundColor = ConsoleColor.Black;
+				Console.WriteLine("No servers online at the moment. Why not start one?");
 			}
-
-			if (i < serverList.Count)
-				Console.WriteLine("{1} [{2}] | Map: {3} | {4}/6 players - Ping: {5}", i, serverList[i].name, serverList[i].ip, serverList[i].mapname, serverList[i].numberOfPlayers, serverList[i].PingString);
+		}
+		else
+		{
+			Console.ForegroundColor = ConsoleColor.Red;
+			Console.WriteLine("Failed to connect to server tracker");
 		}
 
-		Console.ForegroundColor = ConsoleColor.White;
-		Console.BackgroundColor = ConsoleColor.Black;
+		lock (Server.Lock)
+		{
+			if (serverList != null)
+				Console.SetCursorPosition(0, serverList.Count);
 
-		Console.WriteLine("-------");
-		Console.WriteLine("(C) Custom, (R) Refresh server list");
+			Console.ForegroundColor = ConsoleColor.White;
+			Console.BackgroundColor = ConsoleColor.Black;
+
+			Console.WriteLine("\nArrow keys to navigate, Enter to connect");
+			Console.WriteLine("(C) Connect to IP, (R) Refresh server list");
+		}
 
 		Console.CursorVisible = false;
 	}
 
 	void FetchServers()
 	{
+		if (serverList != null) serverList.Clear();
+		serverList = null;
+
+		cursor = 0;
+
 		try
 		{
 			client.Send(new byte[] { 0 }, 1, trackerIP);
@@ -195,8 +260,10 @@ public class ServerList
 			MessageBuffer msg = new MessageBuffer(data);
 			int nmbr = msg.ReadInt();
 
-			for (int i = 0; i < nmbr; i++)
-				serverList.Add(new Server(msg.ReadString(), this));
+			serverList = new List<Server>(nmbr);
+
+			for (int i = 0; i < nmbr; i++) 
+				serverList.Add(new Server(i, msg.ReadString(), this));
 		}
 		catch (Exception e)
 		{

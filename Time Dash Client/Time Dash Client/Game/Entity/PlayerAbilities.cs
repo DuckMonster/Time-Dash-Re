@@ -9,7 +9,7 @@ public partial class Player : Actor
 {
 	public override void Jump()
 	{
-		jumpSound.Play();
+		//jumpSound.Play();
 		base.Jump();
 	}
 
@@ -82,8 +82,8 @@ public partial class Player : Actor
 		Vector2 stepTarget = position + stepSize;
 
 		//Add line effect
-		map.AddEffect(new EffectLine(position, stepTarget,
-				dodgeTarget.lastStep * 0.4f, speedFactor * 0.4f, 0.8f, Color, map));
+		//map.AddEffect(new EffectLine(position, stepTarget,
+		//		dodgeTarget.lastStep * 0.4f, speedFactor * 0.4f, 0.8f, Color, map));
 
 		position = stepTarget;
 
@@ -132,6 +132,8 @@ public partial class Player : Actor
 		dashTarget = new DashTarget(position, target);
 		dashCooldown.Reset();
 
+		map.AddEffect(new EffectRing(position, 2.4f, 0.8f, Color, map));
+
 		if (IsLocalPlayer) SendDash(dashTarget);
 	}
 
@@ -140,7 +142,7 @@ public partial class Player : Actor
 		dashTarget.timeTraveled += Game.delta;
 
 		Vector2 direction = (dashTarget.endPosition - position).Normalized();
-		float speedFactor = TKMath.Exp(Math.Max(0, 0.4f - dashTarget.timeTraveled), 2f, 20);
+		float speedFactor = TKMath.Exp(Math.Max(0, 0.9f - dashTarget.timeTraveled * 5), 2f, 20);
 
 		Vector2 stepSize = direction * speedFactor * stats.DashVelocity * Game.delta;
 
@@ -170,7 +172,7 @@ public partial class Player : Actor
 	public void DashEnd(Vector2 start, Vector2 end, Vector2 velo)
 	{
 		position = end;
-		map.AddEffect(new EffectSpike(start, end, 1.5f, 0.8f, Color, map));
+		map.AddEffect(new EffectSpike(start, end, 2.2f, 0.8f, Color, map));
 		map.AddEffect(new EffectRing(end, 6f, 0.8f, Color, map));
 
 		velocity = velo;
@@ -180,7 +182,7 @@ public partial class Player : Actor
 		canDoublejump = true;
 		shadow = null;
 
-		dashSound.Play();
+		//dashSound.Play();
 	}
 	#endregion
 }

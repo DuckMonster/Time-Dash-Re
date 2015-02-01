@@ -32,8 +32,10 @@ public class Stats
 	float accelerationTime = 0.2f, accelerationTimeAir = 0.6f, decelerationTime = 0.3f, decelerationTimeAir = 1.8f;
 	float jumpForce = 12f, jumpAddForce = 20f, jumpAddLimit = 2f;
 
+	float stepSize = 0.2f;
+
 	float acceleration, accelerationAir, accFriction, accFrictionAir, decFriction, decFrictionAir;
-	float dashVelocity = 250f, dashEndVelocity = 18f;
+	float dashVelocity = 480f, dashEndVelocity = 18f;
 
 	float wallJumpVelocity = 15f, wallJumpAngle = 50f;
 	float dodgeVelocity = 40f, dodgeEndVelocity = 13f, dodgeLength = 3.5f;
@@ -125,6 +127,8 @@ public class Stats
 	public float JumpForce { get { return jumpForce; } set { jumpForce = value; } }
 	public float JumpAddForce { get { return jumpAddForce; } set { jumpAddForce = value; } }
 	public float JumpAddLimit { get { return jumpAddLimit; } set { jumpAddLimit = value; } }
+
+	public float StepSize { get { return stepSize; } }
 
 	public float DashVelocity { get { return dashVelocity; } set { dashVelocity = value; } }
 	public float DashEndVelocity { get { return dashEndVelocity; } set { dashEndVelocity = value; } }

@@ -29,7 +29,7 @@ public class TrackerHandler
 		try
 		{
 			trackerSocket = new Socket(SocketType.Stream, ProtocolType.Tcp);
-			trackerSocket.Connect(new IPEndPoint(IPAddress.Parse("127.0.0.1"), 12345));
+			trackerSocket.Connect(new IPEndPoint(Dns.GetHostAddresses("tracker.timedashgame.com")[0], 1260));
 
 			connected = true;
 			Log.Write(ConsoleColor.Green, "Connected to server tracker");

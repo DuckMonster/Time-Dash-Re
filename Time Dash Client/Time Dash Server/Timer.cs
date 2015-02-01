@@ -35,6 +35,22 @@ public class Timer
 		}
 	}
 
+	public int MinutesLeft
+	{
+		get
+		{
+			return Math.Max(0, (int)Math.Floor(timer / 60f));
+		}
+	}
+
+	public int SecondsLeft
+	{
+		get
+		{
+			return Math.Max(0, (int)Math.Floor(timer));
+		}
+	}
+
 	public void Reset()
 	{
 		timer = timerMax;

@@ -54,6 +54,7 @@ namespace MapEditor
 
 		public bool preview = false;
 		public bool hideVertices = false;
+		public bool hideSolids = false;
 
 		public Manipulator CurrentManipulator
 		{
@@ -188,6 +189,17 @@ namespace MapEditor
 
 			if (!Paused)
 			{
+				{
+					float mousex = MouseInput.Current.Position.X;
+					float mousey = MouseInput.Current.Position.Y;
+
+					mousex = (float)Math.Round(mousex);
+					mousey = (float)Math.Round(mousey);
+
+					Console.Clear();
+					Console.WriteLine(mousex + ", " + mousey);
+				}
+
 				if (KeyboardInput.Current[Key.LControl])
 				{
 					if (KeyboardInput.KeyPressed(Key.Z))
@@ -205,35 +217,40 @@ namespace MapEditor
 					if (KeyboardInput.KeyPressed(Key.Delete) && MessageBox.Show("Are you sure you want to delete this layer?", "Please confirm", MessageBoxButtons.YesNo) == DialogResult.Yes)
 						DeleteLayer(ActiveLayer);
 				}
-
-				if (KeyboardInput.KeyPressed(Key.G) && !KeyboardInput.Current[Key.LControl])
-					showGrid = !showGrid;
-
-				if (KeyboardInput.KeyPressed(Key.B) && !KeyboardInput.Current[Key.LControl])
-					background.show = !background.show;
-
-				if (KeyboardInput.KeyPressed(Key.L) && !KeyboardInput.Current[Key.LControl])
-					preview = !preview;
-
-				if (KeyboardInput.KeyPressed(Key.H) && !KeyboardInput.Current[Key.LControl])
-					hideVertices = !hideVertices;
-
-				if (KeyboardInput.KeyPressed(Key.F1))
+				else
 				{
-					if (dataForm == null)
-					{
-						dataForm = new LevelDataForm(this);
-						dataForm.Show();
-					}
-					else
-					{
-						dataForm.Dispose();
-						dataForm = null; ;
-					}
-				}
+					if (KeyboardInput.KeyPressed(Key.G))
+						showGrid = !showGrid;
 
-				if (KeyboardInput.KeyPressed(Key.Delete))
-					DeleteSelected();
+					if (KeyboardInput.KeyPressed(Key.B))
+						background.show = !background.show;
+
+					if (KeyboardInput.KeyPressed(Key.L))
+						preview = !preview;
+
+					if (KeyboardInput.KeyPressed(Key.H))
+						hideVertices = !hideVertices;
+
+					if (KeyboardInput.KeyPressed(Key.Z))
+						hideSolids = !hideSolids;
+
+					if (KeyboardInput.KeyPressed(Key.F1))
+					{
+						if (dataForm == null)
+						{
+							dataForm = new LevelDataForm(this);
+							dataForm.Show();
+						}
+						else
+						{
+							dataForm.Dispose();
+							dataForm = null; ;
+						}
+					}
+
+					if (KeyboardInput.KeyPressed(Key.Delete))
+						DeleteSelected();
+				}
 
 				if (KeyboardInput.KeyPressed(Key.Minus))
 					MoveSelected(1);
@@ -364,25 +381,6 @@ namespace MapEditor
 
 		public void Draw()
 		{
-			if (frameWatch == null)
-				frameWatch = Stopwatch.StartNew();
-			else
-			{
-				frameWatch.Stop();
-				float time = frameWatch.ElapsedTicks / (float)Stopwatch.Frequency;
-				frameWatch.Restart();
-
-				displayFrameTime -= time;
-
-				if (displayFrameTime <= 0)
-				{
-					Console.Clear();
-					Console.WriteLine(1 / time);
-
-					displayFrameTime = displayFrameFreq;
-				}
-			}
-
 			GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 			GL.DepthFunc(DepthFunction.Lequal);
 			program["view"].SetValue(camera.ViewMatrix);

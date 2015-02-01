@@ -31,6 +31,9 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>iconserver.ico</ApplicationIcon>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="OpenTK, Version=1.1.0.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -55,12 +58,16 @@
   <ItemGroup>
     <Compile Include="GameModes\CP\CPMap.cs" />
     <Compile Include="GameModes\CP\CPPoint.cs" />
+    <Compile Include="GameModes\CTF\CTFFlag.cs" />
+    <Compile Include="GameModes\CTF\CTFMap.cs" />
+    <Compile Include="GameModes\CTF\CTFPlayer.cs" />
     <Compile Include="GameModes\DM\DMMap.cs" />
     <Compile Include="GameModes\DM\DMPlayer.cs" />
     <Compile Include="GameModes\Koth\KothPlayer.cs" />
     <Compile Include="GameModes\Koth\KothPoint.cs" />
     <Compile Include="GameModes\Koth\KothMap.cs" />
     <Compile Include="GameModes\Scoreboard.cs" />
+    <Compile Include="GameModes\SpawnPoint.cs" />
     <Compile Include="Game\Entity\Actor.cs" />
     <Compile Include="Game\Entity\Entity.cs" />
     <Compile Include="Game\Entity\PlayerAbilities.cs" />
@@ -81,6 +88,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="Maps\factory_ctf.tdm">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="Maps\temple_dm.tdm">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -98,15 +108,7 @@
     <Folder Include="Res\" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Maps\factory.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Maps\ffa.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Maps\temple.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
+    <Content Include="iconserver.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

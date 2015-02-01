@@ -32,8 +32,8 @@ public class EffectSkull : Effect
 		spikeMesh.Vertices = new Vector2[] {
 			new Vector2(-0.5f, 0f),
 			new Vector2(-0.3f, 0.5f),
-			new Vector2(-0.3f, -0.5f),
-			new Vector2(0.5f, 0f)
+			new Vector2(0.5f, 0f),
+			new Vector2(-0.3f, -0.5f)
 		};
 	}
 

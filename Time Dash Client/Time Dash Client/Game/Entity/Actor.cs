@@ -88,11 +88,47 @@ public class Actor : Entity
 		DoPhysics();
 
 		if (map.GetCollision(this, new Vector2(0, velocity.Y) * Game.delta))
+		{
+			Vector2 ground;
+			map.RayTraceCollision(position, position + new Vector2(0, velocity.Y * Game.delta), size, out ground);
+
 			velocity.Y = 0;
+			position = ground;
+		} 
+
+		if (velocity.Y <= 0 && map.GetCollision(this, new Vector2(velocity.X, velocity.Y) * Game.delta))
+		{
+			//Stepping
+			if (!map.GetCollision(this, new Vector2(velocity.X * Game.delta, stats.StepSize)))
+			{
+				int accuracy = 16;
+				float testStep = stats.StepSize / accuracy;
+				float currentStep = 0;
+
+				for (int i = 0; i < accuracy; i++)
+				{
+					if (map.GetCollision(this, new Vector2(velocity.X * Game.delta, currentStep)))
+						currentStep += testStep;
+					else
+					{
+						break;
+					}
+				}
+
+				position.Y += currentStep;
+				velocity.Y = 0;
+			}
+		}
+
 		if (map.GetCollision(this, new Vector2(velocity.X, 0) * Game.delta))
+		{
 			velocity.X = 0;
+		}
+
 		if (map.GetCollision(this, velocity * Game.delta))
+		{
 			velocity = Vector2.Zero;
+		}
 
 		position += velocity * Game.delta;
 		if (IsOnGround && !previousOnGround) Land();

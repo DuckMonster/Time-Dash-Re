@@ -150,7 +150,7 @@ public partial class Player : Actor
 		SendMessageToPlayer(GetServerPositionMessage(), false, players);
 	}
 
-	void SendMessageToPlayer(MessageBuffer msg, bool excludeSelf, params Player[] players)
+	protected void SendMessageToPlayer(MessageBuffer msg, bool excludeSelf, params Player[] players)
 	{
 		foreach (Player p in players) if (p != null && !(excludeSelf && p == this)) p.client.Send(msg);
 	}

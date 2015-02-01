@@ -1,7 +1,7 @@
 ﻿using OpenTK;
 using OpenTK.Input;
 
-class Camera
+public class Camera
 {
 	Map map;
 	public Vector3 position = new Vector3(0, 0, 5);

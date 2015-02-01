@@ -53,19 +53,13 @@ public class Game
 		float ratio = (float)width / height;
 
 		Matrix4 pers = Matrix4.CreatePerspectiveOffCenter(-1, 1, -1 / ratio, 1 / ratio, 1, 200f);
-		Matrix4 orth = Matrix4.CreateOrthographicOffCenter(0, 1, -1, 0, 1, 200f);
+		Matrix4 orth = Matrix4.CreateOrthographicOffCenter(0, 1, -1 / ratio, 0, 1, 200f);
 
 		Map.defaultShader["projection"].SetValue(pers);
 		Map.hudShader["projection"].SetValue(orth);
 		Map.hudShader["view"].SetValue(Matrix4.LookAt(new Vector3(0, 0, 3), Vector3.Zero, Vector3.UnitY));
 	
 		Tileset.tileProgram["projection"].SetValue(pers);
-
-		if (map != null)
-		{
-			//map.hudDrawer.CanvasSize = new System.Drawing.Size(width, height);
-			//map.hudDrawer.UpdateTexture();
-		}
 	}
 
 	public void LoadMap(int id, string filename)
@@ -110,6 +104,11 @@ public class Game
 			case GameMode.ControlPoints:
 				map = new CPMap(id, filename);
 				modeName = "Control Points";
+				break;
+
+			case GameMode.CaptureTheFlag:
+				map = new CTFMap(id, filename);
+				modeName = "Capture The Flag";
 				break;
 		}
 

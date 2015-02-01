@@ -148,7 +148,9 @@ namespace MapEditor.Manipulators
 			if (Active && !MouseInput.Current[MouseButton.Left]) Disable();
 
 			if (Active)
+			{
 				Manipulate();
+			}
 		}
 
 		public virtual void Manipulate()

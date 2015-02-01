@@ -11,11 +11,13 @@ public class Map : IDisposable
 	public static ShaderProgram defaultShader = new ShaderProgram("Shaders/standardShader.glsl");
 	public static ShaderProgram hudShader = new ShaderProgram("Shaders/standardShader.glsl");
 
+	public Random rng = new Random();
+
 	public string filename;
 	public GameMode mode;
 
 	public int myID;
-	Camera camera;
+	protected Camera camera;
 	public Scene scene;
 
 	public Team[] teamList = new Team[10];
@@ -31,7 +33,7 @@ public class Map : IDisposable
 	public TextDrawer hudDrawer = new TextDrawer(2000, 2000);
 	Mesh hudMesh;
 
-	Player winPlayer = null;
+	protected Player winPlayer = null;
 	
 	public void AddEffect(Effect e)
 	{
@@ -102,6 +104,21 @@ public class Map : IDisposable
 		hudDrawer.UpdateTexture();
 	}
 
+	public void TeamWin(Team t)
+	{
+		winPlayer = t.memberList[0];
+
+		string teamName = t.id == 0 ? "Blue team" : "Orange team";
+
+		Vector2 nameSize = hudDrawer.MeasureString(teamName, 0.4f);
+		Vector2 winSize = hudDrawer.MeasureString("WINS", 0.2f);
+
+		hudDrawer.Write(teamName, 0.5f, 0.5f, 0.4f);
+		hudDrawer.Write("WINS", 0.5f, 0.5f + nameSize.Y / 2 + winSize.Y / 2 + 0.016f, 0.2f);
+
+		hudDrawer.UpdateTexture();
+	}
+
 	public Map(int id, string filename, GameMode mode)
 	{
 		this.filename = filename;
@@ -111,9 +128,6 @@ public class Map : IDisposable
 
 		scene = new Scene(filename, this);
 		camera = new Camera(this);
-
-		hudDrawer.Write("Hello!", 0.5f, 0.5f, 0.2f);
-		hudDrawer.Write("Hello to you too!", 0.5f, 0.8f, 0.2f);
 
 		hudMesh = new Mesh(hudDrawer);
 		hudDrawer.UpdateTexture();
@@ -318,6 +332,10 @@ public class Map : IDisposable
 				
 				case Protocol.PlayerWin:
 					PlayerWin(playerList[msg.ReadByte()]);
+					break;
+
+				case Protocol.TeamWin:
+					TeamWin(teamList[msg.ReadByte()]);
 					break;
 
 				case Protocol.PlayerJoinTeam:

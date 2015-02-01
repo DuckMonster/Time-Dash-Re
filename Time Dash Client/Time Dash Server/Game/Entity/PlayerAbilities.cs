@@ -136,7 +136,7 @@ public partial class Player : Actor
 		dashTarget.timeTraveled += Game.delta;
 
 		Vector2 direction = (dashTarget.endPosition - position).Normalized();
-		float speedFactor = TKMath.Exp(Math.Max(0, 0.4f - dashTarget.timeTraveled), 2f, 20);
+		float speedFactor = TKMath.Exp(Math.Max(0, 0.9f - dashTarget.timeTraveled * 5), 2f, 20);
 
 		Vector2 stepSize = direction * speedFactor * stats.DashVelocity * Game.delta;
 
@@ -149,7 +149,7 @@ public partial class Player : Actor
 		Vector2 stepTarget = position + stepSize;
 
 		//Check for players
-		List<Player> playerCol = map.RayTracePlayer(position, stepTarget, size, this);
+		List<Player> playerCol = map.RayTracePlayer(position, stepTarget, size * 1.8f, this);
 		if (playerCol.Count > 0)
 		{
 			foreach (Player p in playerCol)

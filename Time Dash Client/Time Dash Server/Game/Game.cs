@@ -49,7 +49,7 @@ public class Game
 
 		trackerHandler = new TrackerHandler(this);
 
-		LoadMap("temple");
+		LoadMap("temple_dm");
 	}
 
 	public void LoadMap(string filename)
@@ -62,8 +62,12 @@ public class Game
 			return;
 		}
 
+		List<Player> playerList = new List<Player>();
+
 		if (map != null)
 		{
+			playerList.AddRange(map.playerList);
+
 			server.OnMessage -= map.MessageHandle;
 			map = null;
 		}
@@ -81,18 +85,23 @@ public class Game
 		switch (mode)
 		{
 			case GameMode.KingOfTheHill:
-				map = new KothMap(filename);
+				map = new KothMap(filename, playerList.ToArray());
 				modeName = "King of the Hill";
 				break;
 
 			case GameMode.DeathMatch:
-				map = new DMMap(filename);
+				map = new DMMap(filename, playerList.ToArray());
 				modeName = "Deathmatch";
 				break;
 
 			case GameMode.ControlPoints:
-				map = new CPMap(filename);
+				map = new CPMap(filename, playerList.ToArray());
 				modeName = "Control Points";
+				break;
+
+			case GameMode.CaptureTheFlag:
+				map = new CTFMap(filename, playerList.ToArray());
+				modeName = "Capture The Flag";
 				break;
 		}
 
@@ -110,7 +119,7 @@ public class Game
 
 	public void Logic()
 	{
-		//trackerHandler.CheckConnection();
+		trackerHandler.CheckConnection();
 
 		CalculateDelta();
 		Log.Logic();

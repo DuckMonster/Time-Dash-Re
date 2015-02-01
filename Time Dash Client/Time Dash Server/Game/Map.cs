@@ -11,13 +11,13 @@ using TKTools;
 public class Map
 {
 	public static Map currentMap;
-	protected Random rng = new Random();
+	public Random rng = new Random();
 	protected Scene scene;
 
 	public string filename;
 	public GameMode mode;
 
-	Player winPlayer;
+	protected Player winPlayer;
 	Timer winTimer = new Timer(4f, false);
 
 	public Team[] teamList = new Team[10];
@@ -111,7 +111,7 @@ public class Map
 		teamList[team].AddMember(p);
 	}
 
-	public void PlayerLeave(Client c)
+	public virtual void PlayerLeave(Client c)
 	{
 		int id = GetPlayerID(c);
 		if (id != -1) playerList[id] = null;
@@ -152,6 +152,15 @@ public class Map
 		winPlayer = p;
 
 		SendPlayerWin(p);
+	}
+
+	public void TeamWin(Team t)
+	{
+		if (winPlayer != null) return;
+
+		winPlayer = t.memberList[0];
+
+		SendTeamWin(t);
 	}
 
 	public virtual void SceneZone(int typeID, Polygon p)
@@ -256,6 +265,16 @@ public class Map
 
 		msg.WriteShort((short)Protocol.PlayerWin);
 		msg.WriteByte(p.id);
+
+		SendToAllPlayers(msg);
+	}
+
+	public void SendTeamWin(Team t)
+	{
+		MessageBuffer msg = new MessageBuffer();
+
+		msg.WriteShort((short)Protocol.TeamWin);
+		msg.WriteByte(t.id);
 
 		SendToAllPlayers(msg);
 	}

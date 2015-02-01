@@ -2,5 +2,6 @@
 {
 	DeathMatch,
 	KingOfTheHill,
-	ControlPoints
+	ControlPoints,
+	CaptureTheFlag
 }

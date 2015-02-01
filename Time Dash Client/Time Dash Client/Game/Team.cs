@@ -7,7 +7,7 @@ using TKTools;
 public class Team
 {
 	public int id;
-	List<Player> memberList = new List<Player>(10);
+	public List<Player> memberList = new List<Player>(10);
 
 	public Color Color
 	{

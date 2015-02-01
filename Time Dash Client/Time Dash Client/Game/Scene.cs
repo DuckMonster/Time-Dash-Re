@@ -202,16 +202,11 @@ namespace MapScene
 
 		public void Draw()
 		{
-			/*
-			foreach (EnvSolid solid in solidList)
-				solid.Draw();
-
-			foreach (EnvObject obj in objectList)
-				obj.Draw();
-			 * */
-
 			if (backgroundTexture != null)
 				backgroundMesh.Draw();
+
+			foreach (EnvSolid solid in solidList)
+				solid.Draw();
 
 			GL.Enable(EnableCap.DepthTest);
 			foreach (Mesh m in combinedMeshes)

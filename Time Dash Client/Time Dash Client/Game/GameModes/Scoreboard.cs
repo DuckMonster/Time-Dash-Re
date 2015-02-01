@@ -35,6 +35,8 @@ public class Scoreboard : Entity
 			new Vector2(0.5f, 1f)
 		};
 
+		scoreMesh.UV = scoreMesh.Vertices;
+
 		nameMesh = new Mesh(PrimitiveType.TriangleStrip);
 
 		nameMesh.Vertices = new Vector2[] {

@@ -152,7 +152,7 @@ namespace MapEditor
 
 		public override void Draw()
 		{
-			if (editor.preview) return;
+			if (editor.preview || editor.hideSolids) return;
 
 			foreach (EditorObject obj in objectList)
 				obj.Draw();

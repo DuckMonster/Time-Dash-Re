@@ -83,6 +83,31 @@ public class Actor : Entity
 
 		if (map.GetCollision(this, new Vector2(0, velocity.Y) * Game.delta))
 			velocity.Y = 0;
+
+		if (velocity.Y <= 0 && map.GetCollision(this, new Vector2(velocity.X, velocity.Y) * Game.delta))
+		{
+			//Stepping
+			if (!map.GetCollision(this, new Vector2(velocity.X * Game.delta, stats.StepSize)))
+			{
+				int accuracy = 16;
+				float testStep = stats.StepSize / accuracy;
+				float currentStep = 0;
+
+				for (int i = 0; i < accuracy; i++)
+				{
+					if (map.GetCollision(this, new Vector2(velocity.X * Game.delta, currentStep)))
+						currentStep += testStep;
+					else
+					{
+						break;
+					}
+				}
+
+				position.Y += currentStep;
+				velocity.Y = 0;
+			}
+		}
+
 		if (map.GetCollision(this, new Vector2(velocity.X, 0) * Game.delta))
 			velocity.X = 0;
 		if (map.GetCollision(this, velocity * Game.delta))

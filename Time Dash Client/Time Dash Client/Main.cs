@@ -14,10 +14,7 @@ public class MainClass
 		Game.myName = Console.ReadLine();
 		Console.Clear();
 
-		while (true)
-		{
-			new ServerList(ConnectTo);
-		}
+		new ServerList(ConnectTo);
 	}
 
 	static void ConnectTo(string ip)

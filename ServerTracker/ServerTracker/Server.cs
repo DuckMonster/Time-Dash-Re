@@ -23,8 +23,6 @@ namespace ServerTracker
 
 			endpoint = (IPEndPoint)s.RemoteEndPoint;
 			ip = endpoint.Address.ToString();
-
-			Console.WriteLine("Server started at {0}", ip.ToString());
 		}
 
 		public void WriteInfoTo(MessageBuffer msg)

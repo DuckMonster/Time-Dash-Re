@@ -33,6 +33,7 @@ public enum Protocol
 	PlayerDisable,
 
 	PlayerWin,
+	TeamWin,
 
 	MapArgument,
 
@@ -54,4 +55,15 @@ public enum Protocol_CP
 {
 	TeamOwner,
 	TeamProgress
+}
+
+public enum Protocol_CTF
+{
+	TeamScore,
+	FlagGrabbed,
+	FlagDropped,
+	FlagCaptured,
+	FlagReturned,
+	FlagPosition,
+	RoundTimer
 }

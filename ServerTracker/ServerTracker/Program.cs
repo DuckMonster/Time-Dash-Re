@@ -27,9 +27,11 @@ namespace ServerTracker
 
 		public Program()
 		{
-			listener = new TcpListener(IPAddress.Any, 12345);
+			listener = new TcpListener(IPAddress.Any, 1260);
 			new Thread(ListenThread).Start();
 			new Thread(AcceptThread).Start();
+
+			PrintInfo();
 		}
 
 		public void Update()
@@ -48,12 +50,14 @@ namespace ServerTracker
 			{
 				Socket s = listener.AcceptSocket();
 				serverList.Add(new Server(s, this));
+
+				PrintInfo();
 			}
 		}
 
 		public void ListenThread()
 		{
-			UdpClient udp = new UdpClient(12345);
+			UdpClient udp = new UdpClient(1260);
 
 			while (true)
 			{
@@ -65,8 +69,6 @@ namespace ServerTracker
 
 				if (type == 0)
 				{
-					Console.WriteLine("Sending servers to " + ip);
-
 					MessageBuffer serverMsg = new MessageBuffer();
 					serverMsg.WriteInt(serverList.Count);
 
@@ -81,7 +83,20 @@ namespace ServerTracker
 		public void ServerDisconnected(Server s)
 		{
 			serverList.Remove(s);
-			Console.WriteLine("{0} went offline!", s.ip);
+			PrintInfo();
+		}
+
+		public void PrintInfo()
+		{
+			lock (serverList)
+			{
+				Console.Clear();
+				Console.ForegroundColor = ConsoleColor.Yellow;
+
+				Console.WriteLine("Active servers: {0}", serverList.Count);
+
+				Console.CursorVisible = false;
+			}
 		}
 	}
 }

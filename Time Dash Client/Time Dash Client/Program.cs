@@ -49,9 +49,12 @@ public class Program : GameWindow
 
 		GL.ClearColor(0.4f, 0.4f, 0.4f, 1f);
 		GL.Enable(EnableCap.Blend);
+		GL.DepthFunc(DepthFunction.Lequal);
 		GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
 
 		//GL.Enable(EnableCap.DepthTest);
+
+		Icon = new System.Drawing.Icon("icon.ico");
 
 		WindowBorder = OpenTK.WindowBorder.Resizable;
 		VSync = VSyncMode.Off;
