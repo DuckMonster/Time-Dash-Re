@@ -16,14 +16,21 @@ public class Game
 	public const int portTCP = Port.TCP, portUDP = Port.UDP;
 	public static string hostIP;
 
+	public static ShaderProgram defaultShader;
+	public static ShaderProgram hudShader;
+
 	public static string myName;
 
 	public static float delta;
 	public static EzClient client;
 
+	public static float windowRatio;
+
 	Program program;
 	Map map;
 	Stopwatch tickWatch, frameWatch;
+
+	ServerList serverList;
 
 	public Game(Program p)
 	{
@@ -37,27 +44,38 @@ public class Game
 		client.OnException += OnException;
 		client.OnDebug += OnDebug;
 
-		client.Connect(hostIP, portTCP, portUDP);
-
 		Log.Init();
+
+		defaultShader = new ShaderProgram("Shaders/standardShader.glsl");
+		hudShader = new ShaderProgram("Shaders/standardShader.glsl");
+
+		serverList = new ServerList(this);
+	}
+
+	public void ConnectTo(string ip)
+	{
+		client.Connect(ip, portTCP, portUDP);
 	}
 
 	public void Dispose()
 	{
+		defaultShader.Dispose();
+		hudShader.Dispose();
+
 		client.Disconnect();
 		client = null;
 	}
 
 	public void UpdateProjection(int width, int height)
 	{
-		float ratio = (float)width / height;
+		windowRatio = (float)height / width;
 
-		Matrix4 pers = Matrix4.CreatePerspectiveOffCenter(-1, 1, -1 / ratio, 1 / ratio, 1, 200f);
-		Matrix4 orth = Matrix4.CreateOrthographicOffCenter(0, 1, -1 / ratio, 0, 1, 200f);
+		Matrix4 pers = Matrix4.CreatePerspectiveOffCenter(-1, 1, -windowRatio, windowRatio, 1, 200f);
+		Matrix4 orth = Matrix4.CreateOrthographicOffCenter(0, 1, -windowRatio, 0, 1, 200f);
 
-		Map.defaultShader["projection"].SetValue(pers);
-		Map.hudShader["projection"].SetValue(orth);
-		Map.hudShader["view"].SetValue(Matrix4.LookAt(new Vector3(0, 0, 3), Vector3.Zero, Vector3.UnitY));
+		defaultShader["projection"].SetValue(pers);
+		hudShader["projection"].SetValue(orth);
+		hudShader["view"].SetValue(Matrix4.LookAt(new Vector3(0, 0, 3), Vector3.Zero, Vector3.UnitY));
 	
 		Tileset.tileProgram["projection"].SetValue(pers);
 	}
@@ -123,8 +141,15 @@ public class Game
 		Log.Logic();
 		Log.Debug("Calculations: {0}\nDraw Calls: {1}", Mesh.CALCULATIONS, Mesh.DRAW_CALLS);
 
-		client.Update();
-		if (map != null) map.Logic();
+		if (client.Connected)
+		{
+			client.Update();
+			if (map != null) map.Logic();
+		}
+		else
+		{
+			serverList.Logic();
+		}
 	}
 
 	public void CalculateDelta()
@@ -155,10 +180,17 @@ public class Game
 		CalculateFrameDelta();
 		Mesh.DRAW_CALLS = Mesh.CALCULATIONS = 0;
 
-		if (map != null)
+		if (client.Connected)
 		{
-			map.scene.Draw();
-			map.Draw();
+			if (map != null)
+			{
+				map.scene.Draw();
+				map.Draw();
+			}
+		}
+		else
+		{
+			serverList.Draw();
 		}
 	}
 

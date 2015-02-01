@@ -37,26 +37,55 @@ public partial class Player : Actor
 	public class DodgeTarget
 	{
 		public float timeTraveled = 0;
-		public float lastStep = 0;
 
-		public float angle;
+		public float stepLength = 0;
+		public float stepAngle = 0;
 
 		public Vector2 startPosition;
-		public Vector2 endPosition;
+		public Direction direction;
 
-		public Vector2 Direction
+		public float frameDirection = 0f;
+
+		public Vector2 DirectionVector
 		{
 			get
 			{
-				return (endPosition - startPosition).Normalized();
+				switch (direction)
+				{
+					case Direction.Down: return new Vector2(0, -1);
+					case Direction.Up: return new Vector2(0, 1);
+					case Direction.Right: return new Vector2(1, 0);
+					case Direction.Left: return new Vector2(-1, 0);
+				}
+
+				return new Vector2(1, 0);
 			}
 		}
 
-		public DodgeTarget(Vector2 a, Vector2 b)
+		public DodgeTarget(Vector2 start, Direction dir)
 		{
-			startPosition = a;
-			endPosition = b;
-			angle = TKMath.GetAngle(a, b);
+			startPosition = start;
+			direction = dir;
+		}
+
+		public bool TargetReached(Vector2 pos)
+		{
+			float posLen = 0;
+
+			switch (direction)
+			{
+				case Direction.Right:
+				case Direction.Left:
+					posLen = Math.Abs(pos.X - startPosition.X);
+					break;
+
+				case Direction.Up:
+				case Direction.Down:
+					posLen = Math.Abs(pos.Y - startPosition.Y);
+					break;
+			}
+
+			return (posLen >= Stats.defaultStats.DodgeLength);
 		}
 	}
 
@@ -85,7 +114,7 @@ public partial class Player : Actor
 	float dodgeInterval = 0.2f;
 	float dodgeIntervalTimer = 0;
 
-	float dodgeGravityIgnoreTime = 0.2f;
+	float dodgeGravityIgnoreTime = 0.1f;
 	float gravityIgnore = 0f;
 
 	Timer updatePositionTimer = new Timer(0.05f, true);
@@ -316,7 +345,6 @@ public partial class Player : Actor
 
 	public void Land()
 	{
-		airDodgeNmbr = stats.AirDodgeMax;
 	}
 
 	public void Input()

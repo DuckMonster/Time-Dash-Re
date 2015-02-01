@@ -45,26 +45,55 @@ public partial class Player : Actor
 	public class DodgeTarget
 	{
 		public float timeTraveled = 0;
-		public float lastStep = 0;
 
-		public float angle;
+		public float stepLength = 0;
+		public float stepAngle = 0;
 
 		public Vector2 startPosition;
-		public Vector2 endPosition;
+		public Direction direction;
 
-		public Vector2 Direction
+		public float frameDirection = 0f;
+
+		public Vector2 DirectionVector
 		{
 			get
 			{
-				return (endPosition - startPosition).Normalized();
+				switch (direction)
+				{
+					case Direction.Down: return new Vector2(0, -1);
+					case Direction.Up: return new Vector2(0, 1);
+					case Direction.Right: return new Vector2(1, 0);
+					case Direction.Left: return new Vector2(-1, 0);
+				}
+
+				return new Vector2(1, 0);
 			}
 		}
 
-		public DodgeTarget(Vector2 a, Vector2 b)
+		public DodgeTarget(Vector2 start, Direction dir)
 		{
-			startPosition = a;
-			endPosition = b;
-			angle = TKMath.GetAngle(a, b);
+			startPosition = start;
+			direction = dir;
+		}
+
+		public bool TargetReached(Vector2 pos)
+		{
+			float posLen = 0;
+
+			switch (direction)
+			{
+				case Direction.Right:
+				case Direction.Left:
+					posLen = Math.Abs(pos.X - startPosition.X);
+					break;
+
+				case Direction.Up:
+				case Direction.Down:
+					posLen = Math.Abs(pos.Y - startPosition.Y);
+					break;
+			}
+
+			return (posLen >= Stats.defaultStats.DodgeLength);
 		}
 	}
 
@@ -93,7 +122,7 @@ public partial class Player : Actor
 	float dodgeInterval = 0.2f;
 	float dodgeIntervalTimer = 0;
 
-	float dodgeGravityIgnoreTime = 0.2f;
+	float dodgeGravityIgnoreTime = 0.1f;
 	float gravityIgnore = 0f;
 
 	public Tileset playerTileset = new Tileset(200, 160, "Res/jackTileset.png"),
@@ -101,6 +130,8 @@ public partial class Player : Actor
 
 	public Sound jumpSound = new Sound(@"Res\Snd\jump.wav"),
 		dashSound = new Sound(@"Res\Snd\dash.wav");
+
+	bool bufferFrame = false;
 
 	public int WallTouch
 	{
@@ -329,8 +360,6 @@ public partial class Player : Actor
 
 	public override void Land()
 	{
-		airDodgeNmbr = stats.AirDodgeMax;
-
 		base.Land();
 
 		//if (IsLocalPlayer) SendLand();
@@ -342,43 +371,34 @@ public partial class Player : Actor
 		if (input[PlayerKey.Right]) inputDirection.X++;
 		if (input[PlayerKey.Left]) inputDirection.X--;
 
-		if (input[PlayerKey.Up]) inputDirection.Y++;
-		if (input[PlayerKey.Down]) inputDirection.Y--;
+		if (input[PlayerKey.Up]) 
+			inputDirection.Y++;
+		if (input[PlayerKey.Down]) 
+			inputDirection.Y--;
 
 		if (IsLocalPlayer)
 		{
-			//Dodging hori
-			if (inputDirection.X != 0)
+			//Dodging
+			if (dodgeCooldown.IsDone && inputDirection != Vector2.Zero && oldInputDirection != inputDirection)
 			{
-				if (inputDirection.X != lastDirection.X) dodgeIntervalTimer = 0;
-
-				if (inputDirection.X != oldInputDirection.X)
+				if (inputDirection == lastDirection && dodgeIntervalTimer > 0)
 				{
-					if (dodgeIntervalTimer > 0 && dodgeCooldown.IsDone)
-						Dodge((int)inputDirection.X);
-					else
-						dodgeIntervalTimer = dodgeInterval;
-
-					lastDirection.X = inputDirection.X;
+					if (inputDirection.X > 0)
+						Dodge(Direction.Right);
+					else if (inputDirection.X < 0)
+						Dodge(Direction.Left);
+					else if (inputDirection.Y > 0)
+						Dodge(Direction.Up);
+					else if (inputDirection.Y < 0)
+						Dodge(Direction.Down);
 				}
-			}
 
-			//Dodging vert
-			if (inputDirection.Y != 0)
-			{
-				if (inputDirection.Y != oldInputDirection.Y)
-				{
-					if (dodgeIntervalTimer > 0 && dodgeCooldown.IsDone)
-						DodgeVertical((int)inputDirection.Y);
-					else
-						dodgeIntervalTimer = dodgeInterval;
-
-					lastDirection.Y = inputDirection.Y;
-				}
+				dodgeIntervalTimer = dodgeInterval;
+				lastDirection = inputDirection;
 			}
 
 			//Jumping
-			if (input[PlayerKey.Jump] && !oldInput[PlayerKey.Jump])
+			if (input[PlayerKey.Jump] && (!oldInput[PlayerKey.Jump] || bufferFrame))
 			{
 				if (IsOnGround) Jump();
 				else if (WallTouch != 0) WallJump();
@@ -423,6 +443,8 @@ public partial class Player : Actor
 		oldInputDirection = inputDirection;
 
 		if (input[PlayerKey.Jump]) JumpHold();
+
+		bufferFrame = false;
 	}
 
 	public void LocalInput()
@@ -438,7 +460,7 @@ public partial class Player : Actor
 			inputData[PlayerKey.Left] = KeyboardInput.Current[Key.Right];
 		}
 
-		//inputData[PlayerKey.Up] = KeyboardInput.Current[Key.Up];
+		inputData[PlayerKey.Up] = KeyboardInput.Current[Key.Up];
 		inputData[PlayerKey.Down] = KeyboardInput.Current[Key.Down];
 		inputData[PlayerKey.Jump] = KeyboardInput.Current[Key.Z];
 		inputData[PlayerKey.Dash] = KeyboardInput.Current[Key.X];
@@ -485,9 +507,9 @@ public partial class Player : Actor
 
 		if (dodgeTarget != null)
 		{
-			mesh.Rotate(dodgeTarget.angle);
-			mesh.Scale(1 + dodgeTarget.lastStep * 1.5f, 1 - dodgeTarget.lastStep * 0.7f);
-			mesh.Rotate(-dodgeTarget.angle);
+			mesh.Rotate(dodgeTarget.stepAngle);
+			mesh.Scale(1 + dodgeTarget.stepLength * 1.5f, 1 - dodgeTarget.stepLength * 0.7f);
+			mesh.Rotate(-dodgeTarget.stepAngle);
 		}
 
 		mesh.Scale(new Vector2(-dir, 1));

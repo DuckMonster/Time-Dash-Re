@@ -96,13 +96,15 @@ public class Actor : Entity
 			position = ground;
 		} 
 
-		if (velocity.Y <= 0 && map.GetCollision(this, new Vector2(velocity.X, velocity.Y) * Game.delta))
+		if (map.GetCollision(this, new Vector2(velocity.X, Math.Min(0, velocity.Y)) * Game.delta))
 		{
+			float stepFactor = stats.StepSize * velocity.Length * Game.delta;
+
 			//Stepping
-			if (!map.GetCollision(this, new Vector2(velocity.X * Game.delta, stats.StepSize)))
+			if (!map.GetCollision(this, new Vector2(velocity.X * Game.delta, stepFactor)))
 			{
-				int accuracy = 16;
-				float testStep = stats.StepSize / accuracy;
+				int accuracy = 32;
+				float testStep = stepFactor / accuracy;
 				float currentStep = 0;
 
 				for (int i = 0; i < accuracy; i++)
@@ -116,7 +118,9 @@ public class Actor : Entity
 				}
 
 				position.Y += currentStep;
-				velocity.Y = 0;
+
+				if (velocity.Y < 0)
+					velocity.Y = 0;
 			}
 		}
 

@@ -32,7 +32,7 @@ public class Stats
 	float accelerationTime = 0.2f, accelerationTimeAir = 0.6f, decelerationTime = 0.3f, decelerationTimeAir = 1.8f;
 	float jumpForce = 12f, jumpAddForce = 20f, jumpAddLimit = 2f;
 
-	float stepSize = 0.2f;
+	float stepSize = 0.6f;
 
 	float acceleration, accelerationAir, accFriction, accFrictionAir, decFriction, decFrictionAir;
 	float dashVelocity = 480f, dashEndVelocity = 18f;

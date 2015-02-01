@@ -8,9 +8,6 @@ using MapScene;
 
 public class Map : IDisposable
 {
-	public static ShaderProgram defaultShader = new ShaderProgram("Shaders/standardShader.glsl");
-	public static ShaderProgram hudShader = new ShaderProgram("Shaders/standardShader.glsl");
-
 	public Random rng = new Random();
 
 	public string filename;
@@ -248,12 +245,12 @@ public class Map : IDisposable
 
 	public virtual void Draw()
 	{
-		defaultShader["view"].SetValue(camera.ViewMatrix);
+		Game.defaultShader["view"].SetValue(camera.ViewMatrix);
 		Tileset.tileProgram["view"].SetValue(camera.ViewMatrix);
 		foreach (Player p in playerList) if (p != null) p.Draw();
 		foreach (Effect e in effectList) e.Draw();
 
-		Map.hudShader["view"].SetValue(Matrix4.LookAt(new Vector3(0, 0, 3), Vector3.Zero, Vector3.UnitY));
+		Game.hudShader["view"].SetValue(Matrix4.LookAt(new Vector3(0, 0, 3), Vector3.Zero, Vector3.UnitY));
 
 		if (winPlayer != null)
 		{
@@ -315,7 +312,7 @@ public class Map : IDisposable
 					break;
 
 				case Protocol.PlayerDodge:
-					playerList[msg.ReadByte()].ReceiveDodge(msg.ReadVector2(), msg.ReadVector2());
+					playerList[msg.ReadByte()].ReceiveDodge(msg.ReadVector2(), (Direction)msg.ReadByte());
 					break;
 
 				case Protocol.PlayerDash:

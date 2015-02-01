@@ -62,9 +62,9 @@ public partial class Player
 		serverPosition = position;
 	}
 
-	public void ReceiveDodge(Vector2 start, Vector2 target)
+	public void ReceiveDodge(Vector2 start, Direction dir)
 	{
-		dodgeTargetBuffer = new DodgeTarget(start, target);
+		dodgeTargetBuffer = new DodgeTarget(start, dir);
 	}
 
 	public void ReceiveDodgeCollision(byte player, Vector2 myPos, Vector2 colPos)
@@ -74,8 +74,8 @@ public partial class Player
 		position = myPos;
 		p.position = colPos;
 
-		DodgeEnd(p);
-		p.DodgeEnd(this);
+		//DodgeEnd(p);
+		//p.DodgeEnd(this);
 
 		map.AddEffect(new EffectCollision(this, p, map));
 	}
@@ -158,7 +158,7 @@ public partial class Player
 
 		msg.WriteShort((short)Protocol.PlayerDodge);
 		msg.WriteVector(target.startPosition);
-		msg.WriteVector(target.endPosition);
+		msg.WriteByte((byte)target.direction);
 
 		Game.client.Send(msg);
 	}

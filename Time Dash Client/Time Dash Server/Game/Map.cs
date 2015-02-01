@@ -331,7 +331,7 @@ public class Map
 						break;
 
 					case Protocol.PlayerDodge:
-						p.ReceiveDodge(msg.ReadVector2(), msg.ReadVector2());
+						p.ReceiveDodge(msg.ReadVector2(), (Direction)msg.ReadByte());
 						break;
 
 					case Protocol.PlayerDash:

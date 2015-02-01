@@ -5,6 +5,14 @@ using OpenTK;
 using TKTools;
 using System.Diagnostics;
 
+public enum Direction
+{
+	Up,
+	Down,
+	Right,
+	Left
+}
+
 public partial class Player : Actor
 {
 	public override void Jump()
@@ -21,88 +29,73 @@ public partial class Player : Actor
 		wallStick = 0f;
 
 		canDoublejump = true;
-		airDodgeNmbr = stats.AirDodgeMax;
 	}
 
 	#region Dodgeing
-	int airDodgeNmbr = 1;
-
-	public void Dodge(int dir)
+	public void Dodge(DodgeTarget dt)
 	{
-		if (!CanDodge) return;
-		Dodge(position + new Vector2(stats.DodgeLength * dir, 0));
+		position = dt.startPosition;
+		Dodge(dt.direction);
 	}
 
-	public void DodgeVertical(int dir)
+	public void Dodge(Direction d)
 	{
-		if (!CanDodge) return;
-		Dodge(position + new Vector2(0, stats.DodgeLength * dir));
-	}
-
-	public void Dodge(DodgeTarget t)
-	{
-		if (!CanDodge) return;
-		position = t.startPosition;
-		Dodge(t.endPosition);
-	}
-
-	public void Dodge(Vector2 target)
-	{
-		map.RayTraceCollision(position, target, size, out target); //Raytrace
-		dodgeTarget = new DodgeTarget(position, target);
-		dodgeCooldown.Reset();
-
-		if (!IsOnGround)
-		{
-			gravityIgnore = dodgeGravityIgnoreTime;
-			airDodgeNmbr--;
-		}
+		dodgeTarget = new DodgeTarget(position, d);
 	}
 
 	public void DodgeStep()
 	{
 		dodgeTarget.timeTraveled += Game.delta;
+		Vector2 dir = dodgeTarget.DirectionVector;
 
-		Vector2 dir = (dodgeTarget.endPosition - position).Normalized();
 		float speedFactor = TKMath.Exp(Math.Max(0, 0.4f - dodgeTarget.timeTraveled * 5), 2f, 30);
-		Vector2 stepSize = dir * stats.DodgeVelocity * speedFactor * Game.delta;
 
-		//If youre there, just end it
-		if (stepSize.Length > (dodgeTarget.endPosition - position).Length || (dodgeTarget.endPosition - position).Length <= 0.1f)
+		Vector2 step = dir * stats.DodgeVelocity * speedFactor * Game.delta;
+
+		//Stepping
+		if ((dodgeTarget.direction == Direction.Right || dodgeTarget.direction == Direction.Left) && map.GetCollision(this, step))
 		{
+			float stepSizeFactor = stats.StepSize * step.Length;
+
+			if (!map.GetCollision(this, step + new Vector2(0, stepSizeFactor)))
+			{
+				int accuracy = 16;
+				float currentStep = 0;
+				float testStepSize = stepSizeFactor / accuracy;
+
+				for (int i = 0; i < accuracy; i++)
+				{
+					if (map.GetCollision(this, step + new Vector2(0, currentStep)))
+						currentStep += testStepSize;
+					else
+						break;
+				}
+
+				step.Y += currentStep;
+			}
+		}
+
+		Vector2 collisionPosition;
+		bool collision = map.RayTraceCollision(position, position + step, size, out collisionPosition);
+
+		step = collisionPosition - position;
+
+		dodgeTarget.stepLength = speedFactor;
+		dodgeTarget.stepAngle = TKMath.GetAngle(step);
+
+		position = collisionPosition;
+		if (dodgeTarget.TargetReached(position) || collision)
 			DodgeEnd();
-			return;
-		}
-
-		Vector2 stepTarget = position + stepSize;
-
-		//Check for dodgeing players
-		List<Player> playerCol = map.RayTracePlayer(position, stepTarget, size, this);
-		if (playerCol.Count > 0 && playerCol[0].IsDodging)
-		{
-			DodgeEnd(playerCol[0]);
-			playerCol[0].DodgeEnd(this);
-
-			SendDodgeCollisionToPlayer(playerCol[0], map.playerList);
-
-			return;
-		}
-
-		position = stepTarget;
-		dodgeTarget.lastStep = speedFactor;
-	}
-
-	public void DodgeEnd(Player p)
-	{
-		velocity = ((position - p.position).Normalized() + new Vector2(0, 1)).Normalized() * 20f;
-		dodgeTarget = null;
 	}
 
 	public void DodgeEnd()
 	{
-		position = dodgeTarget.endPosition;
-		velocity = (dodgeTarget.endPosition - dodgeTarget.startPosition).Normalized() * stats.DodgeEndVelocity;
+		velocity = dodgeTarget.DirectionVector * stats.DodgeEndVelocity;
 		dodgeTarget = null;
+
+		dodgeCooldown.Reset();
+
+		gravityIgnore = dodgeGravityIgnoreTime;
 	}
 	#endregion
 
@@ -192,7 +185,6 @@ public partial class Player : Actor
 		dashTarget = null;
 
 		canDoublejump = true;
-		airDodgeNmbr = stats.AirDodgeMax;
 	}
 	#endregion
 }

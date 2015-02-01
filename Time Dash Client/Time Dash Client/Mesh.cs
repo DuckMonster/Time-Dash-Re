@@ -180,7 +180,7 @@ public class Mesh : IDisposable
 	{
 		get
 		{
-			return Orthographic ? Map.hudShader : Map.defaultShader;
+			return Orthographic ? Game.hudShader : Game.defaultShader;
 		}
 	}
 

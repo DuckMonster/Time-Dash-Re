@@ -55,11 +55,11 @@ public partial class Player : Actor
 		Land();
 	}
 
-	public void ReceiveDodge(Vector2 start, Vector2 target)
+	public void ReceiveDodge(Vector2 start, Direction direction)
 	{
-		dodgeTargetBuffer = new DodgeTarget(start, target);
+		dodgeTargetBuffer = new DodgeTarget(start, direction);
 
-		SendDodgeToPlayer(start, target, map.playerList);
+		SendDodgeToPlayer(start, direction, map.playerList);
 	}
 
 	public void ReceiveDash(Vector2 start, Vector2 target)
@@ -125,9 +125,9 @@ public partial class Player : Actor
 		SendMessageToPlayer(GetDisableMessage(), false, players);
 	}
 
-	public void SendDodgeToPlayer(Vector2 start, Vector2 target, params Player[] players)
+	public void SendDodgeToPlayer(Vector2 start, Direction dir, params Player[] players)
 	{
-		SendMessageToPlayer(GetDodgeMessage(start, target), true, players);
+		SendMessageToPlayer(GetDodgeMessage(start, dir), true, players);
 	}
 
 	public void SendDashToPlayer(Vector2 start, Vector2 target, params Player[] players)
@@ -266,7 +266,7 @@ public partial class Player : Actor
 		return msg;
 	}
 
-	MessageBuffer GetDodgeMessage(Vector2 start, Vector2 target)
+	MessageBuffer GetDodgeMessage(Vector2 start, Direction dir)
 	{
 		MessageBuffer msg = new MessageBuffer();
 
@@ -274,7 +274,7 @@ public partial class Player : Actor
 		msg.WriteByte(id);
 
 		msg.WriteVector(start);
-		msg.WriteVector(target);
+		msg.WriteByte((byte)dir);
 
 		return msg;
 	}

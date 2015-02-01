@@ -34,7 +34,7 @@ namespace ServerTracker
 		{
 			try
 			{
-				socket.Send(new byte[] { });
+				socket.Send(new byte[] { 0 });
 			}
 			catch (Exception e)
 			{
