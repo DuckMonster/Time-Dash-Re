@@ -10,7 +10,7 @@ public class CTFMap : Map
 
 	int[] score = new int[2];
 
-	Timer roundTimer = new Timer(10000f, false);
+	Timer roundTimer = new Timer(60 * 5, false);
 
 	public CTFMap(string filename, Player[] players)
 		: base(filename, GameMode.CaptureTheFlag, players)
@@ -108,7 +108,7 @@ public class CTFMap : Map
 		msg.WriteShort((short)Protocol.MapArgument);
 		msg.WriteShort((short)Protocol_CTF.RoundTimer);
 
-		msg.WriteFloat((1f - roundTimer.PercentageDone) * 120f);
+		msg.WriteFloat((1f - roundTimer.PercentageDone) * roundTimer.TimerLength);
 
 		foreach (Player p in players) if (p != null) p.client.Send(msg);
 	}

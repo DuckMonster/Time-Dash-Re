@@ -30,8 +30,6 @@ public class Game
 	Map map;
 	Stopwatch tickWatch, frameWatch;
 
-	ServerList serverList;
-
 	public Game(Program p)
 	{
 		program = p;
@@ -49,7 +47,7 @@ public class Game
 		defaultShader = new ShaderProgram("Shaders/standardShader.glsl");
 		hudShader = new ShaderProgram("Shaders/standardShader.glsl");
 
-		serverList = new ServerList(this);
+		ConnectTo(hostIP);
 	}
 
 	public void ConnectTo(string ip)
@@ -146,10 +144,6 @@ public class Game
 			client.Update();
 			if (map != null) map.Logic();
 		}
-		else
-		{
-			serverList.Logic();
-		}
 	}
 
 	public void CalculateDelta()
@@ -187,10 +181,6 @@ public class Game
 				map.scene.Draw();
 				map.Draw();
 			}
-		}
-		else
-		{
-			serverList.Draw();
 		}
 	}
 

@@ -17,7 +17,7 @@ public class CTFMap : Map
 	Mesh scoreMesh;
 
 	Timer messageTimer = new Timer(2f, true);
-	Timer roundTimer = new Timer(120f, false);
+	Timer roundTimer = new Timer(60 * 5, false);
 
 	public CTFMap(int id, string filename)
 		: base(id, filename, GameMode.CaptureTheFlag)

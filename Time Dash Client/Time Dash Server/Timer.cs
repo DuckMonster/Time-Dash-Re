@@ -35,6 +35,14 @@ public class Timer
 		}
 	}
 
+	public float TimerLength
+	{
+		get
+		{
+			return timerMax;
+		}
+	}
+
 	public int MinutesLeft
 	{
 		get

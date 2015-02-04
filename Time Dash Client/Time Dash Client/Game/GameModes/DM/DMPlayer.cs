@@ -7,7 +7,7 @@ public class DMPlayer : Player
 	{
 		get
 		{
-			if (((DMMap)map).scoreboard.IsLeader(this)) return Color.White;
+			//if (((DMMap)map).scoreboard.IsLeader(this)) return Color.White;
 			return base.Color;
 		}
 	}

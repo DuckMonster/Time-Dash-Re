@@ -62,20 +62,28 @@ namespace ServerTracker
 			while (true)
 			{
 				IPEndPoint ip = new IPEndPoint(IPAddress.Any, 0);
-				var data = udp.Receive(ref ip);
-
-				MessageBuffer msg = new MessageBuffer(data);
-				int type = msg.ReadByte();
-
-				if (type == 0)
+				try
 				{
-					MessageBuffer serverMsg = new MessageBuffer();
-					serverMsg.WriteInt(serverList.Count);
+					var data = udp.Receive(ref ip);
 
-					foreach (Server s in serverList)
-						s.WriteInfoTo(serverMsg);
+					MessageBuffer msg = new MessageBuffer(data);
+					int type = msg.ReadByte();
 
-					udp.SendAsync(serverMsg.Array, serverMsg.Size, ip);
+					if (type == 0)
+					{
+						MessageBuffer serverMsg = new MessageBuffer();
+						serverMsg.WriteInt(serverList.Count);
+
+						foreach (Server s in serverList)
+							s.WriteInfoTo(serverMsg);
+
+						udp.SendAsync(serverMsg.Array, serverMsg.Size, ip);
+					}
+
+					Console.WriteLine("Sent serverlist to " + ip);
+				}
+				catch (Exception e)
+				{
 				}
 			}
 		}

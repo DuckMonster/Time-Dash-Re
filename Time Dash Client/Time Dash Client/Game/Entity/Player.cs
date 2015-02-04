@@ -148,7 +148,7 @@ public partial class Player : Actor
 		get
 		{
 			if (team != null) return team.Color;
-			return colorList[playerID];
+			return colorList[playerID % colorList.Length];
 		}
 	}
 

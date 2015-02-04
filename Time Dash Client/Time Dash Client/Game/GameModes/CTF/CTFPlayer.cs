@@ -61,7 +61,7 @@ public class CTFPlayer : Player
 		{
 			Vector2 flagPosition = flag.holder == null ? flag.Position : flag.holder.position;
 			float dis = (flagPosition - position).Length;
-			Color c = Color;
+			Color c = team.Color;
 			c.A = MathHelper.Clamp((dis - 7f) / 2f, 0, 1);
 
 			arrowMesh.Color = c;

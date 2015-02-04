@@ -24,19 +24,26 @@ public class TrackerHandler
 		new Thread(ConnectThread).Start();
 	}
 
+	static object Lock = new object();
+
 	void ConnectThread()
 	{
-		try
+		lock (Lock)
 		{
-			trackerSocket = new Socket(SocketType.Stream, ProtocolType.Tcp);
-			trackerSocket.Connect(new IPEndPoint(Dns.GetHostAddresses("tracker.timedashgame.com")[0], 1260));
+			if (connected) return;
 
-			connected = true;
-			Log.Write(ConsoleColor.Green, "Connected to server tracker");
-			Log.Write(ConsoleColor.Green, "Your server will show up in the server list");
-		}
-		catch (Exception e)
-		{
+			try
+			{
+				trackerSocket = new Socket(SocketType.Stream, ProtocolType.Tcp);
+				trackerSocket.Connect(new IPEndPoint(Dns.GetHostAddresses("tracker.timedashgame.com")[0], 1260));
+
+				connected = true;
+				Log.Write(ConsoleColor.Green, "Connected to server tracker");
+				Log.Write(ConsoleColor.Green, "Your server will show up in the server list");
+			}
+			catch (Exception e)
+			{
+			}
 		}
 	}
 
@@ -46,7 +53,7 @@ public class TrackerHandler
 		{
 			try
 			{
-				trackerSocket.Send(new byte[] { });
+				trackerSocket.Send(new byte[] { 0 });
 			}
 			catch (Exception e)
 			{
@@ -71,7 +78,7 @@ public class TrackerHandler
 		MessageBuffer msg = new MessageBuffer();
 		msg.WriteString(Game.serverName);
 		msg.WriteString(game.map.filename);
-		msg.WriteInt(game.map.NumberOfPlayers);
+		msg.WriteByte(game.map.NumberOfPlayers);
 
 		Game.server.SendExternal(msg, ip);
 	}
