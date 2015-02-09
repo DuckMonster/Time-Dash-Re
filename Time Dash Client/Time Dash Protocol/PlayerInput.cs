@@ -1,6 +1,6 @@
 ﻿public class PlayerInput
 {
-	bool[] inputData = new bool[7];
+	bool[] inputData = new bool[8];
 	public int Length
 	{
 		get
@@ -100,5 +100,6 @@ public enum PlayerKey : short
 	Down,
 	Jump,
 	Dash,
-	Parry
+	Parry,
+	Shoot
 }

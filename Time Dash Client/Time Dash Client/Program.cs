@@ -74,7 +74,14 @@ public class Program : GameWindow
 	{
 		base.OnUpdateFrame(e);
 
-		if (Focused) KeyboardInput.Update();
+		if (Focused)
+		{
+			KeyboardInput.Update();
+			MouseInput.Update();
+		}
+
+		Log.Debug(MouseInput.Current.X + ", " + MouseInput.Current.Y);
+
 		game.Logic();
 	}
 

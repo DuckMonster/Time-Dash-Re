@@ -69,6 +69,12 @@ public partial class Player : Actor
 		SendDashToPlayer(start, target, map.playerList);
 	}
 
+	public void ReceiveShoot(Vector2 position, Direction d)
+	{
+		this.position = position;
+		Shoot(d);
+	}
+
 	public void SendExistanceToPlayer(params Player[] players)
 	{
 		SendMessageToPlayer(GetExistanceMessage(), false, players);
@@ -133,6 +139,11 @@ public partial class Player : Actor
 	public void SendDashToPlayer(Vector2 start, Vector2 target, params Player[] players)
 	{
 		SendMessageToPlayer(GetDashMessage(start, target), true, players);
+	}
+
+	public void SendShootToPlayer(Vector2 position, Vector2 hitpos, params Player[] players)
+	{
+		SendMessageToPlayer(GetShootMessage(position, hitpos), false, players);
 	}
 
 	public void SendDodgeCollisionToPlayer(Player p, params Player[] players)
@@ -288,6 +299,19 @@ public partial class Player : Actor
 
 		msg.WriteVector(start);
 		msg.WriteVector(target);
+
+		return msg;
+	}
+
+	MessageBuffer GetShootMessage(Vector2 position, Vector2 hitPosition)
+	{
+		MessageBuffer msg = new MessageBuffer();
+
+		msg.WriteShort((short)Protocol.PlayerShoot);
+		msg.WriteByte(id);
+
+		msg.WriteVector(position);
+		msg.WriteVector(hitPosition);
 
 		return msg;
 	}

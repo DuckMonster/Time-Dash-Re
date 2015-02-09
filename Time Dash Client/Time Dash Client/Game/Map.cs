@@ -295,12 +295,12 @@ public class Map : IDisposable
 					playerList[msg.ReadByte()].ReceivePosition(msg.ReadVector2(), msg.ReadVector2());
 					break;
 
-				case Protocol.PlayerKill:
-					playerList[msg.ReadByte()].Kill(playerList[msg.ReadByte()]);
+				case Protocol.PlayerHit:
+					playerList[msg.ReadByte()].Hit();
 					break;
 
 				case Protocol.PlayerDie:
-					playerList[msg.ReadByte()].Hit(msg.ReadVector2());
+					playerList[msg.ReadByte()].Die(msg.ReadVector2());
 					break;
 
 				case Protocol.PlayerRespawn:
@@ -325,6 +325,10 @@ public class Map : IDisposable
 
 				case Protocol.PlayerDashCollision:
 					playerList[msg.ReadByte()].ReceiveDashCollision(msg.ReadByte(), msg.ReadVector2(), msg.ReadVector2());
+					break;
+
+				case Protocol.PlayerShoot:
+					playerList[msg.ReadByte()].ReceiveShoot(msg.ReadVector2(), msg.ReadVector2());
 					break;
 				
 				case Protocol.PlayerWin:

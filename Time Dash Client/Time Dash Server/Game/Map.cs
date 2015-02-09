@@ -187,6 +187,43 @@ public class Map
 		}
 	}
 
+	public Player RayTrace(Vector2 start, Vector2 end, Vector2 size, out Vector2 freepos, params Player[] exclude)
+	{
+		List<Player> excludeList = new List<Player>(exclude);
+		Vector2 diffVector = end - start, directionVector = diffVector.Normalized();
+
+		int accuracy = (int)(diffVector.Length * 6);
+		float step = diffVector.Length / accuracy;
+		Vector2 checkpos = start;
+
+		for (int i = 0; i < accuracy; i++)
+		{
+			Vector2 buffer = checkpos;
+			buffer += directionVector * step;
+
+			if (GetCollision(buffer, size))
+			{
+				freepos = checkpos;
+				return null;
+			}
+			foreach (Player p in playerList)
+			{
+				if (p == null || excludeList.Contains(p)) continue;
+
+				if (p.CollidesWith(checkpos, size))
+				{
+					freepos = checkpos;
+					return p;
+				}
+			}
+
+			checkpos = buffer;
+		}
+
+		freepos = end;
+		return null;
+	}
+
 	public bool RayTraceCollision(Vector2 start, Vector2 end, Vector2 size, out Vector2 freepos)
 	{
 		Vector2 diffVector = end - start, directionVector = diffVector.Normalized();
@@ -336,6 +373,10 @@ public class Map
 
 					case Protocol.PlayerDash:
 						p.ReceiveDash(msg.ReadVector2(), msg.ReadVector2());
+						break;
+
+					case Protocol.PlayerShoot:
+						p.ReceiveShoot(msg.ReadVector2(), (Direction)msg.ReadByte());
 						break;
 				}
 			}

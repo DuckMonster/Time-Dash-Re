@@ -9,10 +9,8 @@ public class KothPlayer : Player
 	{
 	}
 
-	public override void Kill(Player p)
+	public void Kill(Player p)
 	{
-		base.Kill(p);
-
 		((KothMap)map).point.ChangeScore(id, 2);
 	}
 }

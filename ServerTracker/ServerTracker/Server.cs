@@ -30,6 +30,11 @@ namespace ServerTracker
 			msg.WriteString(ip);
 		}
 
+		public void Disconnect()
+		{
+			program.ServerDisconnected(this);
+		}
+
 		public void Ping()
 		{
 			try

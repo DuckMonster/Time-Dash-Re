@@ -10,7 +10,11 @@ public enum Direction
 	Up,
 	Down,
 	Right,
-	Left
+	Left,
+	UpRight,
+	DownRight,
+	UpLeft,
+	DownLeft
 }
 
 public partial class Player : Actor
@@ -158,7 +162,8 @@ public partial class Player : Actor
 				}
 				else if (!p.IsDodging && !AlliedWith(p))
 				{
-					Kill(p);
+					p.Die();
+					OnKill(p);
 				}
 			}
 		} 
@@ -187,4 +192,51 @@ public partial class Player : Actor
 		canDoublejump = true;
 	}
 	#endregion
+
+	public void Shoot(Direction dir)
+	{
+		Vector2 coll;
+		Player p = map.RayTrace(position, position + GetDirectionVector(dir) * 50, new Vector2(0.2f, 0.2f), out coll, this);
+
+		if (p != null) p.Hit();
+
+		SendShootToPlayer(position, coll, map.playerList);
+	}
+
+	public static Direction GetInputDirection(PlayerInput input)
+	{
+		Vector2 vec = Vector2.Zero;
+
+		if (input[PlayerKey.Right]) vec.X += 1;
+		if (input[PlayerKey.Left]) vec.X -= 1;
+		if (input[PlayerKey.Up]) vec.Y += 1;
+		if (input[PlayerKey.Down]) vec.Y -= 1;
+
+		if (vec == new Vector2(1, 0)) return Direction.Right;
+		if (vec == new Vector2(-1, 0)) return Direction.Left;
+		if (vec == new Vector2(0, 1)) return Direction.Up;
+		if (vec == new Vector2(0, -1)) return Direction.Down;
+		if (vec == new Vector2(1, 1)) return Direction.UpRight;
+		if (vec == new Vector2(-1, 1)) return Direction.UpLeft;
+		if (vec == new Vector2(1, -1)) return Direction.DownRight;
+		if (vec == new Vector2(-1, -1)) return Direction.DownLeft;
+
+		return Direction.Right;
+	}
+
+	public static Vector2 GetDirectionVector(Direction dir)
+	{
+		switch (dir)
+		{
+			case Direction.Right: return new Vector2(1, 0);
+			case Direction.Left: return new Vector2(-1, 0);
+			case Direction.Up: return new Vector2(0, 1);
+			case Direction.Down: return new Vector2(0, -1);
+			case Direction.UpRight: return new Vector2(1, 1).Normalized();
+			case Direction.UpLeft: return new Vector2(-1, 1).Normalized();
+			case Direction.DownRight: return new Vector2(1, -1).Normalized();
+			case Direction.DownLeft: return new Vector2(-1, -1).Normalized();
+			default: return new Vector2(0, 0);
+		}
+	}
 }

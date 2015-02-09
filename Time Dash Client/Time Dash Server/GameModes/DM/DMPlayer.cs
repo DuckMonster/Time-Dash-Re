@@ -8,9 +8,9 @@ public class DMPlayer : Player
 	{
 	}
 
-	public override void Kill(Player p)
+	public override void OnKill(Player p)
 	{
-		base.Kill(p);
+		base.OnKill(p);
 		((DMMap)map).scoreboard.ChangeScore(id, 1);
 	}
 }

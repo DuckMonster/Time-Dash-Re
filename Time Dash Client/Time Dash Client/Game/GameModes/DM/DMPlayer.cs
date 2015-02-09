@@ -16,9 +16,4 @@ public class DMPlayer : Player
 		: base(id, name, position, m)
 	{
 	}
-
-	public override void Kill(Player p)
-	{
-		base.Kill(p);
-	}
 }

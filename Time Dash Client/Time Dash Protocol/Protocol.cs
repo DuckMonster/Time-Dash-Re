@@ -26,7 +26,9 @@ public enum Protocol
 	PlayerDash,
 	PlayerDodgeCollision,
 	PlayerDashCollision,
+	PlayerShoot,
 
+	PlayerHit,
 	PlayerKill,
 	PlayerDie,
 	PlayerRespawn,

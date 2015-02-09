@@ -111,7 +111,6 @@ public partial class Player : Actor
 	Timer dodgeCooldown;
 	Timer disableTimer;
 
-	float dodgeInterval = 0.2f;
 	float dodgeIntervalTimer = 0;
 
 	float dodgeGravityIgnoreTime = 0.1f;
@@ -226,15 +225,17 @@ public partial class Player : Actor
 
 		dashTarget = null;
 		dodgeTarget = null;
+	}
+
+	public override void Die()
+	{
+		base.Die();
 
 		SendDieToPlayer(map.playerList);
 	}
 
-	public virtual void Kill(Player p)
+	public virtual void OnKill(Player p)
 	{
-		p.Hit();
-
-		SendKillToPlayer(p, map.playerList);
 	}
 
 	public override void Respawn()

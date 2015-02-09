@@ -18,6 +18,7 @@ public class Actor : Entity
 		: base(position, m)
 	{
 		stats = new Stats();
+		health = stats.PlayerHealth;
 	}
 
 	public override bool CollidesWith(Vector2 pos, Vector2 s)
@@ -72,13 +73,17 @@ public class Actor : Entity
 	public virtual void Hit()
 	{
 		health--;
-		velocity = Vector2.Zero;
+	}
+
+	public virtual void Die(Vector2 diePos)
+	{
+		health = 0;
 	}
 
 	public virtual void Respawn(Vector2 pos)
 	{
 		position = pos;
-		health = 1;
+		health = stats.PlayerHealth;
 	}
 
 	public override void Logic()

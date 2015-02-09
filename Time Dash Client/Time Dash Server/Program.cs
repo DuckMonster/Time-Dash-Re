@@ -32,7 +32,7 @@ class Program
 		game = new Game();
 
 		Multimedia.Timer timer = new Multimedia.Timer();
-		timer.Period = 5;
+		timer.Period = 7;
 		timer.Resolution = 0;
 		timer.Mode = Multimedia.TimerMode.Periodic;
 		timer.Tick += timer_Tick;

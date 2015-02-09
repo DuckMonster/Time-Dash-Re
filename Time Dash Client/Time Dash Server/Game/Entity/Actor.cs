@@ -10,7 +10,7 @@ public class Actor : Entity
 	protected float currentAcceleration = 0;
 	protected int dir = 1;
 
-	public int health = 1;
+	public int health;
 
 	public float Acceleration
 	{
@@ -50,6 +50,7 @@ public class Actor : Entity
 		: base(position, m)
 	{
 		stats = new Stats();
+		health = stats.PlayerHealth;
 	}
 
 	public override bool CollidesWith(Vector2 pos, Vector2 s)
@@ -67,12 +68,19 @@ public class Actor : Entity
 	public virtual void Hit()
 	{
 		health--;
-		velocity = Vector2.Zero;
+
+		if (!IsAlive)
+			Die();
+	}
+
+	public virtual void Die()
+	{
+		health = 0;
 	}
 
 	public virtual void Respawn()
 	{
-		health = 1;
+		health = stats.PlayerHealth;
 	}
 
 	public override void Logic()

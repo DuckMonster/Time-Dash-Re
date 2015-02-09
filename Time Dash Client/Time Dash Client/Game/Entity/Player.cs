@@ -244,7 +244,12 @@ public partial class Player : Actor
 		playerTileset.Dispose();
 	}
 
-	public virtual void Hit(Vector2 diePos)
+	public override void Hit()
+	{
+		base.Hit();
+	}
+
+	public override void Die(Vector2 diePos)
 	{
 		map.AddEffect(new EffectSkull(diePos, Color, map));
 
@@ -252,11 +257,8 @@ public partial class Player : Actor
 		dodgeTarget = null;
 
 		dashCooldown.Reset();
-		Hit();
-	}
 
-	public virtual void Kill(Player p)
-	{
+		base.Die(diePos);
 	}
 
 	public override void Respawn(Vector2 pos)
@@ -409,6 +411,7 @@ public partial class Player : Actor
 				}
 
 				SendJump();
+				bufferFrame = false;
 			}
 
 			//Dash
@@ -416,6 +419,9 @@ public partial class Player : Actor
 			{
 				Dash(shadow.CurrentPosition);
 			}
+
+			if (input[PlayerKey.Shoot] && !oldInput[PlayerKey.Shoot])
+				SendShoot(GetInputDirection(input, this));
 		}
 		else
 		{
@@ -451,8 +457,8 @@ public partial class Player : Actor
 	{
 		if (Program.client.Focused)
 		{
-			inputData[PlayerKey.Right] = KeyboardInput.Current[Key.Right];
-			inputData[PlayerKey.Left] = KeyboardInput.Current[Key.Left];
+			inputData[PlayerKey.Right] = KeyboardInput.Current[Key.D];
+			inputData[PlayerKey.Left] = KeyboardInput.Current[Key.A];
 		}
 		else
 		{
@@ -460,10 +466,11 @@ public partial class Player : Actor
 			inputData[PlayerKey.Left] = KeyboardInput.Current[Key.Right];
 		}
 
-		inputData[PlayerKey.Up] = KeyboardInput.Current[Key.Up];
-		inputData[PlayerKey.Down] = KeyboardInput.Current[Key.Down];
-		inputData[PlayerKey.Jump] = KeyboardInput.Current[Key.Z];
+		inputData[PlayerKey.Up] = KeyboardInput.Current[Key.W];
+		inputData[PlayerKey.Down] = KeyboardInput.Current[Key.S];
+		inputData[PlayerKey.Jump] = KeyboardInput.Current[Key.Space];
 		inputData[PlayerKey.Dash] = KeyboardInput.Current[Key.X];
+		inputData[PlayerKey.Shoot] = KeyboardInput.Current[Key.LShift];
 	}
 
 	public override void Draw()
@@ -501,7 +508,7 @@ public partial class Player : Actor
 		if (dashTarget != null)
 		{
 			mesh.Rotate(dashTarget.angle);
-			mesh.Scale(1 + dashTarget.lastStep * 8.5f, 1 - dashTarget.lastStep * 2.7f);
+			mesh.Scale(1 + dashTarget.lastStep * 2.4f, 1 - dashTarget.lastStep * 0.5f);
 			mesh.Rotate(-dashTarget.angle);
 		}
 

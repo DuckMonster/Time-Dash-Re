@@ -98,6 +98,11 @@ public partial class Player
 		dashTargetBuffer = new DashTarget(start, target);
 	}
 
+	public void ReceiveShoot(Vector2 position, Vector2 hitpos)
+	{
+		map.AddEffect(new EffectBullet(position, hitpos, map));
+	}
+
 	void SendInput()
 	{
 		MessageBuffer msg = new MessageBuffer();
@@ -170,6 +175,18 @@ public partial class Player
 		msg.WriteShort((short)Protocol.PlayerDash);
 		msg.WriteVector(target.startPosition);
 		msg.WriteVector(target.endPosition);
+
+		Game.client.Send(msg);
+	}
+
+	void SendShoot(Direction dir)
+	{
+		MessageBuffer msg = new MessageBuffer();
+
+		msg.WriteShort((short)Protocol.PlayerShoot);
+
+		msg.WriteVector(position);
+		msg.WriteByte((byte)dir);
 
 		Game.client.Send(msg);
 	}

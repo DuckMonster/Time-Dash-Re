@@ -10,7 +10,11 @@ public enum Direction
 	Up,
 	Down,
 	Right,
-	Left
+	Left,
+	UpRight,
+	DownRight,
+	UpLeft,
+	DownLeft
 }
 
 public partial class Player : Actor
@@ -19,6 +23,8 @@ public partial class Player : Actor
 	{
 		//jumpSound.Play();
 		base.Jump();
+
+		gravityIgnore = 0f;
 	}
 
 	public void WallJump()
@@ -141,7 +147,7 @@ public partial class Player : Actor
 		dashTarget.timeTraveled += Game.delta;
 
 		Vector2 direction = (dashTarget.endPosition - position).Normalized();
-		float speedFactor = TKMath.Exp(Math.Max(0, 0.9f - dashTarget.timeTraveled * 5), 2f, 20);
+		float speedFactor = TKMath.Exp(Math.Max(0, 0.9f - dashTarget.timeTraveled * 10), 2f, 20);
 
 		Vector2 stepSize = direction * speedFactor * stats.DashVelocity * Game.delta;
 
@@ -184,4 +190,42 @@ public partial class Player : Actor
 		//dashSound.Play();
 	}
 	#endregion
+
+	public static Direction GetInputDirection(PlayerInput input, Player p)
+	{
+		Vector2 vec = Vector2.Zero;
+
+		if (input[PlayerKey.Right]) vec.X += 1;
+		if (input[PlayerKey.Left]) vec.X -= 1;
+		if (input[PlayerKey.Up]) vec.Y += 1;
+		if (input[PlayerKey.Down]) vec.Y -= 1;
+
+		if (vec == new Vector2(1, 0)) return Direction.Right;
+		if (vec == new Vector2(-1, 0)) return Direction.Left;
+		if (vec == new Vector2(0, 1)) return Direction.Up;
+		if (vec == new Vector2(0, -1)) return Direction.Down;
+		if (vec == new Vector2(1, 1)) return Direction.UpRight;
+		if (vec == new Vector2(-1, 1)) return Direction.UpLeft;
+		if (vec == new Vector2(1, -1)) return Direction.DownRight;
+		if (vec == new Vector2(-1, -1)) return Direction.DownLeft;
+
+		if (p.dir == 1) return Direction.Right;
+		else return Direction.Left;
+	}
+
+	public static Vector2 GetDirectionVector(Direction dir)
+	{
+		switch (dir)
+		{
+			case Direction.Right: return new Vector2(1, 0);
+			case Direction.Left: return new Vector2(-1, 0);
+			case Direction.Up: return new Vector2(0, 1);
+			case Direction.Down: return new Vector2(0, -1);
+			case Direction.UpRight: return new Vector2(1, 1).Normalized();
+			case Direction.UpLeft: return new Vector2(-1, 1).Normalized();
+			case Direction.DownRight: return new Vector2(1, -1).Normalized();
+			case Direction.DownLeft: return new Vector2(-1, -1).Normalized();
+			default: return new Vector2(0, 0);
+		}
+	}
 }
