@@ -16,6 +16,8 @@ public class Program : GameWindow
 	public static Program client;
 	Game game;
 
+	int mousex, mousey;
+
 	public Program(int w, int h, GRFX.GraphicsMode mode)
 		: base(w, h, mode)
 	{
@@ -39,6 +41,13 @@ public class Program : GameWindow
 			if (WindowState == OpenTK.WindowState.Maximized) this.WindowState = OpenTK.WindowState.Normal;
 			else this.WindowState = OpenTK.WindowState.Maximized;
 		}
+	}
+
+	protected override void OnMouseMove(MouseMoveEventArgs e)
+	{
+		base.OnMouseMove(e);
+		mousex = e.X;
+		mousey = e.Y;
 	}
 
 	protected override void OnLoad(EventArgs e)
@@ -77,10 +86,8 @@ public class Program : GameWindow
 		if (Focused)
 		{
 			KeyboardInput.Update();
-			MouseInput.Update();
+			MouseInput.Update(mousex, mousey, this);
 		}
-
-		Log.Debug(MouseInput.Current.X + ", " + MouseInput.Current.Y);
 
 		game.Logic();
 	}

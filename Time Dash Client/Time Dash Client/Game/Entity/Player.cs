@@ -572,5 +572,12 @@ public partial class Player : Actor
 
 		//if (shadow != null && IsLocalPlayer && (dashCooldown.IsDone || IsDashing) && !Disabled) shadow.Draw();
 		if (IsLocalPlayer && (CanDash || IsDashing)) shadow.Draw();
+
+		mesh.Reset();
+
+		mesh.Translate(MouseInput.Current.X, MouseInput.Current.Y);
+		mesh.Scale(4f);
+
+		mesh.Draw();
 	}
 }

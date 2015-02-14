@@ -14,7 +14,7 @@ public class Map : IDisposable
 	public GameMode mode;
 
 	public int myID;
-	protected Camera camera;
+	public Camera camera;
 	public Scene scene;
 
 	public Team[] teamList = new Team[10];
@@ -128,6 +128,8 @@ public class Map : IDisposable
 
 		hudMesh = new Mesh(hudDrawer);
 		hudDrawer.UpdateTexture();
+
+		MouseInput.SetCamera(camera);
 	}
 
 	public virtual void Dispose()

@@ -11,7 +11,7 @@ public class MouseInput
 		{
 			get
 			{
-				return x;
+				return x * camera.position.Z + camera.position.X;
 			}
 		}
 
@@ -19,7 +19,7 @@ public class MouseInput
 		{
 			get
 			{
-				return y;
+				return y * camera.position.Z + camera.position.Y;
 			}
 		}
 
@@ -37,6 +37,12 @@ public class MouseInput
 				return status.IsButtonDown(btn);
 			}
 		}
+	}
+
+	private static Camera camera;
+	public static void SetCamera(Camera c)
+	{
+		camera = c;
 	}
 
 	private static MouseStatus current, previous;
@@ -57,5 +63,15 @@ public class MouseInput
 
 		previous = current;
 		current = new MouseStatus(xx, yy, Mouse.GetState());
+	}
+
+	public static bool GetPressed(MouseButton btn)
+	{
+		return (Current[btn] && !Previous[btn]);
+	}
+
+	public static bool GetReleased(MouseButton btn)
+	{
+		return (!Current[btn] && Previous[btn]);
 	}
 }

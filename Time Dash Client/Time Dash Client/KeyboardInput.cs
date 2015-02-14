@@ -19,4 +19,14 @@ class KeyboardInput
 		previous = current;
 		current = OpenTK.Input.Keyboard.GetState();
 	}
+
+	public static bool KeyPressed(Key k)
+	{
+		return Current[k] && !Previous[k];
+	}
+
+	public static bool KeyReleased(Key k)
+	{
+		return !Current[k] && Previous[k];
+	}
 }
