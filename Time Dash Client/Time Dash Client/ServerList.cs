@@ -75,11 +75,12 @@ public class ServerList
 
 	public ServerList(ConnectMethod method)
 	{
-		IPEndPoint trackerIP = new IPEndPoint(Dns.GetHostAddresses("tracker.timedashgame.com")[0], 1260);
 		Console.Clear();
 
 		try
 		{
+			IPEndPoint trackerIP = new IPEndPoint(Dns.GetHostAddresses("tracker.timedashgame.com")[0], 1260);
+
 			UdpClient client = new UdpClient();
 			client.Client.ReceiveTimeout = 2000;
 

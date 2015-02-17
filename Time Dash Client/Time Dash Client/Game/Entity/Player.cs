@@ -391,9 +391,9 @@ public partial class Player : Actor
 		if (input[PlayerKey.Right]) inputDirection.X++;
 		if (input[PlayerKey.Left]) inputDirection.X--;
 
-		if (input[PlayerKey.Up]) 
+		if (input[PlayerKey.Up])
 			inputDirection.Y++;
-		if (input[PlayerKey.Down]) 
+		if (input[PlayerKey.Down])
 			inputDirection.Y--;
 
 		if (IsLocalPlayer)
@@ -594,16 +594,5 @@ public partial class Player : Actor
 
 		foreach (Bullet b in bulletList)
 			if (b != null) b.Draw();
-
-		shitMesh.Color = new Color(1, 0, 0, 0.2f);
-
-		shitMesh.Reset();
-
-		shitMesh.Translate(position);
-		shitMesh.Scale(size);
-
-		//shitMesh.Draw();
 	}
-
-	Mesh shitMesh = Mesh.Box;
 }

@@ -4,17 +4,20 @@ using TKTools;
 
 public class EffectSmoke : Effect
 {
+	static Ran
+
 	static Texture smokeTexture;
 	public static Color defaultColor = new Color(212, 190, 166);
 
 	Vector2 position;
-	Mesh mesh;
+	Mesh mesh, maskMesh;
 
 	Timer smokeTimer = new Timer(1f, false);
 	Color color;
 
 	float smokeSize;
 	Vector2 direction;
+	Vector2 maskOffset;
 
 	float speed;
 
@@ -29,7 +32,7 @@ public class EffectSmoke : Effect
 			}
 			else
 			{
-				return smokeSize - ((smokeTimer.PercentageDone - 0.3f) / 0.7f) * smokeSize;
+				return smokeSize - ((smokeTimer.PercentageDone - 0.3f) / 0.7f) * 0.2f * smokeSize;
 			}
 		}
 	}
@@ -48,6 +51,10 @@ public class EffectSmoke : Effect
 
 		mesh = Mesh.Box;
 		mesh.Texture = smokeTexture;
+
+		maskMesh = Mesh.Box;
+		maskMesh.Texture = smokeTexture;
+
 		smokeTimer.Reset(time);
 	}
 
@@ -82,6 +89,7 @@ public class EffectSmoke : Effect
 	public override void Draw()
 	{
 		if (smokeTimer.IsDone) return;
+
 		mesh.Draw();
 	}
 }

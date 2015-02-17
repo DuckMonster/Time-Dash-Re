@@ -25,11 +25,15 @@ public class Camera
 
 		if (p != null)
 		{
-			Vector2 target = p.position + p.velocity * 0.1f;
+			Vector2 mouseDelta = (MouseInput.Current.Position - position.Xy) * 0.5f;
+			if (mouseDelta.Length > 2f)
+				mouseDelta = mouseDelta.Normalized() * 2f;
+
+			Vector2 target = p.position + p.velocity * 0.1f + mouseDelta;
 			Vector2 difference = target - position.Xy;
 			position.Xy += difference * 5f * Game.delta;
 
-			float targetZ = 10f + difference.Length * 2.2f,
+			float targetZ = 5f + difference.Length * 2.2f + mouseDelta.Length,
 				ZDifference = targetZ - position.Z;
 			position.Z += ZDifference * 0.8f * Game.delta;
 		}

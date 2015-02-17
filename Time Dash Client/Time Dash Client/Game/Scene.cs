@@ -205,8 +205,8 @@ namespace MapScene
 			if (backgroundTexture != null)
 				backgroundMesh.Draw();
 
-			foreach (EnvSolid solid in solidList)
-				solid.Draw();
+			//foreach (EnvSolid solid in solidList)
+			//	solid.Draw();
 
 			GL.Enable(EnableCap.DepthTest);
 			foreach (Mesh m in combinedMeshes)

@@ -178,7 +178,7 @@ public class Game
 		{
 			if (map != null)
 			{
-				map.scene.Draw();
+				//map.scene.Draw();
 				map.Draw();
 			}
 		}

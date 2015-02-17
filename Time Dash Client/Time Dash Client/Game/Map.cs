@@ -255,6 +255,9 @@ public class Map : IDisposable
 	{
 		Game.defaultShader["view"].SetValue(camera.ViewMatrix);
 		Tileset.tileProgram["view"].SetValue(camera.ViewMatrix);
+
+		scene.Draw();
+
 		foreach (Player p in playerList) if (p != null) p.Draw();
 		foreach (Effect e in effectList) e.Draw();
 
