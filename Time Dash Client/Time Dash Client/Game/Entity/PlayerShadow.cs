@@ -31,7 +31,7 @@ public class PlayerShadow : IDisposable
 		}
 	}
 
-	static Tileset shadowTileset = new Tileset(200, 160, "Res/jackShadowTileset.png");
+	static Tileset shadowTileset = new Tileset(250, 200, "Res/jackShadowTileset.png");
 	static Texture circleTexture = new Texture("Res/circlebig.png");
 
 	Player player;
@@ -111,7 +111,7 @@ public class PlayerShadow : IDisposable
 
 			mesh.Translate(CurrentPosition.position);
 			mesh.Scale(player.size);
-			mesh.Scale(-CurrentPosition.direction, 1);
+			mesh.Scale(CurrentPosition.direction, 1);
 
 			mesh.Draw(shadowTileset, CurrentPosition.tilex, CurrentPosition.tiley);
 		}

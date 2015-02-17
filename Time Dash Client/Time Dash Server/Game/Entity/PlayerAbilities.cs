@@ -193,14 +193,16 @@ public partial class Player : Actor
 	}
 	#endregion
 
-	public void Shoot(Direction dir)
+	Bullet[] bulletList = new Bullet[10];
+	int bulletIndex = 0;
+
+	public void Shoot(Vector2 target)
 	{
-		Vector2 coll;
-		Player p = map.RayTrace(position, position + GetDirectionVector(dir) * 50, new Vector2(0.2f, 0.2f), out coll, this);
+		bulletList[bulletIndex] = new Bullet(this, target, map);
+		bulletList[bulletIndex].Logic();
+		bulletIndex = (bulletIndex + 1) % bulletList.Length;
 
-		if (p != null) p.Hit();
-
-		SendShootToPlayer(position, coll, map.playerList);
+		SendShootToPlayer(position, target, map.playerList);
 	}
 
 	public static Direction GetInputDirection(PlayerInput input)

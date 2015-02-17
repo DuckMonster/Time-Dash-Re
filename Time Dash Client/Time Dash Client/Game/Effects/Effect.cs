@@ -2,7 +2,7 @@
 
 public class Effect : IDisposable
 {
-	Map map;
+	protected Map map;
 
 	public Effect(Map m)
 	{

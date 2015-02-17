@@ -35,7 +35,6 @@ public class Map : IDisposable
 	public void AddEffect(Effect e)
 	{
 		effectList.Add(e);
-		effectBufferList.Add(e);
 	}
 	public void RemoveEffect(Effect e)
 	{
@@ -233,6 +232,13 @@ public class Map : IDisposable
 		 
 		if (LocalPlayer != null) LocalPlayer.LocalInput();
 		foreach (Player p in playerList) if (p != null) p.Logic();
+
+		if (!effectList.Equals(effectBufferList))
+		{
+			effectBufferList.Clear();
+			effectBufferList.AddRange(effectList.ToArray());
+		}
+
 		foreach (Effect e in effectBufferList) e.Logic();
 
 		if (!effectList.Equals(effectBufferList))

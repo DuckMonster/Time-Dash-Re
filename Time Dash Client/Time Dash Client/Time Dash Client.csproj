@@ -65,10 +65,14 @@
     <Compile Include="Game\Effects\EffectBullet.cs" />
     <Compile Include="Game\Effects\EffectCollision.cs" />
     <Compile Include="Game\Effects\EffectRing.cs" />
+    <Compile Include="Game\Effects\EffectRockSmoke.cs" />
     <Compile Include="Game\Effects\EffectSkull.cs" />
     <Compile Include="Game\Effects\EffectLine.cs" />
+    <Compile Include="Game\Effects\EffectSmokeCone.cs" />
     <Compile Include="Game\Effects\EffectSpike.cs" />
+    <Compile Include="Game\Effects\Smoke.cs" />
     <Compile Include="Game\Entity\Actor.cs" />
+    <Compile Include="Game\Entity\Bullet.cs" />
     <Compile Include="Game\Entity\Entity.cs" />
     <Compile Include="Game\Entity\PlayerAbilities.cs" />
     <Compile Include="Game\Entity\PlayerNetwork.cs" />
@@ -136,6 +140,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Res\jackTileset.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Res\jacktilesetnew.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Res\shadowArrow.png">

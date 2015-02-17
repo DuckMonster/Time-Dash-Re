@@ -125,8 +125,8 @@ public partial class Player : Actor
 	float dodgeGravityIgnoreTime = 0.1f;
 	float gravityIgnore = 0f;
 
-	public Tileset playerTileset = new Tileset(200, 160, "Res/jackTileset.png"),
-		occlusionTileset = new Tileset(200, 160, "Res/jackShadowTileset.png");
+	public Tileset playerTileset = new Tileset(250, 200, "Res/jacktilesetnew.png"),
+		occlusionTileset = new Tileset(250, 200, "Res/jackShadowTileset.png");
 
 	public Sound jumpSound = new Sound(@"Res\Snd\jump.wav"),
 		dashSound = new Sound(@"Res\Snd\dash.wav");
@@ -219,17 +219,29 @@ public partial class Player : Actor
 	{
 		playerID = id;
 		playerName = name;
-		//float w = (size.X / size.Y);
-		float w = (float)playerTileset.TileHeight / playerTileset.TileWidth / 2;
 
-		w = w * (size.X / size.Y);
+		float charHeight = 165f;
+		float h = (float)playerTileset.TileHeight / charHeight;
+		float w = ((float)playerTileset.TileWidth / playerTileset.TileHeight);
+
+		mesh.Dispose();
+		mesh = new Mesh(OpenTK.Graphics.OpenGL.PrimitiveType.Quads);
+
+		mesh.Vertices = new Vector2[] {
+			new Vector2(-0.5f * w * h, -0.5f + h),
+			new Vector2(0.5f * w * h, -0.5f + h),
+			new Vector2(0.5f * w * h, -0.5f),
+			new Vector2(-0.5f * w * h, - 0.5f)
+		};
 
 		mesh.UV = new Vector2[] {
-			new Vector2(0.5f-w, 0f),
-			new Vector2(0.5f+w, 0f),
-			new Vector2(0.5f+w, 1f),
-			new Vector2(0.5f-w, 1f)
+			new Vector2(0, 0),
+			new Vector2(1, 0),
+			new Vector2(1, 1),
+			new Vector2(0, 1)
 		};
+
+		mesh.Texture = playerTileset.sourceTexture;
 
 		shadow = new PlayerShadow(this, mesh);
 
@@ -242,6 +254,9 @@ public partial class Player : Actor
 	{
 		base.Dispose();
 		playerTileset.Dispose();
+
+		foreach (Bullet b in bulletList)
+			if (b != null) b.Dispose();
 	}
 
 	public override void Hit()
@@ -269,6 +284,9 @@ public partial class Player : Actor
 
 	public override void Logic()
 	{
+		foreach (Bullet b in bulletList)
+			if (b != null) b.Logic();
+
 		if (!IsAlive) return;
 
 		if (shadow != null && !dashCooldown.IsDone)
@@ -420,8 +438,9 @@ public partial class Player : Actor
 				Dash(shadow.CurrentPosition);
 			}
 
+			//Shooting
 			if (input[PlayerKey.Shoot] && !oldInput[PlayerKey.Shoot])
-				SendShoot(GetInputDirection(input, this));
+				Shoot(MouseInput.Current.Position);
 		}
 		else
 		{
@@ -469,8 +488,8 @@ public partial class Player : Actor
 		inputData[PlayerKey.Up] = KeyboardInput.Current[Key.W];
 		inputData[PlayerKey.Down] = KeyboardInput.Current[Key.S];
 		inputData[PlayerKey.Jump] = KeyboardInput.Current[Key.Space];
-		inputData[PlayerKey.Dash] = KeyboardInput.Current[Key.X];
-		inputData[PlayerKey.Shoot] = KeyboardInput.Current[Key.LShift];
+		inputData[PlayerKey.Dash] = KeyboardInput.Current[Key.E];
+		inputData[PlayerKey.Shoot] = MouseInput.Current[MouseButton.Left];
 	}
 
 	public override void Draw()
@@ -479,7 +498,7 @@ public partial class Player : Actor
 
 		if (WallTouch != 0 && !IsOnGround)
 		{
-			playerTileset.X = 0;
+			playerTileset.X = 4;
 		}
 		else if (IsOnGround)
 		{
@@ -489,16 +508,16 @@ public partial class Player : Actor
 			}
 			else
 			{
-				playerTileset.X = 3;
+				playerTileset.X = 0;
 			}
 		}
 		else
 		{
-			if (velocity.Y > 0) playerTileset.X = 4;
-			else playerTileset.X = 2;
+			if (velocity.Y > 0) playerTileset.X = 2;
+			else playerTileset.X = 3;
 		}
 
-		mesh.FillColor = true;
+		mesh.FillColor = false;
 
 		mesh.Reset();
 
@@ -519,11 +538,11 @@ public partial class Player : Actor
 			mesh.Rotate(-dodgeTarget.stepAngle);
 		}
 
-		mesh.Scale(new Vector2(-dir, 1));
+		mesh.Scale(new Vector2(dir, 1));
 
 		mesh.Color = Color.Black;
 		mesh.Draw(occlusionTileset, playerTileset.X, playerTileset.Y);
-		mesh.Color = Color;
+		mesh.Color = Color.White;
 
 		mesh.Draw(playerTileset);
 
@@ -573,11 +592,18 @@ public partial class Player : Actor
 		//if (shadow != null && IsLocalPlayer && (dashCooldown.IsDone || IsDashing) && !Disabled) shadow.Draw();
 		if (IsLocalPlayer && (CanDash || IsDashing)) shadow.Draw();
 
-		mesh.Reset();
+		foreach (Bullet b in bulletList)
+			if (b != null) b.Draw();
 
-		mesh.Translate(MouseInput.Current.X, MouseInput.Current.Y);
-		mesh.Scale(4f);
+		shitMesh.Color = new Color(1, 0, 0, 0.2f);
 
-		mesh.Draw();
+		shitMesh.Reset();
+
+		shitMesh.Translate(position);
+		shitMesh.Scale(size);
+
+		//shitMesh.Draw();
 	}
+
+	Mesh shitMesh = Mesh.Box;
 }

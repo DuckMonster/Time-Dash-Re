@@ -69,6 +69,7 @@
     <Compile Include="GameModes\Scoreboard.cs" />
     <Compile Include="GameModes\SpawnPoint.cs" />
     <Compile Include="Game\Entity\Actor.cs" />
+    <Compile Include="Game\Entity\Bullet.cs" />
     <Compile Include="Game\Entity\Entity.cs" />
     <Compile Include="Game\Entity\PlayerAbilities.cs" />
     <Compile Include="Game\Entity\PlayerNetwork.cs" />

@@ -40,6 +40,8 @@ public class Stats
 	float wallJumpVelocity = 15f, wallJumpAngle = 50f;
 	float dodgeVelocity = 40f, dodgeEndVelocity = 13f, dodgeLength = 3.5f;
 
+	float bulletVelocity = 90f;
+
 	float GetFriction(float speed)
 	{
 		return -(float)(Math.Log(0.02, Math.E) / speed);
@@ -148,11 +150,13 @@ public class Stats
 	public float DodgeEndVelocity { get { return dodgeEndVelocity; } set { dodgeEndVelocity = value; } }
 	public float DodgeLength { get { return dodgeLength; } set { dodgeLength = value; } }
 
+	public float BulletVelocity { get { return bulletVelocity; } }
+
 	#endregion
 
 	#region Cooldowns
 
-	int playerHealth = 2;
+	int playerHealth = 5;
 
 	float dashCooldown = 0.8f, dodgeCooldown = 1f, disabledTime = 0.8f;
 	int airDodgeMax = 1;

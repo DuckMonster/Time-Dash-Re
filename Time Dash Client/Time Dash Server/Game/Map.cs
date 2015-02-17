@@ -376,7 +376,7 @@ public class Map
 						break;
 
 					case Protocol.PlayerShoot:
-						p.ReceiveShoot(msg.ReadVector2(), (Direction)msg.ReadByte());
+						p.ReceiveShoot(msg.ReadVector2(), msg.ReadVector2());
 						break;
 				}
 			}

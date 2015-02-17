@@ -69,10 +69,10 @@ public partial class Player : Actor
 		SendDashToPlayer(start, target, map.playerList);
 	}
 
-	public void ReceiveShoot(Vector2 position, Direction d)
+	public void ReceiveShoot(Vector2 position, Vector2 target)
 	{
 		this.position = position;
-		Shoot(d);
+		Shoot(target);
 	}
 
 	public void SendExistanceToPlayer(params Player[] players)
@@ -143,7 +143,7 @@ public partial class Player : Actor
 
 	public void SendShootToPlayer(Vector2 position, Vector2 hitpos, params Player[] players)
 	{
-		SendMessageToPlayer(GetShootMessage(position, hitpos), false, players);
+		SendMessageToPlayer(GetShootMessage(position, hitpos), true, players);
 	}
 
 	public void SendDodgeCollisionToPlayer(Player p, params Player[] players)

@@ -247,6 +247,9 @@ public partial class Player : Actor
 
 	public override void Logic()
 	{
+		foreach (Bullet b in bulletList)
+			if (b != null) b.Logic();
+
 		if (!IsAlive)
 		{
 			respawnTimer.Logic();
