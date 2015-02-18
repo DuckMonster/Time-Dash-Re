@@ -4,7 +4,7 @@ using TKTools;
 
 public class EffectSmoke : Effect
 {
-	static Ran
+	static Random rng = new Random();
 
 	static Texture smokeTexture;
 	public static Color defaultColor = new Color(212, 190, 166);
@@ -56,6 +56,8 @@ public class EffectSmoke : Effect
 		maskMesh.Texture = smokeTexture;
 
 		smokeTimer.Reset(time);
+
+		Logic();
 	}
 
 	public override void Dispose()

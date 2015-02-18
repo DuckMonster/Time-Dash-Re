@@ -25,7 +25,7 @@ public class Camera
 
 		if (p != null)
 		{
-			Vector2 mouseDelta = (MouseInput.Current.Position - position.Xy) * 0.5f;
+			Vector2 mouseDelta = (MouseInput.Current.Position - position.Xy) * 0.4f;
 			if (mouseDelta.Length > 2f)
 				mouseDelta = mouseDelta.Normalized() * 2f;
 
@@ -33,7 +33,7 @@ public class Camera
 			Vector2 difference = target - position.Xy;
 			position.Xy += difference * 5f * Game.delta;
 
-			float targetZ = 5f + difference.Length * 2.2f + mouseDelta.Length,
+			float targetZ = 7f + difference.Length * 2.2f + mouseDelta.Length,
 				ZDifference = targetZ - position.Z;
 			position.Z += ZDifference * 0.8f * Game.delta;
 		}

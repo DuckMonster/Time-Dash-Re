@@ -38,6 +38,7 @@ public class EffectRockSmoke : Effect
 	{
 		if (effectTimer.IsDone)
 			Remove();
+
 		base.Logic();
 
 		if (ignoreCollision && !map.GetCollision(position, new Vector2(0.4f, 0.4f)))
