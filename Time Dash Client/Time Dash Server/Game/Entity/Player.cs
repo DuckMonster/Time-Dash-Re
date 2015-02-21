@@ -219,6 +219,18 @@ public partial class Player : Actor
 		else return p.team == team;
 	}
 
+	public void Hit(Player p, float dir)
+	{
+		Hit();
+		SendHitToPlayer(p, dir, map.playerList);
+	}
+
+	public void Hit(Player p, Bullet b)
+	{
+		Hit();
+		SendHitToPlayer(p, TKMath.GetAngle(b.position, position), map.playerList);
+	}
+
 	public override void Hit()
 	{
 		base.Hit();

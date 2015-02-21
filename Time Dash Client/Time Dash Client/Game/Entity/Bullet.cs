@@ -52,17 +52,13 @@ public class Bullet : Entity
 	{
 		if (player == null)
 		{
-			map.AddEffect(new EffectSmokeCone(position, direction - 180, map));
+			EffectCone.CreateSmokeCone(position, direction - 180, map);
 			map.AddEffect(new EffectRing(position, 5f, 0.9f, Color.White, map));
 
 			Random rng = new Random();
 
 			float dir = ((float)rng.NextDouble() - 0.5f) * 120f;
 			map.AddEffect(new EffectRockSmoke(position, direction - 180 + dir, map));
-		}
-		else
-		{
-			map.AddEffect(new EffectRing(player.position, 5f, 0.9f, player.Color, map));
 		}
 
 		active = false;

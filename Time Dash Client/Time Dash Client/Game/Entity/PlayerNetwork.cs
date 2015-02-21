@@ -62,6 +62,17 @@ public partial class Player
 		serverPosition = position;
 	}
 
+	public void ReceiveHit(Player attacker, float dir, MessageBuffer msg)
+	{
+		map.AddEffect(new EffectPlayerHit(this, dir, map));
+
+		if ((HitType)msg.ReadByte() == HitType.Bullet)
+		{
+			int id = msg.ReadByte();
+			attacker.RemoveBullet(id);
+		}
+	}
+
 	public void ReceiveDodge(Vector2 start, Direction dir)
 	{
 		dodgeTargetBuffer = new DodgeTarget(start, dir);

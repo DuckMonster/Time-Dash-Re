@@ -197,16 +197,19 @@ public partial class Player : Actor
 	public void Shoot(Vector2 target)
 	{
 		if (bulletList[bulletIndex] != null)
-		{
-			bulletList[bulletIndex].Dispose();
-			bulletList[bulletIndex] = null;
-		}
+			RemoveBullet(bulletIndex);
 
 		bulletList[bulletIndex] = new Bullet(this, bulletIndex, target, map);
 		bulletList[bulletIndex].Logic();
 		bulletIndex = (bulletIndex + 1) % bulletList.Length;
 
 		if (IsLocalPlayer) SendShoot(target);
+	}
+
+	public void RemoveBullet(int index)
+	{
+		bulletList[index].Dispose();
+		bulletList[index] = null;
 	}
 
 	public static Direction GetInputDirection(PlayerInput input, Player p)

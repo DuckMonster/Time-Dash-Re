@@ -4,16 +4,18 @@ using System.Collections.Generic;
 public class Bullet : Entity
 {
 	Player owner;
+	public int id;
 
 	Vector2 directionVector;
 
 	bool active = true;
 
-	public Bullet(Player p, Vector2 target, Map m)
+	public Bullet(Player p, int id, Vector2 target, Map m)
 		: base(p.position, m)
 	{
 		owner = p;
 		directionVector = (target - p.position).Normalized();
+		this.id = id;
 
 		size = new Vector2(0.1f, 0.1f);
 	}
@@ -40,7 +42,7 @@ public class Bullet : Entity
 	{
 		if (p != null)
 		{
-			p.Hit();
+			p.Hit(owner, this);
 		}
 
 		active = false;

@@ -198,7 +198,7 @@ public partial class Player : Actor
 
 	public void Shoot(Vector2 target)
 	{
-		bulletList[bulletIndex] = new Bullet(this, target, map);
+		bulletList[bulletIndex] = new Bullet(this, bulletIndex, target, map);
 		bulletList[bulletIndex].Logic();
 		bulletIndex = (bulletIndex + 1) % bulletList.Length;
 

@@ -111,6 +111,16 @@ public partial class Player : Actor
 		SendMessageToPlayer(GetPositionMessage(), false, players);
 	}
 
+	public void SendHitToPlayer(Player attacker, float dir, params Player[] players)
+	{
+		SendMessageToPlayer(GetHitMessage(attacker, dir), false, players);
+	}
+
+	public void SendHitToPlayer(Player attacker, float dir, Bullet b, params Player[] players)
+	{
+		SendMessageToPlayer(GetHitMessage(attacker, dir, b), false, players);
+	}
+
 	public void SendKillToPlayer(Player target, params Player[] players)
 	{
 		SendMessageToPlayer(GetKillMessage(target), false, players);
@@ -230,6 +240,33 @@ public partial class Player : Actor
 		msg.WriteByte(id);
 		msg.WriteVector(position);
 		msg.WriteVector(velocity);
+
+		return msg;
+	}
+
+	MessageBuffer GetHitMessage(Player p, float dir)
+	{
+		MessageBuffer msg = new MessageBuffer();
+
+		msg.WriteShort((short)Protocol.PlayerHit);
+		msg.WriteByte(id);
+		msg.WriteByte(p.id);
+		msg.WriteFloat(dir);
+		msg.WriteByte((byte)HitType.Dash);
+
+		return msg;
+	}
+
+	MessageBuffer GetHitMessage(Player p, float dir, Bullet b)
+	{
+		MessageBuffer msg = new MessageBuffer();
+
+		msg.WriteShort((short)Protocol.PlayerHit);
+		msg.WriteByte(id);
+		msg.WriteByte(p.id);
+		msg.WriteFloat(dir);
+		msg.WriteByte((byte)HitType.Bullet);
+		msg.WriteByte(b.id);
 
 		return msg;
 	}

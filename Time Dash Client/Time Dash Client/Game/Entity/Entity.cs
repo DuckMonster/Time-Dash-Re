@@ -8,7 +8,7 @@ public class Entity : IDisposable
 	protected Map map;
 	public Vector2 position, size = new Vector2(0.6f, 0.6f);
 
-	protected Mesh mesh;
+	public Mesh mesh;
 
 	public Entity(Vector2 pos, Map m)
 	{

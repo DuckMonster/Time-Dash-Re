@@ -307,7 +307,7 @@ public class Map : IDisposable
 					break;
 
 				case Protocol.PlayerHit:
-					playerList[msg.ReadByte()].Hit();
+					playerList[msg.ReadByte()].ReceiveHit(playerList[msg.ReadByte()], msg.ReadFloat(), msg);
 					break;
 
 				case Protocol.PlayerDie:

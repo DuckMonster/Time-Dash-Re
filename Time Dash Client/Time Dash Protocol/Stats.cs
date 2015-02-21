@@ -174,3 +174,9 @@ public class Stats
 		CalculatePhysics();
 	}
 }
+
+public enum HitType
+{
+	Dash,
+	Bullet
+}
