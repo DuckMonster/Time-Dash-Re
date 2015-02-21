@@ -53,6 +53,8 @@ public class EffectSmoke : Effect
 		mesh.Texture = smokeTexture;
 
 		smokeTimer.Reset(time);
+
+		Logic();
 	}
 
 	public override void Dispose()
