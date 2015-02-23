@@ -3,22 +3,15 @@ using System;
 using System.Collections.Generic;
 using TKTools;
 
-public class Bullet : Entity
+public class Bullet : Projectile
 {
-	Player owner;
-	public int id;
-
 	Vector2 directionVector;
 	Vector2 bulletSize;
 	float direction;
 
-	bool active = true;
-
 	public Bullet(Player p, int id, Vector2 bsize, Vector2 target, Map m)
-		: base(p.position, m)
+		: base(p, id, m)
 	{
-		owner = p;
-		this.id = id;
 		directionVector = (target - position).Normalized();
 		direction = TKMath.GetAngle(directionVector);
 
@@ -28,9 +21,7 @@ public class Bullet : Entity
 
 	public override void Logic()
 	{
-		if (!active) return;
-
-		base.Logic();
+		if (!Active) return;
 
 		Vector2 stepVector = directionVector * Stats.defaultStats.BulletVelocity * Game.delta;
 
@@ -44,25 +35,17 @@ public class Bullet : Entity
 		} else position += directionVector * Stats.defaultStats.BulletVelocity * Game.delta;
 	}
 
-	public void Hit()
+	public override void Hit()
 	{
 		EffectCone.CreateSmokeCone(position, direction - 180, 0.4f, 4, 2, map);
 		map.AddEffect(new EffectRing(position, 2f, 0.5f, Color.White, map));
 
-		//Random rng = new Random();
-
-		//if (rng.NextDouble() < 0.3)
-		//{
-		//	float dir = ((float)rng.NextDouble() - 0.5f) * 120f;
-		//	map.AddEffect(new EffectRockSmoke(position, direction - 180 + dir, 0.4f, map));
-		//}
-
-		active = false;
+		base.Hit();
 	}
 
 	public override void Draw()
 	{
-		if (!active) return;
+		if (!Active) return;
 
 		mesh.Reset();
 

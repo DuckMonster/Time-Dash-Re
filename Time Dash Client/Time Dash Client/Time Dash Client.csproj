@@ -74,13 +74,16 @@
     <Compile Include="Game\Effects\EffectSpike.cs" />
     <Compile Include="Game\Effects\EffectSmoke.cs" />
     <Compile Include="Game\Entity\Actor.cs" />
-    <Compile Include="Game\Entity\Bullet.cs" />
+    <Compile Include="Game\Weapon\GrenadeLauncher.cs" />
+    <Compile Include="Game\Weapon\Projectile\Bullet.cs" />
     <Compile Include="Game\Entity\Entity.cs" />
     <Compile Include="Game\Entity\PlayerAbilities.cs" />
     <Compile Include="Game\Entity\PlayerHud.cs" />
     <Compile Include="Game\Entity\PlayerNetwork.cs" />
     <Compile Include="Game\Entity\Player.cs" />
     <Compile Include="Game\Entity\PlayerShadow.cs" />
+    <Compile Include="Game\Weapon\Projectile\Grenade.cs" />
+    <Compile Include="Game\Weapon\Projectile\Projectile.cs" />
     <Compile Include="Game\GameModes\CTF\CTFFlag.cs" />
     <Compile Include="Game\GameModes\CTF\CTFMap.cs" />
     <Compile Include="Game\GameModes\CTF\CTFPlayer.cs" />

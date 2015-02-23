@@ -269,14 +269,14 @@ public partial class Player : Actor
 	}
 	#endregion
 
-	Bullet[] bulletList = new Bullet[10];
-	int bulletIndex = 0;
+	Projectile[] projectileList = new Projectile[10];
+	int projectileIndex = 0;
 
 	public void Shoot(Vector2 target)
 	{
-		bulletList[bulletIndex] = weapon.CreateBullet(target, bulletIndex);
-		bulletList[bulletIndex].Logic();
-		bulletIndex = (bulletIndex + 1) % bulletList.Length;
+		projectileList[projectileIndex] = weapon.CreateBullet(target, projectileIndex);
+		projectileList[projectileIndex].Logic();
+		projectileIndex = (projectileIndex + 1) % projectileList.Length;
 
 		SendShootToPlayer(position, target, map.playerList);
 

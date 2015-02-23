@@ -41,6 +41,11 @@ public class Program : GameWindow
 			if (WindowState == OpenTK.WindowState.Maximized) this.WindowState = OpenTK.WindowState.Normal;
 			else this.WindowState = OpenTK.WindowState.Maximized;
 		}
+
+		if (a.Key == Key.F3)
+		{
+			this.Size = new Size(400, 400);
+		}
 	}
 
 	protected override void OnMouseMove(MouseMoveEventArgs e)

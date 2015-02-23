@@ -1,17 +1,11 @@
 ﻿using OpenTK;
 using System.Collections.Generic;
 
-public enum WeaponFireType
-{
-	Single,
-	SingleTimed,
-	Auto
-}
-
 public enum WeaponList
 {
 	Pistol,
-	Rifle
+	Rifle,
+	GrenadeLauncher
 }
 
 public abstract class Weapon
@@ -19,7 +13,7 @@ public abstract class Weapon
 	protected Map map;
 	protected Player owner;
 	int ammo, maxAmmo;
-	WeaponFireType fireType;
+	WeaponStats.FireType fireType;
 
 	public int Ammo
 	{
@@ -31,7 +25,7 @@ public abstract class Weapon
 		get { return maxAmmo; }
 	}
 
-	public WeaponFireType FireType
+	public WeaponStats.FireType FireType
 	{
 		get { return fireType; }
 	}
@@ -40,63 +34,90 @@ public abstract class Weapon
 	{
 		get
 		{
-			return ((fireType == WeaponFireType.Single || shootTimer.IsDone) && ammo > 0);
+			return ((fireType == WeaponStats.FireType.Single || rearmTimer.IsDone) && ammo > 0 && reloadTimer.IsDone);
 		}
 	}
 
-	Timer reloadTimer = new Timer(1f, false);
-	Timer shootTimer = new Timer(0.1f, true);
+	public float ReloadProgress
+	{
+		get
+		{
+			if (reloadTimer.IsDone) return -1;
+			else return reloadTimer.PercentageDone;
+		}
+	}
+
+	public float RearmProgress
+	{
+		get
+		{
+			if (rearmTimer.IsDone) return -1;
+			else return rearmTimer.PercentageDone;
+		}
+	}
+
+	Timer reloadTimer = new Timer(1f, true);
+	Timer rearmTimer = new Timer(0.1f, true);
 
 	public float FireRate
 	{
-		get { return 1f / shootTimer.TimerLength; }
-		set { shootTimer.Reset(1f / value); }
+		get { return 1f / rearmTimer.TimerLength; }
+		set { rearmTimer.Reset(1f / value); }
 	}
 
-	public float ReloadRate
+	public float ReloadTime
 	{
-		get { return 1f / reloadTimer.TimerLength; }
-		set { reloadTimer.Reset(1f / value); }
+		get { return reloadTimer.TimerLength; }
+		set { reloadTimer.Reset(value); }
 	}
 
-	public Weapon(WeaponFireType fireType, float fireRate, float reloadRate, int maxAmmo, Player p, Map map)
+	public Weapon(WeaponStats.Stats stats, Player p, Map map)
 	{
 		owner = p;
 		this.map = map;
-		this.maxAmmo = maxAmmo;
-		ammo = maxAmmo;
 
-		this.fireType = fireType;
-		FireRate = fireRate;
-		ReloadRate = reloadRate;
+		maxAmmo = stats.ammo;
+		fireType = stats.fireType;
+		FireRate = stats.fireRate;
+		ReloadTime = stats.reloadTime;
+
+		ammo = maxAmmo;
 	}
 
-	public abstract Bullet CreateBullet(Vector2 target, int index);
+	public abstract Projectile CreateProjectile(Vector2 target, int index);
 
 	public void OnShoot()
 	{
+		if (!CanShoot) return;
+
 		ammo--;
 		owner.hud.UseAmmo(ammo);
 
-		shootTimer.Reset();
+		rearmTimer.Reset();
+
+		if (ammo <= 0) Reload();
+	}
+
+	public void Reload()
+	{
+		if (!reloadTimer.IsDone) return;
+		reloadTimer.Reset();
 	}
 
 	public void Logic()
 	{
-		if (ammo < maxAmmo)
+		if (!reloadTimer.IsDone)
 		{
 			reloadTimer.Logic();
 
 			if (reloadTimer.IsDone)
 			{
-				owner.hud.GainAmmo(ammo);
-
-				ammo++;
-				reloadTimer.Reset();
+				ammo = MaxAmmo;
+				owner.hud.OnReload();
 			}
 		}
 
-		shootTimer.Logic();
+		rearmTimer.Logic();
 	}
 
 	public void Draw()

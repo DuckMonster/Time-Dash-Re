@@ -1,16 +1,10 @@
 ﻿using OpenTK;
 
-public enum WeaponFireType
-{
-	Single,
-	SingleTimed,
-	Auto
-}
-
 public enum WeaponList
 {
 	Pistol,
-	Rifle
+	Rifle,
+	GrenadeLauncher
 }
 
 public abstract class Weapon
@@ -18,7 +12,7 @@ public abstract class Weapon
 	protected Map map;
 	protected Player owner;
 	int ammo, maxAmmo;
-	WeaponFireType fireType;
+	WeaponStats.FireType fireType;
 
 	protected float damage;
 
@@ -32,7 +26,7 @@ public abstract class Weapon
 		get { return maxAmmo; }
 	}
 
-	public WeaponFireType FireType
+	public WeaponStats.FireType FireType
 	{
 		get { return fireType; }
 	}
@@ -41,7 +35,7 @@ public abstract class Weapon
 	{
 		get
 		{
-			return ((fireType == WeaponFireType.Single || shootTimer.IsDone) && ammo > 0);
+			return ((fireType == WeaponStats.FireType.Single || shootTimer.IsDone) && ammo > 0);
 		}
 	}
 
@@ -54,48 +48,48 @@ public abstract class Weapon
 		set { shootTimer.Reset(1f / value); }
 	}
 
-	public float ReloadRate
+	public float ReloadTime
 	{
-		get { return 1f / reloadTimer.TimerLength; }
-		set { reloadTimer.Reset(1f / value); }
+		get { return reloadTimer.TimerLength; }
+		set { reloadTimer.Reset(value); }
 	}
 
-	public Weapon(WeaponFireType fireType, float damage, float fireRate, float reloadRate, int maxAmmo, Player p, Map map)
+	public Weapon(WeaponStats.Stats stats, Player p, Map map)
 	{
 		owner = p;
 		this.map = map;
 
-		this.damage = damage;
-
-		this.maxAmmo = maxAmmo;
+		damage = stats.damage;
+		fireType = stats.fireType;
+		FireRate = stats.fireRate;
+		ReloadTime = stats.reloadTime;
+		maxAmmo = stats.ammo;
 		ammo = maxAmmo;
-
-		this.fireType = fireType;
-		FireRate = fireRate;
-		ReloadRate = reloadRate;
 	}
 
-	public abstract Bullet CreateBullet(Vector2 target, int index);
+	public abstract Projectile CreateBullet(Vector2 target, int index);
 
 	public void OnShoot()
 	{
 		ammo--;
 		shootTimer.Reset();
+
+		if (ammo <= 0) Reload();
 	}
 
 	public void Logic()
 	{
-		if (ammo < maxAmmo)
+		if (!reloadTimer.IsDone)
 		{
 			reloadTimer.Logic();
-
-			if (reloadTimer.IsDone)
-			{
-				ammo++;
-				reloadTimer.Reset();
-			}
+			if (reloadTimer.IsDone) ammo = MaxAmmo;
 		}
 
 		shootTimer.Logic();
+	}
+
+	public void Reload()
+	{
+		reloadTimer.Reset();
 	}
 }

@@ -80,6 +80,12 @@ public partial class Player : Actor
 		EquipWeapon(id);
 	}
 
+	public void ReceiveReload()
+	{
+		weapon.Reload();
+		SendReloadToPlayer(map.playerList);
+	}
+
 	public void SendExistanceToPlayer(params Player[] players)
 	{
 		SendMessageToPlayer(GetExistanceMessage(), false, players);
@@ -121,9 +127,9 @@ public partial class Player : Actor
 		SendMessageToPlayer(GetHitMessage(dmg, attacker, dir), false, players);
 	}
 
-	public void SendHitToPlayer(float dmg, Player attacker, float dir, Bullet b, params Player[] players)
+	public void SendHitToPlayer(float dmg, Player attacker, float dir, Projectile proj, params Player[] players)
 	{
-		SendMessageToPlayer(GetHitMessage(dmg, attacker, dir, b), false, players);
+		SendMessageToPlayer(GetHitMessage(dmg, attacker, dir, proj), false, players);
 	}
 
 	public void SendKillToPlayer(Player target, params Player[] players)
@@ -164,6 +170,11 @@ public partial class Player : Actor
 	public void SendEquipWeaponToPlayer(int id, params Player[] players)
 	{
 		SendMessageToPlayer(GetEquipWeaponMessage(id), false, players);
+	}
+
+	public void SendReloadToPlayer(params Player[] players)
+	{
+		SendMessageToPlayer(GetReloadMessage(), true, players);
 	}
 
 	public void SendDodgeCollisionToPlayer(Player p, params Player[] players)
@@ -268,7 +279,7 @@ public partial class Player : Actor
 		return msg;
 	}
 
-	MessageBuffer GetHitMessage(float dmg, Player p, float dir, Bullet b)
+	MessageBuffer GetHitMessage(float dmg, Player p, float dir, Projectile proj)
 	{
 		MessageBuffer msg = new MessageBuffer();
 
@@ -278,7 +289,7 @@ public partial class Player : Actor
 		msg.WriteByte(p.id);
 		msg.WriteFloat(dir);
 		msg.WriteByte((byte)HitType.Bullet);
-		msg.WriteByte(b.id);
+		msg.WriteByte(proj.id);
 
 		return msg;
 	}
@@ -372,6 +383,16 @@ public partial class Player : Actor
 		msg.WriteShort((short)Protocol.PlayerEquipWeapon);
 		msg.WriteByte(id);
 		msg.WriteByte(weaponID);
+
+		return msg;
+	}
+
+	MessageBuffer GetReloadMessage()
+	{
+		MessageBuffer msg = new MessageBuffer();
+
+		msg.WriteShort((short)Protocol.PlayerReload);
+		msg.WriteByte(id);
 
 		return msg;
 	}

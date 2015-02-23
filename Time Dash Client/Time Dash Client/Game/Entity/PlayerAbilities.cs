@@ -272,12 +272,12 @@ public partial class Player : Actor
 	}
 	#endregion
 
-	Bullet[] bulletList = new Bullet[10];
-	int bulletIndex = 0;
+	Projectile[] projectileList = new Projectile[10];
+	int projectileIndex = 0;
 
 	public void TryShoot(Vector2 target, bool hold)
 	{
-		if ((hold && (weapon.FireType == WeaponFireType.Single || weapon.FireType == WeaponFireType.SingleTimed)) || 
+		if ((hold && (weapon.FireType == WeaponStats.FireType.Single || weapon.FireType == WeaponStats.FireType.SingleTimed)) || 
 			!weapon.CanShoot) 
 			return;
 
@@ -288,12 +288,12 @@ public partial class Player : Actor
 	{
 		if (Ammo <= 0) return;
 
-		if (bulletList[bulletIndex] != null)
-			RemoveBullet(bulletIndex);
+		if (projectileList[projectileIndex] != null)
+			RemoveProjectile(projectileIndex);
 
-		bulletList[bulletIndex] = weapon.CreateBullet(target, bulletIndex);
-		bulletList[bulletIndex].Logic();
-		bulletIndex = (bulletIndex + 1) % bulletList.Length;
+		projectileList[projectileIndex] = weapon.CreateProjectile(target, projectileIndex);
+		projectileList[projectileIndex].Logic();
+		projectileIndex = (projectileIndex + 1) % projectileList.Length;
 
 		if (IsLocalPlayer)
 			SendShoot(target);
@@ -301,10 +301,10 @@ public partial class Player : Actor
 		weapon.OnShoot();
 	}
 
-	public void RemoveBullet(int index)
+	public void RemoveProjectile(int index)
 	{
-		bulletList[index].Dispose();
-		bulletList[index] = null;
+		projectileList[index].Dispose();
+		projectileList[index] = null;
 	}
 
 	public static Direction GetInputDirection(PlayerInput input, Player p)

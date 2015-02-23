@@ -382,6 +382,10 @@ public class Map
 					case Protocol.PlayerEquipWeapon:
 						p.ReceiveEquipWeapon(msg.ReadByte());
 						break;
+
+					case Protocol.PlayerReload:
+						p.ReceiveReload();
+						break;
 				}
 			}
 

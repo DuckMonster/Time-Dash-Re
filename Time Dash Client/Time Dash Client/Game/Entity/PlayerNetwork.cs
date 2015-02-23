@@ -69,7 +69,7 @@ public partial class Player
 		if ((HitType)msg.ReadByte() == HitType.Bullet)
 		{
 			int id = msg.ReadByte();
-			attacker.RemoveBullet(id);
+			attacker.RemoveProjectile(id);
 		}
 
 		Hit(dmg);
@@ -115,6 +115,11 @@ public partial class Player
 	{
 		this.position = position;
 		Shoot(target);
+	}
+
+	public void ReceiveReload()
+	{
+		weapon.Reload();
 	}
 
 	void SendInput()
@@ -211,6 +216,15 @@ public partial class Player
 
 		msg.WriteShort((short)Protocol.PlayerEquipWeapon);
 		msg.WriteByte(id);
+
+		Game.client.Send(msg);
+	}
+
+	void SendReload()
+	{
+		MessageBuffer msg = new MessageBuffer();
+
+		msg.WriteShort((short)Protocol.PlayerReload);
 
 		Game.client.Send(msg);
 	}

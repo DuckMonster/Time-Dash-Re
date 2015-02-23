@@ -69,7 +69,8 @@
     <Compile Include="GameModes\Scoreboard.cs" />
     <Compile Include="GameModes\SpawnPoint.cs" />
     <Compile Include="Game\Entity\Actor.cs" />
-    <Compile Include="Game\Entity\Bullet.cs" />
+    <Compile Include="Game\Weapon\GrenadeLauncher.cs" />
+    <Compile Include="Game\Weapon\Projectile\Bullet.cs" />
     <Compile Include="Game\Entity\Entity.cs" />
     <Compile Include="Game\Entity\PlayerAbilities.cs" />
     <Compile Include="Game\Entity\PlayerNetwork.cs" />
@@ -79,6 +80,8 @@
     <Compile Include="Game\Team.cs" />
     <Compile Include="Game\TrackerHandler.cs" />
     <Compile Include="Game\Weapon\Pistol.cs" />
+    <Compile Include="Game\Weapon\Projectile\Grenade.cs" />
+    <Compile Include="Game\Weapon\Projectile\Projectile.cs" />
     <Compile Include="Game\Weapon\Rifle.cs" />
     <Compile Include="Game\Weapon\Weapon.cs" />
     <Compile Include="Log.cs" />

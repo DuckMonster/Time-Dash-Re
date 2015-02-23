@@ -35,6 +35,7 @@ public enum Protocol
 	PlayerDisable,
 
 	PlayerEquipWeapon,
+	PlayerReload,
 
 	PlayerWin,
 	TeamWin,

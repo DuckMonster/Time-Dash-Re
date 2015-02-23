@@ -124,7 +124,7 @@ public partial class Player : Actor
 		dashCooldown = new Timer(stats.DashCooldown, false);
 		dodgeCooldown = new Timer(stats.DodgeCooldown, true);
 
-		weapon = new Rifle(this, map);
+		weapon = new Pistol(this, map);
 	}
 
 	public virtual bool AlliedWith(Player p)
@@ -139,6 +139,7 @@ public partial class Player : Actor
 		{
 			case WeaponList.Pistol: EquipWeapon(new Pistol(this, map)); break;
 			case WeaponList.Rifle: EquipWeapon(new Rifle(this, map)); break;
+			case WeaponList.GrenadeLauncher: EquipWeapon(new GrenadeLauncher(this, map)); break;
 			default: return;
 		}
 
@@ -159,10 +160,10 @@ public partial class Player : Actor
 		SendHitToPlayer(dmg, p, dir, map.playerList);
 	}
 
-	public void Hit(float dmg, Player p, Bullet b)
+	public void Hit(float dmg, Player player, float dir, Projectile proj)
 	{
 		Hit(dmg);
-		SendHitToPlayer(dmg, p, b.Direction, b, map.playerList);
+		SendHitToPlayer(dmg, player, dir, proj, map.playerList);
 	}
 
 	public override void Hit(float dmg)
@@ -193,8 +194,10 @@ public partial class Player : Actor
 
 	public override void Logic()
 	{
-		foreach (Bullet b in bulletList)
-			if (b != null) b.Logic();
+		foreach (Projectile p in projectileList)
+			if (p != null) p.Logic();
+
+		weapon.Logic();
 
 		if (!IsAlive)
 		{

@@ -342,6 +342,10 @@ public class Map : IDisposable
 				case Protocol.PlayerEquipWeapon:
 					playerList[msg.ReadByte()].EquipWeapon(msg.ReadByte());
 					break;
+					
+				case Protocol.PlayerReload:
+					playerList[msg.ReadByte()].ReceiveReload();
+					break;
 
 				case Protocol.PlayerWin:
 					PlayerWin(playerList[msg.ReadByte()]);

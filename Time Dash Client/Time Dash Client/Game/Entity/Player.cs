@@ -169,7 +169,7 @@ public partial class Player : Actor
 		dodgeCooldown = new Timer(stats.DodgeCooldown, true);
 
 		hud = new PlayerHud(this);
-		weapon = new Pistol(this, map);
+		weapon = new GrenadeLauncher(this, map);
 	}
 
 	public override void Dispose()
@@ -177,7 +177,7 @@ public partial class Player : Actor
 		base.Dispose();
 		playerTileset.Dispose();
 
-		foreach (Bullet b in bulletList)
+		foreach (Bullet b in projectileList)
 			if (b != null) b.Dispose();
 
 		hud.Dispose();
@@ -189,6 +189,7 @@ public partial class Player : Actor
 		{
 			case WeaponList.Pistol: EquipWeapon(new Pistol(this, map)); break;
 			case WeaponList.Rifle: EquipWeapon(new Rifle(this, map)); break;
+			case WeaponList.GrenadeLauncher: EquipWeapon(new GrenadeLauncher(this, map)); break;
 		}
 	}
 
@@ -229,8 +230,8 @@ public partial class Player : Actor
 		hud.Logic();
 		weapon.Logic();
 
-		foreach (Bullet b in bulletList)
-			if (b != null) b.Logic();
+		foreach (Projectile p in projectileList)
+			if (p != null) p.Logic();
 
 		if (!IsAlive) return;
 
@@ -429,6 +430,11 @@ public partial class Player : Actor
 		if (KeyboardInput.KeyPressed(Key.Number2)) SendEquipWeapon(1);
 		if (KeyboardInput.KeyPressed(Key.Number3)) SendEquipWeapon(2);
 		if (KeyboardInput.KeyPressed(Key.Number4)) SendEquipWeapon(3);
+		if (KeyboardInput.KeyPressed(Key.R))
+		{
+			weapon.Reload();
+			SendReload();
+		}
 	}
 
 	public override void Draw()
@@ -511,8 +517,8 @@ public partial class Player : Actor
 		//if (shadow != null && IsLocalPlayer && (dashCooldown.IsDone || IsDashing) && !Disabled) shadow.Draw();
 		if (IsLocalPlayer && (CanDash || IsDashing)) shadow.Draw();
 
-		foreach (Bullet b in bulletList)
-			if (b != null) b.Draw();
+		foreach (Projectile p in projectileList)
+			if (p != null) p.Draw();
 	}
 
 	public void DrawHUD()
