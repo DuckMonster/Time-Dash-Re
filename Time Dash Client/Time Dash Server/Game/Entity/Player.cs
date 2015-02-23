@@ -9,86 +9,6 @@ using System.Collections.Generic;
 
 public partial class Player : Actor
 {
-	public class DashTarget
-	{
-		public float timeTraveled = 0;
-		public float lastStep = 0;
-
-		public float angle;
-
-		public Vector2 startPosition;
-		public Vector2 endPosition;
-
-		public Vector2 Direction
-		{
-			get
-			{
-				return (endPosition - startPosition).Normalized();
-			}
-		}
-
-		public DashTarget(Vector2 a, Vector2 b)
-		{
-			startPosition = a;
-			endPosition = b;
-			angle = TKMath.GetAngle(a, b);
-		}
-	}
-	public class DodgeTarget
-	{
-		public float timeTraveled = 0;
-
-		public float stepLength = 0;
-		public float stepAngle = 0;
-
-		public Vector2 startPosition;
-		public Direction direction;
-
-		public float frameDirection = 0f;
-
-		public Vector2 DirectionVector
-		{
-			get
-			{
-				switch (direction)
-				{
-					case Direction.Down: return new Vector2(0, -1);
-					case Direction.Up: return new Vector2(0, 1);
-					case Direction.Right: return new Vector2(1, 0);
-					case Direction.Left: return new Vector2(-1, 0);
-				}
-
-				return new Vector2(1, 0);
-			}
-		}
-
-		public DodgeTarget(Vector2 start, Direction dir)
-		{
-			startPosition = start;
-			direction = dir;
-		}
-
-		public bool TargetReached(Vector2 pos)
-		{
-			float posLen = 0;
-
-			switch (direction)
-			{
-				case Direction.Right:
-				case Direction.Left:
-					posLen = Math.Abs(pos.X - startPosition.X);
-					break;
-
-				case Direction.Up:
-				case Direction.Down:
-					posLen = Math.Abs(pos.Y - startPosition.Y);
-					break;
-			}
-
-			return (posLen >= Stats.defaultStats.DodgeLength);
-		}
-	}
-
 	PlayerInput inputData = new PlayerInput();
 	PlayerInput input, oldInput;
 	protected Vector2 inputDirection, oldInputDirection, lastDirection;
@@ -109,7 +29,6 @@ public partial class Player : Actor
 
 	Timer dashCooldown;
 	Timer dodgeCooldown;
-	Timer disableTimer;
 
 	float dodgeIntervalTimer = 0;
 
@@ -119,6 +38,8 @@ public partial class Player : Actor
 	Timer updatePositionTimer = new Timer(0.05f, true);
 
 	Timer respawnTimer = new Timer(2f, false);
+
+	Weapon weapon;
 
 	public int WallTouch
 	{
@@ -162,7 +83,7 @@ public partial class Player : Actor
 	{
 		get
 		{
-			return !Disabled;
+			return true;
 		}
 	}
 
@@ -182,21 +103,13 @@ public partial class Player : Actor
 		}
 	}
 
-	public bool Disabled
+	public int Ammo
 	{
-		get
-		{
-			return !disableTimer.IsDone;
-		}
-		set
-		{
-			if (value)
-			{
-				disableTimer.Reset();
-				SendDisableToPlayer(map.playerList);
-			}
-			else disableTimer.IsDone = true;
-		}
+		get { return weapon.Ammo; }
+	}
+	public int MaxAmmo
+	{
+		get { return weapon.MaxAmmo; }
 	}
 
 	public Player(int id, string name, Client c, Vector2 position, Map m)
@@ -210,7 +123,8 @@ public partial class Player : Actor
 
 		dashCooldown = new Timer(stats.DashCooldown, false);
 		dodgeCooldown = new Timer(stats.DodgeCooldown, true);
-		disableTimer = new Timer(stats.DisableTime, true);
+
+		weapon = new Rifle(this, map);
 	}
 
 	public virtual bool AlliedWith(Player p)
@@ -219,21 +133,41 @@ public partial class Player : Actor
 		else return p.team == team;
 	}
 
-	public void Hit(Player p, float dir)
+	public void EquipWeapon(int id)
 	{
-		Hit();
-		SendHitToPlayer(p, dir, map.playerList);
+		switch ((WeaponList)id)
+		{
+			case WeaponList.Pistol: EquipWeapon(new Pistol(this, map)); break;
+			case WeaponList.Rifle: EquipWeapon(new Rifle(this, map)); break;
+			default: return;
+		}
+
+		SendEquipWeaponToPlayer(id, map.playerList);
 	}
 
-	public void Hit(Player p, Bullet b)
+	public void EquipWeapon(Weapon w)
 	{
-		Hit();
-		SendHitToPlayer(p, TKMath.GetAngle(b.position, position), map.playerList);
+		if (weapon != null)
+			weapon = null;
+
+		weapon = w;
 	}
 
-	public override void Hit()
+	public void Hit(float dmg, Player p, float dir)
 	{
-		base.Hit();
+		Hit(dmg);
+		SendHitToPlayer(dmg, p, dir, map.playerList);
+	}
+
+	public void Hit(float dmg, Player p, Bullet b)
+	{
+		Hit(dmg);
+		SendHitToPlayer(dmg, p, b.Direction, b, map.playerList);
+	}
+
+	public override void Hit(float dmg)
+	{
+		base.Hit(dmg);
 
 		dashTarget = null;
 		dodgeTarget = null;
@@ -276,7 +210,6 @@ public partial class Player : Actor
 
 		dashCooldown.Logic();
 		dodgeCooldown.Logic();
-		disableTimer.Logic();
 
 		oldInput = input;
 		input = new PlayerInput(inputData);

@@ -15,13 +15,13 @@ namespace MapScene
 		public List<EnvTemplate> templateList = new List<EnvTemplate>();
 		public List<EnvSolid> solidList = new List<EnvSolid>();
 		public List<EnvObject> objectList = new List<EnvObject>();
+		public List<EnvLayer> layerList = new List<EnvLayer>();
 
 		Texture backgroundTexture;
 
 		public float width = 40f, height = 40;
 		public Vector2 originOffset;
 
-		public List<Mesh> combinedMeshes = new List<Mesh>();
 		Mesh backgroundMesh;
 
 		public float Width
@@ -64,10 +64,14 @@ namespace MapScene
 			foreach (EnvObject t in objectList)
 				t.Dispose();
 
+			foreach (EnvLayer l in layerList)
+				l.Dispose();
+
 			tilesetList.Clear();
 			templateList.Clear();
 			solidList.Clear();
 			objectList.Clear();
+			layerList.Clear();
 
 			backgroundMesh.Dispose();
 			backgroundTexture.Dispose();
@@ -109,7 +113,7 @@ namespace MapScene
 				{
 					float depth = 0;
 
-					if (i == 0)
+					if (i == 0)	//SOLIDS LAYER
 					{
 						int nmbrOfObjects = reader.ReadInt32();
 
@@ -135,13 +139,22 @@ namespace MapScene
 					else
 					{
 						depth = reader.ReadSingle();
+						EnvLayer layer = new EnvLayer(depth);
 
 						int nmbrOfObjects = reader.ReadInt32();
 
 						for (int j = 0; j < nmbrOfObjects; j++)
-							objectList.Add(new EnvObject(reader, depth, this));
+						{
+							EnvObject obj = new EnvObject(reader, depth, this);
+							objectList.Add(obj);
+							layer.AddObject(obj);
+						}
+
+						layer.CreateCombinedMesh();
+						layerList.Add(layer);
 					}
 				}
+
 				Polygon combinedPoly = new Polygon();
 
 				foreach (EnvSolid solid in solidList)
@@ -154,25 +167,12 @@ namespace MapScene
 				width = rect.Width;
 				height = rect.Height;
 
-				for (int i = 0; i < tilesetList.Count; i++)
+				layerList.Sort(delegate(EnvLayer x, EnvLayer y)
 				{
-					List<Vector3> combinedVectors = new List<Vector3>();
-					List<Vector2> combinedUVs = new List<Vector2>();
-
-					foreach (EnvObject obj in objectList)
-					{
-						if (obj.template.tilesetIndex != i) continue;
-
-						combinedVectors.AddRange(obj.mesh.Vertices3D);
-						combinedUVs.AddRange(obj.mesh.UV);
-					}
-
-					combinedMeshes.Add(new Mesh(OpenTK.Graphics.OpenGL.PrimitiveType.Quads));
-					combinedMeshes[i].Vertices3D = combinedVectors.ToArray();
-					combinedMeshes[i].UV = combinedUVs.ToArray();
-
-					combinedMeshes[i].Texture = tilesetList[i].Texture;
-				}
+					if (x.depth == y.depth) return 0;
+					else if (x.depth < y.depth) return 1;
+					else return -1;
+				});
 			}
 		}
 
@@ -208,10 +208,8 @@ namespace MapScene
 			//foreach (EnvSolid solid in solidList)
 			//	solid.Draw();
 
-			GL.Enable(EnableCap.DepthTest);
-			foreach (Mesh m in combinedMeshes)
-				m.Draw();
-			GL.Disable(EnableCap.DepthTest);
+			foreach (EnvLayer layer in layerList)
+				layer.Draw();
 		}
 	}
 
@@ -222,7 +220,7 @@ namespace MapScene
 		public Mesh mesh;
 		public EnvTemplate template;
 
-		float depth;
+		public float depth;
 
 		public EnvObject(BinaryReader reader, float depth, Scene s)
 		{
@@ -398,25 +396,75 @@ namespace MapScene
 		}
 	}
 
-	public class EnvLayer
+	public class EnvLayer : IDisposable
 	{
-		float depth;
+		List<EnvObject> objects = new List<EnvObject>();
+		List<Mesh> combinedMeshes = new List<Mesh>();
 
-		public float Depth
+		public float depth;
+
+		public EnvLayer(float depth)
 		{
-			get
+			this.depth = depth;
+		}
+
+		public void Dispose()
+		{
+			foreach (Mesh m in combinedMeshes)
+				m.Dispose();
+		}
+
+		public void AddObject(EnvObject obj)
+		{
+			objects.Add(obj);
+		}
+
+		public void CreateCombinedMesh()
+		{
+			List<Texture> textureList = new List<Texture>();
+			List<List<Vector3>> verticesList = new List<List<Vector3>>();
+			List<List<Vector2>> uvList = new List<List<Vector2>>();
+
+			foreach (EnvObject obj in objects)
 			{
-				return depth;
+				Texture t = obj.template.Texture;
+
+				if (!textureList.Contains(t))
+				{
+					textureList.Add(t);
+					verticesList.Add(new List<Vector3>());
+					uvList.Add(new List<Vector2>());
+				}
+
+				int id = textureList.IndexOf(t);
+				verticesList[id].AddRange(obj.mesh.Vertices3D);
+				uvList[id].AddRange(obj.mesh.UV);
 			}
-			set
+
+			for (int i = 0; i < textureList.Count; i++)
 			{
-				depth = value;
+				Mesh mesh = new Mesh(PrimitiveType.Quads);
+				mesh.Vertices3D = verticesList[i].ToArray();
+				mesh.UV = uvList[i].ToArray();
+
+				mesh.Texture = textureList[i];
+
+				if (depth > 0f)
+				{
+					mesh.FillColor = true;
+					mesh.Color = new TKTools.Color(1f * (depth / 50f), 1 * (depth / 50f), 1 * (depth / 50f));
+				}
+
+				combinedMeshes.Add(mesh);
 			}
 		}
 
-		public EnvLayer(BinaryReader reader)
+		public void Draw()
 		{
-			Depth = depth;
+			foreach (Mesh m in combinedMeshes)
+			{
+				m.Draw();
+			}
 		}
 	}
 }

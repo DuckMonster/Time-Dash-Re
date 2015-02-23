@@ -35,7 +35,7 @@ public class Stats
 	float stepSize = 0.6f;
 
 	float acceleration, accelerationAir, accFriction, accFrictionAir, decFriction, decFrictionAir;
-	float dashVelocity = 90f, dashEndVelocity = 18f;
+	float dashVelocity = 200f, dashEndVelocity = 18f;
 
 	float wallJumpVelocity = 15f, wallJumpAngle = 50f;
 	float dodgeVelocity = 40f, dodgeEndVelocity = 13f, dodgeLength = 3.5f;
@@ -156,15 +156,19 @@ public class Stats
 
 	#region Cooldowns
 
-	int playerHealth = 5;
+	int playerHealth = 3;
+	int playerMaxAmmo = 6;
 
-	float dashCooldown = 0.8f, dodgeCooldown = 1f, disabledTime = 0.8f;
+	float dashCooldown = 0.8f, dodgeCooldown = 0.6f, disabledTime = 0.8f;
+	float reloadTime = 1f;
 	int airDodgeMax = 1;
 
 	public int PlayerHealth { get { return playerHealth; } set { playerHealth = value; } }
+	public int PlayerMaxAmmo { get { return playerMaxAmmo; } set { playerMaxAmmo = value; } }
 	public float DisableTime { get { return disabledTime; } set { disabledTime = value; } }
 	public float DodgeCooldown { get { return dodgeCooldown; } set { dodgeCooldown = value; } }
 	public float DashCooldown { get { return dashCooldown; } set { dashCooldown = value; } }
+	public float ReloadTime { get { return reloadTime; } set { reloadTime = value; } }
 	public int AirDodgeMax { get { return airDodgeMax; } set { airDodgeMax = value; } }
 
 	#endregion

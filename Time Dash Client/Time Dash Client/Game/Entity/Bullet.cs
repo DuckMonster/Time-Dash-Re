@@ -9,11 +9,12 @@ public class Bullet : Entity
 	public int id;
 
 	Vector2 directionVector;
+	Vector2 bulletSize;
 	float direction;
 
 	bool active = true;
 
-	public Bullet(Player p, int id, Vector2 target, Map m)
+	public Bullet(Player p, int id, Vector2 bsize, Vector2 target, Map m)
 		: base(p.position, m)
 	{
 		owner = p;
@@ -22,6 +23,7 @@ public class Bullet : Entity
 		direction = TKMath.GetAngle(directionVector);
 
 		size = new Vector2(0.1f, 0.1f);
+		bulletSize = bsize;
 	}
 
 	public override void Logic()
@@ -38,28 +40,22 @@ public class Bullet : Entity
 			map.RayTraceCollision(position, position + stepVector, new Vector2(0.1f, 0.1f), out collidePos);
 			position = collidePos;
 
-			Hit(null);
+			Hit();
 		} else position += directionVector * Stats.defaultStats.BulletVelocity * Game.delta;
-
-
-		List<Player> playersHit = map.GetPlayerRadius(position, 0.2f, owner);
-
-		if (playersHit.Count > 0)
-			Hit(playersHit[0]);
 	}
 
-	public void Hit(Player player)
+	public void Hit()
 	{
-		if (player == null)
-		{
-			EffectCone.CreateSmokeCone(position, direction - 180, map);
-			map.AddEffect(new EffectRing(position, 5f, 0.9f, Color.White, map));
+		EffectCone.CreateSmokeCone(position, direction - 180, 0.4f, 4, 2, map);
+		map.AddEffect(new EffectRing(position, 2f, 0.5f, Color.White, map));
 
-			Random rng = new Random();
+		//Random rng = new Random();
 
-			float dir = ((float)rng.NextDouble() - 0.5f) * 120f;
-			map.AddEffect(new EffectRockSmoke(position, direction - 180 + dir, map));
-		}
+		//if (rng.NextDouble() < 0.3)
+		//{
+		//	float dir = ((float)rng.NextDouble() - 0.5f) * 120f;
+		//	map.AddEffect(new EffectRockSmoke(position, direction - 180 + dir, 0.4f, map));
+		//}
 
 		active = false;
 	}
@@ -72,7 +68,7 @@ public class Bullet : Entity
 
 		mesh.Translate(position);
 		mesh.Rotate(direction);
-		mesh.Scale(2f, 0.2f);
+		mesh.Scale(bulletSize);
 
 		mesh.Draw();
 	}

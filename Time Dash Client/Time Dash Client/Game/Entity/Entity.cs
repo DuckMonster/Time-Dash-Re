@@ -14,7 +14,7 @@ public class Entity : IDisposable
 	{
 		map = m;
 		position = pos;
-
+		
 		mesh = Mesh.Box;
 	}
 

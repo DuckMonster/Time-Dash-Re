@@ -50,7 +50,7 @@ public class EffectBlood : Effect
 		velocity.Y -= Stats.defaultStats.Gravity * Game.delta;
 		position += velocity * Game.delta;
 
-		if (map.GetCollision(position, new Vector2(0.2f, 0.2f)))
+		if (map.GetCollision(position, new Vector2(0.01f, 0.01f)))
 		{
 			active = false;
 			velocity = Vector2.Zero;

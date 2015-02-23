@@ -75,6 +75,11 @@ public partial class Player : Actor
 		Shoot(target);
 	}
 
+	public void ReceiveEquipWeapon(int id)
+	{
+		EquipWeapon(id);
+	}
+
 	public void SendExistanceToPlayer(params Player[] players)
 	{
 		SendMessageToPlayer(GetExistanceMessage(), false, players);
@@ -111,14 +116,14 @@ public partial class Player : Actor
 		SendMessageToPlayer(GetPositionMessage(), false, players);
 	}
 
-	public void SendHitToPlayer(Player attacker, float dir, params Player[] players)
+	public void SendHitToPlayer(float dmg, Player attacker, float dir, params Player[] players)
 	{
-		SendMessageToPlayer(GetHitMessage(attacker, dir), false, players);
+		SendMessageToPlayer(GetHitMessage(dmg, attacker, dir), false, players);
 	}
 
-	public void SendHitToPlayer(Player attacker, float dir, Bullet b, params Player[] players)
+	public void SendHitToPlayer(float dmg, Player attacker, float dir, Bullet b, params Player[] players)
 	{
-		SendMessageToPlayer(GetHitMessage(attacker, dir, b), false, players);
+		SendMessageToPlayer(GetHitMessage(dmg, attacker, dir, b), false, players);
 	}
 
 	public void SendKillToPlayer(Player target, params Player[] players)
@@ -154,6 +159,11 @@ public partial class Player : Actor
 	public void SendShootToPlayer(Vector2 position, Vector2 hitpos, params Player[] players)
 	{
 		SendMessageToPlayer(GetShootMessage(position, hitpos), true, players);
+	}
+
+	public void SendEquipWeaponToPlayer(int id, params Player[] players)
+	{
+		SendMessageToPlayer(GetEquipWeaponMessage(id), false, players);
 	}
 
 	public void SendDodgeCollisionToPlayer(Player p, params Player[] players)
@@ -244,12 +254,13 @@ public partial class Player : Actor
 		return msg;
 	}
 
-	MessageBuffer GetHitMessage(Player p, float dir)
+	MessageBuffer GetHitMessage(float dmg, Player p, float dir)
 	{
 		MessageBuffer msg = new MessageBuffer();
 
 		msg.WriteShort((short)Protocol.PlayerHit);
 		msg.WriteByte(id);
+		msg.WriteFloat(dmg);
 		msg.WriteByte(p.id);
 		msg.WriteFloat(dir);
 		msg.WriteByte((byte)HitType.Dash);
@@ -257,12 +268,13 @@ public partial class Player : Actor
 		return msg;
 	}
 
-	MessageBuffer GetHitMessage(Player p, float dir, Bullet b)
+	MessageBuffer GetHitMessage(float dmg, Player p, float dir, Bullet b)
 	{
 		MessageBuffer msg = new MessageBuffer();
 
 		msg.WriteShort((short)Protocol.PlayerHit);
 		msg.WriteByte(id);
+		msg.WriteFloat(dmg);
 		msg.WriteByte(p.id);
 		msg.WriteFloat(dir);
 		msg.WriteByte((byte)HitType.Bullet);
@@ -349,6 +361,17 @@ public partial class Player : Actor
 
 		msg.WriteVector(position);
 		msg.WriteVector(hitPosition);
+
+		return msg;
+	}
+
+	MessageBuffer GetEquipWeaponMessage(int weaponID)
+	{
+		MessageBuffer msg = new MessageBuffer();
+
+		msg.WriteShort((short)Protocol.PlayerEquipWeapon);
+		msg.WriteByte(id);
+		msg.WriteByte(weaponID);
 
 		return msg;
 	}

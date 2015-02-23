@@ -260,6 +260,7 @@ public class Map : IDisposable
 
 		foreach (Player p in playerList) if (p != null) p.Draw();
 		foreach (Effect e in effectList) e.Draw();
+		if (LocalPlayer != null) LocalPlayer.DrawHUD();
 
 		Game.hudShader["view"].SetValue(Matrix4.LookAt(new Vector3(0, 0, 3), Vector3.Zero, Vector3.UnitY));
 
@@ -307,7 +308,7 @@ public class Map : IDisposable
 					break;
 
 				case Protocol.PlayerHit:
-					playerList[msg.ReadByte()].ReceiveHit(playerList[msg.ReadByte()], msg.ReadFloat(), msg);
+					playerList[msg.ReadByte()].ReceiveHit(msg.ReadFloat(), playerList[msg.ReadByte()], msg.ReadFloat(), msg);
 					break;
 
 				case Protocol.PlayerDie:
@@ -316,10 +317,6 @@ public class Map : IDisposable
 
 				case Protocol.PlayerRespawn:
 					playerList[msg.ReadByte()].Respawn(msg.ReadVector2());
-					break;
-
-				case Protocol.PlayerDisable:
-					playerList[msg.ReadByte()].Disabled = true;
 					break;
 
 				case Protocol.PlayerDodge:
@@ -342,6 +339,10 @@ public class Map : IDisposable
 					playerList[msg.ReadByte()].ReceiveShoot(msg.ReadVector2(), msg.ReadVector2());
 					break;
 				
+				case Protocol.PlayerEquipWeapon:
+					playerList[msg.ReadByte()].EquipWeapon(msg.ReadByte());
+					break;
+
 				case Protocol.PlayerWin:
 					PlayerWin(playerList[msg.ReadByte()]);
 					break;

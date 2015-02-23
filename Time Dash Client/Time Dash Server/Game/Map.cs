@@ -378,6 +378,10 @@ public class Map
 					case Protocol.PlayerShoot:
 						p.ReceiveShoot(msg.ReadVector2(), msg.ReadVector2());
 						break;
+
+					case Protocol.PlayerEquipWeapon:
+						p.ReceiveEquipWeapon(msg.ReadByte());
+						break;
 				}
 			}
 

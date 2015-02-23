@@ -19,10 +19,10 @@ public class CTFPlayer : Player
 	{
 	}
 
-	public override void Hit()
+	public override void Hit(float dmg)
 	{
 		if (holdingFlag != null) holdingFlag.Drop();
-		base.Hit();
+		base.Hit(dmg);
 	}
 
 	public void GrabFlag(CTFFlag flag)

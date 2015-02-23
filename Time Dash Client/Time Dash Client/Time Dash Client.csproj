@@ -77,6 +77,7 @@
     <Compile Include="Game\Entity\Bullet.cs" />
     <Compile Include="Game\Entity\Entity.cs" />
     <Compile Include="Game\Entity\PlayerAbilities.cs" />
+    <Compile Include="Game\Entity\PlayerHud.cs" />
     <Compile Include="Game\Entity\PlayerNetwork.cs" />
     <Compile Include="Game\Entity\Player.cs" />
     <Compile Include="Game\Entity\PlayerShadow.cs" />
@@ -96,6 +97,9 @@
     <Compile Include="Game\GameModes\Koth\KothMap.cs" />
     <Compile Include="Game\Team.cs" />
     <Compile Include="Game\UI\CircleBar.cs" />
+    <Compile Include="Game\Weapon\Pistol.cs" />
+    <Compile Include="Game\Weapon\Rifle.cs" />
+    <Compile Include="Game\Weapon\Weapon.cs" />
     <Compile Include="KeyboardInput.cs" />
     <Compile Include="Log.cs" />
     <Compile Include="Main.cs" />
@@ -136,6 +140,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Res\flag.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Res\heart.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Res\jackShadowTileset.png">

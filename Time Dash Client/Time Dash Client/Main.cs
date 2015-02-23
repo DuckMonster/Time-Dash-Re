@@ -46,7 +46,7 @@ public class MainClass
 
 		using (Program p = new Program(1025, 768, new GraphicsMode(new ColorFormat(32), 24, 8, 3)))
 		{
-			p.Run(142.0);
+			p.Run(142.0, 120.0);
 		}
 	}
 }

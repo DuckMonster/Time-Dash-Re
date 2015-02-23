@@ -78,6 +78,9 @@
     <Compile Include="Game\Game.cs" />
     <Compile Include="Game\Team.cs" />
     <Compile Include="Game\TrackerHandler.cs" />
+    <Compile Include="Game\Weapon\Pistol.cs" />
+    <Compile Include="Game\Weapon\Rifle.cs" />
+    <Compile Include="Game\Weapon\Weapon.cs" />
     <Compile Include="Log.cs" />
     <Compile Include="Game\Map.cs" />
     <Compile Include="Game\Entity\Player.cs" />

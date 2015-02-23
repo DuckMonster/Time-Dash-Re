@@ -10,7 +10,7 @@ public class EffectPlayerHit : Effect
 
 	Timer effectTimer = new Timer(0.4f, false);
 
-	public EffectPlayerHit(Player p, float dir, Map m)
+	public EffectPlayerHit(Player p, float dir, float size, Map m)
 		: base(m)
 	{
 		tilex = p.playerTileset.X;
@@ -32,15 +32,18 @@ public class EffectPlayerHit : Effect
 
 		mesh.FillColor = true;
 
-		EffectCone.CreateBloodCone(p.position, dir, 45f, map);
-		EffectCone.CreateBloodCone(p.position, dir, 360f, map);
+		EffectCone.CreateBloodCone(p.position, dir, 45f, (int)(20 * size), map);
+		EffectCone.CreateBloodCone(p.position, dir, 360f, (int)(10 * size), map);
 
 		Random rng = new Random();
+		Vector2 ringPos = new Vector2((float)rng.NextDouble() - 0.5f,
+			(float)rng.NextDouble() - 0.5f);
+		map.AddEffect(new EffectRing(p.position + ringPos, 2f + 2f * size, 0.7f, Color.White, map));
 
-		Vector2 spikeDir = TKMath.GetAngleVector((float)rng.NextDouble() * 360f);
+		Vector2 spikeDir = TKMath.GetAngleVector(dir) * 2 * size;
 
 		map.AddEffect(new EffectSpike(p.position - spikeDir, p.position + spikeDir,
-			1f, 0.4f, Color.Red, map));
+			2f * size, 0.4f, Color.White, map));
 	}
 
 	public override void Dispose()
@@ -54,7 +57,7 @@ public class EffectPlayerHit : Effect
 		if (effectTimer.IsDone)
 			Remove();
 
-		Color color = new Color(1f, 0, 0, 1f - effectTimer.PercentageDone);
+		Color color = new Color(1, 1, 1, 1f - effectTimer.PercentageDone);
 		mesh.Color = color;
 
 		effectTimer.Logic();

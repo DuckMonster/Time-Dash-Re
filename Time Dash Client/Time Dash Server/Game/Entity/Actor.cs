@@ -10,7 +10,7 @@ public class Actor : Entity
 	protected float currentAcceleration = 0;
 	protected int dir = 1;
 
-	public int health;
+	public float health;
 
 	public float Acceleration
 	{
@@ -65,9 +65,9 @@ public class Actor : Entity
 		return base.CollidesWith(pos, radius);
 	}
 
-	public virtual void Hit()
+	public virtual void Hit(float dmg)
 	{
-		health--;
+		health -= dmg;
 
 		if (!IsAlive)
 			Die();

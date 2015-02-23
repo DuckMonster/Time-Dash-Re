@@ -17,14 +17,16 @@ public class EffectRockSmoke : Effect
 
 	float smokeSize = 1f;
 
-	public EffectRockSmoke(Vector2 position, float direction, Map m)
+	public EffectRockSmoke(Vector2 position, float direction, float size, Map m)
 		: base(m)
 	{
 		this.position = position;
-		velocity = TKMath.GetAngleVector(direction) * 15;
 		position += velocity * Game.delta * 4;
 
-		smokeSize = (float)rng.NextDouble() * 0.4f + 0.2f;
+		smokeSize = (float)rng.NextDouble() * 0.5f + 0.5f;
+		smokeSize *= size;
+
+		velocity = TKMath.GetAngleVector(direction) * 15 * smokeSize;
 
 		effectTimer.Reset(smokeSize);
 	}

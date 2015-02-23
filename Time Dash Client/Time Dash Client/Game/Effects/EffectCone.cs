@@ -7,10 +7,10 @@ public static class EffectCone
 {	
 	static Random rng = new Random();
 
-	public static void CreateSmokeCone(Vector2 position, float direction, Map map)
+	public static void CreateSmokeCone(Vector2 position, float direction, float smokesize, int cloudnmbr, int debreenmbr, Map map)
 	{
 		//Splatters
-		for (int i = 0; i < 4; i++)
+		for (int i = 0; i < debreenmbr; i++)
 		{
 			Vector2 pos = new Vector2(
 				((float)rng.NextDouble()) * 2f - 1f,
@@ -18,6 +18,7 @@ public static class EffectCone
 
 			float dir = ((float)rng.NextDouble() * 2f - 1f) * 45f + direction;
 			float size = 1f - ((float)rng.NextDouble() * .5f);
+			size *= smokesize;
 			float color = 0.8f - ((float)rng.NextDouble() * 0.3f);
 			float velo = 5f + (15f - size * 3f) * (float)rng.NextDouble();
 
@@ -25,7 +26,7 @@ public static class EffectCone
 		}
 
 		//Cloud
-		for (int i = 0; i < 4; i++)
+		for (int i = 0; i < cloudnmbr; i++)
 		{
 			Vector2 pos = new Vector2(
 				((float)rng.NextDouble()) * 2f - 1f,
@@ -33,6 +34,7 @@ public static class EffectCone
 
 			float dir = (float)rng.NextDouble() * 360f;
 			float size = 2f - ((float)rng.NextDouble() * 1.5f);
+			size *= smokesize;
 			float color = 0.8f - ((float)rng.NextDouble() * 0.3f);
 			float velo = 0.2f + 0.6f * (float)rng.NextDouble();
 
@@ -40,10 +42,10 @@ public static class EffectCone
 		}
 	}
 
-	public static void CreateBloodCone(Vector2 position, float direction, float spread, Map map)
+	public static void CreateBloodCone(Vector2 position, float direction, float spread, int nmbr, Map map)
 	{
 		//Splatters
-		for (int i = 0; i < 10; i++)
+		for (int i = 0; i < nmbr; i++)
 		{
 			Vector2 pos = new Vector2(
 				((float)rng.NextDouble()) * 2f - 1f,

@@ -6,19 +6,31 @@ using TKTools;
 public class Actor : Entity
 {
 	protected Stats stats = Stats.defaultStats;
+	public Stats Stats
+	{
+		get { return stats; }
+	}
 
 	public Vector2 velocity = Vector2.Zero;
 	protected float currentAcceleration = 0;
 	public int dir = 1;
 	bool previousOnGround = false;
 
-	public int health = 1;
+	public float health;
+
+	public float MaxHealth
+	{
+		get
+		{
+			return stats.PlayerHealth;
+		}
+	}
 
 	public Actor(Vector2 position, Map m)
 		: base(position, m)
 	{
 		stats = new Stats();
-		health = stats.PlayerHealth;
+		health = MaxHealth;
 	}
 
 	public override bool CollidesWith(Vector2 pos, Vector2 s)
@@ -70,9 +82,9 @@ public class Actor : Entity
 		}
 	}
 
-	public virtual void Hit()
+	public virtual void Hit(float dmg)
 	{
-		health--;
+		health -= dmg;
 	}
 
 	public virtual void Die(Vector2 diePos)
@@ -83,7 +95,7 @@ public class Actor : Entity
 	public virtual void Respawn(Vector2 pos)
 	{
 		position = pos;
-		health = stats.PlayerHealth;
+		health = MaxHealth;
 	}
 
 	public override void Logic()

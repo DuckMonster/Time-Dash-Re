@@ -13,6 +13,7 @@ public class LogCommand
 		AddCommand("clear", Clear);
 		AddCommand("debug", Debug);
 		AddCommand("kill", KillPlayer);
+		AddCommand("stat", PlayerStats);
 		AddCommand("load", Load);
 	}
 	static void AddCommand(string comm, CommandAction action)
@@ -104,7 +105,23 @@ public class LogCommand
 		byte id = byte.Parse(args[1]);
 
 		Player p = Map.currentMap.GetPlayer(id);
-		if (p != null) p.Hit();
+		if (p != null) p.Die();
+	}
+
+	static void PlayerStats(string[] args)
+	{
+		byte id = byte.Parse(args[1]);
+
+		Player p = Map.currentMap.GetPlayer(id);
+		if (p != null)
+		{
+			Log.Write(ConsoleColor.Green, "Stats for {0}", id);
+			Log.Write(ConsoleColor.Yellow, "Health {0} | Position {1}", p.health, p.position);
+		}
+		else
+		{
+			Log.Write(ConsoleColor.Red, "That player doesn't exist");
+		}
 	}
 
 	static void Load(string[] args)

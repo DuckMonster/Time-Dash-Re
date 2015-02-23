@@ -19,6 +19,87 @@ public enum Direction
 
 public partial class Player : Actor
 {
+	public class DashTarget
+	{
+		public float timeTraveled = 0;
+		public float lastStep = 0;
+
+		public float angle;
+
+		public Vector2 startPosition;
+		public Vector2 endPosition;
+
+		public Vector2 Direction
+		{
+			get
+			{
+				return (endPosition - startPosition).Normalized();
+			}
+		}
+
+		public DashTarget(Vector2 a, Vector2 b)
+		{
+			startPosition = a;
+			endPosition = b;
+			angle = TKMath.GetAngle(a, b);
+		}
+	}
+
+	public class DodgeTarget
+	{
+		public float timeTraveled = 0;
+
+		public float stepLength = 0;
+		public float stepAngle = 0;
+
+		public Vector2 startPosition;
+		public Direction direction;
+
+		public float frameDirection = 0f;
+
+		public Vector2 DirectionVector
+		{
+			get
+			{
+				switch (direction)
+				{
+					case Direction.Down: return new Vector2(0, -1);
+					case Direction.Up: return new Vector2(0, 1);
+					case Direction.Right: return new Vector2(1, 0);
+					case Direction.Left: return new Vector2(-1, 0);
+				}
+
+				return new Vector2(1, 0);
+			}
+		}
+
+		public DodgeTarget(Vector2 start, Direction dir)
+		{
+			startPosition = start;
+			direction = dir;
+		}
+
+		public bool TargetReached(Vector2 pos)
+		{
+			float posLen = 0;
+
+			switch (direction)
+			{
+				case Direction.Right:
+				case Direction.Left:
+					posLen = Math.Abs(pos.X - startPosition.X);
+					break;
+
+				case Direction.Up:
+				case Direction.Down:
+					posLen = Math.Abs(pos.Y - startPosition.Y);
+					break;
+			}
+
+			return (posLen >= Stats.defaultStats.DodgeLength);
+		}
+	}
+
 	public override void Jump()
 	{
 		//jumpSound.Play();
@@ -124,7 +205,7 @@ public partial class Player : Actor
 
 	public void Dash(DashTarget t)
 	{
-		if (Disabled || (t.endPosition - position).Length < 0.1f) return;
+		if ((t.endPosition - position).Length < 0.1f) return;
 
 		position = t.startPosition;
 		Dash(t.endPosition);
@@ -132,7 +213,7 @@ public partial class Player : Actor
 
 	public void Dash(Vector2 target)
 	{
-		if (Disabled || (target - position).Length < 0.1f) return;
+		if ((target - position).Length < 0.1f) return;
 
 		dashTarget = new DashTarget(position, target);
 		dashCooldown.Reset();
@@ -147,7 +228,7 @@ public partial class Player : Actor
 		dashTarget.timeTraveled += Game.delta;
 
 		Vector2 direction = (dashTarget.endPosition - position).Normalized();
-		float speedFactor = TKMath.Exp(Math.Max(0, 0.9f - dashTarget.timeTraveled * 10), 2f, 20);
+		float speedFactor = TKMath.Exp(Math.Max(0, 0.4f - dashTarget.timeTraveled * 10), 2f, 20);
 
 		Vector2 stepSize = direction * speedFactor * stats.DashVelocity * Game.delta;
 
@@ -194,16 +275,30 @@ public partial class Player : Actor
 	Bullet[] bulletList = new Bullet[10];
 	int bulletIndex = 0;
 
+	public void TryShoot(Vector2 target, bool hold)
+	{
+		if ((hold && (weapon.FireType == WeaponFireType.Single || weapon.FireType == WeaponFireType.SingleTimed)) || 
+			!weapon.CanShoot) 
+			return;
+
+		Shoot(target);
+	}
+
 	public void Shoot(Vector2 target)
 	{
+		if (Ammo <= 0) return;
+
 		if (bulletList[bulletIndex] != null)
 			RemoveBullet(bulletIndex);
 
-		bulletList[bulletIndex] = new Bullet(this, bulletIndex, target, map);
+		bulletList[bulletIndex] = weapon.CreateBullet(target, bulletIndex);
 		bulletList[bulletIndex].Logic();
 		bulletIndex = (bulletIndex + 1) % bulletList.Length;
 
-		if (IsLocalPlayer) SendShoot(target);
+		if (IsLocalPlayer)
+			SendShoot(target);
+
+		weapon.OnShoot();
 	}
 
 	public void RemoveBullet(int index)

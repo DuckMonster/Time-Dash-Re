@@ -1,9 +1,10 @@
 ﻿using OpenTK;
 using OpenTK.Graphics.OpenGL;
+using System;
 using System.Collections.Generic;
 using TKTools;
 
-public class CircleBar
+public class CircleBar : IDisposable
 {
 	static Texture circleTexture = new Texture("Res/circlebig.png");
 
@@ -11,6 +12,8 @@ public class CircleBar
 
 	float progress = 1f;
 	float size, barsize;
+
+	float startAngle, fillAngle;
 
 	public float Progress
 	{
@@ -37,7 +40,7 @@ public class CircleBar
 		}
 	}
 
-	public CircleBar(float size, float barsize)
+	public CircleBar(float size, float barsize, float startAngle, float fillAngle)
 	{
 		this.size = size;
 		this.barsize = barsize;
@@ -45,25 +48,34 @@ public class CircleBar
 		circleMesh = Mesh.Box;
 		circleMesh.Texture = circleTexture;
 
+		this.startAngle = startAngle;
+		this.fillAngle = fillAngle;
+
 		stencilMesh = new Mesh(OpenTK.Graphics.OpenGL.PrimitiveType.TriangleFan);
+	}
+
+	public void Dispose()
+	{
+		stencilMesh.Dispose();
+		circleMesh.Dispose();
 	}
 
 	public void Logic()
 	{
 		List<Vector2> vectorList = new List<Vector2>(10);
-		float angle = progress * 360f,
-			part = 360f / 8;
+		float angle = progress * fillAngle,
+			part = fillAngle / 8;
 
 		vectorList.Add(new Vector2(0, 0));
-		vectorList.Add(new Vector2(0, 0.5f));
+		vectorList.Add(TKMath.GetAngleVector(startAngle));
 
 		for (int i = 0; i < 9; i++)
 		{
-			if (angle > part * i)
-				vectorList.Add(TKMath.PolarPointVector(part * i + 90, 4));
+			if (Math.Abs(angle) > Math.Abs(part * i))
+				vectorList.Add(TKMath.PolarPointVector(part * i + startAngle, 4));
 			else
 			{
-				vectorList.Add(TKMath.PolarPointVector(angle + 90, 4));
+				vectorList.Add(TKMath.PolarPointVector(angle + startAngle, 4));
 				break;
 			}
 		}

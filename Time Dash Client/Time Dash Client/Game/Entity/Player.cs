@@ -16,87 +16,6 @@ public partial class Player : Actor
 		Color.Teal
 	};
 
-	public class DashTarget
-	{
-		public float timeTraveled = 0;
-		public float lastStep = 0;
-
-		public float angle;
-
-		public Vector2 startPosition;
-		public Vector2 endPosition;
-
-		public Vector2 Direction
-		{
-			get
-			{
-				return (endPosition - startPosition).Normalized();
-			}
-		}
-
-		public DashTarget(Vector2 a, Vector2 b)
-		{
-			startPosition = a;
-			endPosition = b;
-			angle = TKMath.GetAngle(a, b);
-		}
-	}
-
-	public class DodgeTarget
-	{
-		public float timeTraveled = 0;
-
-		public float stepLength = 0;
-		public float stepAngle = 0;
-
-		public Vector2 startPosition;
-		public Direction direction;
-
-		public float frameDirection = 0f;
-
-		public Vector2 DirectionVector
-		{
-			get
-			{
-				switch (direction)
-				{
-					case Direction.Down: return new Vector2(0, -1);
-					case Direction.Up: return new Vector2(0, 1);
-					case Direction.Right: return new Vector2(1, 0);
-					case Direction.Left: return new Vector2(-1, 0);
-				}
-
-				return new Vector2(1, 0);
-			}
-		}
-
-		public DodgeTarget(Vector2 start, Direction dir)
-		{
-			startPosition = start;
-			direction = dir;
-		}
-
-		public bool TargetReached(Vector2 pos)
-		{
-			float posLen = 0;
-
-			switch (direction)
-			{
-				case Direction.Right:
-				case Direction.Left:
-					posLen = Math.Abs(pos.X - startPosition.X);
-					break;
-
-				case Direction.Up:
-				case Direction.Down:
-					posLen = Math.Abs(pos.Y - startPosition.Y);
-					break;
-			}
-
-			return (posLen >= Stats.defaultStats.DodgeLength);
-		}
-	}
-
 	protected bool updateInput;
 	protected PlayerInput inputData = new PlayerInput();
 	protected PlayerInput input, oldInput;
@@ -114,10 +33,16 @@ public partial class Player : Actor
 
 	Timer dashCooldown;
 	Timer dodgeCooldown;
-	Timer disableTimer;
 
-	CircleBar dashCooldownBar = new CircleBar(2.5f, 0.5f),
-		dodgeCooldownBar = new CircleBar(2f, 0.3f);
+	public Timer DodgeCooldown
+	{
+		get { return dodgeCooldown; }
+	}
+
+	public Timer DashCooldown
+	{
+		get { return dashCooldown; }
+	}
 
 	float dodgeInterval = 0.2f;
 	float dodgeIntervalTimer = 0;
@@ -132,6 +57,9 @@ public partial class Player : Actor
 		dashSound = new Sound(@"Res\Snd\dash.wav");
 
 	bool bufferFrame = false;
+
+	public PlayerHud hud;
+	public Weapon weapon;
 
 	public int WallTouch
 	{
@@ -188,10 +116,7 @@ public partial class Player : Actor
 	{
 		get
 		{
-			if (IsOnGround)
-				return !Disabled;
-			else
-				return !Disabled;
+			return true;
 		}
 	}
 	public bool IgnoresGravity
@@ -201,17 +126,14 @@ public partial class Player : Actor
 			return gravityIgnore > 0;
 		}
 	}
-	public bool Disabled
+
+	public int Ammo
 	{
-		get
-		{
-			return !disableTimer.IsDone;
-		}
-		set
-		{
-			if (!value) disableTimer.IsDone = true;
-			else disableTimer.Reset();
-		}
+		get { return weapon.Ammo; }
+	}
+	public int MaxAmmo
+	{
+		get { return weapon.MaxAmmo; }
 	}
 
 	public Player(int id, string name, Vector2 position, Map m)
@@ -241,13 +163,13 @@ public partial class Player : Actor
 			new Vector2(0, 1)
 		};
 
-		mesh.Texture = playerTileset.sourceTexture;
-
 		shadow = new PlayerShadow(this, mesh);
 
 		dashCooldown = new Timer(stats.DashCooldown, false);
 		dodgeCooldown = new Timer(stats.DodgeCooldown, true);
-		disableTimer = new Timer(stats.DisableTime, true);
+
+		hud = new PlayerHud(this);
+		weapon = new Pistol(this, map);
 	}
 
 	public override void Dispose()
@@ -257,11 +179,31 @@ public partial class Player : Actor
 
 		foreach (Bullet b in bulletList)
 			if (b != null) b.Dispose();
+
+		hud.Dispose();
 	}
 
-	public override void Hit()
+	public void EquipWeapon(int id)
 	{
-		base.Hit();
+		switch ((WeaponList)id)
+		{
+			case WeaponList.Pistol: EquipWeapon(new Pistol(this, map)); break;
+			case WeaponList.Rifle: EquipWeapon(new Rifle(this, map)); break;
+		}
+	}
+
+	public void EquipWeapon(Weapon w)
+	{
+		if (weapon != null)
+			weapon = null;
+
+		weapon = w;
+	}
+
+	public override void Hit(float dmg)
+	{
+		base.Hit(dmg);
+		hud.Hit();
 	}
 
 	public override void Die(Vector2 diePos)
@@ -284,6 +226,9 @@ public partial class Player : Actor
 
 	public override void Logic()
 	{
+		hud.Logic();
+		weapon.Logic();
+
 		foreach (Bullet b in bulletList)
 			if (b != null) b.Logic();
 
@@ -292,23 +237,12 @@ public partial class Player : Actor
 		if (shadow != null && !dashCooldown.IsDone)
 		{
 			if (!IsDashing) dashCooldown.Logic();
-			dashCooldownBar.Progress = 1 - dashCooldown.PercentageDone;
-			dashCooldownBar.Logic();
 
 			if (dashCooldown.IsDone && IsLocalPlayer)
-			{
 				map.AddEffect(new EffectRing(shadow.CurrentPosition, 1.2f, 0.5f, Color, map));
-			}
 		}
 
-		if (!dodgeCooldown.IsDone)
-		{
-			dodgeCooldown.Logic();
-			dodgeCooldownBar.Progress = 1 - dodgeCooldown.PercentageDone;
-			dodgeCooldownBar.Logic();
-		}
-
-		disableTimer.Logic();
+		dodgeCooldown.Logic();
 
 		oldInput = input;
 		input = new PlayerInput(inputData);
@@ -439,8 +373,8 @@ public partial class Player : Actor
 			}
 
 			//Shooting
-			if (input[PlayerKey.Shoot] && !oldInput[PlayerKey.Shoot])
-				Shoot(MouseInput.Current.Position);
+			if (input[PlayerKey.Shoot])
+				TryShoot(MouseInput.Current.Position, oldInput[PlayerKey.Shoot]);
 		}
 		else
 		{
@@ -488,8 +422,13 @@ public partial class Player : Actor
 		inputData[PlayerKey.Up] = KeyboardInput.Current[Key.W];
 		inputData[PlayerKey.Down] = KeyboardInput.Current[Key.S];
 		inputData[PlayerKey.Jump] = KeyboardInput.Current[Key.Space];
-		inputData[PlayerKey.Dash] = KeyboardInput.Current[Key.E];
+		inputData[PlayerKey.Dash] = KeyboardInput.Current[Key.LShift] || MouseInput.Current[MouseButton.Right];
 		inputData[PlayerKey.Shoot] = MouseInput.Current[MouseButton.Left];
+
+		if (KeyboardInput.KeyPressed(Key.Number1)) SendEquipWeapon(0);
+		if (KeyboardInput.KeyPressed(Key.Number2)) SendEquipWeapon(1);
+		if (KeyboardInput.KeyPressed(Key.Number3)) SendEquipWeapon(2);
+		if (KeyboardInput.KeyPressed(Key.Number4)) SendEquipWeapon(3);
 	}
 
 	public override void Draw()
@@ -546,18 +485,6 @@ public partial class Player : Actor
 
 		mesh.Draw(playerTileset);
 
-		if (IsLocalPlayer)
-		{
-			if (!dodgeCooldown.IsDone)
-			{
-				dodgeCooldownBar.Draw(position, Color);
-			}
-			if (!dashCooldown.IsDone)
-			{
-				dashCooldownBar.Draw(position, Color);
-			}
-		}
-
 		float glow = Math.Max(1 - dodgeCooldown.PercentageDone, 1 - dashCooldown.PercentageDone);
 		if (glow > 0)
 		{
@@ -565,14 +492,6 @@ public partial class Player : Actor
 			mesh.Color = new Color(1, 1, 1, glow);
 
 			mesh.Draw(playerTileset, playerTileset.X, playerTileset.Y);
-		}
-
-		if (Disabled)
-		{
-			mesh.Color = new Color(0.3f, 0.3f, 1f, 1 - disableTimer.PercentageDone);
-			mesh.FillColor = true;
-
-			mesh.Draw(playerTileset);
 		}
 
 		if (receivedServerPosition)
@@ -594,5 +513,11 @@ public partial class Player : Actor
 
 		foreach (Bullet b in bulletList)
 			if (b != null) b.Draw();
+	}
+
+	public void DrawHUD()
+	{
+		if (!IsAlive) return;
+		hud.Draw();
 	}
 }

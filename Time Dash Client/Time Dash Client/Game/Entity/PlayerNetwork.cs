@@ -62,15 +62,17 @@ public partial class Player
 		serverPosition = position;
 	}
 
-	public void ReceiveHit(Player attacker, float dir, MessageBuffer msg)
+	public void ReceiveHit(float dmg, Player attacker, float dir, MessageBuffer msg)
 	{
-		map.AddEffect(new EffectPlayerHit(this, dir, map));
+		map.AddEffect(new EffectPlayerHit(this, dir, dmg, map));
 
 		if ((HitType)msg.ReadByte() == HitType.Bullet)
 		{
 			int id = msg.ReadByte();
 			attacker.RemoveBullet(id);
 		}
+
+		Hit(dmg);
 	}
 
 	public void ReceiveDodge(Vector2 start, Direction dir)
@@ -199,6 +201,16 @@ public partial class Player
 
 		msg.WriteVector(position);
 		msg.WriteVector(target);
+
+		Game.client.Send(msg);
+	}
+
+	void SendEquipWeapon(int id)
+	{
+		MessageBuffer msg = new MessageBuffer();
+
+		msg.WriteShort((short)Protocol.PlayerEquipWeapon);
+		msg.WriteByte(id);
 
 		Game.client.Send(msg);
 	}

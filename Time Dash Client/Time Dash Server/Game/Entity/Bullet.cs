@@ -1,5 +1,6 @@
 ﻿using OpenTK;
 using System.Collections.Generic;
+using TKTools;
 
 public class Bullet : Entity
 {
@@ -8,14 +9,25 @@ public class Bullet : Entity
 
 	Vector2 directionVector;
 
+	float damage;
+
+	public float Direction
+	{
+		get
+		{
+			return TKMath.GetAngle(directionVector);
+		}
+	}
+
 	bool active = true;
 
-	public Bullet(Player p, int id, Vector2 target, Map m)
+	public Bullet(Player p, int id, float damage, Vector2 target, Map m)
 		: base(p.position, m)
 	{
 		owner = p;
 		directionVector = (target - p.position).Normalized();
 		this.id = id;
+		this.damage = damage;
 
 		size = new Vector2(0.1f, 0.1f);
 	}
@@ -42,7 +54,7 @@ public class Bullet : Entity
 	{
 		if (p != null)
 		{
-			p.Hit(owner, this);
+			p.Hit(damage, owner, this);
 		}
 
 		active = false;

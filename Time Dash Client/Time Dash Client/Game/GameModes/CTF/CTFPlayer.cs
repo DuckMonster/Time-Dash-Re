@@ -38,11 +38,6 @@ public class CTFPlayer : Player
 		base.Dispose();
 	}
 
-	public override void Hit()
-	{
-		base.Hit();
-	}
-
 	public void GrabFlag(CTFFlag flag)
 	{
 		holdingFlag = flag;
