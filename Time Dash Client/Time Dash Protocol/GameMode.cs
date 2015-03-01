@@ -3,5 +3,6 @@
 	DeathMatch,
 	KingOfTheHill,
 	ControlPoints,
-	CaptureTheFlag
+	CaptureTheFlag,
+	ScrapYard
 }

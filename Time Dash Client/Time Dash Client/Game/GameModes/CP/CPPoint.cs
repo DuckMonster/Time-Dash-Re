@@ -62,7 +62,7 @@ public class CPPoint : Entity
 	public List<Team> GetContenders()
 	{
 		List<Team> returnList = new List<Team>(5);
-		List<Player> playerList = map.GetPlayerRadius(position, radius);
+		List<Player> playerList = Map.GetPlayerRadius(position, radius);
 
 		foreach (Player p in playerList)
 		{

@@ -74,7 +74,13 @@
     <Compile Include="Game\Effects\EffectSpike.cs" />
     <Compile Include="Game\Effects\EffectSmoke.cs" />
     <Compile Include="Game\Entity\Actor.cs" />
+    <Compile Include="Game\GameModes\SY\SYStash.cs" />
+    <Compile Include="Game\GameModes\SY\SYMap.cs" />
+    <Compile Include="Game\GameModes\SY\SYPlayer.cs" />
+    <Compile Include="Game\GameModes\SY\SYScrap.cs" />
+    <Compile Include="Game\Weapon\Bow.cs" />
     <Compile Include="Game\Weapon\GrenadeLauncher.cs" />
+    <Compile Include="Game\Weapon\Projectile\Arrow.cs" />
     <Compile Include="Game\Weapon\Projectile\Bullet.cs" />
     <Compile Include="Game\Entity\Entity.cs" />
     <Compile Include="Game\Entity\PlayerAbilities.cs" />
@@ -120,6 +126,9 @@
     </None>
     <None Include="App.config" />
     <None Include="Maps\factory_ctf.tdm">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Maps\factory_sy.tdm">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Maps\temple_dm.tdm">
@@ -176,6 +185,7 @@
       <Name>Time Dash Protocol</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

@@ -13,6 +13,8 @@ public class EffectPlayerHit : Effect
 	public EffectPlayerHit(Player p, float dir, float size, Map m)
 		: base(m)
 	{
+		size = MathHelper.Clamp(size, 0.2f, 2f);
+
 		tilex = p.playerTileset.X;
 		tiley = p.playerTileset.Y;
 

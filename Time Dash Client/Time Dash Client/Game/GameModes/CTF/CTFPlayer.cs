@@ -4,6 +4,14 @@ using TKTools;
 
 public class CTFPlayer : Player
 {
+	protected new CTFMap Map
+	{
+		get
+		{
+			return (CTFMap)base.Map;
+		}
+	}
+
 	CTFFlag holdingFlag;
 	Mesh arrowMesh;
 
@@ -43,14 +51,14 @@ public class CTFPlayer : Player
 		holdingFlag = flag;
 		flag.holder = this;
 
-		((CTFMap)map).FlagStolen(flag);
+		Map.FlagStolen(flag);
 	}
 
 	public override void Draw()
 	{
 		base.Draw();
 
-		CTFFlag flag = ((CTFMap)map).flags[team.id];
+		CTFFlag flag = Map.flags[team.id];
 
 		if ((!flag.IsInBase || flag.holder != null) && IsLocalPlayer)
 		{

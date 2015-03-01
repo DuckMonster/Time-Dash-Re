@@ -4,6 +4,14 @@ using System;
 using TKTools;
 public class CTFFlag : Entity
 {
+	protected new CTFMap Map
+	{
+		get
+		{
+			return (CTFMap)base.Map;
+		}
+	}
+
 	public CTFPlayer holder;
 	Vector2 originPosition;
 	public int ownerID;
@@ -14,7 +22,7 @@ public class CTFFlag : Entity
 	{
 		get
 		{
-			return map.teamList[ownerID];
+			return Map.teamList[ownerID];
 		}
 	}
 
@@ -48,7 +56,7 @@ public class CTFFlag : Entity
 	{
 		if (holder == null)
 		{
-			foreach (CTFPlayer p in map.playerList)
+			foreach (CTFPlayer p in Map.playerList)
 				if (p != null)
 				{
 					if (p.CollidesWith(Position, 0.5f))
@@ -62,7 +70,7 @@ public class CTFFlag : Entity
 		}
 		else
 		{
-			CTFFlag otherFlag = ((CTFMap)map).flags[(ownerID + 1) % 2];
+			CTFFlag otherFlag = Map.flags[(ownerID + 1) % 2];
 			if (otherFlag.IsInBase && holder.CollidesWith(otherFlag.Position, 0.5f))
 				Capture();
 		}
@@ -80,11 +88,11 @@ public class CTFFlag : Entity
 
 		velocity.X -= velocity.X * 1.2f * Game.delta;
 
-		if (map.GetCollision(this, new Vector2(0, velocity.Y) * Game.delta))
+		if (Map.GetCollision(this, new Vector2(0, velocity.Y) * Game.delta))
 			velocity.Y *= -0.4f;
-		if (map.GetCollision(this, new Vector2(velocity.X, 0) * Game.delta))
+		if (Map.GetCollision(this, new Vector2(velocity.X, 0) * Game.delta))
 			velocity.X *= -0.2f;
-		if (map.GetCollision(this, velocity * Game.delta))
+		if (Map.GetCollision(this, velocity * Game.delta))
 			velocity = Vector2.Zero;
 
 		position += velocity * Game.delta;
@@ -95,7 +103,7 @@ public class CTFFlag : Entity
 		if (holder == null) return;
 
 		position = holder.position + new Vector2(0, 2f);
-		velocity = TKMath.GetAngleVector(90 + ((float)map.rng.NextDouble() - 0.5f) * 2 * 70f) * 10f;
+		velocity = TKMath.GetAngleVector(90 + ((float)Map.rng.NextDouble() - 0.5f) * 2 * 70f) * 10f;
 		holder = null;
 
 		MessageBuffer msg = new MessageBuffer();
@@ -107,12 +115,12 @@ public class CTFFlag : Entity
 		msg.WriteVector(position);
 		msg.WriteVector(velocity);
 
-		map.SendToAllPlayers(msg);
+		Map.SendToAllPlayers(msg);
 	}
 
 	public void Capture()
 	{
-		((CTFMap)map).FlagCaptured(this);
+		Map.FlagCaptured(this);
 		Return();
 
 		MessageBuffer msg = new MessageBuffer();
@@ -121,7 +129,7 @@ public class CTFFlag : Entity
 		msg.WriteShort((short)Protocol_CTF.FlagCaptured);
 		msg.WriteByte(ownerID);
 
-		map.SendToAllPlayers(msg);
+		Map.SendToAllPlayers(msg);
 	}
 
 	public void Return()
@@ -135,7 +143,7 @@ public class CTFFlag : Entity
 		msg.WriteShort((short)Protocol_CTF.FlagReturned);
 		msg.WriteByte(ownerID);
 
-		map.SendToAllPlayers(msg);
+		Map.SendToAllPlayers(msg);
 	}
 
 	public void SendExistenceToPlayer(params Player[] players)

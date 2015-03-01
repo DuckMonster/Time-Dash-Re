@@ -83,19 +83,19 @@ public class Scoreboard : Entity
 
 		int maxScore = 0;
 
-		for (int i = 0; i < map.playerList.Length; i++)
+		for (int i = 0; i < Map.playerList.Length; i++)
 		{
-			if (map.playerList[i] == null || score[i] == 0) continue;
+			if (Map.playerList[i] == null || score[i] == 0) continue;
 
 			if (score[i] > maxScore)
 			{
 				leaderList.Clear();
-				leaderList.Add(map.playerList[i]);
+				leaderList.Add(Map.playerList[i]);
 				maxScore = score[i];
 			}
 			else if (score[i] == maxScore)
 			{
-				leaderList.Add(map.playerList[i]);
+				leaderList.Add(Map.playerList[i]);
 			}
 		}
 	}
@@ -122,7 +122,7 @@ public class Scoreboard : Entity
 
 	public override void Draw()
 	{
-		int nmbrOfPlayers = map.NumberOfPlayers;
+		int nmbrOfPlayers = Map.NumberOfPlayers;
 		float w = width / nmbrOfPlayers;
 
 		scoreMesh.Reset();
@@ -133,9 +133,9 @@ public class Scoreboard : Entity
 
 		int n = 0;
 
-		for (int i = 0; i < map.playerList.Length; i++)
+		for (int i = 0; i < Map.playerList.Length; i++)
 		{
-			if (map.playerList[i] == null) continue;
+			if (Map.playerList[i] == null) continue;
 
 			float x = position.X - width/2 + (w * n) + w / 2;
 			scoreMesh.Reset();
@@ -144,7 +144,7 @@ public class Scoreboard : Entity
 
 			Color c;
 
-			if (IsLeader(map.playerList[i]))
+			if (IsLeader(Map.playerList[i]))
 				c = Player.colorList[i];
 			else
 				c = Player.colorList[i] * new Color(0.4f, 0.4f, 0.4f, 1f);

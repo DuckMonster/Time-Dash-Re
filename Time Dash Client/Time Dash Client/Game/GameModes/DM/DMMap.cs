@@ -28,7 +28,7 @@ public class DMMap : Map
 
 		if (typeID == 1)
 		{
-			scoreboard = new Scoreboard(25, pos.Bounds.Width, pos.Bounds.Height, new Vector2(pos.Bounds.X + pos.Bounds.Width / 2, pos.Bounds.Y), this);
+			scoreboard = new Scoreboard(20, pos.Bounds.Width, pos.Bounds.Height, new Vector2(pos.Bounds.X + pos.Bounds.Width / 2, pos.Bounds.Y), this);
 		}
 	}
 
@@ -40,8 +40,10 @@ public class DMMap : Map
 
 	public override void Draw()
 	{
+		UpdateView();
+		DrawBackground();
 		scoreboard.Draw();
-		base.Draw();
+		DrawMap();
 	}
 
 	public override void MessageHandle(MessageBuffer msg)

@@ -28,19 +28,19 @@ public class Scoreboard : Entity
 
 		int maxScore = 0;
 
-		for (int i = 0; i < map.playerList.Length; i++)
+		for (int i = 0; i < Map.playerList.Length; i++)
 		{
-			if (map.playerList[i] == null || score[i] == 0) continue;
+			if (Map.playerList[i] == null || score[i] == 0) continue;
 
 			if (score[i] > maxScore)
 			{
 				leaderList.Clear();
-				leaderList.Add(map.playerList[i]);
+				leaderList.Add(Map.playerList[i]);
 				maxScore = score[i];
 			}
 			else if (score[i] == maxScore)
 			{
-				leaderList.Add(map.playerList[i]);
+				leaderList.Add(Map.playerList[i]);
 			}
 		}
 	}
@@ -49,20 +49,20 @@ public class Scoreboard : Entity
 	{
 		score[index] = scr;
 		UpdateLeaders();
-		SendScoreToPlayer(index, map.playerList);
+		SendScoreToPlayer(index, Map.playerList);
 
 		if (score[index] >= maxScore)
-			map.PlayerWin(map.playerList[index]);
+			Map.PlayerWin(Map.playerList[index]);
 	}
 
 	public void ChangeScore(int index, int scr)
 	{
 		score[index] += scr;
 		UpdateLeaders();
-		SendScoreToPlayer(index, map.playerList);
+		SendScoreToPlayer(index, Map.playerList);
 
 		if (score[index] >= maxScore)
-			map.PlayerWin(map.playerList[index]);
+			Map.PlayerWin(Map.playerList[index]);
 	}
 
 	public override void Logic()

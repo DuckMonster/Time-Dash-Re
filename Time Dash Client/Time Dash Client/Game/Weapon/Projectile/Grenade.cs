@@ -20,10 +20,10 @@ public class Grenade : Projectile
 
 		Vector2 stepVector = velocity * Game.delta;
 
-		if (map.GetCollision(this, stepVector))
+		if (Map.GetCollision(this, stepVector))
 		{
 			Vector2 collidePos;
-			map.RayTraceCollision(position, position + stepVector, size, out collidePos);
+			Map.RayTraceCollision(position, position + stepVector, size, out collidePos);
 			position = collidePos;
 
 			Hit();
@@ -36,7 +36,7 @@ public class Grenade : Projectile
 			float dir = (float)rng.NextDouble() * 360f;
 			Vector2 offset = new Vector2((float)rng.NextDouble() - 0.5f, (float)rng.NextDouble() - 0.5f) * 0.3f;
 
-			map.AddEffect(new EffectSmoke(position + offset, 0.4f, 0.5f, dir, 0.4f, EffectSmoke.defaultColor, map));
+			Map.AddEffect(new EffectSmoke(position + offset, 0.4f, 0.5f, dir, 0.4f, EffectSmoke.defaultColor, Map));
 			smokeTimer.Reset();
 		}
 
@@ -45,8 +45,8 @@ public class Grenade : Projectile
 
 	public override void Hit()
 	{
-		map.AddEffect(new EffectRing(position, 6f, 1.2f, Color.White, map));
-		EffectCone.CreateSmokeCone(position, TKMath.GetAngle(velocity), 1.2f, 4, 5, map);
+		Map.AddEffect(new EffectRing(position, 6f, 1.2f, Color.White, Map));
+		EffectCone.CreateSmokeCone(position, TKMath.GetAngle(velocity), 1.2f, 4, 5, Map);
 
 		Random rng = new Random();
 
@@ -54,7 +54,7 @@ public class Grenade : Projectile
 			float size = 0.5f + (float)rng.NextDouble() * 0.3f;
 			float dir = ((float)rng.NextDouble() - 0.5f) * 45f;
 
-			map.AddEffect(new EffectRockSmoke(position, TKMath.GetAngle(velocity) + 180 + dir, size, map));
+			Map.AddEffect(new EffectRockSmoke(position, TKMath.GetAngle(velocity) + 180 + dir, size, Map));
 		}
 
 		base.Hit();

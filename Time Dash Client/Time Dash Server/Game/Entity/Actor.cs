@@ -34,7 +34,7 @@ public class Actor : Entity
 	{
 		get
 		{
-			return map.GetCollision(this, new Vector2(0, -0.1f));
+			return Map.GetCollision(this, new Vector2(0, -0.1f));
 		}
 	}
 
@@ -44,6 +44,11 @@ public class Actor : Entity
 		{
 			return health > 0;
 		}
+	}
+
+	public int MaxHealth
+	{
+		get { return stats.PlayerHealth; }
 	}
 
 	public Actor(Vector2 position, Map m)
@@ -80,7 +85,7 @@ public class Actor : Entity
 
 	public virtual void Respawn()
 	{
-		health = stats.PlayerHealth;
+		health = MaxHealth;
 	}
 
 	public override void Logic()
@@ -89,15 +94,15 @@ public class Actor : Entity
 
 		DoPhysics();
 
-		if (map.GetCollision(this, new Vector2(0, velocity.Y) * Game.delta))
+		if (Map.GetCollision(this, new Vector2(0, velocity.Y) * Game.delta))
 			velocity.Y = 0;
 
-		if (map.GetCollision(this, new Vector2(velocity.X, Math.Min(0, velocity.Y)) * Game.delta))
+		if (Map.GetCollision(this, new Vector2(velocity.X, Math.Min(0, velocity.Y)) * Game.delta))
 		{
 			float stepFactor = stats.StepSize * velocity.Length * Game.delta;
 
 			//Stepping
-			if (!map.GetCollision(this, new Vector2(velocity.X * Game.delta, stepFactor)))
+			if (!Map.GetCollision(this, new Vector2(velocity.X * Game.delta, stepFactor)))
 			{
 				int accuracy = 32;
 				float testStep = stepFactor / accuracy;
@@ -105,7 +110,7 @@ public class Actor : Entity
 
 				for (int i = 0; i < accuracy; i++)
 				{
-					if (map.GetCollision(this, new Vector2(velocity.X * Game.delta, currentStep)))
+					if (Map.GetCollision(this, new Vector2(velocity.X * Game.delta, currentStep)))
 						currentStep += testStep;
 					else
 					{
@@ -120,9 +125,9 @@ public class Actor : Entity
 			}
 		}
 
-		if (map.GetCollision(this, new Vector2(velocity.X, 0) * Game.delta))
+		if (Map.GetCollision(this, new Vector2(velocity.X, 0) * Game.delta))
 			velocity.X = 0;
-		if (map.GetCollision(this, velocity * Game.delta))
+		if (Map.GetCollision(this, velocity * Game.delta))
 			velocity = Vector2.Zero;
 
 		position += velocity * Game.delta;

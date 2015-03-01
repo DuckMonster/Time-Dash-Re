@@ -1,20 +1,18 @@
 ﻿using OpenTK;
 
-public enum WeaponList
-{
-	Pistol,
-	Rifle,
-	GrenadeLauncher
-}
-
 public abstract class Weapon
 {
+	public readonly int weaponID;
+
 	protected Map map;
 	protected Player owner;
 	int ammo, maxAmmo;
 	WeaponStats.FireType fireType;
 
 	protected float damage;
+
+	float maxCharge;
+	float charge = 0f;
 
 	public int Ammo
 	{
@@ -39,6 +37,12 @@ public abstract class Weapon
 		}
 	}
 
+	public float Charge
+	{ 
+		get { return charge / maxCharge; }
+		set { charge = value * maxCharge; }
+	}
+
 	Timer reloadTimer = new Timer(1f, false);
 	Timer shootTimer = new Timer(0.1f, true);
 
@@ -59,15 +63,19 @@ public abstract class Weapon
 		owner = p;
 		this.map = map;
 
+		weaponID = stats.id;
+
 		damage = stats.damage;
 		fireType = stats.fireType;
 		FireRate = stats.fireRate;
+		maxCharge = stats.fireRate;
 		ReloadTime = stats.reloadTime;
 		maxAmmo = stats.ammo;
+
 		ammo = maxAmmo;
 	}
 
-	public abstract Projectile CreateBullet(Vector2 target, int index);
+	public abstract Projectile CreateProjectile(Vector2 target, int index);
 
 	public void OnShoot()
 	{

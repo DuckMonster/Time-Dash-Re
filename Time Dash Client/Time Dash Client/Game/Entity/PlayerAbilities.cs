@@ -142,11 +142,11 @@ public partial class Player : Actor
 		Vector2 step = dir * stats.DodgeVelocity * speedFactor * Game.delta;
 
 		//Stepping
-		if ((dodgeTarget.direction == Direction.Right || dodgeTarget.direction == Direction.Left) && map.GetCollision(this, step))
+		if ((dodgeTarget.direction == Direction.Right || dodgeTarget.direction == Direction.Left) && Map.GetCollision(this, step))
 		{
 			float stepSizeFactor = stats.StepSize * step.Length;
 
-			if (!map.GetCollision(this, step + new Vector2(0, stepSizeFactor)))
+			if (!Map.GetCollision(this, step + new Vector2(0, stepSizeFactor)))
 			{
 				int accuracy = 16;
 				float currentStep = 0;
@@ -154,7 +154,7 @@ public partial class Player : Actor
 
 				for (int i = 0; i < accuracy; i++)
 				{
-					if (map.GetCollision(this, step + new Vector2(0, currentStep)))
+					if (Map.GetCollision(this, step + new Vector2(0, currentStep)))
 						currentStep += testStepSize;
 					else
 						break;
@@ -165,7 +165,7 @@ public partial class Player : Actor
 		}
 
 		Vector2 collisionPosition;
-		bool collision = map.RayTraceCollision(position, position + step, size, out collisionPosition);
+		bool collision = Map.RayTraceCollision(position, position + step, size, out collisionPosition);
 
 		step = collisionPosition - position;
 
@@ -182,7 +182,7 @@ public partial class Player : Actor
 		velocity = dodgeTarget.DirectionVector * stats.DodgeEndVelocity;
 
 		dodgeTarget = null;
-		map.AddEffect(new EffectRing(position, 4f, 0.5f, Color, map));
+		Map.AddEffect(new EffectRing(position, 4f, 0.5f, Color, Map));
 
 		dodgeCooldown.Reset();
 
@@ -218,7 +218,7 @@ public partial class Player : Actor
 		dashTarget = new DashTarget(position, target);
 		dashCooldown.Reset();
 
-		map.AddEffect(new EffectRing(position, 2.4f, 0.8f, Color, map));
+		Map.AddEffect(new EffectRing(position, 2.4f, 0.8f, Color, Map));
 
 		if (IsLocalPlayer) SendDash(dashTarget);
 	}
@@ -258,8 +258,8 @@ public partial class Player : Actor
 	public void DashEnd(Vector2 start, Vector2 end, Vector2 velo)
 	{
 		position = end;
-		map.AddEffect(new EffectSpike(start, end, 2.2f, 0.8f, Color, map));
-		map.AddEffect(new EffectRing(end, 6f, 0.8f, Color, map));
+		Map.AddEffect(new EffectSpike(start, end, 2.2f, 0.8f, Color, Map));
+		Map.AddEffect(new EffectRing(end, 6f, 0.8f, Color, Map));
 
 		velocity = velo;
 
@@ -275,18 +275,17 @@ public partial class Player : Actor
 	Projectile[] projectileList = new Projectile[10];
 	int projectileIndex = 0;
 
-	public void TryShoot(Vector2 target, bool hold)
-	{
-		if ((hold && (weapon.FireType == WeaponStats.FireType.Single || weapon.FireType == WeaponStats.FireType.SingleTimed)) || 
-			!weapon.CanShoot) 
-			return;
-
-		Shoot(target);
-	}
-
 	public void Shoot(Vector2 target)
 	{
 		if (Ammo <= 0) return;
+
+		if (IsLocalPlayer)
+		{
+			if (weapon.FireType == WeaponStats.FireType.Charge)
+				SendShoot(target, weapon.Charge);
+			else
+				SendShoot(target);
+		}
 
 		if (projectileList[projectileIndex] != null)
 			RemoveProjectile(projectileIndex);
@@ -294,9 +293,6 @@ public partial class Player : Actor
 		projectileList[projectileIndex] = weapon.CreateProjectile(target, projectileIndex);
 		projectileList[projectileIndex].Logic();
 		projectileIndex = (projectileIndex + 1) % projectileList.Length;
-
-		if (IsLocalPlayer)
-			SendShoot(target);
 
 		weapon.OnShoot();
 	}

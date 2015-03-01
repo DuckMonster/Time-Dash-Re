@@ -65,8 +65,8 @@ public partial class Player : Actor
 	{
 		get
 		{
-			if (map.GetCollision(this, new Vector2(-0.1f, 0f)) && velocity.X < 0.1f) return -1;
-			if (map.GetCollision(this, new Vector2(0.1f, 0)) && velocity.X > -0.1f) return 1;
+			if (Map.GetCollision(this, new Vector2(-0.1f, 0f)) && velocity.X < 0.1f) return -1;
+			if (Map.GetCollision(this, new Vector2(0.1f, 0)) && velocity.X > -0.1f) return 1;
 			return 0;
 		}
 	}
@@ -169,7 +169,7 @@ public partial class Player : Actor
 		dodgeCooldown = new Timer(stats.DodgeCooldown, true);
 
 		hud = new PlayerHud(this);
-		weapon = new GrenadeLauncher(this, map);
+		EquipWeapon(3);
 	}
 
 	public override void Dispose()
@@ -177,7 +177,7 @@ public partial class Player : Actor
 		base.Dispose();
 		playerTileset.Dispose();
 
-		foreach (Bullet b in projectileList)
+		foreach (Projectile b in projectileList)
 			if (b != null) b.Dispose();
 
 		hud.Dispose();
@@ -187,9 +187,10 @@ public partial class Player : Actor
 	{
 		switch ((WeaponList)id)
 		{
-			case WeaponList.Pistol: EquipWeapon(new Pistol(this, map)); break;
-			case WeaponList.Rifle: EquipWeapon(new Rifle(this, map)); break;
-			case WeaponList.GrenadeLauncher: EquipWeapon(new GrenadeLauncher(this, map)); break;
+			case WeaponList.Pistol: EquipWeapon(new Pistol(this, Map)); break;
+			case WeaponList.Rifle: EquipWeapon(new Rifle(this, Map)); break;
+			case WeaponList.GrenadeLauncher: EquipWeapon(new GrenadeLauncher(this, Map)); break;
+			case WeaponList.Bow: EquipWeapon(new Bow(this, Map)); break;
 		}
 	}
 
@@ -209,7 +210,7 @@ public partial class Player : Actor
 
 	public override void Die(Vector2 diePos)
 	{
-		map.AddEffect(new EffectSkull(diePos, Color, map));
+		Map.AddEffect(new EffectSkull(diePos, Color, Map));
 
 		dashTarget = null;
 		dodgeTarget = null;
@@ -222,7 +223,7 @@ public partial class Player : Actor
 	public override void Respawn(Vector2 pos)
 	{
 		base.Respawn(pos);
-		map.AddEffect(new EffectRing(position, 4f, 1.5f, Color, map));
+		Map.AddEffect(new EffectRing(position, 4f, 1.5f, Color, Map));
 	}
 
 	public override void Logic()
@@ -240,7 +241,7 @@ public partial class Player : Actor
 			if (!IsDashing) dashCooldown.Logic();
 
 			if (dashCooldown.IsDone && IsLocalPlayer)
-				map.AddEffect(new EffectRing(shadow.CurrentPosition, 1.2f, 0.5f, Color, map));
+				Map.AddEffect(new EffectRing(shadow.CurrentPosition, 1.2f, 0.5f, Color, Map));
 		}
 
 		dodgeCooldown.Logic();
@@ -374,8 +375,12 @@ public partial class Player : Actor
 			}
 
 			//Shooting
-			if (input[PlayerKey.Shoot])
-				TryShoot(MouseInput.Current.Position, oldInput[PlayerKey.Shoot]);
+			if (input[PlayerKey.Shoot] && !oldInput[PlayerKey.Shoot])
+				weapon.Press();
+			if (input[PlayerKey.Shoot] && oldInput[PlayerKey.Shoot])
+				weapon.Hold();
+			if (!input[PlayerKey.Shoot])
+				weapon.Release();
 		}
 		else
 		{
@@ -521,7 +526,7 @@ public partial class Player : Actor
 			if (p != null) p.Draw();
 	}
 
-	public void DrawHUD()
+	public virtual void DrawHUD()
 	{
 		if (!IsAlive) return;
 		hud.Draw();

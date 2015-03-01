@@ -29,11 +29,11 @@ public class Bullet : Projectile
 
 		Vector2 stepVector = directionVector * Stats.defaultStats.BulletVelocity * Game.delta;
 
-		if (map.GetCollision(this, stepVector))
+		if (Map.GetCollision(this, stepVector))
 			Hit(position + stepVector);
 		else position += directionVector * Stats.defaultStats.BulletVelocity * Game.delta;
 
-		List<Player> playersHit = map.GetPlayerRadius(position, 0.2f, owner);
+		List<Player> playersHit = Map.GetPlayerRadius(position, 0.2f, owner);
 
 		if (playersHit.Count > 0)
 			Hit(playersHit[0]);

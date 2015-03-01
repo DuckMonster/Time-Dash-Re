@@ -3,6 +3,14 @@ using System;
 using TKTools;
 public class CTFFlag : Entity
 {
+	protected new CTFMap Map
+	{
+		get
+		{
+			return (CTFMap)base.Map;
+		}
+	}
+
 	public Player holder;
 	Vector2 originPosition;
 	public int ownerID;
@@ -15,7 +23,7 @@ public class CTFFlag : Entity
 	{
 		get
 		{
-			return map.teamList[ownerID];
+			return Map.teamList[ownerID];
 		}
 	}
 
@@ -70,11 +78,11 @@ public class CTFFlag : Entity
 
 		velocity.X -= velocity.X * 1.2f * Game.delta;
 
-		if (map.GetCollision(this, new Vector2(0, velocity.Y) * Game.delta))
+		if (Map.GetCollision(this, new Vector2(0, velocity.Y) * Game.delta))
 			velocity.Y *= -0.4f;
-		if (map.GetCollision(this, new Vector2(velocity.X, 0) * Game.delta))
+		if (Map.GetCollision(this, new Vector2(velocity.X, 0) * Game.delta))
 			velocity.X *= -0.2f;
-		if (map.GetCollision(this, velocity * Game.delta))
+		if (Map.GetCollision(this, velocity * Game.delta))
 			velocity = Vector2.Zero;
 
 		position += velocity * Game.delta;
@@ -89,7 +97,7 @@ public class CTFFlag : Entity
 	public void Drop()
 	{
 		position = holder.position + new Vector2(0, 2f);
-		velocity = TKMath.GetAngleVector(90 + ((float)map.rng.NextDouble() - 0.5f) * 70f) * 20f;
+		velocity = TKMath.GetAngleVector(90 + ((float)Map.rng.NextDouble() - 0.5f) * 70f) * 20f;
 		holder = null;
 	}
 
@@ -103,7 +111,7 @@ public class CTFFlag : Entity
 
 	public void Capture()
 	{
-		((CTFMap)map).FlagCaptured(this);
+		Map.FlagCaptured(this);
 		Return();
 	}
 

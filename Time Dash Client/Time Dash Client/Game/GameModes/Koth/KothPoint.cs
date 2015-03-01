@@ -49,7 +49,7 @@ public class KothPoint : Scoreboard
 
 	void LookForPlayer()
 	{
-		List<Player> playerList = map.GetPlayerRadius(position, radius);
+		List<Player> playerList = Map.GetPlayerRadius(position, radius);
 
 		Player contender = null;
 		foreach (Player p in playerList)

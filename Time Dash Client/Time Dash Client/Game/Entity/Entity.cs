@@ -5,7 +5,15 @@ using TKTools;
 
 public class Entity : IDisposable
 {
-	protected Map map;
+	Map map;
+	protected virtual Map Map
+	{
+		get
+		{
+			return map;
+		}
+	}
+
 	public Vector2 position, size = new Vector2(0.6f, 0.6f);
 
 	public Mesh mesh;

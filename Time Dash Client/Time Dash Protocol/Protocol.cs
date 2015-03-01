@@ -72,3 +72,12 @@ public enum Protocol_CTF
 	FlagPosition,
 	RoundTimer
 }
+
+public enum Protocol_SY
+{
+	ScrapExistance,
+	ScrapPosition,
+	ScrapCollect,
+	ScrapReturn,
+	StashScrapAmount
+}

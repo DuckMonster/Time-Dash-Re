@@ -206,7 +206,7 @@ public class Map : IDisposable
 
 		Vector2 diffVector = end - start, directionVector = diffVector.Normalized();
 
-		int accuracy = (int)(diffVector.Length * 6);
+		int accuracy = 1 + (int)(diffVector.Length * 6);
 		float step = diffVector.Length / accuracy;
 		Vector2 checkpos = start;
 
@@ -251,18 +251,28 @@ public class Map : IDisposable
 			Log.Debug(winPlayer.playerID + " WINS!");
 	}
 
-	public virtual void Draw()
+	public void UpdateView()
 	{
 		Game.defaultShader["view"].SetValue(camera.ViewMatrix);
 		Tileset.tileProgram["view"].SetValue(camera.ViewMatrix);
+		Game.hudShader["view"].SetValue(Matrix4.LookAt(new Vector3(0, 0, 3), Vector3.Zero, Vector3.UnitY));
+	}
 
+	public void DrawBackground()
+	{
 		scene.Draw();
+	}
 
+	public void DrawForeground()
+	{
+		scene.Draw();
+	}
+
+	public void DrawMap()
+	{
 		foreach (Player p in playerList) if (p != null) p.Draw();
 		foreach (Effect e in effectList) e.Draw();
 		if (LocalPlayer != null) LocalPlayer.DrawHUD();
-
-		Game.hudShader["view"].SetValue(Matrix4.LookAt(new Vector3(0, 0, 3), Vector3.Zero, Vector3.UnitY));
 
 		if (winPlayer != null)
 		{
@@ -274,6 +284,13 @@ public class Map : IDisposable
 
 			hudMesh.Draw();
 		}
+	}
+
+	public virtual void Draw()
+	{
+		UpdateView();
+		DrawBackground();
+		DrawMap();
 	}
 
 	//ONLINE
@@ -336,8 +353,16 @@ public class Map : IDisposable
 					break;
 
 				case Protocol.PlayerShoot:
-					playerList[msg.ReadByte()].ReceiveShoot(msg.ReadVector2(), msg.ReadVector2());
-					break;
+					{
+						Player p = playerList[msg.ReadByte()];
+
+						if (p.weapon.FireType == WeaponStats.FireType.Charge)
+							p.ReceiveShoot(msg.ReadVector2(), msg.ReadVector2(), msg.ReadFloat());
+						else
+							p.ReceiveShoot(msg.ReadVector2(), msg.ReadVector2());
+
+						break;
+					}
 				
 				case Protocol.PlayerEquipWeapon:
 					playerList[msg.ReadByte()].EquipWeapon(msg.ReadByte());

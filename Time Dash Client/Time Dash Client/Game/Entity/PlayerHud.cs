@@ -68,9 +68,14 @@ public class PlayerHud : IDisposable
 			reloadBar.Progress = player.weapon.ReloadProgress;
 			reloadBar.Logic();
 		}
-		else if (player.weapon.RearmProgress != -1)
+		else if (player.weapon.RearmProgress != -1 && player.weapon.FireType == WeaponStats.FireType.SingleTimed)
 		{
 			rearmBar.Progress = 1f - player.weapon.RearmProgress;
+			rearmBar.Logic();
+		}
+		else if (player.weapon.Charge != 0 && player.weapon.FireType == WeaponStats.FireType.Charge)
+		{
+			rearmBar.Progress = player.weapon.Charge;
 			rearmBar.Logic();
 		}
 
@@ -159,7 +164,10 @@ public class PlayerHud : IDisposable
 		if (player.weapon.ReloadProgress != -1)
 			reloadBar.Draw(player.position, Color.White);
 
-		if (player.weapon.RearmProgress != -1)
+		if (player.weapon.RearmProgress != -1 && player.weapon.FireType == WeaponStats.FireType.SingleTimed)
+			rearmBar.Draw(player.position, Color.White);
+
+		if (player.weapon.Charge != 0 && player.weapon.FireType == WeaponStats.FireType.Charge)
 			rearmBar.Draw(player.position, Color.White);
 
 		if (!ammoUseTimer.IsDone)

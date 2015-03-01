@@ -3,7 +3,15 @@ using OpenTK.Input;
 
 public class Entity
 {
-	public Map map;
+	Map map;
+	protected Map Map
+	{
+		get
+		{
+			return map;
+		}
+	}
+
 	public Vector2 position, size = new Vector2(0.6f, 0.6f);
 
 	public Entity(Vector2 pos, Map m)

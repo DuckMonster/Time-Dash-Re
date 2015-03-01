@@ -20,7 +20,7 @@ public class KothPoint : Entity
 
 	void LookForPlayer()
 	{
-		List<Player> playerList = map.GetPlayerRadius(position, radius);
+		List<Player> playerList = Map.GetPlayerRadius(position, radius);
 
 		Player contender = null;
 		foreach (Player p in playerList)
@@ -42,9 +42,9 @@ public class KothPoint : Entity
 	public void ChangeScore(int id, int scr)
 	{
 		score[id] = MathHelper.Clamp(score[id] + scr, 0, scoreGoal);
-		SendScoreToPlayer(id, map.playerList);
+		SendScoreToPlayer(id, Map.playerList);
 
-		if (score[id] >= scoreGoal) map.PlayerWin(map.playerList[id]);
+		if (score[id] >= scoreGoal) Map.PlayerWin(Map.playerList[id]);
 	}
 
 	public override void Logic()

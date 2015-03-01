@@ -25,10 +25,10 @@ public class Bullet : Projectile
 
 		Vector2 stepVector = directionVector * Stats.defaultStats.BulletVelocity * Game.delta;
 
-		if (map.GetCollision(this, stepVector))
+		if (Map.GetCollision(this, stepVector))
 		{
 			Vector2 collidePos;
-			map.RayTraceCollision(position, position + stepVector, new Vector2(0.1f, 0.1f), out collidePos);
+			Map.RayTraceCollision(position, position + stepVector, new Vector2(0.1f, 0.1f), out collidePos);
 			position = collidePos;
 
 			Hit();
@@ -37,8 +37,8 @@ public class Bullet : Projectile
 
 	public override void Hit()
 	{
-		EffectCone.CreateSmokeCone(position, direction - 180, 0.4f, 4, 2, map);
-		map.AddEffect(new EffectRing(position, 2f, 0.5f, Color.White, map));
+		EffectCone.CreateSmokeCone(position, direction - 180, 0.4f, 4, 2, Map);
+		Map.AddEffect(new EffectRing(position, 2f, 0.5f, Color.White, Map));
 
 		base.Hit();
 	}

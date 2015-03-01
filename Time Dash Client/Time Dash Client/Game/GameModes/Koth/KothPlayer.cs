@@ -3,6 +3,14 @@ using TKTools;
 
 public class KothPlayer : Player
 {
+	protected new KothMap Map
+	{
+		get
+		{
+			return (KothMap)base.Map;
+		}
+	}
+
 	public KothPlayer(int id, string name, Vector2 position, Map m)
 		: base(id, name, position, m)
 	{
@@ -13,7 +21,7 @@ public class KothPlayer : Player
 	{
 		get
 		{
-			if (((KothMap)map).point.owner == this) return Color.White;
+			if (Map.point.owner == this) return Color.White;
 			else return base.Color;
 		}
 	}

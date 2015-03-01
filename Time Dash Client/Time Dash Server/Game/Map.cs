@@ -139,10 +139,17 @@ public class Map
 		currentMap = this;
 		scene = new Scene(filename, this);
 
-		foreach (Player p in players)
+		List<Player> playerBuffer = new List<Player>(players);
+		Random r = new Random();
+
+		for (int i = 0; i < players.Length; i++)
 		{
-			if (p != null)
-				PlayerJoin(p.client, p.playerName);
+			int index = r.Next(playerBuffer.Count);
+
+			if (playerBuffer[index] != null)
+				PlayerJoin(playerBuffer[index].client, playerBuffer[index].playerName);
+
+			playerBuffer.RemoveAt(index);
 		}
 	}
 
@@ -228,7 +235,7 @@ public class Map
 	{
 		Vector2 diffVector = end - start, directionVector = diffVector.Normalized();
 
-		int accuracy = (int)(diffVector.Length * 6);
+		int accuracy = 1 + (int)(diffVector.Length * 6);
 		float step = diffVector.Length / accuracy;
 		Vector2 checkpos = start;
 
@@ -268,7 +275,7 @@ public class Map
 
 		Vector2 diffVector = end - start, directionVector = diffVector.Normalized();
 
-		int accuracy = (int)(diffVector.Length * 10);
+		int accuracy = 1 + (int)(diffVector.Length * 6);
 		float step = diffVector.Length / accuracy;
 		Vector2 checkpos = start;
 
@@ -376,7 +383,11 @@ public class Map
 						break;
 
 					case Protocol.PlayerShoot:
-						p.ReceiveShoot(msg.ReadVector2(), msg.ReadVector2());
+						if (p.Weapon.FireType == WeaponStats.FireType.Charge)
+							p.ReceiveShoot(msg.ReadVector2(), msg.ReadVector2(), msg.ReadFloat());
+						else
+							p.ReceiveShoot(msg.ReadVector2(), msg.ReadVector2());
+
 						break;
 
 					case Protocol.PlayerEquipWeapon:

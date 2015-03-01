@@ -102,6 +102,8 @@ public partial class Player : Actor
 	public override void Jump()
 	{
 		base.Jump();
+
+		gravityIgnore = 0f;
 	}
 
 	public void WallJump()
@@ -137,11 +139,11 @@ public partial class Player : Actor
 		Vector2 step = dir * stats.DodgeVelocity * speedFactor * Game.delta;
 
 		//Stepping
-		if ((dodgeTarget.direction == Direction.Right || dodgeTarget.direction == Direction.Left) && map.GetCollision(this, step))
+		if ((dodgeTarget.direction == Direction.Right || dodgeTarget.direction == Direction.Left) && Map.GetCollision(this, step))
 		{
 			float stepSizeFactor = stats.StepSize * step.Length;
 
-			if (!map.GetCollision(this, step + new Vector2(0, stepSizeFactor)))
+			if (!Map.GetCollision(this, step + new Vector2(0, stepSizeFactor)))
 			{
 				int accuracy = 16;
 				float currentStep = 0;
@@ -149,7 +151,7 @@ public partial class Player : Actor
 
 				for (int i = 0; i < accuracy; i++)
 				{
-					if (map.GetCollision(this, step + new Vector2(0, currentStep)))
+					if (Map.GetCollision(this, step + new Vector2(0, currentStep)))
 						currentStep += testStepSize;
 					else
 						break;
@@ -160,7 +162,7 @@ public partial class Player : Actor
 		}
 
 		Vector2 collisionPosition;
-		bool collision = map.RayTraceCollision(position, position + step, size, out collisionPosition);
+		bool collision = Map.RayTraceCollision(position, position + step, size, out collisionPosition);
 
 		step = collisionPosition - position;
 
@@ -208,7 +210,7 @@ public partial class Player : Actor
 	{
 		dashTarget.timeTraveled += Game.delta;
 
-		Vector2 direction = (dashTarget.endPosition - position).Normalized();
+		Vector2 direction = dashTarget.Direction;
 		float speedFactor = TKMath.Exp(Math.Max(0, 0.4f - dashTarget.timeTraveled * 10), 2f, 20);
 
 		Vector2 stepSize = direction * speedFactor * stats.DashVelocity * Game.delta;
@@ -222,7 +224,7 @@ public partial class Player : Actor
 		Vector2 stepTarget = position + stepSize;
 
 		//Check for players
-		List<Player> playerCol = map.RayTracePlayer(position, stepTarget, size * 1.8f, this);
+		List<Player> playerCol = Map.RayTracePlayer(position, stepTarget, size * 1.8f, this);
 		if (playerCol.Count > 0)
 		{
 			foreach (Player p in playerCol)
@@ -232,14 +234,13 @@ public partial class Player : Actor
 					DashEnd(playerCol[0]);
 					playerCol[0].DashEnd(this);
 
-					SendDashCollisionToPlayer(playerCol[0], map.playerList);
+					SendDashCollisionToPlayer(playerCol[0], Map.playerList);
 
 					return;
 				}
 				else if (!p.IsDodging && !AlliedWith(p))
 				{
-					p.Die();
-					OnKill(p);
+					p.Hit(p.MaxAmmo, this, TKMath.GetAngle(direction));
 				}
 			}
 		} 
@@ -274,11 +275,14 @@ public partial class Player : Actor
 
 	public void Shoot(Vector2 target)
 	{
-		projectileList[projectileIndex] = weapon.CreateBullet(target, projectileIndex);
+		if (weapon.FireType == WeaponStats.FireType.Charge)
+			SendShootToPlayer(position, target, weapon.Charge, Map.playerList);
+		else
+			SendShootToPlayer(position, target, Map.playerList);
+
+		projectileList[projectileIndex] = weapon.CreateProjectile(target, projectileIndex);
 		projectileList[projectileIndex].Logic();
 		projectileIndex = (projectileIndex + 1) % projectileList.Length;
-
-		SendShootToPlayer(position, target, map.playerList);
 
 		weapon.OnShoot();
 	}

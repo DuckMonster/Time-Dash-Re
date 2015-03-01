@@ -40,13 +40,17 @@ public partial class Player : Actor
 	Timer respawnTimer = new Timer(2f, false);
 
 	Weapon weapon;
+	public Weapon Weapon
+	{
+		get { return weapon; }
+	}
 
 	public int WallTouch
 	{
 		get
 		{
-			if (map.GetCollision(this, new Vector2(-0.1f, 0f)) && velocity.X < 0.1f) return -1;
-			if (map.GetCollision(this, new Vector2(0.1f, 0)) && velocity.X > -0.1f) return 1;
+			if (Map.GetCollision(this, new Vector2(-0.1f, 0f)) && velocity.X < 0.1f) return -1;
+			if (Map.GetCollision(this, new Vector2(0.1f, 0)) && velocity.X > -0.1f) return 1;
 			return 0;
 		}
 	}
@@ -124,7 +128,7 @@ public partial class Player : Actor
 		dashCooldown = new Timer(stats.DashCooldown, false);
 		dodgeCooldown = new Timer(stats.DodgeCooldown, true);
 
-		weapon = new Pistol(this, map);
+		weapon = new Pistol(this, Map);
 	}
 
 	public virtual bool AlliedWith(Player p)
@@ -137,13 +141,14 @@ public partial class Player : Actor
 	{
 		switch ((WeaponList)id)
 		{
-			case WeaponList.Pistol: EquipWeapon(new Pistol(this, map)); break;
-			case WeaponList.Rifle: EquipWeapon(new Rifle(this, map)); break;
-			case WeaponList.GrenadeLauncher: EquipWeapon(new GrenadeLauncher(this, map)); break;
+			case WeaponList.Pistol: EquipWeapon(new Pistol(this, Map)); break;
+			case WeaponList.Rifle: EquipWeapon(new Rifle(this, Map)); break;
+			case WeaponList.GrenadeLauncher: EquipWeapon(new GrenadeLauncher(this, Map)); break;
+			case WeaponList.Bow: EquipWeapon(new Bow(this, Map)); break;
 			default: return;
 		}
 
-		SendEquipWeaponToPlayer(id, map.playerList);
+		SendEquipWeaponToPlayer(id, Map.playerList);
 	}
 
 	public void EquipWeapon(Weapon w)
@@ -157,13 +162,19 @@ public partial class Player : Actor
 	public void Hit(float dmg, Player p, float dir)
 	{
 		Hit(dmg);
-		SendHitToPlayer(dmg, p, dir, map.playerList);
+		SendHitToPlayer(dmg, p, dir, Map.playerList);
+
+		if (!IsAlive)
+			p.OnKill(this);
 	}
 
 	public void Hit(float dmg, Player player, float dir, Projectile proj)
 	{
 		Hit(dmg);
-		SendHitToPlayer(dmg, player, dir, proj, map.playerList);
+		SendHitToPlayer(dmg, player, dir, proj, Map.playerList);
+
+		if (!IsAlive)
+			player.OnKill(this);
 	}
 
 	public override void Hit(float dmg)
@@ -178,7 +189,7 @@ public partial class Player : Actor
 	{
 		base.Die();
 
-		SendDieToPlayer(map.playerList);
+		SendDieToPlayer(Map.playerList);
 	}
 
 	public virtual void OnKill(Player p)
@@ -188,8 +199,8 @@ public partial class Player : Actor
 	public override void Respawn()
 	{
 		base.Respawn();
-		position = map.GetFreeSpawnPosition(this);
-		SendRespawnToPlayer(position, map.playerList);
+		position = Map.GetFreeSpawnPosition(this);
+		SendRespawnToPlayer(position, Map.playerList);
 	}
 
 	public override void Logic()
@@ -259,7 +270,7 @@ public partial class Player : Actor
 		{
 			updatePositionTimer.Logic();
 
-			SendServerPositionToPlayer(map.playerList);
+			SendServerPositionToPlayer(Map.playerList);
 
 			if (updatePositionTimer.IsDone)
 			{

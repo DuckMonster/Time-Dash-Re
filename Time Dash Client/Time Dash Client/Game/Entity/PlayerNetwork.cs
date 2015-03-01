@@ -15,7 +15,7 @@ public partial class Player
 	{
 		get
 		{
-			return map.myID == playerID;
+			return Map.myID == playerID;
 		}
 	}
 
@@ -39,6 +39,11 @@ public partial class Player
 
 	public void ReceiveJump(Vector2 position)
 	{
+		if (dashTarget != null)
+			DashEnd();
+		if (dodgeTarget != null)
+			DodgeEnd();
+
 		this.position = position;
 
 		if (IsOnGround) Jump();
@@ -64,7 +69,7 @@ public partial class Player
 
 	public void ReceiveHit(float dmg, Player attacker, float dir, MessageBuffer msg)
 	{
-		map.AddEffect(new EffectPlayerHit(this, dir, dmg, map));
+		Map.AddEffect(new EffectPlayerHit(this, dir, dmg, Map));
 
 		if ((HitType)msg.ReadByte() == HitType.Bullet)
 		{
@@ -82,7 +87,7 @@ public partial class Player
 
 	public void ReceiveDodgeCollision(byte player, Vector2 myPos, Vector2 colPos)
 	{
-		Player p = map.playerList[player];
+		Player p = Map.playerList[player];
 
 		position = myPos;
 		p.position = colPos;
@@ -90,12 +95,12 @@ public partial class Player
 		//DodgeEnd(p);
 		//p.DodgeEnd(this);
 
-		map.AddEffect(new EffectCollision(this, p, map));
+		Map.AddEffect(new EffectCollision(this, p, Map));
 	}
 
 	public void ReceiveDashCollision(byte player, Vector2 myPos, Vector2 colPos)
 	{
-		Player p = map.playerList[player];
+		Player p = Map.playerList[player];
 
 		position = myPos;
 		p.position = colPos;
@@ -103,7 +108,7 @@ public partial class Player
 		DashEnd(p);
 		p.DashEnd(this);
 
-		map.AddEffect(new EffectCollision(this, p, map));
+		Map.AddEffect(new EffectCollision(this, p, Map));
 	}
 
 	public void ReceiveDash(Vector2 start, Vector2 target)
@@ -114,6 +119,14 @@ public partial class Player
 	public void ReceiveShoot(Vector2 position, Vector2 target)
 	{
 		this.position = position;
+		Shoot(target);
+	}
+
+	public void ReceiveShoot(Vector2 position, Vector2 target, float charge)
+	{
+		this.position = position;
+		weapon.Charge = charge;
+
 		Shoot(target);
 	}
 
@@ -206,6 +219,19 @@ public partial class Player
 
 		msg.WriteVector(position);
 		msg.WriteVector(target);
+
+		Game.client.Send(msg);
+	}
+
+	void SendShoot(Vector2 target, float charge)
+	{
+		MessageBuffer msg = new MessageBuffer();
+
+		msg.WriteShort((short)Protocol.PlayerShoot);
+
+		msg.WriteVector(position);
+		msg.WriteVector(target);
+		msg.WriteFloat(charge);
 
 		Game.client.Send(msg);
 	}

@@ -11,22 +11,37 @@ public partial class Player : Actor
 	public void ReceiveInput(byte k)
 	{
 		inputData.DecodeFlag(k);
-		SendInputPureToPlayer(map.playerList);
+		SendInputPureToPlayer(Map.playerList);
 	}
 	public void ReceiveInput(Vector2 position, Vector2 velocity, byte k)
 	{
 		if (!IsDodging && !IsDashing)
+			SetPosition(position, velocity);
+
+		inputData.DecodeFlag(k);
+		SendInputToPlayer(Map.playerList);
+	}
+
+	public void SetPosition(Vector2 position, Vector2 velocity)
+	{
+		Vector2 oldPos = position;
+
+		if ((position - oldPos).Length > 0.4f)
+			SendPositionToPlayerForce(this);
+		else
 		{
 			this.position = position;
 			this.velocity = velocity;
 		}
-
-		inputData.DecodeFlag(k);
-		SendInputToPlayer(map.playerList);
 	}
 
 	public void ReceiveJump(Vector2 position)
 	{
+		if (dashTarget != null)
+			DashEnd();
+		if (dodgeTarget != null)
+			DodgeEnd();
+
 		this.position = position;
 
 		if (IsOnGround) Jump();
@@ -37,21 +52,20 @@ public partial class Player : Actor
 			canDoublejump = false;
 		}
 
-		SendJumpToPlayer(map.playerList);
+		SendJumpToPlayer(Map.playerList);
 	}
 
 	public void ReceivePosition(Vector2 position, Vector2 velocity)
 	{
-		this.position = position;
-		this.velocity = velocity;
+		SetPosition(position, velocity);
+
 		if (dodgeTarget != null) dodgeTarget = null;
-		SendPositionToPlayer(map.playerList);
+		SendPositionToPlayer(Map.playerList);
 	}
 
 	public void ReceiveLand(Vector2 position, Vector2 velocity)
 	{
-		this.position = position;
-		this.velocity = velocity;
+		SetPosition(position, velocity);
 		Land();
 	}
 
@@ -59,19 +73,28 @@ public partial class Player : Actor
 	{
 		dodgeTargetBuffer = new DodgeTarget(start, direction);
 
-		SendDodgeToPlayer(start, direction, map.playerList);
+		SendDodgeToPlayer(start, direction, Map.playerList);
 	}
 
 	public void ReceiveDash(Vector2 start, Vector2 target)
 	{
 		dashTargetBuffer = new DashTarget(start, target);
 
-		SendDashToPlayer(start, target, map.playerList);
+		SendDashToPlayer(start, target, Map.playerList);
 	}
 
 	public void ReceiveShoot(Vector2 position, Vector2 target)
 	{
 		this.position = position;
+
+		Shoot(target);
+	}
+
+	public void ReceiveShoot(Vector2 position, Vector2 target, float charge)
+	{
+		this.position = position;
+		weapon.Charge = charge;
+
 		Shoot(target);
 	}
 
@@ -83,13 +106,14 @@ public partial class Player : Actor
 	public void ReceiveReload()
 	{
 		weapon.Reload();
-		SendReloadToPlayer(map.playerList);
+		SendReloadToPlayer(Map.playerList);
 	}
 
 	public void SendExistanceToPlayer(params Player[] players)
 	{
 		SendMessageToPlayer(GetExistanceMessage(), false, players);
 		SendPositionToPlayer(players);
+		SendEquipWeaponToPlayer(weapon.weaponID, players);
 	}
 
 	public void SendLeaveToPlayer(params Player[] players)
@@ -165,6 +189,11 @@ public partial class Player : Actor
 	public void SendShootToPlayer(Vector2 position, Vector2 hitpos, params Player[] players)
 	{
 		SendMessageToPlayer(GetShootMessage(position, hitpos), true, players);
+	}
+
+	public void SendShootToPlayer(Vector2 position, Vector2 hitpos, float charge, params Player[] players)
+	{
+		SendMessageToPlayer(GetShootMessage(position, hitpos, charge), true, players);
 	}
 
 	public void SendEquipWeaponToPlayer(int id, params Player[] players)
@@ -372,6 +401,20 @@ public partial class Player : Actor
 
 		msg.WriteVector(position);
 		msg.WriteVector(hitPosition);
+
+		return msg;
+	}
+
+	MessageBuffer GetShootMessage(Vector2 position, Vector2 hitPosition, float charge)
+	{
+		MessageBuffer msg = new MessageBuffer();
+
+		msg.WriteShort((short)Protocol.PlayerShoot);
+		msg.WriteByte(id);
+
+		msg.WriteVector(position);
+		msg.WriteVector(hitPosition);
+		msg.WriteFloat(charge);
 
 		return msg;
 	}

@@ -4,6 +4,14 @@ using EZUDP.Server;
 
 public class KothPlayer : Player
 {
+	protected new KothMap Map
+	{
+		get
+		{
+			return (KothMap)base.Map;
+		}
+	}
+
 	public KothPlayer(int id, string name, Client c, Vector2 pos, Map m)
 		: base(id, name, c, pos, m)
 	{
@@ -11,6 +19,6 @@ public class KothPlayer : Player
 
 	public void Kill(Player p)
 	{
-		((KothMap)map).point.ChangeScore(id, 2);
+		Map.point.ChangeScore(id, 2);
 	}
 }

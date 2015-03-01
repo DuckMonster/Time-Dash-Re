@@ -3,6 +3,14 @@ using OpenTK;
 
 public class DMPlayer : Player
 {
+	protected new DMMap Map
+	{
+		get
+		{
+			return (DMMap)base.Map;
+		}
+	}
+
 	public DMPlayer(int id, string name, Client c, Vector2 pos, Map m)
 		: base(id, name, c, pos, m)
 	{
@@ -11,6 +19,6 @@ public class DMPlayer : Player
 	public override void OnKill(Player p)
 	{
 		base.OnKill(p);
-		((DMMap)map).scoreboard.ChangeScore(id, 1);
+		Map.scoreboard.ChangeScore(id, 1);
 	}
 }

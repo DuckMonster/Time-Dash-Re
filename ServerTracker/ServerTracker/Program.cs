@@ -18,7 +18,7 @@ namespace ServerTracker
 			while (true)
 			{
 				program.Update();
-				Thread.Sleep(100);
+				Thread.Sleep(2000);
 			}
 		}
 
@@ -49,9 +49,12 @@ namespace ServerTracker
 			while (true)
 			{
 				Socket s = listener.AcceptSocket();
-				serverList.Add(new Server(s, this));
 
-				PrintInfo();
+				if (!ServerExists(s))
+				{
+					serverList.Add(new Server(s, this));
+					PrintInfo();
+				}
 			}
 		}
 
@@ -62,6 +65,7 @@ namespace ServerTracker
 			while (true)
 			{
 				IPEndPoint ip = new IPEndPoint(IPAddress.Any, 0);
+
 				try
 				{
 					var data = udp.Receive(ref ip);
@@ -86,6 +90,17 @@ namespace ServerTracker
 				{
 				}
 			}
+		}
+
+		public bool ServerExists(Socket s)
+		{
+			foreach (Server ss in serverList)
+			{
+				if (ss.ip == ((IPEndPoint)s.RemoteEndPoint).Address.ToString())
+					return true;
+			}
+
+			return false;
 		}
 
 		public void ServerDisconnected(Server s)

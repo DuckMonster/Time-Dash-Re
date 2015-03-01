@@ -68,8 +68,15 @@
     <Compile Include="GameModes\Koth\KothMap.cs" />
     <Compile Include="GameModes\Scoreboard.cs" />
     <Compile Include="GameModes\SpawnPoint.cs" />
+    <Compile Include="GameModes\SY\SYBase.cs" />
+    <Compile Include="GameModes\SY\SYMap.cs" />
+    <Compile Include="GameModes\SY\SYPlayer.cs" />
+    <Compile Include="GameModes\SY\SYScrap.cs" />
+    <Compile Include="GameModes\SY\SYStash.cs" />
     <Compile Include="Game\Entity\Actor.cs" />
+    <Compile Include="Game\Weapon\Bow.cs" />
     <Compile Include="Game\Weapon\GrenadeLauncher.cs" />
+    <Compile Include="Game\Weapon\Projectile\Arrow.cs" />
     <Compile Include="Game\Weapon\Projectile\Bullet.cs" />
     <Compile Include="Game\Entity\Entity.cs" />
     <Compile Include="Game\Entity\PlayerAbilities.cs" />
@@ -96,6 +103,9 @@
   <ItemGroup>
     <None Include="App.config" />
     <None Include="Maps\factory_ctf.tdm">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Maps\factory_sy.tdm">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Maps\temple_dm.tdm">

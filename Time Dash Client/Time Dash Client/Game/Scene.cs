@@ -205,8 +205,9 @@ namespace MapScene
 			if (backgroundTexture != null)
 				backgroundMesh.Draw();
 
-			//foreach (EnvSolid solid in solidList)
-			//	solid.Draw();
+			if (backgroundTexture == null)
+				foreach (EnvSolid solid in solidList)
+					solid.Draw();
 
 			foreach (EnvLayer layer in layerList)
 				layer.Draw();
@@ -452,13 +453,17 @@ namespace MapScene
 				if (depth > 0f)
 				{
 					mesh.FillColor = true;
-					mesh.Color = new TKTools.Color(1f * (depth / 50f), 1 * (depth / 50f), 1 * (depth / 50f));
+
+					TKTools.Color c1 = new TKTools.Color(87, 90, 74);
+					TKTools.Color c2 = new TKTools.Color(251, 236, 214);
+
+					mesh.Color = TKTools.Color.Blend(c1, c2, depth / 100f);
 				}
 
 				combinedMeshes.Add(mesh);
 			}
 		}
-
+		 
 		public void Draw()
 		{
 			foreach (Mesh m in combinedMeshes)

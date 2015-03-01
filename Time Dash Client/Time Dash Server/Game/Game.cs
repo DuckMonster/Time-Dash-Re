@@ -49,7 +49,7 @@ public class Game
 
 		trackerHandler = new TrackerHandler(this);
 
-		LoadMap("temple_dm");
+		LoadMap("factory_sy");
 	}
 
 	public void LoadMap(string filename)
@@ -79,7 +79,8 @@ public class Game
 		using (BinaryReader reader = new BinaryReader(new FileStream("Maps/" + filename, FileMode.Open)))
 		{
 			mapname = reader.ReadString();
-			mode = (GameMode)reader.ReadInt32();
+			int modei = reader.ReadInt32();
+			mode = (GameMode)modei;
 		}
 
 		switch (mode)
@@ -102,6 +103,11 @@ public class Game
 			case GameMode.CaptureTheFlag:
 				map = new CTFMap(filename, playerList.ToArray());
 				modeName = "Capture The Flag";
+				break;
+
+			case GameMode.ScrapYard:
+				map = new SYMap(filename, playerList.ToArray());
+				modeName = "Scrapyard";
 				break;
 		}
 

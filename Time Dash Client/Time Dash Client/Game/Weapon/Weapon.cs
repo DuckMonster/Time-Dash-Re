@@ -1,19 +1,20 @@
 ﻿using OpenTK;
 using System.Collections.Generic;
 
-public enum WeaponList
-{
-	Pistol,
-	Rifle,
-	GrenadeLauncher
-}
-
 public abstract class Weapon
 {
+	public readonly int weaponID;
+
 	protected Map map;
 	protected Player owner;
 	int ammo, maxAmmo;
 	WeaponStats.FireType fireType;
+	float maxCharge;
+	float charge = 0f;
+
+	bool releasable = false;
+
+	Timer overChargeTimer = new Timer(0.5f, false);
 
 	public int Ammo
 	{
@@ -56,6 +57,12 @@ public abstract class Weapon
 		}
 	}
 
+	public float Charge
+	{
+		get { return charge / maxCharge; }
+		set { charge = value * maxCharge; }
+	}
+
 	Timer reloadTimer = new Timer(1f, true);
 	Timer rearmTimer = new Timer(0.1f, true);
 
@@ -76,12 +83,17 @@ public abstract class Weapon
 		owner = p;
 		this.map = map;
 
+		weaponID = stats.id;
+
 		maxAmmo = stats.ammo;
 		fireType = stats.fireType;
 		FireRate = stats.fireRate;
+		maxCharge = stats.fireRate;
 		ReloadTime = stats.reloadTime;
 
 		ammo = maxAmmo;
+
+		reloadTimer.IsDone = true;
 	}
 
 	public abstract Projectile CreateProjectile(Vector2 target, int index);
@@ -102,6 +114,51 @@ public abstract class Weapon
 	{
 		if (!reloadTimer.IsDone) return;
 		reloadTimer.Reset();
+
+		if (reloadTimer.IsDone)
+			ammo = MaxAmmo;
+	}
+
+	public void Press()
+	{
+		if ((fireType == WeaponStats.FireType.Single || fireType == WeaponStats.FireType.SingleTimed)
+			&& CanShoot)
+			owner.Shoot(MouseInput.Current.Position);
+
+		releasable = true;
+	}
+
+	public void Hold()
+	{
+		if (!releasable)
+			return;
+
+		if (fireType == WeaponStats.FireType.Auto && CanShoot)
+			owner.Shoot(MouseInput.Current.Position);
+		else if (fireType == WeaponStats.FireType.Charge)
+		{
+			charge += Game.delta;
+			if (charge > maxCharge)
+			{
+				charge = maxCharge;
+				overChargeTimer.Logic();
+				if (overChargeTimer.IsDone)
+					Release();
+			}
+		}
+	}
+
+	public void Release()
+	{
+		if (!releasable) return;
+
+		if (fireType == WeaponStats.FireType.Charge)
+			owner.Shoot(MouseInput.Current.Position);
+
+		charge = 0;
+		overChargeTimer.Reset();
+
+		releasable = false;
 	}
 
 	public void Logic()

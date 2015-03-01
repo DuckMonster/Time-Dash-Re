@@ -18,14 +18,14 @@ public class Grenade : Projectile
 
 		Vector2 stepVector = velocity * Game.delta;
 
-		if (map.GetCollision(position + stepVector, size))
+		if (Map.GetCollision(position + stepVector, size))
 		{
 			Vector2 collidePos;
-			map.RayTraceCollision(position, position + stepVector, size, out collidePos);
+			Map.RayTraceCollision(position, position + stepVector, size, out collidePos);
 			Hit(collidePos);
 		}
 
-		List<Player> playersHit = map.GetPlayerRadius(position, 0.2f, owner);
+		List<Player> playersHit = Map.GetPlayerRadius(position, 0.2f, owner);
 
 		if (playersHit.Count > 0)
 			Hit(playersHit[0]);
@@ -46,7 +46,7 @@ public class Grenade : Projectile
 
 	public void HitArea(Vector2 position)
 	{
-		List<Player> players = map.GetPlayerRadius(position, 2f);
+		List<Player> players = Map.GetPlayerRadius(position, 2f);
 
 		foreach (Player p in players)
 		{

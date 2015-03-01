@@ -40,6 +40,8 @@ namespace ServerTracker
 			try
 			{
 				socket.Send(new byte[] { 0 });
+				if (socket.Available > 0)
+					Console.WriteLine("Read " + socket.Receive(new byte[6000]));
 			}
 			catch (Exception e)
 			{

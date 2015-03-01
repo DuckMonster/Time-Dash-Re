@@ -6,7 +6,7 @@
 
 	}
 
-	public override Projectile CreateBullet(OpenTK.Vector2 target, int index)
+	public override Projectile CreateProjectile(OpenTK.Vector2 target, int index)
 	{
 		return new Grenade(owner, index, damage, target, map);
 	}

@@ -21,8 +21,13 @@ public class CTFPlayer : Player
 
 	public override void Hit(float dmg)
 	{
-		if (holdingFlag != null) holdingFlag.Drop();
 		base.Hit(dmg);
+	}
+
+	public override void Die()
+	{
+		if (holdingFlag != null) holdingFlag.Drop();
+		base.Die();
 	}
 
 	public void GrabFlag(CTFFlag flag)
@@ -30,7 +35,7 @@ public class CTFPlayer : Player
 		holdingFlag = flag;
 		flag.holder = this;
 
-		SendFlagGrabToPlayer(map.playerList);
+		SendFlagGrabToPlayer(Map.playerList);
 	}
 
 	public void DropFlag()

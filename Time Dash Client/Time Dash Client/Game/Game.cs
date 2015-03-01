@@ -102,7 +102,8 @@ public class Game
 		using (BinaryReader reader = new BinaryReader(new FileStream("Maps/" + filename, FileMode.Open)))
 		{
 			mapname = reader.ReadString();
-			mode = (GameMode)reader.ReadInt32();
+			int modei = reader.ReadInt32();
+			mode = (GameMode)modei;
 		}
 
 		switch (mode)
@@ -125,6 +126,11 @@ public class Game
 			case GameMode.CaptureTheFlag:
 				map = new CTFMap(id, filename);
 				modeName = "Capture The Flag";
+				break;
+
+			case GameMode.ScrapYard:
+				map = new SYMap(id, filename);
+				modeName = "Scrapyard";
 				break;
 		}
 
@@ -199,7 +205,7 @@ public class Game
 	{
 		Log.Write(ConsoleColor.Green, "Connected to server!");
 		SendName();
-		//client.Ping();
+		client.Ping();
 	}
 	public void OnDisconnect()
 	{

@@ -24,13 +24,13 @@ public class CPPoint : Entity
 		owner = t;
 		progress = t == null ? 0f : 1f;
 
-		SendOwnerToPlayer(map.playerList);
+		SendOwnerToPlayer(Map.playerList);
 	}
 
 	public List<Team> GetContenders()
 	{
 		List<Team> returnList = new List<Team>(5);
-		List<Player> playerList = map.GetPlayerRadius(position, radius);
+		List<Player> playerList = Map.GetPlayerRadius(position, radius);
 
 		foreach (Player p in playerList)
 		{
