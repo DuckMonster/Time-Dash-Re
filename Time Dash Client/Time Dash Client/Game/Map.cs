@@ -60,6 +60,15 @@ public class Map : IDisposable
 		}
 	}
 
+	public virtual IEnumerable<Actor> Actors
+	{
+		get
+		{
+			foreach (Player p in playerList)
+				yield return p;
+		}
+	}
+
 	public virtual void PlayerJoin(int id, string name)
 	{
 		playerList[id] = new Player(id, name, new Vector2(4, 10), this);
@@ -154,12 +163,11 @@ public class Map : IDisposable
 		return scene.GetCollision(pos, size);
 	}
 
-	public Player GetPlayerAtPos(Vector2 pos, Vector2 size, params Player[] exclude)
+	public Actor GetActorAtPos(Vector2 pos, Vector2 size, params Actor[] exclude)
 	{
-		List<Player> excludeList = new List<Player>();
-		excludeList.AddRange(exclude);
+		List<Actor> excludeList = new List<Actor>(exclude);
 
-		foreach (Player p in playerList) if (!excludeList.Contains(p) && p != null && p.CollidesWith(pos, size)) return p;
+		foreach (Actor a in Actors) if (a != null && !excludeList.Contains(a) && a.CollidesWith(pos, size)) return a;
 		return null;
 	}
 
@@ -189,20 +197,26 @@ public class Map : IDisposable
 		return false;
 	}
 
-	public List<Player> GetPlayerRadius(Vector2 pos, float radius, params Player[] exclude)
+	public List<T> GetActorRadius<T>(Vector2 pos, float radius, params Actor[] exclude) where T : Actor
 	{
-		List<Player> excludeList = new List<Player>(exclude);
-		List<Player> returnList = new List<Player>(10);
+		List<T> returnList = new List<T>(10);
+		List<Actor> excludeList = new List<Actor>(exclude);
 
-		foreach (Player p in playerList) if (p != null && !excludeList.Contains(p) && p.CollidesWith(pos, radius)) returnList.Add(p);
+		foreach (Actor a in Actors)
+		{
+			if (a == null || !(a is T)) continue;
+
+			if (a.CollidesWith(pos, radius)) 
+				returnList.Add(a as T);
+		}
 
 		return returnList;
 	}
 
-	public List<Player> RayTracePlayer(Vector2 start, Vector2 end, Vector2 size, params Player[] exclude)
+	public List<T> RayTraceActor<T>(Vector2 start, Vector2 end, Vector2 size, params Player[] exclude) where T : Actor
 	{
-		List<Player> excludeList = new List<Player>(exclude);
-		List<Player> returnList = new List<Player>(10);
+		List<T> returnList = new List<T>(10);
+		List<Actor> excludeList = new List<Actor>(exclude);
 
 		Vector2 diffVector = end - start, directionVector = diffVector.Normalized();
 
@@ -212,14 +226,15 @@ public class Map : IDisposable
 
 		for (int i = 0; i < accuracy; i++)
 		{
-			Player p = GetPlayerAtPos(checkpos, size, excludeList.ToArray());
-			if (p != null && !returnList.Contains(p))
-			{
-				returnList.Add(p);
-				excludeList.Add(p);
-			}
-
 			checkpos += directionVector * step;
+			Actor a = GetActorAtPos(checkpos, size, excludeList.ToArray());
+
+			if (a == null || !(a is T)) continue;
+			if (a != null && !returnList.Contains(a as T))
+			{
+				returnList.Add(a as T);
+				excludeList.Add(a as T);
+			}
 		}
 
 		return returnList;
@@ -325,7 +340,7 @@ public class Map : IDisposable
 					break;
 
 				case Protocol.PlayerHit:
-					playerList[msg.ReadByte()].ReceiveHit(msg.ReadFloat(), playerList[msg.ReadByte()], msg.ReadFloat(), msg);
+					playerList[msg.ReadByte()].ReceiveHit(msg.ReadFloat(), msg.ReadFloat(), msg.ReadByte(), msg);
 					break;
 
 				case Protocol.PlayerDie:

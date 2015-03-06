@@ -4,6 +4,10 @@ public class Projectile : Entity
 {
 	public int id;
 	protected Player owner;
+	public Player Owner
+	{
+		get { return owner; }
+	}
 
 	protected Vector2 velocity;
 
@@ -37,9 +41,9 @@ public class Projectile : Entity
 		active = false;
 	}
 
-	public virtual void Hit(Player p)
+	public virtual void Hit(Actor a)
 	{
-		Hit(p.position);
-		p.Hit(damage, owner, TKMath.GetAngle(velocity), this);
+		Hit(a.position);
+		a.Hit(damage, TKMath.GetAngle(velocity), this);
 	}
 }

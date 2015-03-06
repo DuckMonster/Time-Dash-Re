@@ -43,6 +43,12 @@ public class Grenade : Projectile
 		base.Logic();
 	}
 
+	public override void OnHit(Actor a)
+	{
+		base.OnHit(a);
+		Hit();
+	}
+
 	public override void Hit()
 	{
 		Map.AddEffect(new EffectRing(position, 6f, 1.2f, Color.White, Map));

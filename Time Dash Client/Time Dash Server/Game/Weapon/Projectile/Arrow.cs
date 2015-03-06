@@ -19,10 +19,10 @@ public class Arrow : Projectile
 
 		Vector2 stepVector = velocity * Game.delta;
 
-		List<Player> players = Map.RayTracePlayer(position, position + stepVector, size, owner);
-		if (players.Count > 0)
+		List<Actor> actors = Map.RayTraceActor<Actor>(position, position + stepVector, size, owner);
+		if (actors.Count > 0)
 		{
-			Hit(players[0]);
+			Hit(actors[0]);
 			return;
 		}
 

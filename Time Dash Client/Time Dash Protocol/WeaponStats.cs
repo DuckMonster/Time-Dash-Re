@@ -40,6 +40,6 @@ public static class WeaponStats
 		//Stats(Damage, Fire type, Fire rate, Reload time, Ammo
 		Pistol = new Stats((int)WeaponList.Pistol, 1f, FireType.Single, 0f, 2.5f, 6),
 		Rifle = new Stats((int)WeaponList.Rifle, 0.4f, FireType.Auto, 12, 3f, 30),
-		GrenadeLauncher = new Stats((int)WeaponList.GrenadeLauncher, 1.2f, FireType.SingleTimed, 1.3f, 3.5f, 3),
+		GrenadeLauncher = new Stats((int)WeaponList.GrenadeLauncher, 2.4f, FireType.SingleTimed, 1.3f, 3.5f, 3),
 		Bow = new Stats((int)WeaponList.Bow, 2f, FireType.Charge, 0.8f, 0f, 1);
 }

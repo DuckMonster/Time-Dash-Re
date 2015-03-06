@@ -159,22 +159,28 @@ public partial class Player : Actor
 		weapon = w;
 	}
 
-	public void Hit(float dmg, Player p, float dir)
+	public override void Hit(float dmg, float dir, Actor a, float force = 0)
 	{
-		Hit(dmg);
-		SendHitToPlayer(dmg, p, dir, Map.playerList);
+		base.Hit(dmg, dir, a, force);
+		SendHitToPlayer(dmg, dir, a, Map.playerList);
 
-		if (!IsAlive)
-			p.OnKill(this);
+		if (!IsAlive && a is Player)
+			(a as Player).OnKill(this);
+
+		if (force != 0)
+			SendPositionToPlayerForce(Map.playerList);
 	}
 
-	public void Hit(float dmg, Player player, float dir, Projectile proj)
+	public override void Hit(float dmg, float dir, Projectile proj, float force = 0)
 	{
-		Hit(dmg);
-		SendHitToPlayer(dmg, player, dir, proj, Map.playerList);
+		base.Hit(dmg, dir, proj, force);
+		SendHitToPlayer(dmg, dir, proj, Map.playerList);
 
 		if (!IsAlive)
-			player.OnKill(this);
+			proj.Owner.OnKill(this);
+
+		if (force != 0)
+			SendPositionToPlayer(Map.playerList);
 	}
 
 	public override void Hit(float dmg)
@@ -209,6 +215,7 @@ public partial class Player : Actor
 			if (p != null) p.Logic();
 
 		weapon.Logic();
+		Log.Debug(position);
 
 		if (!IsAlive)
 		{

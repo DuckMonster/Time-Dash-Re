@@ -79,5 +79,11 @@ public enum Protocol_SY
 	ScrapPosition,
 	ScrapCollect,
 	ScrapReturn,
-	StashScrapAmount
+	StashScrapAmount,
+
+	EnemyExistance,
+	EnemyPosition,
+	EnemyHit,
+	EnemyDie,
+	EnemyTarget
 }

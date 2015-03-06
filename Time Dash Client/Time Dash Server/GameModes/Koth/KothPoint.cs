@@ -20,7 +20,7 @@ public class KothPoint : Entity
 
 	void LookForPlayer()
 	{
-		List<Player> playerList = Map.GetPlayerRadius(position, radius);
+		List<Player> playerList = Map.GetActorRadius<Player>(position, radius);
 
 		Player contender = null;
 		foreach (Player p in playerList)

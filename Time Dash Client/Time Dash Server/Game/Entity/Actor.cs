@@ -1,6 +1,7 @@
 ﻿using OpenTK;
 using OpenTK.Input;
 using System;
+using TKTools;
 
 public class Actor : Entity
 {
@@ -46,7 +47,7 @@ public class Actor : Entity
 		}
 	}
 
-	public int MaxHealth
+	public virtual int MaxHealth
 	{
 		get { return stats.PlayerHealth; }
 	}
@@ -55,7 +56,7 @@ public class Actor : Entity
 		: base(position, m)
 	{
 		stats = new Stats();
-		health = stats.PlayerHealth;
+		health = MaxHealth;
 	}
 
 	public override bool CollidesWith(Vector2 pos, Vector2 s)
@@ -68,6 +69,20 @@ public class Actor : Entity
 	{
 		if (!IsAlive) return false;
 		return base.CollidesWith(pos, radius);
+	}
+
+	public virtual void Hit(float dmg, float dir, Actor a, float force = 0)
+	{
+		Hit(dmg);
+		if (force != 0)
+			velocity = TKMath.GetAngleVector(dir) * force;
+	}
+
+	public virtual void Hit(float dmg, float dir, Projectile proj, float force = 0)
+	{
+		Hit(dmg);
+		if (force != 0)
+			velocity = TKMath.GetAngleVector(dir) * force;
 	}
 
 	public virtual void Hit(float dmg)

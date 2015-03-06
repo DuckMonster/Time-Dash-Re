@@ -1,16 +1,31 @@
 ﻿using OpenTK;
 using System;
-using System.Collections.Generic;
 using System.Drawing;
 
 public class SYMap : Map
 {
 	SYScrap[] scrapList = new SYScrap[500];
 	SYStash[] stashList = new SYStash[10];
+	SYCreep[] creepList = new SYCreep[50];
 
 	public SYMap(int id, string filename)
 		: base(id, filename, GameMode.ScrapYard)
 	{
+	}
+
+	public void SpawnEnemy(int id, Vector2 position, Vector2 velocity)
+	{
+		if (creepList[id] != null) RemoveEnemy(id);
+		creepList[id] = new SYCreep(id, position, velocity, this);
+	}
+
+	public void RemoveEnemy(SYCreep e) { if (e != null) RemoveEnemy(e.id); }
+	public void RemoveEnemy(int id)
+	{
+		if (creepList[id] == null) return;
+
+		creepList[id].Dispose();
+		creepList[id] = null;
 	}
 
 	public void CreateScrap(int id, Vector2 position, Vector2 velocity)
@@ -55,6 +70,7 @@ public class SYMap : Map
 		base.Logic();
 		foreach (SYScrap s in scrapList) if (s != null) s.Logic();
 		foreach (SYStash b in stashList) if (b != null) b.Logic();
+		foreach (SYCreep c in creepList) if (c != null) c.Logic();
 	}
 
 	public override void Draw()
@@ -63,6 +79,7 @@ public class SYMap : Map
 		DrawBackground();
 		foreach (SYScrap s in scrapList) if (s != null) s.Draw();
 		foreach (SYStash b in stashList) if (b != null) b.Draw();
+		foreach (SYCreep c in creepList) if (c != null) c.Draw();
 		DrawMap();
 	}
 
@@ -94,6 +111,26 @@ public class SYMap : Map
 
 					case Protocol_SY.StashScrapAmount:
 						stashList[msg.ReadByte()].SetScrap(msg.ReadShort());
+						break;
+
+					case Protocol_SY.EnemyExistance:
+						SpawnEnemy(msg.ReadByte(), msg.ReadVector2(), msg.ReadVector2());
+						break;
+
+					case Protocol_SY.EnemyPosition:
+						creepList[msg.ReadByte()].ReceivePosition(msg.ReadVector2(), msg.ReadVector2());
+						break;
+
+					case Protocol_SY.EnemyHit:
+						creepList[msg.ReadByte()].ReceiveHit(msg.ReadFloat(), msg.ReadFloat(), msg.ReadByte(), msg);
+						break;
+
+					case Protocol_SY.EnemyTarget:
+						(creepList[msg.ReadByte()] as SYFlyer).ReceiveTarget(msg.ReadByte());
+						break;
+
+					case Protocol_SY.EnemyDie:
+						creepList[msg.ReadByte()].Die(msg.ReadVector2());
 						break;
 				}
 			}

@@ -146,14 +146,14 @@ public partial class Player : Actor
 		SendMessageToPlayer(GetPositionMessage(), false, players);
 	}
 
-	public void SendHitToPlayer(float dmg, Player attacker, float dir, params Player[] players)
+	public void SendHitToPlayer(float dmg, float dir, Actor attacker, params Player[] players)
 	{
-		SendMessageToPlayer(GetHitMessage(dmg, attacker, dir), false, players);
+		SendMessageToPlayer(GetHitMessage(dmg, dir, attacker), false, players);
 	}
 
-	public void SendHitToPlayer(float dmg, Player attacker, float dir, Projectile proj, params Player[] players)
+	public void SendHitToPlayer(float dmg, float dir, Projectile proj, params Player[] players)
 	{
-		SendMessageToPlayer(GetHitMessage(dmg, attacker, dir, proj), false, players);
+		SendMessageToPlayer(GetHitMessage(dmg, dir, proj), false, players);
 	}
 
 	public void SendKillToPlayer(Player target, params Player[] players)
@@ -294,28 +294,46 @@ public partial class Player : Actor
 		return msg;
 	}
 
-	MessageBuffer GetHitMessage(float dmg, Player p, float dir)
+	MessageBuffer GetHitMessage(float dmg, float dir, Actor a)
 	{
 		MessageBuffer msg = new MessageBuffer();
 
-		msg.WriteShort((short)Protocol.PlayerHit);
-		msg.WriteByte(id);
-		msg.WriteFloat(dmg);
-		msg.WriteByte(p.id);
-		msg.WriteFloat(dir);
-		msg.WriteByte((byte)HitType.Dash);
+		if (a is Player)
+		{
+			Player p = a as Player;
+
+			msg.WriteShort((short)Protocol.PlayerHit);
+			msg.WriteByte(id);
+			msg.WriteFloat(dmg);
+			msg.WriteByte(p.id);
+			msg.WriteFloat(dir);
+
+			msg.WriteByte((byte)HitType.Dash);
+		}
+		else
+		{
+			SYCreep e = a as SYCreep;
+
+			msg.WriteShort((short)Protocol.PlayerHit);
+			msg.WriteByte(id);
+			msg.WriteFloat(dmg);
+			msg.WriteByte(e.id);
+			msg.WriteFloat(dir);
+
+			msg.WriteByte((byte)HitType.NPC);
+		}
 
 		return msg;
 	}
 
-	MessageBuffer GetHitMessage(float dmg, Player p, float dir, Projectile proj)
+	MessageBuffer GetHitMessage(float dmg, float dir, Projectile proj)
 	{
 		MessageBuffer msg = new MessageBuffer();
 
 		msg.WriteShort((short)Protocol.PlayerHit);
 		msg.WriteByte(id);
 		msg.WriteFloat(dmg);
-		msg.WriteByte(p.id);
+		msg.WriteByte(proj.Owner.id);
 		msg.WriteFloat(dir);
 		msg.WriteByte((byte)HitType.Bullet);
 		msg.WriteByte(proj.id);

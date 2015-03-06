@@ -30,7 +30,7 @@ public class CPPoint : Entity
 	public List<Team> GetContenders()
 	{
 		List<Team> returnList = new List<Team>(5);
-		List<Player> playerList = Map.GetPlayerRadius(position, radius);
+		List<Player> playerList = Map.GetActorRadius<Player>(position, radius);
 
 		foreach (Player p in playerList)
 		{
@@ -41,7 +41,7 @@ public class CPPoint : Entity
 		return returnList;
 	}
 
-	public void Logic()
+	public override void Logic()
 	{
 		List<Team> contenders = GetContenders();
 		if (contenders.Count == 1)

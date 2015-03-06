@@ -9,7 +9,7 @@ public class SYBase : SYStash
 	}
 
 	public SYBase(int id, int teamID, Vector2 position, Map map)
-		: base(id, 5f, 1, position, map)
+		: base(id, 5f, 50, position, map)
 	{
 		this.teamID = teamID;
 	}

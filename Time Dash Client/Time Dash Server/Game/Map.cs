@@ -35,6 +35,15 @@ public class Map
 		}
 	}
 
+	public virtual IEnumerable<Actor> Actors
+	{
+		get
+		{
+			foreach (Player p in playerList)
+				yield return p;
+		}
+	}
+
 	public Player GetPlayer(int id)
 	{
 		return playerList[id];
@@ -185,7 +194,7 @@ public class Map
 	public virtual void Logic()
 	{
 		scene.Logic();
-		foreach (Player p in playerList) if (p != null) p.Logic();
+		foreach (Actor a in Actors) if (a != null) a.Logic();
 
 		if (winPlayer != null)
 		{
@@ -194,9 +203,9 @@ public class Map
 		}
 	}
 
-	public Player RayTrace(Vector2 start, Vector2 end, Vector2 size, out Vector2 freepos, params Player[] exclude)
+	public Actor RayTrace(Vector2 start, Vector2 end, Vector2 size, out Vector2 freepos, params Actor[] exclude)
 	{
-		List<Player> excludeList = new List<Player>(exclude);
+		List<Actor> excludeList = new List<Actor>(exclude);
 		Vector2 diffVector = end - start, directionVector = diffVector.Normalized();
 
 		int accuracy = (int)(diffVector.Length * 6);
@@ -213,14 +222,15 @@ public class Map
 				freepos = checkpos;
 				return null;
 			}
-			foreach (Player p in playerList)
-			{
-				if (p == null || excludeList.Contains(p)) continue;
 
-				if (p.CollidesWith(checkpos, size))
+			foreach (Actor a in Actors)
+			{
+				if (a == null || excludeList.Contains(a)) continue;
+
+				if (a.CollidesWith(checkpos, size))
 				{
 					freepos = checkpos;
-					return p;
+					return a;
 				}
 			}
 
@@ -257,21 +267,34 @@ public class Map
 		return false;
 	}
 
-	public List<Player> GetPlayerRadius(Vector2 pos, float radius, params Player[] exclude)
+	public T GetActorAtPos<T>(Vector2 pos, Vector2 size, params Actor[] exclude) where T : Actor
 	{
-		List<Player> excludeList = new List<Player>(exclude);
-		List<Player> returnList = new List<Player>(10);
+		List<Actor> excludeList = new List<Actor>(exclude);
 
-		foreach (Player p in playerList) if (p != null && !excludeList.Contains(p) && p.CollidesWith(pos, radius)) returnList.Add(p);
+		foreach (Actor a in Actors) if (a != null && (a is T) && !excludeList.Contains(a) && a.CollidesWith(pos, size)) return (a as T);
+		return null;
+	}
+
+	public List<T> GetActorRadius<T>(Vector2 pos, float radius, params Actor[] exclude) where T : Actor
+	{
+		List<T> returnList = new List<T>();
+		List<Actor> excludeList = new List<Actor>(exclude);
+
+		foreach (Actor a in Actors)
+		{
+			if (a == null || !(a is T) || excludeList.Contains(a)) continue;
+
+			if (a.CollidesWith(pos, radius))
+				returnList.Add(a as T);
+		}
 
 		return returnList;
 	}
 
-	public List<Player> RayTracePlayer(Vector2 start, Vector2 end, Vector2 size, params Player[] exclude)
+	public List<T> RayTraceActor<T>(Vector2 start, Vector2 end, Vector2 size, params Actor[] exclude) where T : Actor
 	{
-		List<Player> excludeList = new List<Player>();
-		excludeList.AddRange(exclude);
-		List<Player> returnList = new List<Player>();
+		List<T> returnList = new List<T>();
+		List<Actor> excludeList = new List<Actor>(exclude);
 
 		Vector2 diffVector = end - start, directionVector = diffVector.Normalized();
 
@@ -281,26 +304,16 @@ public class Map
 
 		for (int i = 0; i < accuracy; i++)
 		{
-			Player p = GetPlayerAtPos(checkpos, size, excludeList.ToArray());
-			if (p != null && !returnList.Contains(p))
-			{
-				returnList.Add(p);
-				excludeList.Add(p);
-			}
-
 			checkpos += directionVector * step;
+			T a = GetActorAtPos<T>(checkpos, size, excludeList.ToArray());
+
+			if (a == null) continue;
+
+			returnList.Add(a);
+			excludeList.Add(a);
 		}
 
 		return returnList;
-	}
-
-	public Player GetPlayerAtPos(Vector2 pos, Vector2 size, params Player[] exclude)
-	{
-		List<Player> excludeList = new List<Player>();
-		excludeList.AddRange(exclude);
-
-		foreach (Player p in playerList) if (!excludeList.Contains(p) && p != null && p.CollidesWith(pos, size)) return p;
-		return null;
 	}
 
 	public void SendPlayerWin(Player p)

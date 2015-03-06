@@ -2,6 +2,7 @@
 using OpenTK.Input;
 using EZUDP;
 using TKTools;
+using System;
 
 public partial class Player
 {
@@ -67,14 +68,14 @@ public partial class Player
 		serverPosition = position;
 	}
 
-	public void ReceiveHit(float dmg, Player attacker, float dir, MessageBuffer msg)
+	public void ReceiveHit(float dmg, float dir, int attackerID, MessageBuffer msg)
 	{
 		Map.AddEffect(new EffectPlayerHit(this, dir, dmg, Map));
 
 		if ((HitType)msg.ReadByte() == HitType.Bullet)
 		{
 			int id = msg.ReadByte();
-			attacker.RemoveProjectile(id);
+			Map.playerList[attackerID].ProjectileHit(this, id);
 		}
 
 		Hit(dmg);

@@ -79,7 +79,7 @@ public class Arrow : Projectile
 
 		if (!coll)
 		{
-			List<Player> p = Map.RayTracePlayer(position, position + stepVector, size, owner);
+			List<Actor> p = Map.RayTraceActor<Actor>(position, position + stepVector, size, owner);
 			if (p.Count > 0) collidePos = position;
 		}
 

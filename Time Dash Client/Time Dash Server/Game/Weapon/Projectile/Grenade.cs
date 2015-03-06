@@ -1,8 +1,11 @@
 ﻿using OpenTK;
 using System.Collections.Generic;
 using TKTools;
+
 public class Grenade : Projectile
 {
+	Actor hitActor = null;
+
 	public Grenade(Player owner, int id, float damage, Vector2 target, Map map)
 		: base(owner, id, damage, map)
 	{
@@ -25,10 +28,13 @@ public class Grenade : Projectile
 			Hit(collidePos);
 		}
 
-		List<Player> playersHit = Map.GetPlayerRadius(position, 0.2f, owner);
+		List<Actor> actorsHit = Map.GetActorRadius<Actor>(position, 0.2f, owner);
 
-		if (playersHit.Count > 0)
-			Hit(playersHit[0]);
+		if (actorsHit.Count > 0)
+		{
+			hitActor = actorsHit[0];
+			Hit(actorsHit[0]);
+		}
 
 		base.Logic();
 	}
@@ -39,18 +45,11 @@ public class Grenade : Projectile
 		HitArea(position);
 	}
 
-	public override void Hit(Player p)
-	{
-		base.Hit(p);
-	}
-
 	public void HitArea(Vector2 position)
 	{
-		List<Player> players = Map.GetPlayerRadius(position, 2f);
+		List<Actor> actors = Map.GetActorRadius<Actor>(position, 2f, hitActor);
 
-		foreach (Player p in players)
-		{
-			p.Hit(Damage, owner, TKMath.GetAngle(position, p.position));
-		}
+		foreach (Actor a in actors)
+			a.Hit(Damage / 2, TKMath.GetAngle(position, a.position), owner);
 	}
 }

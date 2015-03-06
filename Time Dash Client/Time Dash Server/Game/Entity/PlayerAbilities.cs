@@ -224,23 +224,23 @@ public partial class Player : Actor
 		Vector2 stepTarget = position + stepSize;
 
 		//Check for players
-		List<Player> playerCol = Map.RayTracePlayer(position, stepTarget, size * 1.8f, this);
-		if (playerCol.Count > 0)
+		List<Player> actorCol = Map.RayTraceActor<Player>(position, stepTarget, size * 1.8f, this);
+		if (actorCol.Count > 0)
 		{
-			foreach (Player p in playerCol)
+			foreach (Player p in actorCol)
 			{
 				if (p.IsDashing)
 				{
-					DashEnd(playerCol[0]);
-					playerCol[0].DashEnd(this);
+					DashEnd((Player)actorCol[0]);
+					((Player)actorCol[0]).DashEnd(this);
 
-					SendDashCollisionToPlayer(playerCol[0], Map.playerList);
+					SendDashCollisionToPlayer((Player)actorCol[0], Map.playerList);
 
 					return;
 				}
 				else if (!p.IsDodging && !AlliedWith(p))
 				{
-					p.Hit(p.MaxAmmo, this, TKMath.GetAngle(direction));
+					p.Hit(p.MaxAmmo, TKMath.GetAngle(direction), this);
 				}
 			}
 		} 

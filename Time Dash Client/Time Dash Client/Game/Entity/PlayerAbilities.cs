@@ -297,8 +297,15 @@ public partial class Player : Actor
 		weapon.OnShoot();
 	}
 
+	internal void ProjectileHit(Actor a, int bulletID)
+	{
+		projectileList[bulletID].OnHit(a);
+		RemoveProjectile(bulletID);
+	}
+
 	public void RemoveProjectile(int index)
 	{
+		projectileList[index].Hit();
 		projectileList[index].Dispose();
 		projectileList[index] = null;
 	}

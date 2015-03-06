@@ -35,6 +35,12 @@ public class Bullet : Projectile
 		} else position += directionVector * Stats.defaultStats.BulletVelocity * Game.delta;
 	}
 
+	public override void OnHit(Actor a)
+	{
+		base.OnHit(a);
+		Hit();
+	}
+
 	public override void Hit()
 	{
 		EffectCone.CreateSmokeCone(position, direction - 180, 0.4f, 4, 2, Map);

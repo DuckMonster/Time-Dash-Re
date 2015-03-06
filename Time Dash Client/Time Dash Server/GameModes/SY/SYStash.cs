@@ -50,7 +50,7 @@ public abstract class SYStash : Entity
 
 	public override void Logic()
 	{
-		List<Player> playerList = Map.GetPlayerRadius(position, areaSize/2);
+		List<Player> playerList = Map.GetActorRadius<Player>(position, areaSize/2);
 
 		foreach (Player p in playerList)
 			if (p != null)

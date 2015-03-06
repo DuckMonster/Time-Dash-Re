@@ -335,9 +335,9 @@ public partial class Player : Actor
 		if (IsLocalPlayer)
 		{
 			//Dodging
-			if (dodgeCooldown.IsDone && inputDirection != Vector2.Zero && oldInputDirection != inputDirection)
+			if (dodgeCooldown.IsDone && inputDirection != Vector2.Zero)
 			{
-				if (inputDirection == lastDirection && dodgeIntervalTimer > 0)
+				if ((inputDirection == lastDirection && dodgeIntervalTimer > 0 && oldInputDirection != inputDirection) || KeyboardInput.KeyPressed(Key.LShift))
 				{
 					if (inputDirection.X > 0)
 						Dodge(Direction.Right);
@@ -428,7 +428,7 @@ public partial class Player : Actor
 		inputData[PlayerKey.Up] = KeyboardInput.Current[Key.W];
 		inputData[PlayerKey.Down] = KeyboardInput.Current[Key.S];
 		inputData[PlayerKey.Jump] = KeyboardInput.Current[Key.Space];
-		inputData[PlayerKey.Dash] = KeyboardInput.Current[Key.LShift] || MouseInput.Current[MouseButton.Right];
+		inputData[PlayerKey.Dash] = MouseInput.Current[MouseButton.Right];
 		inputData[PlayerKey.Shoot] = MouseInput.Current[MouseButton.Left];
 
 		if (KeyboardInput.KeyPressed(Key.Number1)) SendEquipWeapon(0);

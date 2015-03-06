@@ -27,6 +27,11 @@ public class Projectile : Entity
 		position += velocity * Game.delta;
 	}
 
+	public virtual void OnHit(Actor a)
+	{
+		position = a.position;
+	}
+
 	public virtual void Hit()
 	{
 		active = false;

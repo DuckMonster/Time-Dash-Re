@@ -64,6 +64,7 @@
     <Compile Include="Game\Effects\Effect.cs" />
     <Compile Include="Game\Effects\EffectBullet.cs" />
     <Compile Include="Game\Effects\EffectCollision.cs" />
+    <Compile Include="Game\Effects\EffectEnemyHit.cs" />
     <Compile Include="Game\Effects\EffectPlayerHit.cs" />
     <Compile Include="Game\Effects\EffectRing.cs" />
     <Compile Include="Game\Effects\EffectRockSmoke.cs" />
@@ -74,6 +75,8 @@
     <Compile Include="Game\Effects\EffectSpike.cs" />
     <Compile Include="Game\Effects\EffectSmoke.cs" />
     <Compile Include="Game\Entity\Actor.cs" />
+    <Compile Include="Game\GameModes\SY\Creeps\SYCreep.cs" />
+    <Compile Include="Game\GameModes\SY\Creeps\SYFlyer.cs" />
     <Compile Include="Game\GameModes\SY\SYStash.cs" />
     <Compile Include="Game\GameModes\SY\SYMap.cs" />
     <Compile Include="Game\GameModes\SY\SYPlayer.cs" />
