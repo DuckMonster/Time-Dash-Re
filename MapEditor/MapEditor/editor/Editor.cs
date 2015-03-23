@@ -244,8 +244,22 @@ namespace MapEditor
 						else
 						{
 							dataForm.Dispose();
-							dataForm = null; ;
+							dataForm = null;
 						}
+					}
+
+					if (KeyboardInput.KeyPressed(Key.F2))
+					{
+						List<EventObject> events = new List<EventObject>();
+
+						foreach(EditorObject o in ActiveObjects)
+						{
+							if ((o is EventObject) && o.Selected)
+								events.Add(o as EventObject);
+						}
+
+						if (events.Count > 0)
+							new EventForm(events.ToArray()).Show();
 					}
 
 					if (KeyboardInput.KeyPressed(Key.Delete))

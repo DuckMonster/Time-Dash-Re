@@ -4,5 +4,5 @@
 	KingOfTheHill,
 	ControlPoints,
 	CaptureTheFlag,
-	ScrapYard
+	ScrapYard,
 }

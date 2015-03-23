@@ -7,7 +7,7 @@ public static class EffectCone
 {	
 	static Random rng = new Random();
 
-	public static void CreateSmokeCone(Vector2 position, float direction, float smokesize, int cloudnmbr, int debreenmbr, Map map)
+	public static void CreateSmokeCone(Vector2 position, float direction, float smokesize, float time, int cloudnmbr, int debreenmbr, Map map)
 	{
 		//Splatters
 		for (int i = 0; i < debreenmbr; i++)
@@ -20,9 +20,10 @@ public static class EffectCone
 			float size = 1f - ((float)rng.NextDouble() * .5f);
 			size *= smokesize;
 			float color = 0.8f - ((float)rng.NextDouble() * 0.3f);
-			float velo = 5f + (15f - size * 3f) * (float)rng.NextDouble();
+			float velo = 5f + (15f - size * 3f) * (float)rng.NextDouble() * smokesize;
+			float t = 0.8f + (float)rng.NextDouble() * 0.5f;
 
-			map.AddEffect(new EffectSmoke(position + pos, size, 1.2f, dir, velo, EffectSmoke.defaultColor * color, map));
+			map.AddEffect(new EffectSmoke(position + pos, size, time * t, dir, velo, EffectSmoke.defaultColor * color, map));
 		}
 
 		//Cloud
@@ -32,13 +33,17 @@ public static class EffectCone
 				((float)rng.NextDouble()) * 2f - 1f,
 				((float)rng.NextDouble()) * 2f - 1f) * 0.8f;
 
+			pos *= smokesize;
+
 			float dir = (float)rng.NextDouble() * 360f;
 			float size = 2f - ((float)rng.NextDouble() * 1.5f);
 			size *= smokesize;
 			float color = 0.8f - ((float)rng.NextDouble() * 0.3f);
 			float velo = 0.2f + 0.6f * (float)rng.NextDouble();
+			velo *= smokesize;
+			float t = 0.8f + (float)rng.NextDouble() * 0.5f;
 
-			map.AddEffect(new EffectSmoke(position + pos, size, 1.2f, dir, velo, EffectSmoke.defaultColor * color, map));
+			map.AddEffect(new EffectSmoke(position + pos, size, time * t, dir, velo, EffectSmoke.defaultColor * color, map));
 		}
 	}
 

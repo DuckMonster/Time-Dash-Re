@@ -13,12 +13,21 @@ public class SYCreep : Actor
 	}
 
 	public int id;
+	protected Vector2 idleTarget;
+
+	protected bool idleTargetReached = false;
 
 	public SYCreep(int id, Vector2 position, Vector2 velocity, Map map)
 		:base(position, map)
 	{
 		this.id = id;
 		this.velocity = velocity;
+	}
+
+	public override void Die(Vector2 diePos)
+	{
+		base.Die(diePos);
+		EffectExplosion.CreateExplosion(diePos, 1f, Map);
 	}
 
 	public void ReceivePosition(Vector2 position, Vector2 velocity)
@@ -47,6 +56,17 @@ public class SYCreep : Actor
 		Hit(damage);
 	}
 
+	public void ReceiveIdleTarget(Vector2 target)
+	{
+		idleTarget = target;
+		idleTargetReached = false;
+	}
+
+	public virtual void ReachIdleTarget()
+	{
+		idleTargetReached = true;
+	}
+
 	public override void Logic()
 	{
 		//base.Logic();
@@ -60,7 +80,7 @@ public class SYCreep : Actor
 		mesh.Reset();
 
 		mesh.Translate(position);
-		mesh.Scale(0.8f, 1f);
+		mesh.Scale(size);
 
 		mesh.Draw();
 	}

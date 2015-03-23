@@ -11,21 +11,17 @@ namespace MapEditor
 {
 	class SolidObject : EditorObject
 	{
-		int solidType;
-
 		public override Color Color
 		{
 			get
 			{
-				return base.Color * SolidLayer.colorList[solidType];
+				return base.Color;
 			}
 		}
 
-		public SolidObject(Layer layer, Vector2 a, Vector2 b, int type, Editor e)
+		public SolidObject(Layer layer, Vector2 a, Vector2 b, Editor e)
 			: base(layer, e)
 		{
-			solidType = type;
-
 			Vector2 sizex = (b - a) * new Vector2(1, 0);
 			Vector2 sizey = (b - a) * new Vector2(0, 1);
 
@@ -38,14 +34,11 @@ namespace MapEditor
 		public SolidObject(Layer layer, EditorObject copy, Editor e)
 			: base(layer, copy, e)
 		{
-			solidType = ((SolidObject)copy).solidType;
 		}
 
 		public SolidObject(Layer layer, BinaryReader reader, Editor e)
 			: base(layer, e)
 		{
-			solidType = reader.ReadInt32();
-
 			foreach (Vertex v in vertices)
 			{
 				v.Position = new Vector2(reader.ReadSingle(), reader.ReadSingle());
@@ -54,7 +47,7 @@ namespace MapEditor
 
 		public override void WriteToFile(BinaryWriter writer)
 		{
-			writer.Write(solidType);
+			writer.Write(false);
 
 			foreach (Vertex v in Vertices)
 			{

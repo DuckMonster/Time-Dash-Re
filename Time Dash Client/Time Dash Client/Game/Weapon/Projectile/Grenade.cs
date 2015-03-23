@@ -52,7 +52,7 @@ public class Grenade : Projectile
 	public override void Hit()
 	{
 		Map.AddEffect(new EffectRing(position, 6f, 1.2f, Color.White, Map));
-		EffectCone.CreateSmokeCone(position, TKMath.GetAngle(velocity), 1.2f, 4, 5, Map);
+		EffectCone.CreateSmokeCone(position, TKMath.GetAngle(velocity), 1.2f, 1f, 4, 5, Map);
 
 		Random rng = new Random();
 

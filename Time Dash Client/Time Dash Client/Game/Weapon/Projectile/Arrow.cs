@@ -95,7 +95,7 @@ public class Arrow : Projectile
 
 	public override void Hit()
 	{
-		EffectCone.CreateSmokeCone(position, TKMath.GetAngle(velocity), 0.4f + 0.6f * charge, 3, 1, Map);
+		EffectCone.CreateSmokeCone(position, TKMath.GetAngle(velocity), 0.4f + 0.6f * charge, 0.8f, 3, 1, Map);
 		Map.AddEffect(new EffectRing(position, 1.6f + charge * 1.5f, 0.5f + 0.5f * charge, Color.White, Map));
 
 		base.Hit();

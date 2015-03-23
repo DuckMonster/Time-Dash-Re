@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using TKTools;
+using TKTools.AStar;
 
 namespace MapScene
 {
@@ -119,12 +120,18 @@ namespace MapScene
 
 						for (int j = 0; j < nmbrOfObjects; j++)
 						{
-							int type = reader.ReadInt32();
+							bool isEvent = reader.ReadBoolean();
 
-							if (type == 0)
+							if (!isEvent)
 								solidList.Add(new EnvSolid(reader, this));
 							else
 							{
+								int id = reader.ReadInt32();
+
+								reader.ReadSingle();		//Red color
+								reader.ReadSingle();		//Green color
+								reader.ReadSingle();		//Blue color
+
 								Polygon p = new Polygon(new Vector2[] {
 								new Vector2(reader.ReadSingle(), reader.ReadSingle()),
 								new Vector2(reader.ReadSingle(), reader.ReadSingle()),
@@ -132,7 +139,7 @@ namespace MapScene
 								new Vector2(reader.ReadSingle(), reader.ReadSingle())
 							});
 
-								map.SceneZone(type, p);
+								map.SceneZone(id, p);
 							}
 						}
 					}
@@ -156,9 +163,13 @@ namespace MapScene
 				}
 
 				Polygon combinedPoly = new Polygon();
+				List<Polygon> solids = new List<Polygon>();
 
 				foreach (EnvSolid solid in solidList)
+				{
 					combinedPoly.AddPoint(solid.polygon);
+					solids.Add(solid.polygon);
+				}
 
 				RectangleF rect = combinedPoly.Bounds;
 
@@ -173,6 +184,8 @@ namespace MapScene
 					else if (x.depth < y.depth) return 1;
 					else return -1;
 				});
+
+				AStar.CreateBuffer(solids, 0.5f);
 			}
 		}
 
@@ -188,10 +201,23 @@ namespace MapScene
 				pos + sizex - sizey
 			});
 
-			RectangleF pbounds = p.Bounds;
-
 			foreach(EnvSolid solid in solidList)
-				if (solid.GetCollision(p, pbounds)) return true;
+				if (solid.GetCollision(p)) return true;
+
+			return false;
+		}
+
+		public bool GetCollisionFast(Vector2 pos, Vector2 size)
+		{
+			Vector2 sizex = new Vector2(size.X / 2, 0);
+			Vector2 sizey = new Vector2(0, size.Y / 2);
+
+			pos = pos - sizex - sizey;
+
+			RectangleF pbounds = new RectangleF(pos.X, pos.Y, size.X, size.Y);
+
+			foreach (EnvSolid solid in solidList)
+				if (solid.GetCollisionFast(pbounds)) return true;
 
 			return false;
 		}
@@ -282,14 +308,17 @@ namespace MapScene
 			mesh.Dispose();
 		}
 
-		public bool GetCollision(Polygon p, RectangleF pb)
+		public bool GetCollision(Polygon p)
 		{
-			//return (pb.X + pb.Width >= rectangle.X &&
-			//	pb.X < rectangle.X + rectangle.Width &&
-			//	pb.Y + pb.Height >= rectangle.Y &&
-			//	pb.Y < rectangle.Y + rectangle.Height);
-
 			return p.Intersects(polygon);
+		}
+
+		public bool GetCollisionFast(RectangleF pb)
+		{
+			return (pb.X + pb.Width >= rectangle.X &&
+				pb.X < rectangle.X + rectangle.Width &&
+				pb.Y + pb.Height >= rectangle.Y &&
+				pb.Y < rectangle.Y + rectangle.Height);
 		}
 
 		public void Draw()
@@ -316,7 +345,7 @@ namespace MapScene
 		{
 			get
 			{
-				Mesh m = new Mesh(OpenTK.Graphics.OpenGL.PrimitiveType.Quads);
+				Mesh m = new Mesh(PrimitiveType.Quads);
 				Vector2 size = Size / 2;
 
 				m.Vertices = new Vector2[] {

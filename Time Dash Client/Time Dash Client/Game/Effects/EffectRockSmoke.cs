@@ -1,6 +1,5 @@
 ﻿using OpenTK;
 using System;
-using System.Collections.Generic;
 using TKTools;
 
 public class EffectRockSmoke : Effect
@@ -72,9 +71,9 @@ public class EffectRockSmoke : Effect
 			size *= smokeSize;
 			pos *= size;
 
-			map.AddEffect(new EffectSmoke(position + pos, size, 2f, dir, 0.4f, EffectSmoke.defaultColor * color, map));
+			map.AddEffect(new EffectSmoke(position + pos, size, 0.8f, dir, 0.4f, EffectSmoke.defaultColor * color, map));
 
-			smokeTimer.Reset(0.03f * (1f - effectTimer.PercentageDone));
+			smokeTimer.Reset(MathHelper.Clamp((1f - velocity.Length / 10f), 0.03f, 1f) * size);
 		}
 	}
 

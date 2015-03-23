@@ -94,7 +94,7 @@ namespace MapEditor
 			this.layer = layer;
 			template = copy.template;
 
-			mesh = new Mesh(copy.mesh.Vertices, copy.mesh.UV, OpenTK.Graphics.OpenGL.PrimitiveType.Quads);
+			mesh = new Mesh(copy.mesh.Vertices, copy.mesh.UV, PrimitiveType.Quads);
 
 			for (int i = 0; i < vertices.Length; i++)
 				vertices[i] = new Vertex(copy.vertices[i].Position, copy.vertices[i].UV, e);

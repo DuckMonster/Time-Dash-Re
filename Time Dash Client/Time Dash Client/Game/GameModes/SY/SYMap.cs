@@ -1,12 +1,29 @@
 ﻿using OpenTK;
 using System;
 using System.Drawing;
+using System.Collections.Generic;
 
 public class SYMap : Map
 {
 	SYScrap[] scrapList = new SYScrap[500];
 	SYStash[] stashList = new SYStash[10];
 	SYCreep[] creepList = new SYCreep[50];
+
+	SYTower[] towerList = new SYTower[4];
+
+	int stashIndex = 0;
+
+	public override IEnumerable<Actor> Actors
+	{
+		get
+		{
+			foreach (Actor a in base.Actors)
+				yield return a;
+
+			foreach (SYCreep c in creepList)
+				yield return c;
+		}
+	}
 
 	public SYMap(int id, string filename)
 		: base(id, filename, GameMode.ScrapYard)
@@ -16,7 +33,7 @@ public class SYMap : Map
 	public void SpawnEnemy(int id, Vector2 position, Vector2 velocity)
 	{
 		if (creepList[id] != null) RemoveEnemy(id);
-		creepList[id] = new SYCreep(id, position, velocity, this);
+		creepList[id] = new SYFlyer(id, position, velocity, this);
 	}
 
 	public void RemoveEnemy(SYCreep e) { if (e != null) RemoveEnemy(e.id); }
@@ -59,10 +76,16 @@ public class SYMap : Map
 
 		RectangleF bounds = pos.Bounds;
 
+		if (typeID == 2)
+			stashList[0] = new SYBase(0, new Vector2(bounds.X + bounds.Width / 2, bounds.Y), this);
 		if (typeID == 3)
-			stashList[0] = new SYStash(0, new Vector2(bounds.X + bounds.Width / 2, bounds.Y), this);
-		if (typeID == 4)
-			stashList[1] = new SYStash(1, new Vector2(bounds.X + bounds.Width / 2, bounds.Y), this);
+			stashList[1] = new SYBase(1, new Vector2(bounds.X + bounds.Width / 2, bounds.Y), this);
+
+		if (typeID == 10)
+		{
+			stashList[5 + stashIndex] = new SYTowerPoint(5 + stashIndex, new Vector2(bounds.X + bounds.Width / 2, bounds.Y), this);
+			stashIndex++;
+		}
 	}
 
 	public override void Logic()
@@ -71,6 +94,7 @@ public class SYMap : Map
 		foreach (SYScrap s in scrapList) if (s != null) s.Logic();
 		foreach (SYStash b in stashList) if (b != null) b.Logic();
 		foreach (SYCreep c in creepList) if (c != null) c.Logic();
+		foreach (SYTower t in towerList) if (t != null) t.Logic();
 	}
 
 	public override void Draw()
@@ -80,6 +104,7 @@ public class SYMap : Map
 		foreach (SYScrap s in scrapList) if (s != null) s.Draw();
 		foreach (SYStash b in stashList) if (b != null) b.Draw();
 		foreach (SYCreep c in creepList) if (c != null) c.Draw();
+		foreach (SYTower t in towerList) if (t != null) t.Draw();
 		DrawMap();
 	}
 
@@ -121,6 +146,10 @@ public class SYMap : Map
 						creepList[msg.ReadByte()].ReceivePosition(msg.ReadVector2(), msg.ReadVector2());
 						break;
 
+					case Protocol_SY.EnemyIdle:
+						creepList[msg.ReadByte()].ReceiveIdleTarget(msg.ReadVector2());
+						break;
+
 					case Protocol_SY.EnemyHit:
 						creepList[msg.ReadByte()].ReceiveHit(msg.ReadFloat(), msg.ReadFloat(), msg.ReadByte(), msg);
 						break;
@@ -132,6 +161,24 @@ public class SYMap : Map
 					case Protocol_SY.EnemyDie:
 						creepList[msg.ReadByte()].Die(msg.ReadVector2());
 						break;
+
+					case Protocol_SY.TowerExistance:
+						{
+							int id = msg.ReadByte();
+							SYTowerPoint stash = stashList[msg.ReadByte()] as SYTowerPoint;
+
+							towerList[id] = new SYTower(id, stash, stash.position, this);
+							break;
+						}
+
+					case Protocol_SY.TowerRotation:
+						towerList[msg.ReadByte()].ReceiveRotation(msg.ReadFloat());
+						break;
+
+					case Protocol_SY.TowerTarget:
+						towerList[msg.ReadByte()].ReceiveTarget(msg.ReadByte());
+						break;
+
 				}
 			}
 		}

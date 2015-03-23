@@ -20,20 +20,39 @@ public class SYStash : Entity
 	float areaSize = 5f;
 	Texture pointTexture = new Texture("Res/circlebig.png");
 
-	int scrap = 0;
-	int targetScrap = 50;
+	protected int scrap = 0;
+	protected int targetScrap = 50;
 
 	float progress = 0f;
 	float progressTime = 2f;
 
-	CircleBar scrapBar = new CircleBar(6f, 1f, -180, -180);
+	CircleBar scrapBar;
 
-	public SYStash(int id, Vector2 position, Map map)
+	public SYStash(int id, float size, int target, Vector2 position, Map map)
 		: base(position, map)
 	{
 		this.id = id;
 
+		areaSize = size;
+		targetScrap = target;
+
+		scrapBar = new CircleBar(size + size * 0.2f, size * 0.2f, -180, -180);
+
 		mesh.Texture = pointTexture;
+
+		mesh.Vertices = new Vector2[] {
+			new Vector2(-0.5f, 0),
+			new Vector2(-0.5f, 0.5f),
+			new Vector2(0.5f, 0.5f),
+			new Vector2(0.5f, 0)
+		};
+
+		mesh.UV = new Vector2[] {
+			new Vector2(0, 0.5f),
+			new Vector2(0, 0),
+			new Vector2(1, 0),
+			new Vector2(1, 0.5f)
+		};
 
 		progressMesh.Vertices = new Vector2[] {
 			new Vector2(0, 0.5f),
@@ -46,11 +65,13 @@ public class SYStash : Entity
 	public void SetScrap(int n)
 	{
 		scrap = n;
+		if (scrap >= targetScrap)
+			scrap = targetScrap;
 	}
 
 	public void AddScrap(int n)
 	{
-		scrap += n;
+		SetScrap(scrap + n);
 		Map.AddEffect(new EffectRing(position, 8f, 1.2f, Color.White, Map));
 		progress = 0;
 	}

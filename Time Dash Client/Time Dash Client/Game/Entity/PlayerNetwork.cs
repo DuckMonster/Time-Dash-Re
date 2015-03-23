@@ -68,7 +68,7 @@ public partial class Player
 		serverPosition = position;
 	}
 
-	public void ReceiveHit(float dmg, float dir, int attackerID, MessageBuffer msg)
+	public void ReceiveHit(float dmg, int attackerID, float dir, MessageBuffer msg)
 	{
 		Map.AddEffect(new EffectPlayerHit(this, dir, dmg, Map));
 

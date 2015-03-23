@@ -62,6 +62,7 @@
     <Compile Include="editor\Editor.cs" />
     <Compile Include="editor\EditorActions.cs" />
     <Compile Include="editor\editorobject\EditorObject.cs" />
+    <Compile Include="editor\editorobject\EventObject.cs" />
     <Compile Include="editor\editorobject\SolidObject.cs" />
     <Compile Include="editor\editorobject\Template.cs" />
     <Compile Include="editor\editorobject\Vertex.cs" />
@@ -81,6 +82,12 @@
     <Compile Include="editor\TemplateCreator.cs" />
     <Compile Include="editor\TemplateMenu.cs" />
     <Compile Include="editor\TilesetList.cs" />
+    <Compile Include="EventForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="EventForm.Designer.cs">
+      <DependentUpon>EventForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="KeyboardInput.cs" />
     <Compile Include="LevelDataForm.cs">
       <SubType>Form</SubType>
@@ -116,6 +123,9 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="EventForm.resx">
+      <DependentUpon>EventForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="LevelDataForm.resx">
       <DependentUpon>LevelDataForm.cs</DependentUpon>
     </EmbeddedResource>

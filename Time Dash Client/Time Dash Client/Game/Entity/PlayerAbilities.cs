@@ -305,7 +305,6 @@ public partial class Player : Actor
 
 	public void RemoveProjectile(int index)
 	{
-		projectileList[index].Hit();
 		projectileList[index].Dispose();
 		projectileList[index] = null;
 	}

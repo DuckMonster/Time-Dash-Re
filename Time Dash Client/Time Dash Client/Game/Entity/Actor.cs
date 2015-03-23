@@ -44,7 +44,7 @@ public class Actor : Entity
 		return base.CollidesWith(pos, radius);
 	}
 
-	public float Acceleration
+	public virtual float Acceleration
 	{
 		get
 		{
@@ -52,7 +52,7 @@ public class Actor : Entity
 		}
 	}
 
-	public float Friction
+	public virtual float Friction
 	{
 		get
 		{

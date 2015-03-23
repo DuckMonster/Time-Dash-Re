@@ -38,13 +38,16 @@ public class Bullet : Projectile
 	public override void OnHit(Actor a)
 	{
 		base.OnHit(a);
+		hitActor = a;
 		Hit();
 	}
 
+	Actor hitActor = null;
+
 	public override void Hit()
 	{
-		EffectCone.CreateSmokeCone(position, direction - 180, 0.4f, 4, 2, Map);
-		Map.AddEffect(new EffectRing(position, 2f, 0.5f, Color.White, Map));
+		EffectCone.CreateSmokeCone(position, direction - 180, 0.4f, 0.5f, 4, 2, Map);
+		if (hitActor == null) Map.AddEffect(new EffectRing(position, 2f, 0.5f, Color.White, Map));
 
 		base.Hit();
 	}

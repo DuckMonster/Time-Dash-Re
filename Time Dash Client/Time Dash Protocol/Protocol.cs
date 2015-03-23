@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-public class Port
+﻿public class Port
 {
 	public const int TCP = 1255, UDP = 1255;
 }
@@ -85,5 +83,10 @@ public enum Protocol_SY
 	EnemyPosition,
 	EnemyHit,
 	EnemyDie,
-	EnemyTarget
+	EnemyTarget,
+	EnemyIdle,
+
+	TowerExistance,
+	TowerTarget,
+	TowerRotation
 }

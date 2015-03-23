@@ -25,10 +25,12 @@ public class EffectEnemyHit : Effect
 
 		mesh.FillColor = true;
 
+		/*
 		Random rng = new Random();
 		Vector2 ringPos = new Vector2((float)rng.NextDouble() - 0.5f,
 			(float)rng.NextDouble() - 0.5f);
 		map.AddEffect(new EffectRing(enemy.position + ringPos, 2f + 2f * size, 0.7f, Color.White, map));
+		*/ //NO RING PLZ
 
 		Vector2 spikeDir = TKMath.GetAngleVector(dir) * 2 * size;
 

@@ -160,14 +160,14 @@ public class Map : IDisposable
 	public bool GetCollision(Entity e, Vector2 offset) { return GetCollision(e.position + offset, e.size); }
 	public bool GetCollision(Vector2 pos, Vector2 size)
 	{
-		return scene.GetCollision(pos, size);
+		return scene.GetCollisionFast(pos, size);
 	}
 
-	public Actor GetActorAtPos(Vector2 pos, Vector2 size, params Actor[] exclude)
+	public T GetActorAtPos<T>(Vector2 pos, Vector2 size, params Actor[] exclude) where T : Actor
 	{
 		List<Actor> excludeList = new List<Actor>(exclude);
 
-		foreach (Actor a in Actors) if (a != null && !excludeList.Contains(a) && a.CollidesWith(pos, size)) return a;
+		foreach (Actor a in Actors) if (a != null && (a is T) && a.IsAlive && !excludeList.Contains(a) && a.CollidesWith(pos, size)) return (a as T);
 		return null;
 	}
 
@@ -227,13 +227,12 @@ public class Map : IDisposable
 		for (int i = 0; i < accuracy; i++)
 		{
 			checkpos += directionVector * step;
-			Actor a = GetActorAtPos(checkpos, size, excludeList.ToArray());
-
-			if (a == null || !(a is T)) continue;
-			if (a != null && !returnList.Contains(a as T))
+			T a =  GetActorAtPos<T>(checkpos, size, excludeList.ToArray());
+			
+			if (a != null && !returnList.Contains(a))
 			{
-				returnList.Add(a as T);
-				excludeList.Add(a as T);
+				returnList.Add(a);
+				excludeList.Add(a);
 			}
 		}
 
@@ -340,7 +339,7 @@ public class Map : IDisposable
 					break;
 
 				case Protocol.PlayerHit:
-					playerList[msg.ReadByte()].ReceiveHit(msg.ReadFloat(), msg.ReadFloat(), msg.ReadByte(), msg);
+					playerList[msg.ReadByte()].ReceiveHit(msg.ReadFloat(), msg.ReadByte(), msg.ReadFloat(), msg);
 					break;
 
 				case Protocol.PlayerDie:

@@ -10,11 +10,7 @@ namespace MapEditor
 	{
 		public static Color[] colorList = new Color[] {
 			Color.White,
-			Color.Red,
-			Color.Green,
-			Color.Blue,
-			Color.Orange,
-			Color.Yellow
+			Color.Orange
 		};
 
 		Vector2 origin;
@@ -48,15 +44,30 @@ namespace MapEditor
 
 		public void CreateSolid(Vector2 a, Vector2 b)
 		{
-			SolidObject obj = new SolidObject(this, a, b, typeIndex, editor);
-			objectList.Add(obj);
+			EditorObject obj;
+
+			if (typeIndex == 0)
+			{
+				obj = new SolidObject(this, a, b, editor);
+				objectList.Add(obj);
+			}
+			else
+			{
+				obj = new EventObject(this, a, b, editor);
+				objectList.Add(obj);
+			}
 
 			obj.Select();
 		}
 
 		public void CreateSolid(BinaryReader reader)
 		{
-			objectList.Add(new SolidObject(this, reader, editor));
+			bool isEvent = reader.ReadBoolean();
+
+			if (isEvent)
+				objectList.Add(new EventObject(this, reader, editor));
+			else
+				objectList.Add(new SolidObject(this, reader, editor));
 		}
 
 		public override void DuplicateSelected()
@@ -126,13 +137,9 @@ namespace MapEditor
 
 			if (KeyboardInput.KeyPressed(Key.Number1)) typeIndex = 0;
 			if (KeyboardInput.KeyPressed(Key.Number2)) typeIndex = 1;
-			if (KeyboardInput.KeyPressed(Key.Number3)) typeIndex = 2;
-			if (KeyboardInput.KeyPressed(Key.Number4)) typeIndex = 3;
-			if (KeyboardInput.KeyPressed(Key.Number5)) typeIndex = 4;
-			if (KeyboardInput.KeyPressed(Key.Number6)) typeIndex = 5;
 		}
 
-		public override void WriteToFile(System.IO.BinaryWriter writer)
+		public override void WriteToFile(BinaryWriter writer)
 		{
 			writer.Write(objectList.Count);
 
@@ -142,7 +149,7 @@ namespace MapEditor
 			}
 		}
 
-		public override void ReadFromFile(System.IO.BinaryReader reader)
+		public override void ReadFromFile(BinaryReader reader)
 		{
 			int nmbr = reader.ReadInt32();
 

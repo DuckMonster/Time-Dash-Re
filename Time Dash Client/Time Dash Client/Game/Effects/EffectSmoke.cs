@@ -32,7 +32,8 @@ public class EffectSmoke : Effect
 			}
 			else
 			{
-				return smokeSize - ((smokeTimer.PercentageDone - 0.3f) / 0.7f) * smokeSize;
+				float p = ((smokeTimer.PercentageDone - 0.3f) / 0.7f);
+				return smokeSize - TKMath.Exp(1f - p, 5f) * smokeSize;
 			}
 		}
 	}

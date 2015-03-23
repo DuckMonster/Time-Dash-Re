@@ -37,10 +37,12 @@ public class EffectPlayerHit : Effect
 		EffectCone.CreateBloodCone(p.position, dir, 45f, (int)(20 * size), map);
 		EffectCone.CreateBloodCone(p.position, dir, 360f, (int)(10 * size), map);
 
+		/*
 		Random rng = new Random();
 		Vector2 ringPos = new Vector2((float)rng.NextDouble() - 0.5f,
 			(float)rng.NextDouble() - 0.5f);
 		map.AddEffect(new EffectRing(p.position + ringPos, 2f + 2f * size, 0.7f, Color.White, map));
+		*/ //NO RING PLZ
 
 		Vector2 spikeDir = TKMath.GetAngleVector(dir) * 2 * size;
 
