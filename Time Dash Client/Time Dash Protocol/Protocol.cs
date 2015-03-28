@@ -26,6 +26,8 @@ public enum Protocol
 	PlayerDashCollision,
 	PlayerShoot,
 
+	ProjectileExistance,
+
 	PlayerHit,
 	PlayerKill,
 	PlayerDie,
@@ -88,5 +90,7 @@ public enum Protocol_SY
 
 	TowerExistance,
 	TowerTarget,
-	TowerRotation
+	TowerRotation,
+	TowerShoot,
+	TowerHit
 }

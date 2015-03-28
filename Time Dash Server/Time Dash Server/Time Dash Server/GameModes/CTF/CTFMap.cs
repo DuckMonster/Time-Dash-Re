@@ -27,7 +27,7 @@ public class CTFMap : Map
 		Player p = base.PlayerJoin(c, name);
 		PlayerJoinTeam(p, p.id % 2);
 
-		p.position = GetFreeSpawnPosition(p);
+		p.Position = GetFreeSpawnPosition(p);
 		p.SendPositionToPlayerForce(playerList);
 
 		SendRoundTimerToPlayer(p);
@@ -122,7 +122,7 @@ public class CTFMap : Map
 		do
 		{
 			pos = spawnPoints[p.team.id].GetSpawnPosition();
-		} while (GetCollision(pos, p.size));
+		} while (GetCollision(pos, p.Size));
 
 		return pos;
 	}

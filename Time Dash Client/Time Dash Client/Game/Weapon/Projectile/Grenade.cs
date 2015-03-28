@@ -3,10 +3,10 @@ using System;
 using TKTools;
 public class Grenade : Projectile
 {
-	Timer smokeTimer = new Timer(0.01f, true);
+	Timer smokeTimer = new Timer(0.002f, true);
 
-	public Grenade(Player owner, int id, Vector2 target, Map map)
-		: base(owner, id, map)
+	public Grenade(Actor owner, int id, Vector2 position, Vector2 target, Map map)
+		: base(owner, id, position, map)
 	{
 		size = new Vector2(0.4f, 0.4f);
 		velocity = (target - position).Normalized() * 30f;
@@ -36,7 +36,7 @@ public class Grenade : Projectile
 			float dir = (float)rng.NextDouble() * 360f;
 			Vector2 offset = new Vector2((float)rng.NextDouble() - 0.5f, (float)rng.NextDouble() - 0.5f) * 0.3f;
 
-			Map.AddEffect(new EffectSmoke(position + offset, 0.4f, 0.5f, dir, 0.4f, EffectSmoke.defaultColor, Map));
+			Map.AddEffect(new EffectSmoke(position + offset, 0.4f, 0.8f, dir, 0.4f, EffectSmoke.defaultColor, Map));
 			smokeTimer.Reset();
 		}
 
@@ -46,7 +46,6 @@ public class Grenade : Projectile
 	public override void OnHit(Actor a)
 	{
 		base.OnHit(a);
-		Hit();
 	}
 
 	public override void Hit()

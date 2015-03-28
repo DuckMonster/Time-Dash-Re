@@ -60,7 +60,7 @@ public class PlayerShadow : IDisposable
 
 		positionBuffer = new ShadowPosition[(int)(bufferLength / updateRate)];
 		for (int i = 0; i < positionBuffer.Length; i++)
-			positionBuffer[i] = new ShadowPosition(p.position, p.playerTileset, p.dir);
+			positionBuffer[i] = new ShadowPosition(p.Position, p.playerTileset, p.dir);
 
 		circleMesh = Mesh.Box;
 		circleMesh.Texture = circleTexture;
@@ -93,7 +93,7 @@ public class PlayerShadow : IDisposable
 
 	public void UpdateBuffer()
 	{
-		positionBuffer[positionBufferIndex] = new ShadowPosition(player.position, player.playerTileset, player.dir);
+		positionBuffer[positionBufferIndex] = new ShadowPosition(player.Position, player.playerTileset, player.dir);
 		positionBufferIndex = (positionBufferIndex + 1) % positionBuffer.Length;
 	}
 
@@ -110,7 +110,7 @@ public class PlayerShadow : IDisposable
 			mesh.Reset();
 
 			mesh.Translate(CurrentPosition.position);
-			mesh.Scale(player.size);
+			mesh.Scale(player.Size);
 			mesh.Scale(CurrentPosition.direction, 1);
 
 			mesh.Draw(shadowTileset, CurrentPosition.tilex, CurrentPosition.tiley);
@@ -122,8 +122,8 @@ public class PlayerShadow : IDisposable
 	public void DrawArrow()
 	{
 		ShadowPosition current = CurrentPosition;
-		float direction = TKMath.GetAngle(player.position, current.position),
-			distance = MathHelper.Clamp((player.position - current.position).Length, 0f, 6f) / 20f;
+		float direction = TKMath.GetAngle(player.Position, current.position),
+			distance = MathHelper.Clamp((player.Position - current.position).Length, 0f, 6f) / 20f;
 
 		Color c = player.Color;
 		c.A = 0.4f;
@@ -141,7 +141,7 @@ public class PlayerShadow : IDisposable
 		GL.StencilOp(StencilOp.Replace, StencilOp.Keep, StencilOp.Keep);
 
 		circleMesh.Reset();
-		circleMesh.Translate(player.position);
+		circleMesh.Translate(player.Position);
 		circleMesh.Rotate(direction);
 		circleMesh.Translate(-distance, 0f);
 		circleMesh.Scale(2.2f - distance * 1.5f);
@@ -152,7 +152,7 @@ public class PlayerShadow : IDisposable
 		GL.StencilOp(StencilOp.Incr, StencilOp.Keep, StencilOp.Incr);
 
 		circleMesh.Reset();
-		circleMesh.Translate(player.position);
+		circleMesh.Translate(player.Position);
 		circleMesh.Scale(2f);
 
 		circleMesh.Rotate(direction);
@@ -167,7 +167,7 @@ public class PlayerShadow : IDisposable
 		if (distance > 0)
 		{
 			arrowMesh.Reset();
-			arrowMesh.Translate(player.position);
+			arrowMesh.Translate(player.Position);
 			arrowMesh.Rotate(direction);
 			arrowMesh.Translate(0.9f, 0);
 			arrowMesh.Scale(distance, 0.5f);

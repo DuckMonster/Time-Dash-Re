@@ -26,16 +26,16 @@ public class EffectPlayerHit : Effect
 
 		mesh.Reset();
 
-		mesh.Translate(p.position);
-		mesh.Scale(p.size);
+		mesh.Translate(p.Position);
+		mesh.Scale(p.Size);
 		mesh.Scale(2f);
 
 		mesh.Scale(p.dir, 1);
 
 		mesh.FillColor = true;
 
-		EffectCone.CreateBloodCone(p.position, dir, 45f, (int)(20 * size), map);
-		EffectCone.CreateBloodCone(p.position, dir, 360f, (int)(10 * size), map);
+		EffectCone.CreateBloodCone(p.Position, dir, 45f, (int)(20 * size), map);
+		EffectCone.CreateBloodCone(p.Position, dir, 360f, (int)(10 * size), map);
 
 		/*
 		Random rng = new Random();
@@ -46,7 +46,7 @@ public class EffectPlayerHit : Effect
 
 		Vector2 spikeDir = TKMath.GetAngleVector(dir) * 2 * size;
 
-		map.AddEffect(new EffectSpike(p.position - spikeDir, p.position + spikeDir,
+		map.AddEffect(new EffectSpike(p.Position - spikeDir, p.Position + spikeDir,
 			2f * size, 0.4f, Color.White, map));
 	}
 

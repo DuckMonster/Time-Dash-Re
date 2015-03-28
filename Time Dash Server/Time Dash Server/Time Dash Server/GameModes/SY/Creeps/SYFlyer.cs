@@ -31,7 +31,7 @@ public class SYFlyer : SYCreep
 		get
 		{
 			if (target == null) return idleTimer.IsDone ? (idleTarget as Vector2?): null;
-			else return target.position;
+			else return target.Position;
 		}
 	}
 	
@@ -62,20 +62,20 @@ public class SYFlyer : SYCreep
 		if (target == null)
 		{
 			foreach(Player p in Map.playerList)
-				if (p != null && p.CollidesWith(creepCamp.position, creepCamp.size))
+				if (p != null && p.CollidesWith(creepCamp.Position, creepCamp.Size))
 				{
 					target = p;
 					break;
 				}
 		}
 		else
-			if ((target.position - position).Length > 11f)
+			if ((target.Position - Position).Length > 11f)
 				target = null;
 
 
 		if (TargetPosition != null)
 		{
-			Vector2 dir = (TargetPosition.Value - position).Normalized();
+			Vector2 dir = (TargetPosition.Value - Position).Normalized();
 			velocity += dir * Acceleration * Game.delta;
 		}
 
@@ -83,14 +83,14 @@ public class SYFlyer : SYCreep
 
 		if (velocity.Length > 0.001f)
 		{
-			if (Map.GetCollision(this, velocity * new Vector2(Game.delta, 0)) || Map.GetActorAtPos<SYFlyer>(position + velocity * new Vector2(Game.delta, 0), size, this) != null)
+			if (Map.GetCollision(this, velocity * new Vector2(Game.delta, 0)) || Map.GetActorAtPos<SYFlyer>(Position + velocity * new Vector2(Game.delta, 0), Size, this) != null)
 			{
 				velocity.X *= -0.7f;
 
 				if (target == null)
 					ReachIdleTarget();
 			}
-			if (Map.GetCollision(this, velocity * new Vector2(0, Game.delta)) || Map.GetActorAtPos<SYFlyer>(position + velocity * new Vector2(0, Game.delta), size, this) != null)
+			if (Map.GetCollision(this, velocity * new Vector2(0, Game.delta)) || Map.GetActorAtPos<SYFlyer>(Position + velocity * new Vector2(0, Game.delta), Size, this) != null)
 			{
 				velocity.Y *= -0.7f;
 
@@ -98,7 +98,7 @@ public class SYFlyer : SYCreep
 					ReachIdleTarget();
 			}
 
-			position += velocity * Game.delta;
+			Position += velocity * Game.delta;
 
 			updateTimer.Logic();
 			if (updateTimer.IsDone)
@@ -108,8 +108,8 @@ public class SYFlyer : SYCreep
 			}
 		}
 
-		if (TargetPosition == idleTarget && (idleTarget - position).Length <= 0.1f) ReachIdleTarget();
-		if (target != null && !creepCamp.CollidesWith(position, size))
+		if (TargetPosition == idleTarget && (idleTarget - Position).Length <= 0.1f) ReachIdleTarget();
+		if (target != null && !creepCamp.CollidesWith(Position, Size))
 			SetTarget(null);
 	}
 

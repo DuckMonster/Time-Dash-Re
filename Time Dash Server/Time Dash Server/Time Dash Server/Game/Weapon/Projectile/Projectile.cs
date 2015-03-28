@@ -1,10 +1,11 @@
-﻿using OpenTK;
+﻿using EZUDP;
+using OpenTK;
 using TKTools;
 public class Projectile : Entity
 {
-	public int id;
-	protected Player owner;
-	public Player Owner
+	public int id = -1;
+	protected Actor owner;
+	public Actor Owner
 	{
 		get { return owner; }
 	}
@@ -23,17 +24,17 @@ public class Projectile : Entity
 		get { return damage; }
 	}
 
-	public Projectile(Player owner, int id, float damage, Map map)
-		: base(owner.position, map)
+	public Projectile(Actor owner, Vector2 position, float damage, Map map)
+		: base(position, map)
 	{
 		this.owner = owner;
-		this.id = id;
 		this.damage = damage;
+		id = map.AddProjectile(this);
 	}
 
 	public override void Logic()
 	{
-		position += velocity * Game.delta;
+		Position += velocity * Game.delta;
 	}
 
 	public virtual void Hit(Vector2 position)
@@ -43,7 +44,7 @@ public class Projectile : Entity
 
 	public virtual void Hit(Actor a)
 	{
-		Hit(a.position);
+		Hit(a.Position);
 		a.Hit(damage, TKMath.GetAngle(velocity), this);
 	}
 }

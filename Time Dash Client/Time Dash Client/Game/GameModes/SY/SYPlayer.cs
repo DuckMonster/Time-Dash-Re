@@ -21,6 +21,7 @@ public class SYPlayer : Player
 		: base(id, name, position, m)
 	{
 		scrapMesh.Texture = SYScrap.scrapTexture;
+		scrap = 1;
 	}
 
 	public override void Die(Vector2 diePos)

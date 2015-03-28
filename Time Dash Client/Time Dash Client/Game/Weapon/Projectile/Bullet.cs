@@ -9,8 +9,8 @@ public class Bullet : Projectile
 	Vector2 bulletSize;
 	float direction;
 
-	public Bullet(Player p, int id, Vector2 bsize, Vector2 target, Map m)
-		: base(p, id, m)
+	public Bullet(Actor a, int id, Vector2 bsize, Vector2 position, Vector2 target, Map m)
+		: base(a, id, position, m)
 	{
 		directionVector = (target - position).Normalized();
 		direction = TKMath.GetAngle(directionVector);
@@ -39,7 +39,6 @@ public class Bullet : Projectile
 	{
 		base.OnHit(a);
 		hitActor = a;
-		Hit();
 	}
 
 	Actor hitActor = null;

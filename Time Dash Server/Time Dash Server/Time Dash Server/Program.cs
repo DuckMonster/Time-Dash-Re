@@ -11,8 +11,14 @@ class Program
 
 	public static void Main(string[] args)
 	{
-		Console.Write("Server name: ");
-		Game.serverName = Console.ReadLine();
+		if (args.Length == 0)
+		{
+			Console.Write("Server name: ");
+			Game.serverName = Console.ReadLine();
+		} else
+		{
+			Game.serverName = args[0];
+		}
 
 		UdpClient client = new UdpClient();
 

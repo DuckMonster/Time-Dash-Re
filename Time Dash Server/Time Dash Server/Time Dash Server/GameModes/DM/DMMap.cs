@@ -53,13 +53,13 @@ public class DMMap : Map
 			{
 				if (p == null || p == e) continue;
 
-				if ((p.position - pos).Length <= 10f)
+				if ((p.Position - pos).Length <= 10f)
 				{
 					alone = false;
 					break;
 				}
 			}
-		} while (GetCollision(pos, e.size) || !alone);
+		} while (GetCollision(pos, e.Size) || !alone);
 
 		return pos;
 	}

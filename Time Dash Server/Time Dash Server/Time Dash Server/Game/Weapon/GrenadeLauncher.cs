@@ -1,4 +1,6 @@
-﻿public class GrenadeLauncher : Weapon
+﻿using OpenTK;
+
+public class GrenadeLauncher : Weapon
 {
 	public GrenadeLauncher(Player owner, Map map)
 		: base(WeaponStats.GrenadeLauncher, owner, map)
@@ -6,8 +8,8 @@
 
 	}
 
-	public override Projectile CreateProjectile(OpenTK.Vector2 target, int index)
+	public override Projectile CreateProjectile(Vector2 target)
 	{
-		return new Grenade(owner, index, damage, target, map);
+		return new Grenade(owner, owner.Position, target, damage, map);
 	}
 }

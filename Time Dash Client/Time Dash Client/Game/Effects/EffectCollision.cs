@@ -13,8 +13,8 @@ class EffectCollision : Effect
 	public EffectCollision(Player a, Player b, Map m)
 		: base(m)
 	{
-		position = a.position + (b.position - a.position) * 0.5f;
-		lineRotation = TKMath.GetAngle(a.position, b.position);
+		position = a.Position + (b.Position - a.Position) * 0.5f;
+		lineRotation = TKMath.GetAngle(a.Position, b.Position);
 		rotation = lineRotation + 45;
 
 		m.AddEffect(new EffectRing(position, 4f, 0.7f, Color.White, m));

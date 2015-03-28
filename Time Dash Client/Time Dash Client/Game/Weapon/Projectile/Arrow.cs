@@ -47,8 +47,8 @@ public class Arrow : Projectile
 	float charge;
 	float sizeOffset = 0f;
 
-	public Arrow(Player owner, int id, Vector2 target, float charge, Map map)
-		: base(owner, id, map)
+	public Arrow(Actor owner, int id, Vector2 position, Vector2 target, float charge, Map map)
+		: base(owner, id, position, map)
 	{
 		this.charge = charge;
 

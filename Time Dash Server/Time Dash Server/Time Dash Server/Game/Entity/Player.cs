@@ -162,7 +162,7 @@ public partial class Player : Actor
 	public override void Hit(float dmg, float dir, Actor a, float force = 0)
 	{
 		base.Hit(dmg, dir, a, force);
-		SendHitToPlayer(dmg, dir, a, Map.playerList);
+		SendHitToPlayer(dmg, dir, Map.playerList);
 
 		if (!IsAlive && a is Player)
 			(a as Player).OnKill(this);
@@ -176,8 +176,8 @@ public partial class Player : Actor
 		base.Hit(dmg, dir, proj, force);
 		SendHitToPlayer(dmg, dir, proj, Map.playerList);
 
-		if (!IsAlive)
-			proj.Owner.OnKill(this);
+		if (!IsAlive && proj.Owner is Player)
+			(proj.Owner as Player).OnKill(this);
 
 		if (force != 0)
 			SendPositionToPlayer(Map.playerList);
@@ -205,17 +205,14 @@ public partial class Player : Actor
 	public override void Respawn()
 	{
 		base.Respawn();
-		position = Map.GetFreeSpawnPosition(this);
-		SendRespawnToPlayer(position, Map.playerList);
+		Position = Map.GetFreeSpawnPosition(this);
+		SendRespawnToPlayer(Position, Map.playerList);
 	}
 
 	public override void Logic()
 	{
-		foreach (Projectile p in projectileList)
-			if (p != null) p.Logic();
-
 		weapon.Logic();
-		Log.Debug(position);
+		Log.Debug(Position);
 
 		if (!IsAlive)
 		{

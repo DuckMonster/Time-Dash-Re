@@ -26,7 +26,7 @@ public class SYFlyer : SYCreep
 		get
 		{
 			if (target == null) return !idleTargetReached ? (idleTarget as Vector2?) : null;
-			else return target.position;
+			else return target.Position;
 		}
 	}
 
@@ -50,7 +50,7 @@ public class SYFlyer : SYCreep
 
 		if (target != null)
 		{
-			if ((target.position - position).Length > 11f)
+			if ((target.Position - Position).Length > 11f)
 			{
 				target = null;
 			}
@@ -79,8 +79,6 @@ public class SYFlyer : SYCreep
 
 	public void ReceiveTarget(int playerID)
 	{
-		Log.Write("My target is " + playerID);
-
 		if (playerID == 255)
 			target = null;
 		else

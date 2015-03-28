@@ -27,12 +27,12 @@ public class CTFFlag : Entity
 		}
 	}
 
-	public Vector2 Position
+	public override Vector2 Position
 	{
 		get
 		{
-			if (holder == null) return position;
-			else return holder.position + new Vector2(0f, 1.2f);
+			if (holder == null) return base.Position;
+			else return holder.Position + new Vector2(0f, 1.2f);
 		}
 	}
 
@@ -96,7 +96,7 @@ public class CTFFlag : Entity
 
 	public void Drop()
 	{
-		position = holder.position + new Vector2(0, 2f);
+		position = holder.Position + new Vector2(0, 2f);
 		velocity = TKMath.GetAngleVector(90 + ((float)Map.rng.NextDouble() - 0.5f) * 70f) * 20f;
 		holder = null;
 	}

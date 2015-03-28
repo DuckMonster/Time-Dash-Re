@@ -30,8 +30,8 @@ public class CTFFlag : Entity
 	{
 		get
 		{
-			if (holder == null) return position;
-			else return holder.position + new Vector2(0f, 1.2f);
+			if (holder == null) return base.Position;
+			else return holder.Position + new Vector2(0f, 1.2f);
 		}
 	}
 
@@ -95,14 +95,14 @@ public class CTFFlag : Entity
 		if (Map.GetCollision(this, velocity * Game.delta))
 			velocity = Vector2.Zero;
 
-		position += velocity * Game.delta;
+		base.Position += velocity * Game.delta;
 	}
 
 	public void Drop()
 	{
 		if (holder == null) return;
 
-		position = holder.position + new Vector2(0, 2f);
+		base.Position = holder.Position + new Vector2(0, 2f);
 		velocity = TKMath.GetAngleVector(90 + ((float)Map.rng.NextDouble() - 0.5f) * 2 * 70f) * 10f;
 		holder = null;
 
@@ -112,7 +112,7 @@ public class CTFFlag : Entity
 		msg.WriteShort((short)Protocol_CTF.FlagDropped);
 		msg.WriteByte(ownerID);
 
-		msg.WriteVector(position);
+		msg.WriteVector(base.Position);
 		msg.WriteVector(velocity);
 
 		Map.SendToAllPlayers(msg);
@@ -135,7 +135,7 @@ public class CTFFlag : Entity
 	public void Return()
 	{
 		holder = null;
-		position = originPosition;
+		base.Position = originPosition;
 
 		MessageBuffer msg = new MessageBuffer();
 

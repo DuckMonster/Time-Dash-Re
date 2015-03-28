@@ -19,8 +19,8 @@ public class EffectEnemyHit : Effect
 
 		mesh.Reset();
 
-		mesh.Translate(enemy.position);
-		mesh.Scale(enemy.size);
+		mesh.Translate(enemy.Position);
+		mesh.Scale(enemy.Size);
 		mesh.Scale(2f);
 
 		mesh.FillColor = true;
@@ -34,7 +34,7 @@ public class EffectEnemyHit : Effect
 
 		Vector2 spikeDir = TKMath.GetAngleVector(dir) * 2 * size;
 
-		map.AddEffect(new EffectSpike(enemy.position - spikeDir, enemy.position + spikeDir,
+		map.AddEffect(new EffectSpike(enemy.Position - spikeDir, enemy.Position + spikeDir,
 			2f * size, 0.4f, Color.White, map));
 	}
 

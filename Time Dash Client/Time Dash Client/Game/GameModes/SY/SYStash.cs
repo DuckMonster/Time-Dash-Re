@@ -90,7 +90,7 @@ public class SYStash : Entity
 
 		if (Map.LocalPlayer != null && ((SYPlayer)Map.LocalPlayer).CollectedScrap > 0)
 		{
-			if (Map.LocalPlayer.position.Y >= position.Y && (Map.LocalPlayer.position - position).Length < areaSize / 2)
+			if (Map.LocalPlayer.Position.Y >= position.Y && (Map.LocalPlayer.Position - position).Length < areaSize / 2)
 				Hold();
 			else
 				progress = 0;

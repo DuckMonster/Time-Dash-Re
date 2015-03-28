@@ -20,12 +20,12 @@ public class KothPoint : Entity
 
 	void LookForPlayer()
 	{
-		List<Player> playerList = Map.GetActorRadius<Player>(position, radius);
+		List<Player> playerList = Map.GetActorRadius<Player>(Position, radius);
 
 		Player contender = null;
 		foreach (Player p in playerList)
 		{
-			if (p.position.Y < position.Y) continue;
+			if (p.Position.Y < Position.Y) continue;
 
 			if (contender == null) contender = p;
 			else

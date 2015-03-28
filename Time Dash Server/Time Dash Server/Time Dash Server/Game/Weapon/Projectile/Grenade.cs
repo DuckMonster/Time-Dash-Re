@@ -6,10 +6,10 @@ public class Grenade : Projectile
 {
 	Actor hitActor = null;
 
-	public Grenade(Player owner, int id, float damage, Vector2 target, Map map)
-		: base(owner, id, damage, map)
+	public Grenade(Actor owner, Vector2 position, Vector2 target, float damage, Map map)
+		: base(owner, position, damage, map)
 	{
-		size = new Vector2(0.4f, 0.4f);
+		Size = new Vector2(0.4f, 0.4f);
 		velocity = (target - position).Normalized() * 30f;
 	}
 
@@ -21,14 +21,14 @@ public class Grenade : Projectile
 
 		Vector2 stepVector = velocity * Game.delta;
 
-		if (Map.GetCollision(position + stepVector, size))
+		if (Map.GetCollision(Position + stepVector, Size))
 		{
 			Vector2 collidePos;
-			Map.RayTraceCollision(position, position + stepVector, size, out collidePos);
+			Map.RayTraceCollision(Position, Position + stepVector, Size, out collidePos);
 			Hit(collidePos);
 		}
 
-		List<Actor> actorsHit = Map.GetActorRadius<Actor>(position, 0.2f, owner);
+		List<Actor> actorsHit = Map.GetActorRadius<Actor>(Position, 0.2f, owner);
 
 		if (actorsHit.Count > 0)
 		{
@@ -50,6 +50,6 @@ public class Grenade : Projectile
 		List<Actor> actors = Map.GetActorRadius<Actor>(position, 2f, hitActor);
 
 		foreach (Actor a in actors)
-			a.Hit(Damage / 2, TKMath.GetAngle(position, a.position), owner);
+			a.Hit(Damage / 2, TKMath.GetAngle(position, a.Position), owner);
 	}
 }

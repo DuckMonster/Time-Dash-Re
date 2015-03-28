@@ -62,8 +62,8 @@ public class CTFPlayer : Player
 
 		if ((!flag.IsInBase || flag.holder != null) && IsLocalPlayer)
 		{
-			Vector2 flagPosition = flag.holder == null ? flag.Position : flag.holder.position;
-			float dis = (flagPosition - position).Length;
+			Vector2 flagPosition = flag.holder == null ? flag.Position : flag.holder.Position;
+			float dis = (flagPosition - Position).Length;
 			Color c = team.Color;
 			c.A = MathHelper.Clamp((dis - 7f) / 2f, 0, 1);
 

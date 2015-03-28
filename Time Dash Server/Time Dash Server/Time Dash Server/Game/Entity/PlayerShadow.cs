@@ -22,7 +22,7 @@ public class PlayerShadow
 
 		positionBuffer = new Vector2[(int)(bufferLength / updateRate)];
 		for (int i = 0; i < positionBuffer.Length; i++)
-			positionBuffer[i] = p.position;
+			positionBuffer[i] = p.Position;
 	}
 
 	public void Logic()
@@ -38,7 +38,7 @@ public class PlayerShadow
 
 	public void UpdateBuffer()
 	{
-		positionBuffer[positionBufferIndex] = player.position;
+		positionBuffer[positionBufferIndex] = player.Position;
 		positionBufferIndex = (positionBufferIndex + 1) % positionBuffer.Length;
 	}
 }

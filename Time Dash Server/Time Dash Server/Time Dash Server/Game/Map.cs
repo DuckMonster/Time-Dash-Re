@@ -24,6 +24,20 @@ public class Map
 
 	public Player[] playerList = new Player[10];
 
+	public Projectile[] projectileList = new Projectile[100];
+	int projectileIndex = 0;
+
+	public int NextProjectileIndex
+	{
+		get
+		{
+			int id = projectileIndex;
+			projectileIndex = (projectileIndex + 1) % projectileList.Length;
+
+			return id;
+		}
+	}
+
 	public int NumberOfPlayers
 	{
 		get
@@ -42,6 +56,14 @@ public class Map
 			foreach (Player p in playerList)
 				yield return p;
 		}
+	}
+
+	public int AddProjectile(Projectile p)
+	{
+		int id = NextProjectileIndex;
+		projectileList[id] = p;
+
+		return id;
 	}
 
 	public Player GetPlayer(int id)
@@ -75,7 +97,7 @@ public class Map
 		int id = GetFreePlayerSlot();
 
 		playerList[id] = CreatePlayer(id, name, c);
-		playerList[id].position = GetFreeSpawnPosition(playerList[id]);
+		playerList[id].Position = GetFreeSpawnPosition(playerList[id]);
 
 		MessageBuffer msg = new MessageBuffer();
 		msg.WriteShort((short)Protocol.EnterMap);
@@ -184,8 +206,8 @@ public class Map
 
 	}
 
-	public bool GetCollision(Entity e) { return GetCollision(e.position, e.size); }
-	public bool GetCollision(Entity e, Vector2 offset) { return GetCollision(e.position + offset, e.size); }
+	public bool GetCollision(Entity e) { return GetCollision(e.Position, e.Size); }
+	public bool GetCollision(Entity e, Vector2 offset) { return GetCollision(e.Position + offset, e.Size); }
 	public bool GetCollision(Vector2 pos, Vector2 size)
 	{
 		return scene.GetCollisionFast(pos, size);
@@ -195,6 +217,7 @@ public class Map
 	{
 		scene.Logic();
 		foreach (Actor a in Actors) if (a != null) a.Logic();
+		foreach (Projectile p in projectileList) if (p != null) p.Logic();
 
 		if (winPlayer != null)
 		{
@@ -353,7 +376,7 @@ public class Map
 		{
 			double x = rng.NextDouble(), y = rng.NextDouble();
 			pos = new Vector2((float)x * scene.Width, (float)y * scene.Height);
-		} while (GetCollision(pos, p.size));
+		} while (GetCollision(pos, p.Size));
 
 		return pos;
 	}

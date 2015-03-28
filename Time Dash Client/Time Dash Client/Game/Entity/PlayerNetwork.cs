@@ -68,14 +68,16 @@ public partial class Player
 		serverPosition = position;
 	}
 
-	public void ReceiveHit(float dmg, int attackerID, float dir, MessageBuffer msg)
+	public void ReceiveHit(float dmg, float dir, MessageBuffer msg)
 	{
 		Map.AddEffect(new EffectPlayerHit(this, dir, dmg, Map));
 
 		if ((HitType)msg.ReadByte() == HitType.Bullet)
 		{
 			int id = msg.ReadByte();
-			Map.playerList[attackerID].ProjectileHit(this, id);
+
+			if (Map.projectileList[id] != null)
+				Map.projectileList[id].OnHit(this);
 		}
 
 		Hit(dmg);
@@ -117,18 +119,18 @@ public partial class Player
 		dashTargetBuffer = new DashTarget(start, target);
 	}
 
-	public void ReceiveShoot(Vector2 position, Vector2 target)
+	public void ReceiveShoot(Vector2 position, Vector2 target, int projID)
 	{
 		this.position = position;
-		Shoot(target);
+		Shoot(target, projID);
 	}
 
-	public void ReceiveShoot(Vector2 position, Vector2 target, float charge)
+	public void ReceiveShoot(Vector2 position, Vector2 target, int projID, float charge)
 	{
 		this.position = position;
 		weapon.Charge = charge;
 
-		Shoot(target);
+		Shoot(target, projID);
 	}
 
 	public void ReceiveReload()
@@ -212,7 +214,7 @@ public partial class Player
 		Game.client.Send(msg);
 	}
 
-	void SendShoot(Vector2 target)
+	public void SendShoot(Vector2 target)
 	{
 		MessageBuffer msg = new MessageBuffer();
 
@@ -224,7 +226,7 @@ public partial class Player
 		Game.client.Send(msg);
 	}
 
-	void SendShoot(Vector2 target, float charge)
+	public void SendShoot(Vector2 target, float charge)
 	{
 		MessageBuffer msg = new MessageBuffer();
 

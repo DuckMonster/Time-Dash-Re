@@ -27,7 +27,7 @@ public class SYScrap : Entity
 	{
 		this.id = id;
 		
-		size = new Vector2(0.5f, 0.5f);
+		Size = new Vector2(0.5f, 0.5f);
 
 		DropAt(position);
 	}
@@ -37,7 +37,7 @@ public class SYScrap : Entity
 		float angle = (float)rng.NextDouble() * 360f;
 		float velo = 15f + (float)rng.NextDouble() * 15f;
 
-		position = pos;
+		Position = pos;
 		velocity = TKMath.GetAngleVector(angle) * velo;
 
 		SendExistanceToPlayer(Map.playerList);
@@ -53,7 +53,7 @@ public class SYScrap : Entity
 	{
 		base.Logic();
 
-		position += velocity * Game.delta;
+		Position += velocity * Game.delta;
 
 		float oldVelocity = velocity.Length;
 		velocity -= velocity * 6f * Game.delta;
@@ -103,7 +103,7 @@ public class SYScrap : Entity
 		msg.WriteShort((short)Protocol.MapArgument);
 		msg.WriteShort((short)Protocol_SY.ScrapExistance);
 		msg.WriteShort(id);
-		msg.WriteVector(position);
+		msg.WriteVector(Position);
 		msg.WriteVector(velocity);
 
 		return msg;
@@ -116,7 +116,7 @@ public class SYScrap : Entity
 		msg.WriteShort((short)Protocol.MapArgument);
 		msg.WriteShort((short)Protocol_SY.ScrapPosition);
 		msg.WriteShort(id);
-		msg.WriteVector(position);
+		msg.WriteVector(Position);
 		msg.WriteVector(velocity);
 
 		return msg;

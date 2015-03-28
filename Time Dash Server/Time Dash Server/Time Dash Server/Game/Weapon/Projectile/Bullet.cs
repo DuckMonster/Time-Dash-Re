@@ -14,11 +14,11 @@ public class Bullet : Projectile
 		}
 	}
 
-	public Bullet(Player p, int id, float damage, Vector2 target, Map m)
-		: base(p, id, damage, m)
+	public Bullet(Actor p, Vector2 position, Vector2 target, float damage, Map m)
+		: base(p, position, damage, m)
 	{
-		directionVector = (target - p.position).Normalized();
-		size = new Vector2(0.1f, 0.1f);
+		directionVector = (target - position).Normalized();
+		Size = new Vector2(0.1f, 0.1f);
 		velocity = directionVector * Stats.defaultStats.BulletVelocity;
 	}
 
@@ -29,9 +29,9 @@ public class Bullet : Projectile
 		Vector2 stepVector = directionVector * Stats.defaultStats.BulletVelocity * Game.delta;
 
 		if (Map.GetCollision(this, stepVector))
-			Hit(position + stepVector);
+			Hit(Position + stepVector);
 
-		List<Actor> actorsHit = Map.GetActorRadius<Actor>(position, 0.2f, owner);
+		List<Actor> actorsHit = Map.GetActorRadius<Actor>(Position, 0.2f, owner);
 
 		if (actorsHit.Count > 0)
 			Hit(actorsHit[0]);

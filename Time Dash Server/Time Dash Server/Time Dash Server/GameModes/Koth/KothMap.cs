@@ -56,7 +56,7 @@ public class KothMap : Map
 		{
 			double x = rng.NextDouble() - 0.5, y = rng.NextDouble() - 0.5;
 			pos = new Vector2((float)x * scene.Width, (float)y * scene.Height) + scene.originOffset;
-		} while (GetCollision(pos, p.size) || (point.position - pos).Length <= 15f);
+		} while (GetCollision(pos, p.Size) || (point.Position - pos).Length <= 15f);
 
 		return pos;
 	}

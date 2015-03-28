@@ -4,10 +4,10 @@ using TKTools;
 
 public class Arrow : Projectile
 {
-	public Arrow(Player owner, int id, float damage, Vector2 target, float charge, Map map)
-		: base(owner, id, damage * charge, map)
+	public Arrow(Actor owner, Vector2 position, Vector2 target, float damage, float charge, Map map)
+		: base(owner, position, damage * charge, map)
 	{
-		size = new Vector2(0.2f, 0.2f);
+		Size = new Vector2(0.2f, 0.2f);
 		velocity = (target - position).Normalized() * (10 + 120f * charge);
 	}
 
@@ -19,7 +19,7 @@ public class Arrow : Projectile
 
 		Vector2 stepVector = velocity * Game.delta;
 
-		List<Actor> actors = Map.RayTraceActor<Actor>(position, position + stepVector, size, owner);
+		List<Actor> actors = Map.RayTraceActor<Actor>(Position, Position + stepVector, Size, owner);
 		if (actors.Count > 0)
 		{
 			Hit(actors[0]);
@@ -27,13 +27,13 @@ public class Arrow : Projectile
 		}
 
 		Vector2 collidePos;
-		bool coll = Map.RayTraceCollision(position, position + stepVector, size, out collidePos);
+		bool coll = Map.RayTraceCollision(Position, Position + stepVector, Size, out collidePos);
 
-		position = collidePos;
+		Position = collidePos;
 
 		if (coll)
 		{
-			Hit(position);
+			Hit(Position);
 			return;
 		}
 	}

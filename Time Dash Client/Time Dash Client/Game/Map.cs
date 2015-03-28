@@ -27,6 +27,20 @@ public class Map : IDisposable
 	public Player[] playerList = new Player[10];
 	List<Effect> effectList = new List<Effect>(), effectBufferList = new List<Effect>();
 
+	public Projectile[] projectileList = new Projectile[100];
+	int projectileIndex = 0;
+
+	public int NextProjectileIndex
+	{
+		get
+		{
+			int id = projectileIndex;
+			projectileIndex = (projectileIndex + 1) % projectileList.Length;
+
+			return projectileIndex;
+		}
+	}
+
 	public TextDrawer hudDrawer = new TextDrawer(2000, 2000);
 	Mesh hudMesh;
 
@@ -124,6 +138,26 @@ public class Map : IDisposable
 		hudDrawer.UpdateTexture();
 	}
 
+	public void AddProjectile(Projectile p)
+	{
+		int id = p.id;
+
+		if (projectileList[id] != null)
+			RemoveProjectile(id);
+
+		projectileList[id] = p;
+		projectileIndex = id;
+	}
+
+	public void RemoveProjectile(Projectile p) { RemoveProjectile(p.id); }
+	public void RemoveProjectile(int id)
+	{
+		if (projectileList[id] == null) return;
+
+		projectileList[id].Dispose();
+		projectileList[id] = null;
+	}
+
 	public Map(int id, string filename, GameMode mode)
 	{
 		this.filename = filename;
@@ -156,8 +190,8 @@ public class Map : IDisposable
 	{
 	}
 
-	public bool GetCollision(Entity e) { return GetCollision(e.position, e.size); }
-	public bool GetCollision(Entity e, Vector2 offset) { return GetCollision(e.position + offset, e.size); }
+	public bool GetCollision(Entity e) { return GetCollision(e.Position, e.Size); }
+	public bool GetCollision(Entity e, Vector2 offset) { return GetCollision(e.Position + offset, e.Size); }
 	public bool GetCollision(Vector2 pos, Vector2 size)
 	{
 		return scene.GetCollisionFast(pos, size);
@@ -213,7 +247,7 @@ public class Map : IDisposable
 		return returnList;
 	}
 
-	public List<T> RayTraceActor<T>(Vector2 start, Vector2 end, Vector2 size, params Player[] exclude) where T : Actor
+	public List<T> RayTraceActor<T>(Vector2 start, Vector2 end, Vector2 size, params T[] exclude) where T : Actor
 	{
 		List<T> returnList = new List<T>(10);
 		List<Actor> excludeList = new List<Actor>(exclude);
@@ -261,6 +295,9 @@ public class Map : IDisposable
 			effectBufferList.AddRange(effectList.ToArray());
 		}
 
+		foreach (Projectile p in projectileList)
+			if (p != null) p.Logic();
+
 		if (winPlayer != null)
 			Log.Debug(winPlayer.playerID + " WINS!");
 	}
@@ -286,6 +323,7 @@ public class Map : IDisposable
 	{
 		foreach (Player p in playerList) if (p != null) p.Draw();
 		foreach (Effect e in effectList) e.Draw();
+		foreach (Projectile p in projectileList) if (p != null) p.Draw();
 		if (LocalPlayer != null) LocalPlayer.DrawHUD();
 
 		if (winPlayer != null)
@@ -339,7 +377,7 @@ public class Map : IDisposable
 					break;
 
 				case Protocol.PlayerHit:
-					playerList[msg.ReadByte()].ReceiveHit(msg.ReadFloat(), msg.ReadByte(), msg.ReadFloat(), msg);
+					playerList[msg.ReadByte()].ReceiveHit(msg.ReadFloat(), msg.ReadFloat(), msg);
 					break;
 
 				case Protocol.PlayerDie:
@@ -371,9 +409,9 @@ public class Map : IDisposable
 						Player p = playerList[msg.ReadByte()];
 
 						if (p.weapon.FireType == WeaponStats.FireType.Charge)
-							p.ReceiveShoot(msg.ReadVector2(), msg.ReadVector2(), msg.ReadFloat());
+							p.ReceiveShoot(msg.ReadVector2(), msg.ReadVector2(), msg.ReadByte(), msg.ReadFloat());
 						else
-							p.ReceiveShoot(msg.ReadVector2(), msg.ReadVector2());
+							p.ReceiveShoot(msg.ReadVector2(), msg.ReadVector2(), msg.ReadByte());
 
 						break;
 					}

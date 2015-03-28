@@ -96,7 +96,7 @@ public abstract class Weapon
 		reloadTimer.IsDone = true;
 	}
 
-	public abstract Projectile CreateProjectile(Vector2 target, int index);
+	public abstract Projectile CreateProjectile(Vector2 target, int id);
 
 	public void OnShoot()
 	{
@@ -123,7 +123,7 @@ public abstract class Weapon
 	{
 		if ((fireType == WeaponStats.FireType.Single || fireType == WeaponStats.FireType.SingleTimed)
 			&& CanShoot)
-			owner.Shoot(MouseInput.Current.Position);
+			owner.SendShoot(MouseInput.Current.Position);
 
 		releasable = true;
 	}
@@ -134,7 +134,7 @@ public abstract class Weapon
 			return;
 
 		if (fireType == WeaponStats.FireType.Auto && CanShoot)
-			owner.Shoot(MouseInput.Current.Position);
+			owner.SendShoot(MouseInput.Current.Position);
 		else if (fireType == WeaponStats.FireType.Charge)
 		{
 			charge += Game.delta;
@@ -153,7 +153,7 @@ public abstract class Weapon
 		if (!releasable) return;
 
 		if (fireType == WeaponStats.FireType.Charge)
-			owner.Shoot(MouseInput.Current.Position);
+			owner.SendShoot(MouseInput.Current.Position, charge);
 
 		charge = 0;
 		overChargeTimer.Reset();

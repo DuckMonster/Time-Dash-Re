@@ -54,6 +54,9 @@ public class SYMap : Map
 			foreach (SYCreep e in creepList)
 				if (e != null) yield return e;
 
+			foreach (SYTower t in towerList)
+				if (t != null) yield return t;
+
 			foreach (Actor a in base.Actors)
 				yield return a;
 		}
@@ -67,7 +70,7 @@ public class SYMap : Map
 	public SYTower SpawnTower(SYTowerPoint point)
 	{
 		int id = NextTowerID;
-		SYTower tower = new SYTower(id, point, point.position, this);
+		SYTower tower = new SYTower(id, point, point.Position, this);
 		towerList[id] = tower;
 
 		return tower;
@@ -113,7 +116,7 @@ public class SYMap : Map
 		Player p = base.PlayerJoin(c, name);
 		PlayerJoinTeam(p, p.id % 2);
 
-		p.position = GetFreeSpawnPosition(p);
+		p.Position = GetFreeSpawnPosition(p);
 		p.SendPositionToPlayerForce(playerList);
 
 		foreach (SYScrap s in scrapList)
@@ -164,16 +167,6 @@ public class SYMap : Map
 		foreach (SYStash s in stashList) if (s != null) s.Logic();
 		foreach (SYCreepCamp c in campList) c.Logic();
 		foreach (SYTower t in towerList) if (t != null) t.Logic();
-
-		if (playerList[0] != null)
-		{
-			tempTimer.Logic();
-			if (tempTimer.IsDone)
-			{
-				//CreateScrap(playerList[0].position);
-				tempTimer.Reset();
-			}
-		}
 	}
 
 	public override Vector2 GetFreeSpawnPosition(Player p)
@@ -185,7 +178,7 @@ public class SYMap : Map
 		do
 		{
 			pos = spawnPoints[p.team.id].GetSpawnPosition();
-		} while (GetCollision(pos, p.size));
+		} while (GetCollision(pos, p.Size));
 
 		return pos;
 	}

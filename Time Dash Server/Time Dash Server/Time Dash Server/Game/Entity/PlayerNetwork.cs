@@ -30,7 +30,7 @@ public partial class Player : Actor
 			SendPositionToPlayerForce(this);
 		else
 		{
-			this.position = position;
+			this.Position = position;
 			this.velocity = velocity;
 		}
 	}
@@ -42,7 +42,7 @@ public partial class Player : Actor
 		if (dodgeTarget != null)
 			DodgeEnd();
 
-		this.position = position;
+		this.Position = position;
 
 		if (IsOnGround) Jump();
 		else if (WallTouch != 0) WallJump();
@@ -85,14 +85,14 @@ public partial class Player : Actor
 
 	public void ReceiveShoot(Vector2 position, Vector2 target)
 	{
-		this.position = position;
+		this.Position = position;
 
 		Shoot(target);
 	}
 
 	public void ReceiveShoot(Vector2 position, Vector2 target, float charge)
 	{
-		this.position = position;
+		this.Position = position;
 		weapon.Charge = charge;
 
 		Shoot(target);
@@ -146,9 +146,9 @@ public partial class Player : Actor
 		SendMessageToPlayer(GetPositionMessage(), false, players);
 	}
 
-	public void SendHitToPlayer(float dmg, float dir, Actor attacker, params Player[] players)
+	public void SendHitToPlayer(float dmg, float dir, params Player[] players)
 	{
-		SendMessageToPlayer(GetHitMessage(dmg, dir, attacker), false, players);
+		SendMessageToPlayer(GetHitMessage(dmg, dir), false, players);
 	}
 
 	public void SendHitToPlayer(float dmg, float dir, Projectile proj, params Player[] players)
@@ -186,14 +186,14 @@ public partial class Player : Actor
 		SendMessageToPlayer(GetDashMessage(start, target), true, players);
 	}
 
-	public void SendShootToPlayer(Vector2 position, Vector2 hitpos, params Player[] players)
+	public void SendShootToPlayer(Vector2 position, Vector2 hitpos, int projID, params Player[] players)
 	{
-		SendMessageToPlayer(GetShootMessage(position, hitpos), true, players);
+		SendMessageToPlayer(GetShootMessage(position, hitpos, projID), false, players);
 	}
 
-	public void SendShootToPlayer(Vector2 position, Vector2 hitpos, float charge, params Player[] players)
+	public void SendShootToPlayer(Vector2 position, Vector2 hitpos, int projID, float charge, params Player[] players)
 	{
-		SendMessageToPlayer(GetShootMessage(position, hitpos, charge), true, players);
+		SendMessageToPlayer(GetShootMessage(position, hitpos, projID, charge), false, players);
 	}
 
 	public void SendEquipWeaponToPlayer(int id, params Player[] players)
@@ -253,7 +253,7 @@ public partial class Player : Actor
 
 		msg.WriteShort((short)Protocol.PlayerInput);
 		msg.WriteByte(id);
-		msg.WriteVector(position);
+		msg.WriteVector(Position);
 		msg.WriteVector(velocity);
 		msg.WriteByte(inputData.GetFlag());
 
@@ -277,7 +277,7 @@ public partial class Player : Actor
 
 		msg.WriteShort((short)Protocol.PlayerJump);
 		msg.WriteByte(id);
-		msg.WriteVector(position);
+		msg.WriteVector(Position);
 
 		return msg;
 	}
@@ -288,40 +288,23 @@ public partial class Player : Actor
 
 		msg.WriteShort((short)Protocol.PlayerPosition);
 		msg.WriteByte(id);
-		msg.WriteVector(position);
+		msg.WriteVector(Position);
 		msg.WriteVector(velocity);
 
 		return msg;
 	}
 
-	MessageBuffer GetHitMessage(float dmg, float dir, Actor a)
+	MessageBuffer GetHitMessage(float dmg, float dir)
 	{
 		MessageBuffer msg = new MessageBuffer();
 
-		if (a is Player)
-		{
-			Player p = a as Player;
+		msg.WriteShort((short)Protocol.PlayerHit);
+		msg.WriteByte(id);
 
-			msg.WriteShort((short)Protocol.PlayerHit);
-			msg.WriteByte(id);
-			msg.WriteFloat(dmg);
-			msg.WriteByte(p.id);
-			msg.WriteFloat(dir);
+		msg.WriteFloat(dmg);
+		msg.WriteFloat(dir);
 
-			msg.WriteByte((byte)HitType.Dash);
-		}
-		else
-		{
-			SYCreep e = a as SYCreep;
-
-			msg.WriteShort((short)Protocol.PlayerHit);
-			msg.WriteByte(id);
-			msg.WriteFloat(dmg);
-			msg.WriteByte(e.id);
-			msg.WriteFloat(dir);
-
-			msg.WriteByte((byte)HitType.NPC);
-		}
+		msg.WriteByte((byte)HitType.Dash);
 
 		return msg;
 	}
@@ -332,9 +315,10 @@ public partial class Player : Actor
 
 		msg.WriteShort((short)Protocol.PlayerHit);
 		msg.WriteByte(id);
+
 		msg.WriteFloat(dmg);
-		msg.WriteByte(proj.Owner.id);
 		msg.WriteFloat(dir);
+
 		msg.WriteByte((byte)HitType.Bullet);
 		msg.WriteByte(proj.id);
 
@@ -358,7 +342,7 @@ public partial class Player : Actor
 
 		msg.WriteShort((short)Protocol.PlayerDie);
 		msg.WriteByte(id);
-		msg.WriteVector(position);
+		msg.WriteVector(Position);
 
 		return msg;
 	}
@@ -410,7 +394,7 @@ public partial class Player : Actor
 		return msg;
 	}
 
-	MessageBuffer GetShootMessage(Vector2 position, Vector2 hitPosition)
+	MessageBuffer GetShootMessage(Vector2 position, Vector2 hitPosition, int projID)
 	{
 		MessageBuffer msg = new MessageBuffer();
 
@@ -419,11 +403,13 @@ public partial class Player : Actor
 
 		msg.WriteVector(position);
 		msg.WriteVector(hitPosition);
+
+		msg.WriteByte(projID);
 
 		return msg;
 	}
 
-	MessageBuffer GetShootMessage(Vector2 position, Vector2 hitPosition, float charge)
+	MessageBuffer GetShootMessage(Vector2 position, Vector2 hitPosition, int projID, float charge)
 	{
 		MessageBuffer msg = new MessageBuffer();
 
@@ -432,6 +418,8 @@ public partial class Player : Actor
 
 		msg.WriteVector(position);
 		msg.WriteVector(hitPosition);
+
+		msg.WriteByte(projID);
 		msg.WriteFloat(charge);
 
 		return msg;
@@ -465,8 +453,8 @@ public partial class Player : Actor
 		msg.WriteShort((short)Protocol.PlayerDodgeCollision);
 		msg.WriteByte(id);
 		msg.WriteByte(p.id);
-		msg.WriteVector(position);
-		msg.WriteVector(p.position);
+		msg.WriteVector(Position);
+		msg.WriteVector(p.Position);
 
 		return msg;
 	}
@@ -478,8 +466,8 @@ public partial class Player : Actor
 		msg.WriteShort((short)Protocol.PlayerDashCollision);
 		msg.WriteByte(id);
 		msg.WriteByte(p.id);
-		msg.WriteVector(position);
-		msg.WriteVector(p.position);
+		msg.WriteVector(Position);
+		msg.WriteVector(p.Position);
 
 		return msg;
 	}
@@ -491,7 +479,7 @@ public partial class Player : Actor
 		msg.WriteShort((short)Protocol.ServerPosition);
 		msg.WriteByte(id);
 
-		msg.WriteVector(position);
+		msg.WriteVector(Position);
 
 		return msg;
 	}

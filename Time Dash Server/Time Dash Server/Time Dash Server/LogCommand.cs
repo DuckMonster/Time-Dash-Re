@@ -116,7 +116,7 @@ public class LogCommand
 		if (p != null)
 		{
 			Log.Write(ConsoleColor.Green, "Stats for {0}", id);
-			Log.Write(ConsoleColor.Yellow, "Health {0} | Position {1}", p.health, p.position);
+			Log.Write(ConsoleColor.Yellow, "Health {0} | Position {1}", p.health, p.Position);
 		}
 		else
 		{

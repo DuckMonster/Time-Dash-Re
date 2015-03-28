@@ -75,7 +75,7 @@ public abstract class Weapon
 		ammo = maxAmmo;
 	}
 
-	public abstract Projectile CreateProjectile(Vector2 target, int index);
+	public abstract Projectile CreateProjectile(Vector2 target);
 
 	public void OnShoot()
 	{

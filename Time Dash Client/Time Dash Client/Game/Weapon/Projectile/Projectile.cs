@@ -3,7 +3,7 @@
 public class Projectile : Entity
 {
 	public int id;
-	protected Player owner;
+	protected Actor owner;
 	protected Vector2 velocity;
 
 	bool active = true;
@@ -13,11 +13,13 @@ public class Projectile : Entity
 		get { return active; }
 	}
 
-	public Projectile(Player owner, int id, Map map)
-		: base(owner.position, map)
+	public Projectile(Actor owner, int id, Vector2 position, Map map)
+		: base(position, map)
 	{
 		this.owner = owner;
 		this.id = id;
+
+		Map.AddProjectile(this);
 	}
 
 	public override void Logic()
@@ -29,12 +31,14 @@ public class Projectile : Entity
 
 	public virtual void OnHit(Actor a)
 	{
-		position = a.position;
+		position = a.Position;
+		Hit();
 	}
 
 	public virtual void Hit()
 	{
 		active = false;
+		Map.RemoveProjectile(this);
 	}
 
 	public override void Draw()

@@ -177,9 +177,6 @@ public partial class Player : Actor
 		base.Dispose();
 		playerTileset.Dispose();
 
-		foreach (Projectile b in projectileList)
-			if (b != null) b.Dispose();
-
 		hud.Dispose();
 	}
 
@@ -230,9 +227,6 @@ public partial class Player : Actor
 	{
 		hud.Logic();
 		weapon.Logic();
-
-		foreach (Projectile p in projectileList)
-			if (p != null) p.Logic();
 
 		if (!IsAlive) return;
 
@@ -379,7 +373,7 @@ public partial class Player : Actor
 				weapon.Press();
 			if (input[PlayerKey.Shoot] && oldInput[PlayerKey.Shoot])
 				weapon.Hold();
-			if (!input[PlayerKey.Shoot])
+			if (!input[PlayerKey.Shoot] && oldInput[PlayerKey.Shoot])
 				weapon.Release();
 		}
 		else
@@ -521,9 +515,6 @@ public partial class Player : Actor
 
 		//if (shadow != null && IsLocalPlayer && (dashCooldown.IsDone || IsDashing) && !Disabled) shadow.Draw();
 		if (IsLocalPlayer && (CanDash || IsDashing)) shadow.Draw();
-
-		foreach (Projectile p in projectileList)
-			if (p != null) p.Draw();
 	}
 
 	public virtual void DrawHUD()

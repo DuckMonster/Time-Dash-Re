@@ -145,7 +145,7 @@ public class Actor : Entity
 		if (Map.GetCollision(this, velocity * Game.delta))
 			velocity = Vector2.Zero;
 
-		position += velocity * Game.delta;
+		Position += velocity * Game.delta;
 
 		if (velocity.X > 0) dir = 1;
 		if (velocity.X < 0) dir = -1;

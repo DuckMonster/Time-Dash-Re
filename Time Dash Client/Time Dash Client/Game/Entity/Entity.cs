@@ -14,7 +14,15 @@ public class Entity : IDisposable
 		}
 	}
 
-	public Vector2 position, size = new Vector2(0.6f, 0.6f);
+	protected Vector2 position, size = new Vector2(0.6f, 0.6f);
+	public virtual Vector2 Position
+	{
+		get { return position; }
+	}
+	public virtual Vector2 Size
+	{
+		get { return size; }
+	}
 
 	public Mesh mesh;
 

@@ -20,6 +20,7 @@ public class SYPlayer : Player
 	public SYPlayer(int id, string name, Client client, Vector2 position, Map m)
 		: base(id, name, client, position, m)
 	{
+		scrap = 1;
 	}
 
 	public override void Die()
@@ -27,7 +28,7 @@ public class SYPlayer : Player
 		base.Die();
 
 		for (int i = 0; i < scrap; i++)
-			Map.CreateScrap(position);
+			Map.CreateScrap(Position);
 
 		scrap = 0;
 	}
@@ -52,7 +53,7 @@ public class SYPlayer : Player
 
 		foreach (SYScrap scrap in Map.scrapList)
 			if (scrap != null && scrap.Grabbable)
-				if (scrap.CollidesWith(position, size))
+				if (scrap.CollidesWith(Position, Size))
 					CollectScrap(scrap);
 	}
 }

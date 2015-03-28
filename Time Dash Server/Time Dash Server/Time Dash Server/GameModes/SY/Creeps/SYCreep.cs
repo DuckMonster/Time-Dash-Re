@@ -38,7 +38,7 @@ public class SYCreep : Actor
 	public override void Hit(float dmg, float dir, Actor a, float force = 0)
 	{
 		base.Hit(dmg, dir, a);
-		SendHitToPlayer(dmg, dir, a, Map.playerList);
+		SendHitToPlayer(dmg, dir, Map.playerList);
 
 		if (force != 0)
 			SendPositionToPlayer(Map.playerList);
@@ -63,7 +63,7 @@ public class SYCreep : Actor
 		base.Die();
 		SendDieToPlayer(Map.playerList);
 		Map.RemoveEnemy(id);
-		Map.CreateScrap(position);
+		Map.CreateScrap(Position);
 	}
 
 	public virtual void ReachIdleTarget()
@@ -75,8 +75,8 @@ public class SYCreep : Actor
 	public override void Logic()
 	{
 		//base.Logic();
-		Player p = Map.GetActorAtPos<Player>(position, size);
-		if (p != null) p.Hit(1f, TKMath.GetAngle(position, p.position), this, 20f);
+		Player p = Map.GetActorAtPos<Player>(Position, Size);
+		if (p != null) p.Hit(1f, TKMath.GetAngle(Position, p.Position), this, 20f);
 
 		if (!idleTimer.IsDone)
 		{
@@ -106,9 +106,9 @@ public class SYCreep : Actor
 		SendMessageToPlayer(GetIdleMessage(), players);
 	}
 
-	public void SendHitToPlayer(float damage, float dir, Actor attacker, params Player[] players)
+	public void SendHitToPlayer(float damage, float dir, params Player[] players)
 	{
-		SendMessageToPlayer(GetHitMessage(damage, dir, attacker), players);
+		SendMessageToPlayer(GetHitMessage(damage, dir), players);
 	}
 
 	public void SendHitToPlayer(float damage, float dir, Projectile p, params Player[] players)
@@ -135,7 +135,7 @@ public class SYCreep : Actor
 		msg.WriteShort((short)Protocol_SY.EnemyExistance);
 
 		msg.WriteByte(id);
-		msg.WriteVector(position);
+		msg.WriteVector(Position);
 		msg.WriteVector(velocity);
 
 		return msg;
@@ -149,7 +149,7 @@ public class SYCreep : Actor
 		msg.WriteShort((short)Protocol_SY.EnemyPosition);
 
 		msg.WriteByte(id);
-		msg.WriteVector(position);
+		msg.WriteVector(Position);
 		msg.WriteVector(velocity);
 
 		return msg;
@@ -181,7 +181,7 @@ public class SYCreep : Actor
 		return msg;
 	}
 
-	MessageBuffer GetHitMessage(float dmg, float dir, Actor attacker)
+	MessageBuffer GetHitMessage(float dmg, float dir)
 	{
 		MessageBuffer msg = new MessageBuffer();
 
@@ -189,9 +189,9 @@ public class SYCreep : Actor
 		msg.WriteShort((short)Protocol_SY.EnemyHit);
 
 		msg.WriteByte(id);
+
 		msg.WriteFloat(dmg);
 		msg.WriteFloat(dir);
-		msg.WriteByte((attacker as Player).id);
 
 		msg.WriteByte((byte)HitType.Dash);
 
@@ -206,9 +206,9 @@ public class SYCreep : Actor
 		msg.WriteShort((short)Protocol_SY.EnemyHit);
 
 		msg.WriteByte(id);
+
 		msg.WriteFloat(dmg);
 		msg.WriteFloat(dir);
-		msg.WriteByte(proj.Owner.id);
 
 		msg.WriteByte((byte)HitType.Bullet);
 		msg.WriteByte(proj.id);
@@ -224,7 +224,7 @@ public class SYCreep : Actor
 		msg.WriteShort((short)Protocol_SY.EnemyDie);
 
 		msg.WriteByte(id);
-		msg.WriteVector(position);
+		msg.WriteVector(Position);
 
 		return msg;
 	}

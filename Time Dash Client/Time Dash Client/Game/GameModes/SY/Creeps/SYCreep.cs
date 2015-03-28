@@ -17,6 +17,8 @@ public class SYCreep : Actor
 
 	protected bool idleTargetReached = false;
 
+	CircleBar healthBar = new CircleBar(2f, 0.5f, 90 + 30f, 30f * 2);
+
 	public SYCreep(int id, Vector2 position, Vector2 velocity, Map map)
 		:base(position, map)
 	{
@@ -36,7 +38,7 @@ public class SYCreep : Actor
 		this.velocity = velocity;
 	}
 
-	public void ReceiveHit(float damage, float dir, int actorID, MessageBuffer msg)
+	public void ReceiveHit(float damage, float dir, MessageBuffer msg)
 	{
 		Map.AddEffect(new EffectEnemyHit(this, dir, damage, Map));
 
@@ -46,7 +48,11 @@ public class SYCreep : Actor
 		{
 			case HitType.Bullet:
 				int id = msg.ReadByte();
-				Map.playerList[actorID].ProjectileHit(this, id);
+
+				if (Map.projectileList[id] != null)
+					Map.projectileList[id].OnHit(this);
+				else
+					Log.Write(System.ConsoleColor.Red, "Projectile " + id + " doesn't exist :S");	
 				break;
 
 			case HitType.NPC:
@@ -70,6 +76,8 @@ public class SYCreep : Actor
 	public override void Logic()
 	{
 		//base.Logic();
+		healthBar.Progress = health / MaxHealth;
+		healthBar.Logic();
 	}
 
 	public override void Draw()
@@ -83,5 +91,7 @@ public class SYCreep : Actor
 		mesh.Scale(size);
 
 		mesh.Draw();
+
+		healthBar.Draw(position, Color.Red);
 	}
 }

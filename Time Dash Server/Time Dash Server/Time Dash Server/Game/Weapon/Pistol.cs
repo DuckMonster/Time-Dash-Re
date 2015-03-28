@@ -7,8 +7,8 @@ public class Pistol : Weapon
 	{
 	}
 
-	public override Projectile CreateProjectile(Vector2 target, int index)
+	public override Projectile CreateProjectile(Vector2 target)
 	{
-		return new Bullet(owner, index, damage, target, map);
+		return new Bullet(owner, owner.Position, target, damage, map);
 	}
 }

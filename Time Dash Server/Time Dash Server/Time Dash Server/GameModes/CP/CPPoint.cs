@@ -30,11 +30,11 @@ public class CPPoint : Entity
 	public List<Team> GetContenders()
 	{
 		List<Team> returnList = new List<Team>(5);
-		List<Player> playerList = Map.GetActorRadius<Player>(position, radius);
+		List<Player> playerList = Map.GetActorRadius<Player>(Position, radius);
 
 		foreach (Player p in playerList)
 		{
-			if (p.position.Y < position.Y) continue;
+			if (p.Position.Y < Position.Y) continue;
 			if (!returnList.Contains(p.team)) returnList.Add(p.team);
 		}
 

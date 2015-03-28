@@ -29,7 +29,7 @@ public class Camera
 			if (mouseDelta.Length > 2f)
 				mouseDelta = mouseDelta.Normalized() * 2f;
 
-			Vector2 target = p.position + p.velocity * 0.1f + mouseDelta;
+			Vector2 target = p.Position + p.velocity * 0.1f + mouseDelta;
 			Vector2 difference = target - position.Xy;
 			position.Xy += difference * 5f * Game.delta;
 

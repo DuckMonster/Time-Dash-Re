@@ -40,8 +40,8 @@ public class SYCreepCamp : Entity
 	{
 		rectangle = rect;
 
-		position = new Vector2(rectangle.X + rectangle.Width / 2, rectangle.Y + rectangle.Height / 2);
-		size = new Vector2(rectangle.Width, rectangle.Height);
+		Position = new Vector2(rectangle.X + rectangle.Width / 2, rectangle.Y + rectangle.Height / 2);
+		Size = new Vector2(rectangle.Width, rectangle.Height);
 	}
 
 	public void SpawnCreeps()

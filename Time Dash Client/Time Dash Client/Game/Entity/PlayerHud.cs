@@ -108,13 +108,13 @@ public class PlayerHud : IDisposable
 	public void Draw()
 	{
 		if (!player.DodgeCooldown.IsDone)
-			dodgeBar.Draw(player.position, player.Color);
+			dodgeBar.Draw(player.Position, player.Color);
 
 		if (!player.DashCooldown.IsDone)
-			dashBar.Draw(player.position, player.Color);
+			dashBar.Draw(player.Position, player.Color);
 
 		#region Health
-		healthBar.Draw(player.position, new Color(1f, 0f, 0f, healthAlpha));
+		healthBar.Draw(player.Position, new Color(1f, 0f, 0f, healthAlpha));
 		#endregion
 
 		#region Ammo
@@ -138,7 +138,7 @@ public class PlayerHud : IDisposable
 
 					ammoMesh.Reset();
 
-					ammoMesh.Translate(player.position);
+					ammoMesh.Translate(player.Position);
 					ammoMesh.Rotate(d);
 					ammoMesh.Translate(f * 2f, 0);
 					ammoMesh.Scale(0.4f, 0.15f);
@@ -151,7 +151,7 @@ public class PlayerHud : IDisposable
 
 					ammoMesh.Reset();
 
-					ammoMesh.Translate(player.position);
+					ammoMesh.Translate(player.Position);
 					ammoMesh.Rotate(d);
 					ammoMesh.Translate(2f, 0f);
 					ammoMesh.Scale(0.4f, 0.15f);
@@ -162,13 +162,13 @@ public class PlayerHud : IDisposable
 		}
 
 		if (player.weapon.ReloadProgress != -1)
-			reloadBar.Draw(player.position, Color.White);
+			reloadBar.Draw(player.Position, Color.White);
 
 		if (player.weapon.RearmProgress != -1 && player.weapon.FireType == WeaponStats.FireType.SingleTimed)
-			rearmBar.Draw(player.position, Color.White);
+			rearmBar.Draw(player.Position, Color.White);
 
 		if (player.weapon.Charge != 0 && player.weapon.FireType == WeaponStats.FireType.Charge)
-			rearmBar.Draw(player.position, Color.White);
+			rearmBar.Draw(player.Position, Color.White);
 
 		if (!ammoUseTimer.IsDone)
 		{
@@ -180,7 +180,7 @@ public class PlayerHud : IDisposable
 
 			ammoMesh.Reset();
 
-			ammoMesh.Translate(player.position);
+			ammoMesh.Translate(player.Position);
 			ammoMesh.Rotate(d);
 			ammoMesh.Translate(2f, 0);
 			ammoMesh.Scale(0.4f, 0.15f);

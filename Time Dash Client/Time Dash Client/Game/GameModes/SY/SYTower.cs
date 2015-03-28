@@ -21,6 +21,11 @@ public class SYTower : Actor
 		}
 	}
 
+	public override Vector2 Position
+	{
+		get { return TurretPosition; }
+	}
+
 	public SYTower(int id, SYTowerPoint point, Vector2 position, Map map)
 		:base(position, map)
 	{
@@ -43,22 +48,35 @@ public class SYTower : Actor
 			target = Map.playerList[playerID];
 	}
 
+	public void ReceiveShoot(Vector2 target, int projID)
+	{
+		new Bullet(this, projID, new Vector2(1f, 0.8f), TurretPosition, target, Map);
+	}
+
+	public void ReceiveHit(float damage, float direction, int projID)
+	{
+		Hit(damage);
+
+		if (Map.projectileList[projID] != null)
+			Map.projectileList[projID].OnHit(this);
+
+		Map.AddEffect(new EffectRing(TurretPosition, 6f, 1.2f, Color.White, Map));
+	}
+
 	public override void Logic()
 	{
 		if (target != null)
 		{
-			float targetDir = TKMath.GetAngle(TurretPosition, target.position);
+			float targetDir = TKMath.GetAngle(TurretPosition, target.Position);
 
-			float dif = Math.Abs(targetDir - aimDir);
+			float dif = targetDir - aimDir;
 
-			if (dif + 360 < dif)
-				targetDir += 360;
-			if (Math.Abs(dif - 360) < dif)
-				targetDir -= 360;
+			while (dif > 180)
+				dif -= 360;
+			while (dif < -180)
+				dif += 360;
 
-			Log.Debug(aimDir + " | " + targetDir);
-
-			aimDir += (targetDir - aimDir) * 4f * Game.delta;
+			aimDir += dif * 4f * Game.delta;
 			aimDir = TKMath.Mod(aimDir, -180, 180);
 		}
 		else

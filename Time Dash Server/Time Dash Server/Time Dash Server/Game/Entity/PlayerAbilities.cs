@@ -120,13 +120,13 @@ public partial class Player : Actor
 	#region Dodgeing
 	public void Dodge(DodgeTarget dt)
 	{
-		position = dt.startPosition;
+		Position = dt.startPosition;
 		Dodge(dt.direction);
 	}
 
 	public void Dodge(Direction d)
 	{
-		dodgeTarget = new DodgeTarget(position, d);
+		dodgeTarget = new DodgeTarget(Position, d);
 	}
 
 	public void DodgeStep()
@@ -162,15 +162,15 @@ public partial class Player : Actor
 		}
 
 		Vector2 collisionPosition;
-		bool collision = Map.RayTraceCollision(position, position + step, size, out collisionPosition);
+		bool collision = Map.RayTraceCollision(Position, Position + step, Size, out collisionPosition);
 
-		step = collisionPosition - position;
+		step = collisionPosition - Position;
 
 		dodgeTarget.stepLength = speedFactor;
 		dodgeTarget.stepAngle = TKMath.GetAngle(step);
 
-		position = collisionPosition;
-		if (dodgeTarget.TargetReached(position) || collision)
+		Position = collisionPosition;
+		if (dodgeTarget.TargetReached(Position) || collision)
 			DodgeEnd();
 	}
 
@@ -196,13 +196,13 @@ public partial class Player : Actor
 
 	public void Dash(DashTarget t)
 	{
-		position = t.startPosition;
+		Position = t.startPosition;
 		Dash(t.endPosition);
 	}
 
 	public void Dash(Vector2 target)
 	{
-		dashTarget = new DashTarget(position, target);
+		dashTarget = new DashTarget(Position, target);
 		dashCooldown.Reset();
 	}
 
@@ -215,37 +215,45 @@ public partial class Player : Actor
 
 		Vector2 stepSize = direction * speedFactor * stats.DashVelocity * Game.delta;
 
-		if (stepSize.Length > (dashTarget.endPosition - position).Length)
+		if (stepSize.Length > (dashTarget.endPosition - Position).Length)
 		{
 			DashEnd();
 			return;
 		}
 
-		Vector2 stepTarget = position + stepSize;
+		Vector2 stepTarget = Position + stepSize;
 
 		//Check for players
-		List<Player> actorCol = Map.RayTraceActor<Player>(position, stepTarget, size * 1.8f, this);
+		List<Actor> actorCol = Map.RayTraceActor<Actor>(Position, stepTarget, Size * 1.8f, this);
 		if (actorCol.Count > 0)
 		{
-			foreach (Player p in actorCol)
+			foreach (Actor a in actorCol)
 			{
-				if (p.IsDashing)
+				if (a is Player)
 				{
-					DashEnd((Player)actorCol[0]);
-					((Player)actorCol[0]).DashEnd(this);
+					Player p = a as Player;
 
-					SendDashCollisionToPlayer((Player)actorCol[0], Map.playerList);
+					if (p.IsDashing)
+					{
+						DashEnd((Player)actorCol[0]);
+						((Player)actorCol[0]).DashEnd(this);
 
-					return;
-				}
-				else if (!p.IsDodging && !AlliedWith(p))
+						SendDashCollisionToPlayer((Player)actorCol[0], Map.playerList);
+
+						return;
+					}
+					else if (!p.IsDodging && !AlliedWith(p))
+					{
+						a.Hit(p.MaxHealth, TKMath.GetAngle(direction), this);
+					}
+				} else
 				{
-					p.Hit(p.MaxAmmo, TKMath.GetAngle(direction), this);
+					a.Hit(a.MaxHealth, TKMath.GetAngle(direction), this);
 				}
 			}
 		} 
 
-		position += stepSize;
+		Position += stepSize;
 	}
 
 	public void DashEnd()
@@ -255,13 +263,13 @@ public partial class Player : Actor
 
 	public void DashEnd(Player p)
 	{
-		velocity = ((position - p.position).Normalized() + new Vector2(0, 1)).Normalized() * 20f;
+		velocity = ((Position - p.Position).Normalized() + new Vector2(0, 1)).Normalized() * 20f;
 		dashTarget = null;
 	}
 
 	public void DashEnd(Vector2 start, Vector2 end, Vector2 velo)
 	{
-		position = end;
+		Position = end;
 		velocity = velo;
 
 		dashTarget = null;
@@ -270,21 +278,15 @@ public partial class Player : Actor
 	}
 	#endregion
 
-	Projectile[] projectileList = new Projectile[10];
-	int projectileIndex = 0;
-
 	public void Shoot(Vector2 target)
 	{
-		if (weapon.FireType == WeaponStats.FireType.Charge)
-			SendShootToPlayer(position, target, weapon.Charge, Map.playerList);
-		else
-			SendShootToPlayer(position, target, Map.playerList);
-
-		projectileList[projectileIndex] = weapon.CreateProjectile(target, projectileIndex);
-		projectileList[projectileIndex].Logic();
-		projectileIndex = (projectileIndex + 1) % projectileList.Length;
-
+		Projectile p = weapon.CreateProjectile(target);
 		weapon.OnShoot();
+
+		if (weapon.FireType == WeaponStats.FireType.Charge)
+			SendShootToPlayer(Position, target, p.id, weapon.Charge, Map.playerList);
+		else
+			SendShootToPlayer(Position, target, p.id, Map.playerList);
 	}
 
 	public static Direction GetInputDirection(PlayerInput input)

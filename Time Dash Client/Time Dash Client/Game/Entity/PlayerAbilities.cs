@@ -272,41 +272,20 @@ public partial class Player : Actor
 	}
 	#endregion
 
-	Projectile[] projectileList = new Projectile[10];
-	int projectileIndex = 0;
-
-	public void Shoot(Vector2 target)
+	public void Shoot(Vector2 target, int projectileID)
 	{
 		if (Ammo <= 0) return;
 
-		if (IsLocalPlayer)
+		/*if (IsLocalPlayer)
 		{
 			if (weapon.FireType == WeaponStats.FireType.Charge)
 				SendShoot(target, weapon.Charge);
 			else
 				SendShoot(target);
-		}
+		}*/
 
-		if (projectileList[projectileIndex] != null)
-			RemoveProjectile(projectileIndex);
-
-		projectileList[projectileIndex] = weapon.CreateProjectile(target, projectileIndex);
-		projectileList[projectileIndex].Logic();
-		projectileIndex = (projectileIndex + 1) % projectileList.Length;
-
+		weapon.CreateProjectile(target, projectileID);
 		weapon.OnShoot();
-	}
-
-	internal void ProjectileHit(Actor a, int bulletID)
-	{
-		projectileList[bulletID].OnHit(a);
-		RemoveProjectile(bulletID);
-	}
-
-	public void RemoveProjectile(int index)
-	{
-		projectileList[index].Dispose();
-		projectileList[index] = null;
 	}
 
 	public static Direction GetInputDirection(PlayerInput input, Player p)

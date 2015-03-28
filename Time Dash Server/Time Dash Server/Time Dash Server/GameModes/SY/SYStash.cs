@@ -53,12 +53,12 @@ public abstract class SYStash : Entity
 
 	public override void Logic()
 	{
-		List<Player> playerList = Map.GetActorRadius<Player>(position, areaSize/2);
+		List<Player> playerList = Map.GetActorRadius<Player>(Position, areaSize/2);
 
 		foreach (Player p in playerList)
 			if (p != null)
 			{
-				if (p.position.Y >= position.Y && ((SYPlayer)p).Scrap > 0 && (p.position - position).Length <= areaSize / 2)
+				if (p.Position.Y >= Position.Y && ((SYPlayer)p).Scrap > 0 && (p.Position - Position).Length <= areaSize / 2)
 					Hold(p.id);
 				else
 					progress[p.id] = 0;

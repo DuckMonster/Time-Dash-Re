@@ -27,7 +27,7 @@ public class CPMap : Map
 			point.SendProgressToPlayer(p);
 		}
 
-		p.position = GetFreeSpawnPosition(p);
+		p.Position = GetFreeSpawnPosition(p);
 		p.SendPositionToPlayerForce(playerList);
 
 		return p;

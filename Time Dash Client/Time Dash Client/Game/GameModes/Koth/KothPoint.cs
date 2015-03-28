@@ -54,7 +54,7 @@ public class KothPoint : Scoreboard
 		Player contender = null;
 		foreach (Player p in playerList)
 		{
-			if (p.position.Y < position.Y) continue;
+			if (p.Position.Y < Position.Y) continue;
 
 			if (contender == null) contender = p;
 			else

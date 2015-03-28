@@ -151,7 +151,7 @@ public class SYMap : Map
 						break;
 
 					case Protocol_SY.EnemyHit:
-						creepList[msg.ReadByte()].ReceiveHit(msg.ReadFloat(), msg.ReadFloat(), msg.ReadByte(), msg);
+						creepList[msg.ReadByte()].ReceiveHit(msg.ReadFloat(), msg.ReadFloat(), msg);
 						break;
 
 					case Protocol_SY.EnemyTarget:
@@ -167,7 +167,7 @@ public class SYMap : Map
 							int id = msg.ReadByte();
 							SYTowerPoint stash = stashList[msg.ReadByte()] as SYTowerPoint;
 
-							towerList[id] = new SYTower(id, stash, stash.position, this);
+							towerList[id] = new SYTower(id, stash, stash.Position, this);
 							break;
 						}
 
@@ -179,6 +179,13 @@ public class SYMap : Map
 						towerList[msg.ReadByte()].ReceiveTarget(msg.ReadByte());
 						break;
 
+					case Protocol_SY.TowerShoot:
+						towerList[msg.ReadByte()].ReceiveShoot(msg.ReadVector2(), msg.ReadByte());
+						break;
+
+					case Protocol_SY.TowerHit:
+						towerList[msg.ReadByte()].ReceiveHit(msg.ReadFloat(), msg.ReadFloat(), msg.ReadByte());
+						break;
 				}
 			}
 		}
