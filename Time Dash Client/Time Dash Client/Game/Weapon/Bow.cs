@@ -9,6 +9,7 @@ public class Bow : Weapon
 
 	public override Projectile CreateProjectile(Vector2 target, int index)
 	{
-		return new Arrow(owner, index, owner.Position, target, Charge, map);
+		Vector2 startPos = owner.Position + (target - owner.Position).Normalized() * 0.5f;
+		return new Arrow(owner, index, startPos, target, Charge, map);
 	}
 }

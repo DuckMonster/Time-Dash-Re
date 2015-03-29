@@ -180,7 +180,7 @@ public partial class Player : Actor
 			(proj.Owner as Player).OnKill(this);
 
 		if (force != 0)
-			SendPositionToPlayer(Map.playerList);
+			SendPositionToPlayerForce(Map.playerList);
 	}
 
 	public override void Hit(float dmg)

@@ -14,7 +14,7 @@ public static class EffectCone
 		{
 			Vector2 pos = new Vector2(
 				((float)rng.NextDouble()) * 2f - 1f,
-				((float)rng.NextDouble()) * 2f - 1f) * 0.4f;
+				((float)rng.NextDouble()) * 2f - 1f) * 0.4f * smokesize;
 
 			float dir = ((float)rng.NextDouble() * 2f - 1f) * 45f + direction;
 			float size = 1f - ((float)rng.NextDouble() * .5f);
@@ -31,7 +31,7 @@ public static class EffectCone
 		{
 			Vector2 pos = new Vector2(
 				((float)rng.NextDouble()) * 2f - 1f,
-				((float)rng.NextDouble()) * 2f - 1f) * 0.8f;
+				((float)rng.NextDouble()) * 2f - 1f) * 0.8f * smokesize;
 
 			pos *= smokesize;
 

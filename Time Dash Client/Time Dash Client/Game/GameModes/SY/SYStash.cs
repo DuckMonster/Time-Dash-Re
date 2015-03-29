@@ -69,11 +69,16 @@ public class SYStash : Entity
 			scrap = targetScrap;
 	}
 
-	public void AddScrap(int n)
+	public int AddScrap(int n)
 	{
+		if (scrap + n > targetScrap)
+			n = (targetScrap - scrap);
+
 		SetScrap(scrap + n);
 		Map.AddEffect(new EffectRing(position, 8f, 1.2f, Color.White, Map));
 		progress = 0;
+
+		return n;
 	}
 
 	public void Hold()

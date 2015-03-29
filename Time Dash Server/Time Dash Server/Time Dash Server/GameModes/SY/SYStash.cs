@@ -30,8 +30,11 @@ public abstract class SYStash : Entity
 
 	public abstract void Finish();
 
-	public void AddScrap(int nmbr, int id)
+	public int AddScrap(int nmbr, int id)
 	{
+		if (scrap + nmbr > targetScrap)
+			nmbr = (targetScrap - scrap);
+
 		scrap += nmbr;
 		progress[id] = 0;
 
@@ -42,6 +45,8 @@ public abstract class SYStash : Entity
 			scrap = targetScrap;
 			Finish();
 		}
+
+		return nmbr;
 	}
 
 	void Hold(int id)

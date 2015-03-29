@@ -4,6 +4,7 @@ using TKTools;
 public class Grenade : Projectile
 {
 	Timer smokeTimer = new Timer(0.002f, true);
+	Random rng = new Random();
 
 	public Grenade(Actor owner, int id, Vector2 position, Vector2 target, Map map)
 		: base(owner, id, position, map)
@@ -32,20 +33,15 @@ public class Grenade : Projectile
 		smokeTimer.Logic();
 		if (smokeTimer.IsDone)
 		{
-			Random rng = new Random();
 			float dir = (float)rng.NextDouble() * 360f;
+			float size = 0.6f + (float)rng.NextDouble() * 0.4f;
 			Vector2 offset = new Vector2((float)rng.NextDouble() - 0.5f, (float)rng.NextDouble() - 0.5f) * 0.3f;
 
-			Map.AddEffect(new EffectSmoke(position + offset, 0.4f, 0.8f, dir, 0.4f, EffectSmoke.defaultColor, Map));
+			Map.AddEffect(new EffectSmoke(position + offset, 0.4f * size, 0.8f, dir, 0.4f, EffectSmoke.defaultColor, Map));
 			smokeTimer.Reset();
 		}
 
 		base.Logic();
-	}
-
-	public override void OnHit(Actor a)
-	{
-		base.OnHit(a);
 	}
 
 	public override void Hit()

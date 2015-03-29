@@ -182,6 +182,6 @@ public class Stats
 public enum HitType
 {
 	Dash,
-	Bullet,
+	Projectile,
 	NPC
 }

@@ -18,7 +18,7 @@ namespace ServerTracker
 
 		public Server(Socket s, Program prog)
 		{
-			this.program = prog;
+			program = prog;
 			socket = s;
 
 			endpoint = (IPEndPoint)s.RemoteEndPoint;
@@ -41,7 +41,7 @@ namespace ServerTracker
 			{
 				socket.Send(new byte[] { 0 });
 				if (socket.Available > 0)
-					Console.WriteLine("Read " + socket.Receive(new byte[6000]));
+					socket.Receive(new byte[6000]);
 			}
 			catch (Exception e)
 			{

@@ -38,8 +38,8 @@ public class SYPlayer : Player
 
 	public void ReturnScrap(SYStash stash)
 	{
-		stash.AddScrap(scrap);
-		scrap = 0;
+		int scrapReturned = stash.AddScrap(scrap);
+		scrap -= scrapReturned;
 	}
 
 	public override void DrawHUD()

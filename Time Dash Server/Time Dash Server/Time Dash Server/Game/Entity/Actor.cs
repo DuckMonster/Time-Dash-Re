@@ -47,7 +47,7 @@ public class Actor : Entity
 		}
 	}
 
-	public virtual int MaxHealth
+	public virtual float MaxHealth
 	{
 		get { return stats.PlayerHealth; }
 	}

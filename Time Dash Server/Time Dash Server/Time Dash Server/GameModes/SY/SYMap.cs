@@ -91,6 +91,11 @@ public class SYMap : Map
 	{
 		creepList[id] = null;
 	}
+	
+	public void TowerDestroyed(SYTower t)
+	{
+		towerList[t.id] = null;
+	}
 
 	public void CreateScrap(Vector2 position)
 	{
@@ -166,7 +171,6 @@ public class SYMap : Map
 		foreach (SYScrap s in scrapList) if (s != null) s.Logic();
 		foreach (SYStash s in stashList) if (s != null) s.Logic();
 		foreach (SYCreepCamp c in campList) c.Logic();
-		foreach (SYTower t in towerList) if (t != null) t.Logic();
 	}
 
 	public override Vector2 GetFreeSpawnPosition(Player p)

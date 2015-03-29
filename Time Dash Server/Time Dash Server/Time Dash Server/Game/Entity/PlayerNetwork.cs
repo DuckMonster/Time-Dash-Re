@@ -319,8 +319,9 @@ public partial class Player : Actor
 		msg.WriteFloat(dmg);
 		msg.WriteFloat(dir);
 
-		msg.WriteByte((byte)HitType.Bullet);
+		msg.WriteByte((byte)HitType.Projectile);
 		msg.WriteByte(proj.id);
+		msg.WriteVector(proj.Position);
 
 		return msg;
 	}

@@ -1,6 +1,4 @@
 ﻿using OpenTK;
-using System;
-using System.Collections.Generic;
 using TKTools;
 
 public class Bullet : Projectile
@@ -15,6 +13,8 @@ public class Bullet : Projectile
 		directionVector = (target - position).Normalized();
 		direction = TKMath.GetAngle(directionVector);
 
+		velocity = directionVector * Stats.defaultStats.BulletVelocity;
+
 		size = new Vector2(0.1f, 0.1f);
 		bulletSize = bsize;
 	}
@@ -23,7 +23,7 @@ public class Bullet : Projectile
 	{
 		if (!Active) return;
 
-		Vector2 stepVector = directionVector * Stats.defaultStats.BulletVelocity * Game.delta;
+		Vector2 stepVector = velocity * Game.delta;
 
 		if (Map.GetCollision(this, stepVector))
 		{
@@ -32,13 +32,14 @@ public class Bullet : Projectile
 			position = collidePos;
 
 			Hit();
-		} else position += directionVector * Stats.defaultStats.BulletVelocity * Game.delta;
-	}
+		}
+		else position += stepVector;
+    }
 
-	public override void OnHit(Actor a)
+	public override void OnHit(Actor a, Vector2 hitpos)
 	{
-		base.OnHit(a);
 		hitActor = a;
+		base.OnHit(a, hitpos);
 	}
 
 	Actor hitActor = null;

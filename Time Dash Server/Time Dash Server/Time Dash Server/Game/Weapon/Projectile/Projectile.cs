@@ -1,7 +1,7 @@
 ﻿using EZUDP;
 using OpenTK;
 using TKTools;
-public class Projectile : Entity
+public abstract class Projectile : Entity
 {
 	public int id = -1;
 	protected Actor owner;
@@ -30,6 +30,8 @@ public class Projectile : Entity
 		this.owner = owner;
 		this.damage = damage;
 		id = map.AddProjectile(this);
+
+		Logic();
 	}
 
 	public override void Logic()

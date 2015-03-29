@@ -196,6 +196,12 @@ public class Mesh : IDisposable
 		}
 	}
 
+	public Matrix4 ModelMaxtrix
+	{
+		get { return modelMatrix; }
+		set { modelMatrix = value; }
+	}
+
 	public Mesh(PrimitiveType pt)
 	{
 		primitiveType = pt;

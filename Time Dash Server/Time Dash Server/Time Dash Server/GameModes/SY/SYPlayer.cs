@@ -12,15 +12,27 @@ public class SYPlayer : Player
 
 	int scrap = 0;
 
+	Timer creepHitTimer = new Timer(0.4f, true);
+
 	public int Scrap
 	{
 		get { return scrap; }
+	}
+
+	public bool VulnerableToCreep
+	{
+		get { return creepHitTimer.IsDone; }
 	}
 
 	public SYPlayer(int id, string name, Client client, Vector2 position, Map m)
 		: base(id, name, client, position, m)
 	{
 		scrap = 1;
+	}
+
+	public void HitByCreep()
+	{
+		creepHitTimer.Reset();
 	}
 
 	public override void Die()
@@ -35,8 +47,8 @@ public class SYPlayer : Player
 
 	public void ReturnScrap(SYStash stash)
 	{
-		stash.AddScrap(scrap, id);
-		scrap = 0;
+		int scrapReturned = stash.AddScrap(scrap, id);
+		scrap -= scrapReturned;
 	}
 
 	public void CollectScrap(SYScrap s)

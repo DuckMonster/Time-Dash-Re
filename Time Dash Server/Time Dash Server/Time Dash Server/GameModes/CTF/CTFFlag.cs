@@ -26,7 +26,7 @@ public class CTFFlag : Entity
 		}
 	}
 
-	public Vector2 Position
+	public override Vector2 Position
 	{
 		get
 		{

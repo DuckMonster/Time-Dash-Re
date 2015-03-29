@@ -66,6 +66,7 @@
     <Compile Include="Game\Effects\EffectCollision.cs" />
     <Compile Include="Game\Effects\EffectEnemyHit.cs" />
     <Compile Include="Game\Effects\EffectExplosion.cs" />
+    <Compile Include="Game\Effects\EffectImpactQuad.cs" />
     <Compile Include="Game\Effects\EffectPlayerHit.cs" />
     <Compile Include="Game\Effects\EffectRing.cs" />
     <Compile Include="Game\Effects\EffectRockSmoke.cs" />
@@ -75,6 +76,7 @@
     <Compile Include="Game\Effects\EffectBlood.cs" />
     <Compile Include="Game\Effects\EffectSpike.cs" />
     <Compile Include="Game\Effects\EffectSmoke.cs" />
+    <Compile Include="Game\Effects\EffectTowerHit.cs" />
     <Compile Include="Game\Entity\Actor.cs" />
     <Compile Include="Game\GameModes\SY\Creeps\SYCreep.cs" />
     <Compile Include="Game\GameModes\SY\Creeps\SYFlyer.cs" />
@@ -114,6 +116,8 @@
     <Compile Include="Game\Team.cs" />
     <Compile Include="Game\UI\CircleBar.cs" />
     <Compile Include="Game\Weapon\Pistol.cs" />
+    <Compile Include="Game\Weapon\Projectile\SlowBullet.cs" />
+    <Compile Include="Game\Weapon\Projectile\TowerBullet.cs" />
     <Compile Include="Game\Weapon\Rifle.cs" />
     <Compile Include="Game\Weapon\Weapon.cs" />
     <Compile Include="KeyboardInput.cs" />
@@ -138,6 +142,9 @@
     <None Include="Maps\factory_sy.tdm">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="Maps\factory_sy_temp.tdm">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="Maps\temple_dm.tdm">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -155,7 +162,19 @@
     <Content Include="icon.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="Res\cannon_base.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Res\cannon_brl.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Res\cannon_head.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Res\circlebig.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Res\creep.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Res\flag.png">
@@ -171,6 +190,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Res\jacktilesetnew.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Res\scrap.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Res\shadowArrow.png">

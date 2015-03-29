@@ -8,6 +8,11 @@ public class SYTower : Actor
 {
 	static readonly float TurretHeight = 5f;
 
+	new SYMap Map
+	{
+		get { return base.Map as SYMap; }
+	}
+
 	public readonly int id;
 
 	SYTowerPoint point;
@@ -16,13 +21,25 @@ public class SYTower : Actor
 	float aimDir = 0f;
 
 	Timer playerSearchTimer = new Timer(0.5f, true);
-	Timer shootTimer = new Timer(0.5f, false);
+
+	Timer reloadTimer = new Timer(1.2f, false);
+	Timer shootTimer = new Timer(0.2f, false);
+
+	int ammo = 0;
 
 	public Vector2 TurretPosition
 	{
 		get
 		{
 			return position + new Vector2(0, TurretHeight);
+		}
+	}
+
+	public override float MaxHealth
+	{
+		get
+		{
+			return 20f;
 		}
 	}
 
@@ -45,9 +62,17 @@ public class SYTower : Actor
 
 	public override void Hit(float dmg, float dir, Projectile proj, float force = 0)
 	{
-		base.Hit(dmg, dir, proj, force);
-
 		SendHitToPlayer(dmg, dir, proj, Map.playerList);
+		base.Hit(dmg, dir, proj, force);
+	}
+
+	public override void Die()
+	{
+		base.Die();
+		SendDieToPlayer(Map.playerList);
+
+		point.Reset();
+		Map.TowerDestroyed(this);
 	}
 
 	public override bool CollidesWith(Vector2 pos, float radius)
@@ -71,10 +96,11 @@ public class SYTower : Actor
 	{
 		if (target == null) return;
 
-		Projectile p = new Bullet(this, TurretPosition, target.Position, 0.5f, Map);
+		Vector2 dirVec = TKMath.GetAngleVector(aimDir);
+		Projectile p = new TowerBullet(this, TurretPosition + dirVec * 1.2f, TurretPosition + dirVec * 5f, 2f, Map);
 
-		SendShootToPlayer(target.Position, p, Map.playerList);
-		shootTimer.Reset();
+		SendShootToPlayer(TurretPosition + dirVec * 5f, p, Map.playerList);
+		ammo--;
 	}
 
 	public override void Logic()
@@ -83,7 +109,7 @@ public class SYTower : Actor
 		{
 			Vector2 outPos;
 
-			if ((target.Position - Position).Length > 20f || Map.RayTraceCollision(TurretPosition, target.Position, Vector2.Zero, out outPos))
+			if (!target.IsAlive || (target.Position - Position).Length > 20f || Map.RayTraceCollision(TurretPosition, target.Position, Vector2.Zero, out outPos))
 			{
 				SetTarget(null);
 			}
@@ -91,20 +117,35 @@ public class SYTower : Actor
 			{
 				float targetDir = TKMath.GetAngle(TurretPosition, target.Position);
 
-				float dif = Math.Abs(targetDir - aimDir);
+				float dif = targetDir - aimDir;
 
-				if (dif + 360 < dif)
-					targetDir += 360;
-				if (Math.Abs(dif - 360) < dif)
-					targetDir -= 360;
+				while (dif > 180)
+					dif -= 360;
+				while (dif < -180)
+					dif += 360;
 
-				aimDir += (targetDir - aimDir) * 4f * Game.delta;
+				aimDir += dif * 8f * Game.delta;
 				aimDir = TKMath.Mod(aimDir, -180, 180);
 
-				shootTimer.Logic();
+				if (ammo <= 0)
+				{
+					reloadTimer.Logic();
 
-				//if (shootTimer.IsDone)
-				//	Shoot();
+					if (reloadTimer.IsDone)
+					{
+						ammo = 5;
+						reloadTimer.Reset();
+					}
+				} else
+				{
+					shootTimer.Logic();
+
+					if (shootTimer.IsDone)
+					{
+						Shoot();
+						shootTimer.Reset();
+					}
+				}
 			}
 		} else
 		{
@@ -155,6 +196,11 @@ public class SYTower : Actor
 	public void SendHitToPlayer(float dmg, float dir, Projectile p, params Player[] player)
 	{
 		SendMessageToPlayer(GetHitMessage(dmg, dir, p), player);
+	}
+
+	public void SendDieToPlayer(params Player[] player)
+	{
+		SendMessageToPlayer(GetDieMessage(), player);
 	}
 
 	void SendMessageToPlayer(MessageBuffer msg, params Player[] player)
@@ -228,6 +274,19 @@ public class SYTower : Actor
 		msg.WriteFloat(dir);
 
 		msg.WriteByte(p.id);
+		msg.WriteVector(p.Position);
+
+		return msg;
+	}
+
+	MessageBuffer GetDieMessage()
+	{
+		MessageBuffer msg = new MessageBuffer();
+
+		msg.WriteShort((short)Protocol.MapArgument);
+		msg.WriteShort((short)Protocol_SY.TowerDie);
+
+		msg.WriteByte(id);
 
 		return msg;
 	}

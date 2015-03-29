@@ -18,7 +18,7 @@ public class Actor : Entity
 
 	public float health;
 
-	public float MaxHealth
+	public virtual float MaxHealth
 	{
 		get
 		{

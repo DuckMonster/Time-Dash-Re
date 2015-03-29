@@ -5,7 +5,7 @@ public class SYTowerPoint : SYStash
 	public SYTower tower;
 
 	public SYTowerPoint(int id, Vector2 position, Map m)
-		: base(id, 2f, 10, position, m)
+		: base(id, 2f, 1, position, m)
 	{
 
 	}

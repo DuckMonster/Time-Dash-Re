@@ -1,8 +1,10 @@
 ﻿using OpenTK;
+using System;
 using TKTools;
 public class SYScrap : Entity
 {
-	public static Texture scrapTexture = new Texture("Res/circlebig.png");
+	public static Texture scrapTexture = new Texture("Res/scrap.png");
+	static Random rng = new Random();
 
 	protected new SYMap Map
 	{
@@ -11,6 +13,9 @@ public class SYScrap : Entity
 
 	public int id;
 	Vector2 velocity;
+	float rotation;
+
+	Timer ringTimer = new Timer(1.2f, false);
 
 	public SYScrap(int id, Vector2 position, Vector2 velocity, Map map)
 		: base(position, map)
@@ -21,6 +26,8 @@ public class SYScrap : Entity
 
 		size = new Vector2(0.5f, 0.5f);
 		mesh.Texture = scrapTexture;
+
+		rotation = 360f * (float)rng.NextDouble();
 	}
 
 	public void CollectedBy(Player p)
@@ -36,12 +43,21 @@ public class SYScrap : Entity
 		position += velocity * Game.delta;
 		velocity -= velocity * 6f * Game.delta;
 
+		rotation += 35f * Game.delta;
+
 		if (velocity.LengthFast > 0.5f)
 		{
 			if (Map.GetCollision(this, new Vector2(velocity.X, 0) * Game.delta))
 				velocity.X *= -0.6f;
 			if (Map.GetCollision(this, new Vector2(0, velocity.Y) * Game.delta))
 				velocity.Y *= -0.6f;
+		}
+
+		ringTimer.Logic();
+		if (ringTimer.IsDone)
+		{
+			Map.AddEffect(new EffectRing(Position, 1.5f, 0.7f, Color.White, Map));
+			ringTimer.Reset();
 		}
 	}
 
@@ -51,6 +67,7 @@ public class SYScrap : Entity
 
 		mesh.Translate(position);
 		mesh.Scale(size);
+		mesh.Rotate(rotation);
 
 		mesh.Draw();
 	}

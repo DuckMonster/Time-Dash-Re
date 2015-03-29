@@ -92,6 +92,8 @@
     <Compile Include="Game\Weapon\Projectile\Bullet.cs" />
     <Compile Include="Game\Weapon\Projectile\Grenade.cs" />
     <Compile Include="Game\Weapon\Projectile\Projectile.cs" />
+    <Compile Include="Game\Weapon\Projectile\SlowBullet.cs" />
+    <Compile Include="Game\Weapon\Projectile\TowerBullet.cs" />
     <Compile Include="Game\Weapon\Rifle.cs" />
     <Compile Include="Game\Weapon\Weapon.cs" />
     <Compile Include="Log.cs" />
@@ -107,6 +109,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Maps\factory_sy.tdm">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Maps\factory_sy_temp.tdm">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Maps\temple_dm.tdm">

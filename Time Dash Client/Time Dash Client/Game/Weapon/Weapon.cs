@@ -60,7 +60,7 @@ public abstract class Weapon
 	public float Charge
 	{
 		get { return charge / maxCharge; }
-		set { charge = value * maxCharge; }
+		set { charge = value; }
 	}
 
 	Timer reloadTimer = new Timer(1f, true);
@@ -104,8 +104,8 @@ public abstract class Weapon
 
 		ammo--;
 		owner.hud.UseAmmo(ammo);
-
 		rearmTimer.Reset();
+		charge = 0;
 
 		if (ammo <= 0) Reload();
 	}

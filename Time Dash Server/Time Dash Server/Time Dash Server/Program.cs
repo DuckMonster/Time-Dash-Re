@@ -18,6 +18,7 @@ class Program
 		} else
 		{
 			Game.serverName = args[0];
+			TrackerHandler.doConnect = false;
 		}
 
 		UdpClient client = new UdpClient();

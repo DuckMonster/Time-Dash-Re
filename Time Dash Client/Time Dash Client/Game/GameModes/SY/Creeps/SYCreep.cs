@@ -17,7 +17,7 @@ public class SYCreep : Actor
 
 	protected bool idleTargetReached = false;
 
-	CircleBar healthBar = new CircleBar(2f, 0.5f, 90 + 30f, 30f * 2);
+	CircleBar healthBar = new CircleBar(2f, 0.15f, 90 + 50f, -50f * 2);
 
 	public SYCreep(int id, Vector2 position, Vector2 velocity, Map map)
 		:base(position, map)
@@ -29,13 +29,24 @@ public class SYCreep : Actor
 	public override void Die(Vector2 diePos)
 	{
 		base.Die(diePos);
-		EffectExplosion.CreateExplosion(diePos, 1f, Map);
+		EffectExplosion.CreateExplosion(diePos, 0.7f, Map);
+
+		Map.RemoveEnemy(this);
 	}
 
-	public void ReceivePosition(Vector2 position, Vector2 velocity)
+	public virtual void ReceivePosition(Vector2 position, Vector2 velocity)
 	{
 		this.position = position;
 		this.velocity = velocity;
+	}
+
+	public virtual void ReceiveShoot(Vector2 target, int projID)
+	{
+		//DO NOTHING :DDDD
+	}
+
+	public virtual void ReceiveCharge()
+	{
 	}
 
 	public void ReceiveHit(float damage, float dir, MessageBuffer msg)
@@ -46,11 +57,12 @@ public class SYCreep : Actor
 
 		switch(type)
 		{
-			case HitType.Bullet:
+			case HitType.Projectile:
 				int id = msg.ReadByte();
+				Vector2 hitpos = msg.ReadVector2();
 
 				if (Map.projectileList[id] != null)
-					Map.projectileList[id].OnHit(this);
+					Map.projectileList[id].OnHit(this, hitpos);
 				else
 					Log.Write(System.ConsoleColor.Red, "Projectile " + id + " doesn't exist :S");	
 				break;
@@ -92,6 +104,7 @@ public class SYCreep : Actor
 
 		mesh.Draw();
 
-		healthBar.Draw(position, Color.Red);
+		if (health < MaxHealth)
+			healthBar.Draw(position, Color.Red);
 	}
 }

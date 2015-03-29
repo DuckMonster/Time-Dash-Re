@@ -10,7 +10,7 @@ public class EffectRockSmoke : Effect
 	Vector2 velocity;
 
 	Timer effectTimer = new Timer(0.9f, false);
-	Timer smokeTimer = new Timer(0.03f, false);
+	Timer smokeTimer = new Timer(0.03f, true);
 
 	bool ignoreCollision = true;
 
@@ -25,7 +25,7 @@ public class EffectRockSmoke : Effect
 		smokeSize = (float)rng.NextDouble() * 0.5f + 0.5f;
 		smokeSize *= size;
 
-		velocity = TKMath.GetAngleVector(direction) * 15 * smokeSize;
+		velocity = TKMath.GetAngleVector(direction) * 25 * smokeSize;
 
 		effectTimer.Reset(smokeSize);
 	}
@@ -47,7 +47,7 @@ public class EffectRockSmoke : Effect
 
 		effectTimer.Logic();
 
-		velocity.Y -= Stats.defaultStats.Gravity * Game.delta;
+		velocity.Y -= Stats.defaultStats.Gravity * 0.7f * Game.delta;
 		velocity.X -= velocity.X * 0.8f * Game.delta;
 
 		if (!ignoreCollision)
@@ -73,7 +73,7 @@ public class EffectRockSmoke : Effect
 
 			map.AddEffect(new EffectSmoke(position + pos, size, 0.8f, dir, 0.4f, EffectSmoke.defaultColor * color, map));
 
-			smokeTimer.Reset(MathHelper.Clamp((1f - velocity.Length / 10f), 0.03f, 1f) * size);
+			smokeTimer.Reset(MathHelper.Clamp((1f - velocity.Length / 10f), 0.03f, 1f) * size * 0.5f);
 		}
 	}
 

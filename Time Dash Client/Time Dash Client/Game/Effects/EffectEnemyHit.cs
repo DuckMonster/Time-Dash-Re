@@ -17,13 +17,11 @@ public class EffectEnemyHit : Effect
 		mesh.Vertices = enemy.mesh.Vertices;
 		mesh.UV = enemy.mesh.UV;
 
-		mesh.Reset();
-
-		mesh.Translate(enemy.Position);
-		mesh.Scale(enemy.Size);
-		mesh.Scale(2f);
-
 		mesh.FillColor = true;
+		mesh.Texture = enemy.mesh.Texture;
+
+		mesh.ModelMaxtrix = enemy.mesh.ModelMaxtrix;
+		mesh.Scale(1.2f);
 
 		/*
 		Random rng = new Random();
@@ -36,6 +34,7 @@ public class EffectEnemyHit : Effect
 
 		map.AddEffect(new EffectSpike(enemy.Position - spikeDir, enemy.Position + spikeDir,
 			2f * size, 0.4f, Color.White, map));
+		map.AddEffect(new EffectImpactQuad(enemy.Position, size, map));
 	}
 
 	public override void Dispose()

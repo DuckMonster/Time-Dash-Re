@@ -72,12 +72,13 @@ public partial class Player
 	{
 		Map.AddEffect(new EffectPlayerHit(this, dir, dmg, Map));
 
-		if ((HitType)msg.ReadByte() == HitType.Bullet)
+		if ((HitType)msg.ReadByte() == HitType.Projectile)
 		{
 			int id = msg.ReadByte();
+			Vector2 hitpos = msg.ReadVector2();
 
 			if (Map.projectileList[id] != null)
-				Map.projectileList[id].OnHit(this);
+				Map.projectileList[id].OnHit(this, hitpos);
 		}
 
 		Hit(dmg);

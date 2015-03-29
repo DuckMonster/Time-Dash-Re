@@ -16,12 +16,9 @@ public class SYCreep : Actor
 	protected Vector2 idleTarget;
 	protected Timer idleTimer = new Timer(4f, true);
 
-	public override int MaxHealth
+	public override float MaxHealth
 	{
-		get
-		{
-			return 2;
-		}
+		get { return 1.5f; }
 	}
 
 	public SYCreep(int id, Vector2 position, SYCreepCamp camp, Map map)
@@ -37,8 +34,8 @@ public class SYCreep : Actor
 
 	public override void Hit(float dmg, float dir, Actor a, float force = 0)
 	{
-		base.Hit(dmg, dir, a);
 		SendHitToPlayer(dmg, dir, Map.playerList);
+		base.Hit(dmg, dir, a);
 
 		if (force != 0)
 			SendPositionToPlayer(Map.playerList);
@@ -46,16 +43,11 @@ public class SYCreep : Actor
 
 	public override void Hit(float dmg, float dir, Projectile proj, float force = 0)
 	{
-		base.Hit(dmg, dir, proj);
 		SendHitToPlayer(dmg, dir, proj, Map.playerList);
+		base.Hit(dmg, dir, proj);
 
 		if (force != 0)
 			SendPositionToPlayer(Map.playerList);
-	}
-
-	public override void Hit(float dmg)
-	{
-		base.Hit(dmg);
 	}
 
 	public override void Die()
@@ -70,13 +62,19 @@ public class SYCreep : Actor
 	{
 		Random rng = new Random();
 		idleTimer.Reset((float)rng.NextDouble() * 3f + 1f);
+
+		SendIdleReachedToPlayer(Map.playerList);
 	}
 
 	public override void Logic()
 	{
 		//base.Logic();
-		Player p = Map.GetActorAtPos<Player>(Position, Size);
-		if (p != null) p.Hit(1f, TKMath.GetAngle(Position, p.Position), this, 20f);
+		SYPlayer p = Map.GetActorAtPos<SYPlayer>(Position, Size);
+		if (p != null && p.VulnerableToCreep)
+		{
+			p.Hit(1f, TKMath.GetAngle(Position, p.Position), this, 20f);
+			p.HitByCreep();
+		}
 
 		if (!idleTimer.IsDone)
 		{
@@ -106,6 +104,11 @@ public class SYCreep : Actor
 		SendMessageToPlayer(GetIdleMessage(), players);
 	}
 
+	public void SendIdleReachedToPlayer(params Player[] players)
+	{
+		SendMessageToPlayer(GetIdleReachedMessage(), players);
+	}
+
 	public void SendHitToPlayer(float damage, float dir, params Player[] players)
 	{
 		SendMessageToPlayer(GetHitMessage(damage, dir), players);
@@ -119,6 +122,11 @@ public class SYCreep : Actor
 	public void SendDieToPlayer(params Player[] players)
 	{
 		SendMessageToPlayer(GetDieMessage(), players);
+	}
+
+	public void SendChargeToPlayer(params Player[] players)
+	{
+		SendMessageToPlayer(GetChargeMessage(), players);
 	}
 
 	void SendMessageToPlayer(MessageBuffer msg, params Player[] players)
@@ -168,6 +176,18 @@ public class SYCreep : Actor
 		return msg;
 	}
 
+	MessageBuffer GetIdleReachedMessage()
+	{
+		MessageBuffer msg = new MessageBuffer();
+
+		msg.WriteShort((short)Protocol.MapArgument);
+		msg.WriteShort((short)Protocol_SY.EnemyIdleReached);
+
+		msg.WriteByte(id);
+
+		return msg;
+	}
+
 	MessageBuffer GetHitMessage(float dmg)
 	{
 		MessageBuffer msg = new MessageBuffer();
@@ -210,8 +230,9 @@ public class SYCreep : Actor
 		msg.WriteFloat(dmg);
 		msg.WriteFloat(dir);
 
-		msg.WriteByte((byte)HitType.Bullet);
+		msg.WriteByte((byte)HitType.Projectile);
 		msg.WriteByte(proj.id);
+		msg.WriteVector(proj.Position);
 
 		return msg;
 	}
@@ -225,6 +246,18 @@ public class SYCreep : Actor
 
 		msg.WriteByte(id);
 		msg.WriteVector(Position);
+
+		return msg;
+	}
+
+	MessageBuffer GetChargeMessage()
+	{
+		MessageBuffer msg = new MessageBuffer();
+
+		msg.WriteShort((short)Protocol.MapArgument);
+		msg.WriteShort((short)Protocol_SY.EnemyCharge);
+
+		msg.WriteByte(id);
 
 		return msg;
 	}

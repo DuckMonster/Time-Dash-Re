@@ -20,6 +20,8 @@ public class Projectile : Entity
 		this.id = id;
 
 		Map.AddProjectile(this);
+
+		Logic();
 	}
 
 	public override void Logic()
@@ -29,9 +31,9 @@ public class Projectile : Entity
 		position += velocity * Game.delta;
 	}
 
-	public virtual void OnHit(Actor a)
+	public virtual void OnHit(Actor a, Vector2 hitpos)
 	{
-		position = a.Position;
+		position = hitpos;
 		Hit();
 	}
 
@@ -44,6 +46,11 @@ public class Projectile : Entity
 	public override void Draw()
 	{
 		if (!Active) return;
+
+		mesh.Reset();
+
+		mesh.Translate(Position);
+		mesh.Scale(Size);
 
 		mesh.Draw();
 	}

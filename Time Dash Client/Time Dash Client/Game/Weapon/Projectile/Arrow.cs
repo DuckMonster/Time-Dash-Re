@@ -77,12 +77,6 @@ public class Arrow : Projectile
 		Vector2 collidePos;
 		bool coll = Map.RayTraceCollision(position, position + stepVector, size, out collidePos);
 
-		if (!coll)
-		{
-			List<Actor> p = Map.RayTraceActor<Actor>(position, position + stepVector, size, owner);
-			if (p.Count > 0) collidePos = position;
-		}
-
 		Map.AddEffect(new ArrowTrace(position, collidePos, startsize, endsize, Map));
 
 		position = collidePos;
@@ -91,6 +85,10 @@ public class Arrow : Projectile
 			Hit();
 
 		//base.Logic();
+	}
+
+	public override void OnHit(Actor a, Vector2 hitpos)
+	{
 	}
 
 	public override void Hit()

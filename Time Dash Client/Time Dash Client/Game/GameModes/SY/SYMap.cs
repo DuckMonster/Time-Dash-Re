@@ -60,6 +60,12 @@ public class SYMap : Map
 		scrapList[id] = null;
 	}
 
+	public void TowerDestroyed(SYTower t)
+	{
+		towerList[t.id] = null;
+		t.Dispose();
+	}
+
 	public override void PlayerJoin(int id, string name)
 	{
 		playerList[id] = new SYPlayer(id, name, Vector2.Zero, this);
@@ -150,6 +156,18 @@ public class SYMap : Map
 						creepList[msg.ReadByte()].ReceiveIdleTarget(msg.ReadVector2());
 						break;
 
+					case Protocol_SY.EnemyIdleReached:
+						creepList[msg.ReadByte()].ReachIdleTarget();
+						break;
+
+					case Protocol_SY.EnemyCharge:
+						creepList[msg.ReadByte()].ReceiveCharge();
+						break;
+
+					case Protocol_SY.EnemyShoot:
+						creepList[msg.ReadByte()].ReceiveShoot(msg.ReadVector2(), msg.ReadByte());
+						break;
+
 					case Protocol_SY.EnemyHit:
 						creepList[msg.ReadByte()].ReceiveHit(msg.ReadFloat(), msg.ReadFloat(), msg);
 						break;
@@ -184,7 +202,11 @@ public class SYMap : Map
 						break;
 
 					case Protocol_SY.TowerHit:
-						towerList[msg.ReadByte()].ReceiveHit(msg.ReadFloat(), msg.ReadFloat(), msg.ReadByte());
+						towerList[msg.ReadByte()].ReceiveHit(msg.ReadFloat(), msg.ReadFloat(), msg.ReadByte(), msg.ReadVector2());
+						break;
+
+					case Protocol_SY.TowerDie:
+						towerList[msg.ReadByte()].ReceiveDie();
 						break;
 				}
 			}

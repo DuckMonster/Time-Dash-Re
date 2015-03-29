@@ -7,6 +7,8 @@ using System.Threading;
 
 public class TrackerHandler
 {
+	public static bool doConnect = true;
+
 	Game game;
 	Socket trackerSocket;
 
@@ -21,7 +23,8 @@ public class TrackerHandler
 
 	public void Connect()
 	{
-		//new Thread(ConnectThread).Start();
+		if (doConnect)
+			new Thread(ConnectThread).Start();
 	}
 
 	static object Lock = new object();

@@ -87,10 +87,15 @@ public enum Protocol_SY
 	EnemyDie,
 	EnemyTarget,
 	EnemyIdle,
+	EnemyIdleReached,
+	EnemyShoot,
+
+	EnemyCharge,
 
 	TowerExistance,
 	TowerTarget,
 	TowerRotation,
 	TowerShoot,
-	TowerHit
+	TowerHit,
+	TowerDie
 }

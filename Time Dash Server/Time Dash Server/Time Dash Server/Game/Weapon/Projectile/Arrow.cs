@@ -4,6 +4,8 @@ using TKTools;
 
 public class Arrow : Projectile
 {
+	List<Actor> hitActors = new List<Actor>();
+
 	public Arrow(Actor owner, Vector2 position, Vector2 target, float damage, float charge, Map map)
 		: base(owner, position, damage * charge, map)
 	{
@@ -20,10 +22,12 @@ public class Arrow : Projectile
 		Vector2 stepVector = velocity * Game.delta;
 
 		List<Actor> actors = Map.RayTraceActor<Actor>(Position, Position + stepVector, Size, owner);
-		if (actors.Count > 0)
+		foreach (Actor a in actors)
 		{
-			Hit(actors[0]);
-			return;
+			if (hitActors.Contains(a)) continue;
+
+			Hit(a);
+			hitActors.Add(a);
 		}
 
 		Vector2 collidePos;
@@ -36,6 +40,11 @@ public class Arrow : Projectile
 			Hit(Position);
 			return;
 		}
+	}
+
+	public override void Hit(Actor a)
+	{
+		a.Hit(Damage, TKMath.GetAngle(velocity), this);
 	}
 
 	public override void Hit(Vector2 position)

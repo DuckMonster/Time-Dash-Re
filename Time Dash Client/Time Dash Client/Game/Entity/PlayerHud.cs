@@ -73,7 +73,7 @@ public class PlayerHud : IDisposable
 			rearmBar.Progress = 1f - player.weapon.RearmProgress;
 			rearmBar.Logic();
 		}
-		else if (player.weapon.Charge != 0 && player.weapon.FireType == WeaponStats.FireType.Charge)
+		else if (player.weapon.FireType == WeaponStats.FireType.Charge)
 		{
 			rearmBar.Progress = player.weapon.Charge;
 			rearmBar.Logic();
