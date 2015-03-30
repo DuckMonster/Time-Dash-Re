@@ -50,8 +50,10 @@ public class SYCreepCamp : Entity
 
 		for (int i = 0; i < 4; i++)
 		{
-			creepList.Add(Map.SpawnEnemy(RandomPosition, this));
+			new SYFlyer(RandomPosition, this, Map);
 		}
+
+		new SYFlyerBig(RandomPosition, this, Map);
 	}
 
 	public override void Logic()

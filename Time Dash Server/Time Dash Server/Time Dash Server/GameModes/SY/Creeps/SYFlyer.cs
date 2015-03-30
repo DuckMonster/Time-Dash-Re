@@ -6,13 +6,13 @@ using TKTools;
 public class SYFlyer : SYCreep
 {
 	static Random rng = new Random();
-	
+
 	Stats chasingStats;
 
 	Player target;
 	Timer updateTimer = new Timer(0.8f, false);
 	Timer shootTimer = new Timer(1.5f, false);
-	Timer chargeTimer = new Timer(0.6f, true);
+	Timer chargeTimer = new Timer(CreepStats.FlyerChargeTime, true);
 
 	public override float Acceleration
 	{
@@ -30,6 +30,16 @@ public class SYFlyer : SYCreep
 		}
 	}
 
+	public float BulletDamage
+	{
+		get { return CreepStats.FlyerBulletDamage; }
+	}
+
+	public float ImpactDamage
+	{
+		get { return CreepStats.FlyerImpactDamage; }
+	}
+
 	Vector2? TargetPosition
 	{
 		get
@@ -39,16 +49,16 @@ public class SYFlyer : SYCreep
 		}
 	}
 	
-	public SYFlyer(int id, Vector2 position, SYCreepCamp camp, Map map)
-		: base(id, position, camp, map)
+	public SYFlyer(Vector2 position, SYCreepCamp camp, Map map)
+		: base(position, camp, map)
 	{
-		stats.MaxVelocity = 2f;
+		stats.MaxVelocity = CreepStats.FlyerIdleSpeed;
 		stats.AccelerationTime = 4f;
 		stats.DecelerationTime = 4f;
 
 		chasingStats = new Stats();
 
-		chasingStats.MaxVelocity = 4f;
+		chasingStats.MaxVelocity = CreepStats.FlyerChaseSpeed;
 		chasingStats.AccelerationTime = 2f;
 		chasingStats.DecelerationTime = 2f;
 	}
@@ -66,11 +76,11 @@ public class SYFlyer : SYCreep
 		if (target == null) return;
 
 		float aimDir = TKMath.GetAngle(target.Position - position);
-		aimDir += ((float)rng.NextDouble() - 0.5f) * 45f;
+		aimDir += ((float)rng.NextDouble() - 0.5f) * 20f;
 
 		Vector2 targetVector = Position + TKMath.GetAngleVector(aimDir);
 
-		Projectile p = new SlowBullet(this, Position, targetVector, 1f, Map);
+		Projectile p = new SlowBullet(this, Position, targetVector, BulletDamage, Map);
 		SendShootToPlayer(targetVector, p, Map.playerList);
 
 		shootTimer.Reset(1f + (float)rng.NextDouble() * 0.8f);
@@ -95,11 +105,14 @@ public class SYFlyer : SYCreep
 		}
 		else
 		{
-			shootTimer.Logic();
-			if (shootTimer.IsDone)
+			if (!shootTimer.IsDone)
 			{
-				chargeTimer.Reset();
-				SendChargeToPlayer(Map.playerList);
+				shootTimer.Logic();
+				if (shootTimer.IsDone)
+				{
+					chargeTimer.Reset();
+					SendChargeToPlayer(Map.playerList);
+				}
 			}
 
 			if (!chargeTimer.IsDone)

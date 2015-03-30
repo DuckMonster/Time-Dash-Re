@@ -30,7 +30,7 @@ public class SYMap : Map
 
 	List<SYCreepCamp> campList = new List<SYCreepCamp>();
 
-	int NextEnemyIndex
+	int NextCreepID
 	{
 		get
 		{
@@ -76,14 +76,12 @@ public class SYMap : Map
 		return tower;
 	}
 
-	public SYCreep SpawnEnemy(Vector2 position, SYCreepCamp camp)
+	public int AddCreep(SYCreep creep)
 	{
-		int id = NextEnemyIndex;
+		int id = NextCreepID;
+		creepList[id] = creep;
 
-		SYCreep c = new SYFlyer(id, position, camp, this);
-
-		creepList[id] = c;
-		return c;
+		return id;
 	}
 
 	public void RemoveEnemy(SYCreep e) { if (e != null) RemoveEnemy(e.id); }

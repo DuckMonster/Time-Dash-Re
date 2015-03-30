@@ -122,7 +122,9 @@ public partial class Player
 
 	public void ReceiveShoot(Vector2 position, Vector2 target, int projID)
 	{
-		this.position = position;
+		if (!IsLocalPlayer)
+			this.position = position;
+
 		Shoot(target, projID);
 	}
 

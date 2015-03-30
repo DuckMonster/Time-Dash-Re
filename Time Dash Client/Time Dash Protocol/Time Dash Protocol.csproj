@@ -46,6 +46,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Creeps.cs" />
     <Compile Include="GameMode.cs" />
     <Compile Include="Stats.cs" />
     <Compile Include="PlayerInput.cs" />

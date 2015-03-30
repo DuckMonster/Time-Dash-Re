@@ -7,7 +7,7 @@ public class SYFlyer : SYCreep
 
 	Player target;
 	Stats chasingStats;
-	Timer chargeTimer = new Timer(0.6f, true);
+	Timer chargeTimer = new Timer(CreepStats.FlyerChargeTime, true);
 
 	public override float Acceleration
 	{
@@ -48,13 +48,13 @@ public class SYFlyer : SYCreep
 		if (texture == null)
 			texture = new Texture("Res/creep.png");
 
-		stats.MaxVelocity = 2f;
+		stats.MaxVelocity = CreepStats.FlyerIdleSpeed;
 		stats.AccelerationTime = 4f;
 		stats.DecelerationTime = 4f;
 
 		chasingStats = new Stats();
 
-		chasingStats.MaxVelocity = 4f;
+		chasingStats.MaxVelocity = CreepStats.FlyerChaseSpeed;
 		chasingStats.AccelerationTime = 2f;
 		chasingStats.DecelerationTime = 2f;
 
@@ -115,6 +115,9 @@ public class SYFlyer : SYCreep
 
 	public override void Draw()
 	{
+		mesh.FillColor = false;
+		mesh.Color = Color.White;
+		
 		mesh.Reset();
 
 		mesh.Translate(Position);
@@ -126,5 +129,13 @@ public class SYFlyer : SYCreep
 		mesh.Rotate(velocity.Y * 6f);
 
 		mesh.Draw();
+
+		if (!chargeTimer.IsDone)
+		{
+			mesh.FillColor = true;
+			mesh.Color = new Color(1f, 1f, 1f, chargeTimer.PercentageDone);
+
+			mesh.Draw();
+		}
 	}
 }

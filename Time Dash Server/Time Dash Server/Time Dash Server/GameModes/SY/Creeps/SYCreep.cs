@@ -21,10 +21,10 @@ public class SYCreep : Actor
 		get { return 1.5f; }
 	}
 
-	public SYCreep(int id, Vector2 position, SYCreepCamp camp, Map map)
+	public SYCreep(Vector2 position, SYCreepCamp camp, Map map)
 		: base(position, map)
 	{
-		this.id = id;
+		id = Map.AddCreep(this);
 
 		creepCamp = camp;
 		idleTarget = camp.RandomPosition;
