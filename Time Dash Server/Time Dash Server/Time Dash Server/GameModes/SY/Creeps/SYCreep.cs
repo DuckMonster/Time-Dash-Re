@@ -5,29 +5,55 @@ using TKTools;
 
 public class SYCreep : Actor
 {
+	protected T GetStat<T>(string statName)
+	{
+		return creepStats.GetStat<T>(statName);
+	}
+
 	protected new SYMap Map
 	{
 		get { return (SYMap)base.Map; }
 	}
 
+	protected virtual CreepType Type
+	{
+		get { return GetStat<CreepType>("type"); }
+	}
+
 	public int id;
 	protected SYCreepCamp creepCamp;
-
-	protected Vector2 idleTarget;
-	protected Timer idleTimer = new Timer(4f, true);
+	CustomStats creepStats;
 
 	public override float MaxHealth
 	{
-		get { return 1.5f; }
+		get
+		{
+			if (creepStats != null)
+				return GetStat<float>("health");
+			else
+				return base.MaxHealth;
+		}
 	}
 
-	public SYCreep(Vector2 position, SYCreepCamp camp, Map map)
+	public float ImpactDamage
+	{
+		get { return GetStat<float>("impactDamage"); }
+	}
+
+	public float ImpactForce
+	{
+		get { return GetStat<float>("impactForce"); }
+	}
+
+	public SYCreep(Vector2 position, SYCreepCamp camp, CustomStats stats, Map map)
 		: base(position, map)
 	{
 		id = Map.AddCreep(this);
 
 		creepCamp = camp;
-		idleTarget = camp.RandomPosition;
+		creepStats = stats;
+
+		health = MaxHealth; //Required because called virtual method in constructor :(
 
 		SendExistanceToPlayer(Map.playerList);
 	}
@@ -54,16 +80,8 @@ public class SYCreep : Actor
 	{
 		base.Die();
 		SendDieToPlayer(Map.playerList);
-		Map.RemoveEnemy(id);
+		Map.RemoveCreep(id);
 		Map.CreateScrap(Position);
-	}
-
-	public virtual void ReachIdleTarget()
-	{
-		Random rng = new Random();
-		idleTimer.Reset((float)rng.NextDouble() * 3f + 1f);
-
-		SendIdleReachedToPlayer(Map.playerList);
 	}
 
 	public override void Logic()
@@ -72,41 +90,19 @@ public class SYCreep : Actor
 		SYPlayer p = Map.GetActorAtPos<SYPlayer>(Position, Size);
 		if (p != null && p.VulnerableToCreep)
 		{
-			p.Hit(1f, TKMath.GetAngle(Position, p.Position), this, 20f);
+			p.Hit(ImpactDamage, TKMath.GetAngle(Position, p.Position), this, ImpactForce);
 			p.HitByCreep();
-		}
-
-		if (!idleTimer.IsDone)
-		{
-			idleTimer.Logic();
-
-			if (idleTimer.IsDone)
-			{
-				idleTarget = creepCamp.RandomPosition;
-				SendIdleToPlayer(Map.playerList);
-			}
 		}
 	}
 
 	public void SendExistanceToPlayer(params Player[] players)
 	{
 		SendMessageToPlayer(GetExistanceMessage(), players);
-		SendIdleToPlayer(players);
 	}
 
 	public void SendPositionToPlayer(params Player[] players)
 	{
 		SendMessageToPlayer(GetPositionMessage(), players);
-	}
-
-	public void SendIdleToPlayer(params Player[] players)
-	{
-		SendMessageToPlayer(GetIdleMessage(), players);
-	}
-
-	public void SendIdleReachedToPlayer(params Player[] players)
-	{
-		SendMessageToPlayer(GetIdleReachedMessage(), players);
 	}
 
 	public void SendHitToPlayer(float damage, float dir, params Player[] players)
@@ -124,12 +120,8 @@ public class SYCreep : Actor
 		SendMessageToPlayer(GetDieMessage(), players);
 	}
 
-	public void SendChargeToPlayer(params Player[] players)
-	{
-		SendMessageToPlayer(GetChargeMessage(), players);
-	}
 
-	void SendMessageToPlayer(MessageBuffer msg, params Player[] players)
+	protected void SendMessageToPlayer(MessageBuffer msg, params Player[] players)
 	{
 		foreach(Player p in players)
 			if (p != null) p.client.Send(msg);
@@ -140,8 +132,9 @@ public class SYCreep : Actor
 		MessageBuffer msg = new MessageBuffer();
 
 		msg.WriteShort((short)Protocol.MapArgument);
-		msg.WriteShort((short)Protocol_SY.EnemyExistance);
+		msg.WriteShort((short)Protocol_SY.CreepExistance);
 
+		msg.WriteByte((byte)Type);
 		msg.WriteByte(id);
 		msg.WriteVector(Position);
 		msg.WriteVector(velocity);
@@ -154,36 +147,11 @@ public class SYCreep : Actor
 		MessageBuffer msg = new MessageBuffer();
 
 		msg.WriteShort((short)Protocol.MapArgument);
-		msg.WriteShort((short)Protocol_SY.EnemyPosition);
+		msg.WriteShort((short)Protocol_SY.CreepPosition);
 
 		msg.WriteByte(id);
 		msg.WriteVector(Position);
 		msg.WriteVector(velocity);
-
-		return msg;
-	}
-
-	MessageBuffer GetIdleMessage()
-	{
-		MessageBuffer msg = new MessageBuffer();
-
-		msg.WriteShort((short)Protocol.MapArgument);
-		msg.WriteShort((short)Protocol_SY.EnemyIdle);
-
-		msg.WriteByte(id);
-		msg.WriteVector(idleTarget);
-
-		return msg;
-	}
-
-	MessageBuffer GetIdleReachedMessage()
-	{
-		MessageBuffer msg = new MessageBuffer();
-
-		msg.WriteShort((short)Protocol.MapArgument);
-		msg.WriteShort((short)Protocol_SY.EnemyIdleReached);
-
-		msg.WriteByte(id);
 
 		return msg;
 	}
@@ -193,7 +161,7 @@ public class SYCreep : Actor
 		MessageBuffer msg = new MessageBuffer();
 
 		msg.WriteShort((short)Protocol.MapArgument);
-		msg.WriteShort((short)Protocol_SY.EnemyHit);
+		msg.WriteShort((short)Protocol_SY.CreepHit);
 
 		msg.WriteByte(id);
 		msg.WriteFloat(dmg);
@@ -206,7 +174,7 @@ public class SYCreep : Actor
 		MessageBuffer msg = new MessageBuffer();
 
 		msg.WriteShort((short)Protocol.MapArgument);
-		msg.WriteShort((short)Protocol_SY.EnemyHit);
+		msg.WriteShort((short)Protocol_SY.CreepHit);
 
 		msg.WriteByte(id);
 
@@ -223,7 +191,7 @@ public class SYCreep : Actor
 		MessageBuffer msg = new MessageBuffer();
 
 		msg.WriteShort((short)Protocol.MapArgument);
-		msg.WriteShort((short)Protocol_SY.EnemyHit);
+		msg.WriteShort((short)Protocol_SY.CreepHit);
 
 		msg.WriteByte(id);
 
@@ -242,22 +210,10 @@ public class SYCreep : Actor
 		MessageBuffer msg = new MessageBuffer();
 
 		msg.WriteShort((short)Protocol.MapArgument);
-		msg.WriteShort((short)Protocol_SY.EnemyDie);
+		msg.WriteShort((short)Protocol_SY.CreepDie);
 
 		msg.WriteByte(id);
 		msg.WriteVector(Position);
-
-		return msg;
-	}
-
-	MessageBuffer GetChargeMessage()
-	{
-		MessageBuffer msg = new MessageBuffer();
-
-		msg.WriteShort((short)Protocol.MapArgument);
-		msg.WriteShort((short)Protocol_SY.EnemyCharge);
-
-		msg.WriteByte(id);
 
 		return msg;
 	}

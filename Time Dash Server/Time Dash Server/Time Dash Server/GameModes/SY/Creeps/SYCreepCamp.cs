@@ -48,12 +48,11 @@ public class SYCreepCamp : Entity
 	{
 		creepList.Clear();
 
-		for (int i = 0; i < 4; i++)
+		for (int i = 0; i < 1; i++)
 		{
-			new SYFlyer(RandomPosition, this, Map);
+			SYCreep c = new SYScroot(RandomPosition, this, Map);
+			creepList.Add(c);
 		}
-
-		new SYFlyerBig(RandomPosition, this, Map);
 	}
 
 	public override void Logic()

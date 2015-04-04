@@ -12,18 +12,23 @@ public class SYCreep : Actor
 		}
 	}
 
+	protected T GetStat<T>(string statName)
+	{
+		return creepStats.GetStat<T>(statName);
+	}
+
 	public int id;
-	protected Vector2 idleTarget;
 
-	protected bool idleTargetReached = false;
-
+	CustomStats creepStats;
 	CircleBar healthBar = new CircleBar(2f, 0.15f, 90 + 50f, -50f * 2);
 
-	public SYCreep(int id, Vector2 position, Vector2 velocity, Map map)
+	public SYCreep(int id, Vector2 position, Vector2 velocity, CustomStats stats, Map map)
 		:base(position, map)
 	{
 		this.id = id;
 		this.velocity = velocity;
+
+		creepStats = stats;
 	}
 
 	public override void Die(Vector2 diePos)
@@ -31,22 +36,13 @@ public class SYCreep : Actor
 		base.Die(diePos);
 		EffectExplosion.CreateExplosion(diePos, 0.7f, Map);
 
-		Map.RemoveEnemy(this);
+		Map.RemoveCreep(this);
 	}
 
 	public virtual void ReceivePosition(Vector2 position, Vector2 velocity)
 	{
 		this.position = position;
 		this.velocity = velocity;
-	}
-
-	public virtual void ReceiveShoot(Vector2 target, int projID)
-	{
-		//DO NOTHING :DDDD
-	}
-
-	public virtual void ReceiveCharge()
-	{
 	}
 
 	public void ReceiveHit(float damage, float dir, MessageBuffer msg)
@@ -74,15 +70,8 @@ public class SYCreep : Actor
 		Hit(damage);
 	}
 
-	public void ReceiveIdleTarget(Vector2 target)
+	public virtual void ReceiveCustom(MessageBuffer msg)
 	{
-		idleTarget = target;
-		idleTargetReached = false;
-	}
-
-	public virtual void ReachIdleTarget()
-	{
-		idleTargetReached = true;
 	}
 
 	public override void Logic()

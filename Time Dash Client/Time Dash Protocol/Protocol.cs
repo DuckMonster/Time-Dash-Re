@@ -81,16 +81,12 @@ public enum Protocol_SY
 	ScrapReturn,
 	StashScrapAmount,
 
-	EnemyExistance,
-	EnemyPosition,
-	EnemyHit,
-	EnemyDie,
-	EnemyTarget,
-	EnemyIdle,
-	EnemyIdleReached,
-	EnemyShoot,
-
-	EnemyCharge,
+	CreepExistance,
+	CreepPosition,
+	CreepHit,
+	CreepDie,
+	CreepShoot,
+	CreepCustom,
 
 	TowerExistance,
 	TowerTarget,

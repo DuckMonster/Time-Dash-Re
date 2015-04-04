@@ -68,6 +68,7 @@
     <Compile Include="GameModes\SY\Creeps\SYCreepCamp.cs" />
     <Compile Include="GameModes\SY\Creeps\SYFlyer.cs" />
     <Compile Include="GameModes\SY\Creeps\SYFlyerBig.cs" />
+    <Compile Include="GameModes\SY\Creeps\SYScroot.cs" />
     <Compile Include="GameModes\SY\SYBase.cs" />
     <Compile Include="GameModes\SY\SYMap.cs" />
     <Compile Include="GameModes\SY\SYPlayer.cs" />

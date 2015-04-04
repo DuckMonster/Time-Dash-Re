@@ -40,6 +40,8 @@ public class SYMap : Map
 			{
 				if (creepList[creepIndex] == null) return creepIndex;
 				creepIndex = (creepIndex + 1) % creepList.Length;
+
+				tries--;
 			}
 
 			return -1;
@@ -76,16 +78,23 @@ public class SYMap : Map
 		return tower;
 	}
 
+<<<<<<< HEAD
 	public int AddCreep(SYCreep creep)
 	{
 		int id = NextCreepID;
 		creepList[id] = creep;
+=======
+	public int AddCreep(SYCreep c)
+	{
+		int id = NextEnemyIndex;
+		creepList[id] = c;
+>>>>>>> 158fa93d08c213a30865b5b4e38d33a033021b38
 
 		return id;
 	}
 
-	public void RemoveEnemy(SYCreep e) { if (e != null) RemoveEnemy(e.id); }
-	public void RemoveEnemy(int id)
+	public void RemoveCreep(SYCreep e) { if (e != null) RemoveCreep(e.id); }
+	public void RemoveCreep(int id)
 	{
 		creepList[id] = null;
 	}
