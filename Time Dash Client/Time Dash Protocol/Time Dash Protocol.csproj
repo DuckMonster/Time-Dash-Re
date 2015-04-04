@@ -46,6 +46,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CreepProtocol.cs" />
+    <Compile Include="CustomStats.cs" />
     <Compile Include="GameMode.cs" />
     <Compile Include="Stats.cs" />
     <Compile Include="PlayerInput.cs" />

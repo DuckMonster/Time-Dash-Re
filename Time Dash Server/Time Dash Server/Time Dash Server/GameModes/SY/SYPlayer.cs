@@ -63,6 +63,8 @@ public class SYPlayer : Player
 
 		if (!IsAlive) return;
 
+		creepHitTimer.Logic();
+
 		foreach (SYScrap scrap in Map.scrapList)
 			if (scrap != null && scrap.Grabbable)
 				if (scrap.CollidesWith(Position, Size))

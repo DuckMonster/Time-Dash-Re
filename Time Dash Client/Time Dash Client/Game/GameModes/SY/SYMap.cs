@@ -30,14 +30,20 @@ public class SYMap : Map
 	{
 	}
 
-	public void SpawnEnemy(int id, Vector2 position, Vector2 velocity)
+	public void SpawnCreep(CreepType type, int id, Vector2 position, Vector2 velocity)
 	{
-		if (creepList[id] != null) RemoveEnemy(id);
-		creepList[id] = new SYFlyer(id, position, velocity, this);
+		if (creepList[id] != null) RemoveCreep(id);
+
+		switch(type)
+		{
+			case CreepType.Scroot:
+				creepList[id] = new SYScroot(id, position, velocity, this);
+				break;
+		}
 	}
 
-	public void RemoveEnemy(SYCreep e) { if (e != null) RemoveEnemy(e.id); }
-	public void RemoveEnemy(int id)
+	public void RemoveCreep(SYCreep e) { if (e != null) RemoveCreep(e.id); }
+	public void RemoveCreep(int id)
 	{
 		if (creepList[id] == null) return;
 
@@ -144,40 +150,24 @@ public class SYMap : Map
 						stashList[msg.ReadByte()].SetScrap(msg.ReadShort());
 						break;
 
-					case Protocol_SY.EnemyExistance:
-						SpawnEnemy(msg.ReadByte(), msg.ReadVector2(), msg.ReadVector2());
+					case Protocol_SY.CreepExistance:
+						SpawnCreep((CreepType)msg.ReadByte(), msg.ReadByte(), msg.ReadVector2(), msg.ReadVector2());
 						break;
 
-					case Protocol_SY.EnemyPosition:
+					case Protocol_SY.CreepPosition:
 						creepList[msg.ReadByte()].ReceivePosition(msg.ReadVector2(), msg.ReadVector2());
 						break;
 
-					case Protocol_SY.EnemyIdle:
-						creepList[msg.ReadByte()].ReceiveIdleTarget(msg.ReadVector2());
-						break;
-
-					case Protocol_SY.EnemyIdleReached:
-						creepList[msg.ReadByte()].ReachIdleTarget();
-						break;
-
-					case Protocol_SY.EnemyCharge:
-						creepList[msg.ReadByte()].ReceiveCharge();
-						break;
-
-					case Protocol_SY.EnemyShoot:
-						creepList[msg.ReadByte()].ReceiveShoot(msg.ReadVector2(), msg.ReadByte());
-						break;
-
-					case Protocol_SY.EnemyHit:
+					case Protocol_SY.CreepHit:
 						creepList[msg.ReadByte()].ReceiveHit(msg.ReadFloat(), msg.ReadFloat(), msg);
 						break;
 
-					case Protocol_SY.EnemyTarget:
-						(creepList[msg.ReadByte()] as SYFlyer).ReceiveTarget(msg.ReadByte());
+					case Protocol_SY.CreepDie:
+						creepList[msg.ReadByte()].Die(msg.ReadVector2());
 						break;
 
-					case Protocol_SY.EnemyDie:
-						creepList[msg.ReadByte()].Die(msg.ReadVector2());
+					case Protocol_SY.CreepCustom:
+						creepList[msg.ReadByte()].ReceiveCustom(msg);
 						break;
 
 					case Protocol_SY.TowerExistance:

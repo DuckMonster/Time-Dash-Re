@@ -40,6 +40,8 @@ public class SYMap : Map
 			{
 				if (creepList[creepIndex] == null) return creepIndex;
 				creepIndex = (creepIndex + 1) % creepList.Length;
+
+				tries--;
 			}
 
 			return -1;
@@ -76,18 +78,16 @@ public class SYMap : Map
 		return tower;
 	}
 
-	public SYCreep SpawnEnemy(Vector2 position, SYCreepCamp camp)
+	public int AddCreep(SYCreep c)
 	{
 		int id = NextEnemyIndex;
-
-		SYCreep c = new SYFlyer(id, position, camp, this);
-
 		creepList[id] = c;
-		return c;
+
+		return id;
 	}
 
-	public void RemoveEnemy(SYCreep e) { if (e != null) RemoveEnemy(e.id); }
-	public void RemoveEnemy(int id)
+	public void RemoveCreep(SYCreep e) { if (e != null) RemoveCreep(e.id); }
+	public void RemoveCreep(int id)
 	{
 		creepList[id] = null;
 	}
