@@ -30,7 +30,7 @@ public class SYMap : Map
 
 	List<SYCreepCamp> campList = new List<SYCreepCamp>();
 
-	int NextCreepID
+	int NextEnemyIndex
 	{
 		get
 		{
@@ -78,17 +78,10 @@ public class SYMap : Map
 		return tower;
 	}
 
-<<<<<<< HEAD
-	public int AddCreep(SYCreep creep)
-	{
-		int id = NextCreepID;
-		creepList[id] = creep;
-=======
 	public int AddCreep(SYCreep c)
 	{
 		int id = NextEnemyIndex;
 		creepList[id] = c;
->>>>>>> 158fa93d08c213a30865b5b4e38d33a033021b38
 
 		return id;
 	}

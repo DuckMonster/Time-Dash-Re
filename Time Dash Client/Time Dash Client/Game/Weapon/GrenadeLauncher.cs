@@ -1,7 +1,7 @@
 ﻿public class GrenadeLauncher : Weapon
 {
 	public GrenadeLauncher(Player owner, Map map)
-		: base(WeaponStats.GrenadeLauncher, owner, map)
+		: base(WeaponList.GrenadeLauncher, owner, map)
 	{
 
 	}

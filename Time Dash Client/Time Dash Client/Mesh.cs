@@ -54,18 +54,18 @@ public class Mesh : IDisposable
 	{
 		get
 		{
-			Mesh m = new Mesh(PrimitiveType.TriangleStrip);
+			Mesh m = new Mesh(PrimitiveType.Quads);
 			m.Vertices = new Vector2[] {
-				new Vector2(0f, 0f),
-				new Vector2(1f, 0f),
-				new Vector2(0f, -1f),
-				new Vector2(1f, -1f)
+				new Vector2(-0.5f, 0.5f),
+				new Vector2(0.5f, 0.5f),
+				new Vector2(0.5f, -0.5f),
+				new Vector2(-0.5f, -0.5f)
 			};
 			m.UV = new Vector2[] {
 				new Vector2(0f, 0f),
 				new Vector2(1f, 0f),
-				new Vector2(0f, 1f),
-				new Vector2(1f, 1f)
+				new Vector2(1f, 1f),
+				new Vector2(0f, 1f)
 			};
 
 			m.Orthographic = true;

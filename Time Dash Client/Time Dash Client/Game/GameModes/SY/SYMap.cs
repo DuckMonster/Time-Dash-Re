@@ -128,6 +128,10 @@ public class SYMap : Map
 			{
 				switch ((Protocol_SY)msg.ReadShort())
 				{
+					case Protocol_SY.PlayerScrap:
+						(playerList[msg.ReadByte()] as SYPlayer).ReceiveScrap(msg.ReadByte());
+						break;
+
 					case Protocol_SY.ScrapExistance:
 						CreateScrap(msg.ReadShort(), msg.ReadVector2(), msg.ReadVector2());
 						break;

@@ -1,4 +1,5 @@
-﻿using EZUDP.Server;
+﻿using EZUDP;
+using EZUDP.Server;
 using OpenTK;
 public class SYPlayer : Player
 {
@@ -27,7 +28,21 @@ public class SYPlayer : Player
 	public SYPlayer(int id, string name, Client client, Vector2 position, Map m)
 		: base(id, name, client, position, m)
 	{
-		scrap = 1;
+		scrap = 20;
+	}
+
+	public override void BuyWeapon(WeaponList weapon)
+	{
+		if (ownedWeapons.Contains(weapon) || scrap < WeaponStats.GetStats(weapon).scrapCost) return;
+		base.BuyWeapon(weapon);
+
+		SetScrap(scrap - WeaponStats.GetStats(weapon).scrapCost);
+	}
+
+	void SetScrap(int n)
+	{
+		scrap = n;
+		SendScrapToPlayer(Map.playerList);
 	}
 
 	public void HitByCreep()
@@ -42,19 +57,19 @@ public class SYPlayer : Player
 		for (int i = 0; i < scrap; i++)
 			Map.CreateScrap(Position);
 
-		scrap = 0;
+		SetScrap(0);
 	}
 
 	public void ReturnScrap(SYStash stash)
 	{
 		int scrapReturned = stash.AddScrap(scrap, id);
-		scrap -= scrapReturned;
+		SetScrap(scrap - scrapReturned);
 	}
 
 	public void CollectScrap(SYScrap s)
 	{
 		s.CollectedBy(this);
-		scrap++;
+		SetScrap(scrap + 1);
 	}
 
 	public override void Logic()
@@ -69,5 +84,23 @@ public class SYPlayer : Player
 			if (scrap != null && scrap.Grabbable)
 				if (scrap.CollidesWith(Position, Size))
 					CollectScrap(scrap);
+	}
+
+	public void SendScrapToPlayer(params Player[] players)
+	{
+		SendMessageToPlayer(GetScrapMessage(), false, players);
+	}
+
+	MessageBuffer GetScrapMessage()
+	{
+		MessageBuffer msg = new MessageBuffer();
+
+		msg.WriteShort((short)Protocol.MapArgument);
+		msg.WriteShort((short)Protocol_SY.PlayerScrap);
+
+		msg.WriteByte(id);
+		msg.WriteByte(scrap);
+
+		return msg;
 	}
 }

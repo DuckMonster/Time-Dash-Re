@@ -408,16 +408,20 @@ public class Map : IDisposable
 					{
 						Player p = playerList[msg.ReadByte()];
 
-						if (p.weapon.FireType == WeaponStats.FireType.Charge)
+						if (p.Weapon.FireType == WeaponStats.FireType.Charge)
 							p.ReceiveShoot(msg.ReadVector2(), msg.ReadVector2(), msg.ReadByte(), msg.ReadFloat());
 						else
 							p.ReceiveShoot(msg.ReadVector2(), msg.ReadVector2(), msg.ReadByte());
 
 						break;
 					}
-				
+
+				case Protocol.PlayerInventory:
+					playerList[msg.ReadByte()].ReceiveInventory(msg.ReadByte(), msg.ReadByte());
+					break;
+
 				case Protocol.PlayerEquipWeapon:
-					playerList[msg.ReadByte()].EquipWeapon(msg.ReadByte());
+					playerList[msg.ReadByte()].ReceiveEquipWeapon(msg.ReadByte());
 					break;
 					
 				case Protocol.PlayerReload:

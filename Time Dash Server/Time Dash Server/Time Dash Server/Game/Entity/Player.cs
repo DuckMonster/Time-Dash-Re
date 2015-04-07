@@ -1,10 +1,7 @@
 ﻿using OpenTK;
-using OpenTK.Input;
 using System;
 
-using EZUDP;
 using EZUDP.Server;
-using TKTools;
 using System.Collections.Generic;
 
 public partial class Player : Actor
@@ -36,13 +33,16 @@ public partial class Player : Actor
 	float gravityIgnore = 0f;
 
 	Timer updatePositionTimer = new Timer(0.05f, true);
-
 	Timer respawnTimer = new Timer(2f, false);
 
-	Weapon weapon;
+	int weaponIndex = 0;
+	Weapon[] inventory = new Weapon[2];
+
+	protected List<WeaponList> ownedWeapons = new List<WeaponList>();
+
 	public Weapon Weapon
 	{
-		get { return weapon; }
+		get { return inventory[weaponIndex]; }
 	}
 
 	public int WallTouch
@@ -109,11 +109,11 @@ public partial class Player : Actor
 
 	public int Ammo
 	{
-		get { return weapon.Ammo; }
+		get { return Weapon.Ammo; }
 	}
 	public int MaxAmmo
 	{
-		get { return weapon.MaxAmmo; }
+		get { return Weapon.MaxAmmo; }
 	}
 
 	public Player(int id, string name, Client c, Vector2 position, Map m)
@@ -127,8 +127,6 @@ public partial class Player : Actor
 
 		dashCooldown = new Timer(stats.DashCooldown, false);
 		dodgeCooldown = new Timer(stats.DodgeCooldown, true);
-
-		weapon = new Pistol(this, Map);
 	}
 
 	public virtual bool AlliedWith(Player p)
@@ -137,26 +135,41 @@ public partial class Player : Actor
 		else return p.team == team;
 	}
 
-	public void EquipWeapon(int id)
+	public virtual void BuyWeapon(WeaponList weapon)
 	{
-		switch ((WeaponList)id)
+		if (ownedWeapons.Contains(weapon)) return;
+
+		ownedWeapons.Add(weapon);
+		for (int i = 0; i < inventory.Length; i++)
+			if (inventory[i] == null)
+			{
+				EquipWeapon(i, weapon);
+				break;
+			}
+	}
+
+	public void EquipWeapon(int inventoryID, WeaponList weapon)
+	{
+		if (!ownedWeapons.Contains(weapon)) return;
+
+		switch (weapon)
 		{
-			case WeaponList.Pistol: EquipWeapon(new Pistol(this, Map)); break;
-			case WeaponList.Rifle: EquipWeapon(new Rifle(this, Map)); break;
-			case WeaponList.GrenadeLauncher: EquipWeapon(new GrenadeLauncher(this, Map)); break;
-			case WeaponList.Bow: EquipWeapon(new Bow(this, Map)); break;
+			case WeaponList.Pistol: EquipWeapon(inventoryID, new Pistol(this, Map)); break;
+			case WeaponList.Rifle: EquipWeapon(inventoryID, new Rifle(this, Map)); break;
+			case WeaponList.GrenadeLauncher: EquipWeapon(inventoryID, new GrenadeLauncher(this, Map)); break;
+			case WeaponList.Bow: EquipWeapon(inventoryID, new Bow(this, Map)); break;
 			default: return;
 		}
 
-		SendEquipWeaponToPlayer(id, Map.playerList);
+		SendInventoryToPlayer(inventoryID, weapon, Map.playerList);
 	}
 
-	public void EquipWeapon(Weapon w)
+	public void EquipWeapon(int inventoryID, Weapon w)
 	{
-		if (weapon != null)
-			weapon = null;
+		if (inventory[inventoryID] != null)
+			inventory[inventoryID] = null;
 
-		weapon = w;
+		inventory[inventoryID] = w;
 	}
 
 	public override void Hit(float dmg, float dir, Actor a, float force = 0)
@@ -211,7 +224,9 @@ public partial class Player : Actor
 
 	public override void Logic()
 	{
-		weapon.Logic();
+		if (Weapon != null)
+			Weapon.Logic();
+
 		Log.Debug(Position);
 
 		if (!IsAlive)

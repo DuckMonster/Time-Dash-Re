@@ -79,8 +79,6 @@
     <Compile Include="Game\Effects\EffectTowerHit.cs" />
     <Compile Include="Game\Entity\Actor.cs" />
     <Compile Include="Game\GameModes\SY\Creeps\SYCreep.cs" />
-    <Compile Include="Game\GameModes\SY\Creeps\SYFlyerBig.cs" />
-    <Compile Include="Game\GameModes\SY\Creeps\SYFlyer.cs" />
     <Compile Include="Game\GameModes\SY\Creeps\SYScroot.cs" />
     <Compile Include="Game\GameModes\SY\SYBase.cs" />
     <Compile Include="Game\GameModes\SY\SYStash.cs" />
@@ -192,6 +190,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Res\jacktilesetnew.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Res\pistol.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Res\scrap.png">

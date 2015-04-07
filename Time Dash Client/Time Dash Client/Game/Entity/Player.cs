@@ -1,8 +1,6 @@
-﻿using EZUDP;
-using OpenTK;
+﻿using OpenTK;
 using OpenTK.Input;
 using System;
-using System.Collections.Generic;
 using TKTools;
 
 public partial class Player : Actor
@@ -59,7 +57,9 @@ public partial class Player : Actor
 	bool bufferFrame = false;
 
 	public PlayerHud hud;
-	public Weapon weapon;
+
+	public int weaponIndex;
+	public Weapon[] inventory = new Weapon[2];
 
 	public int WallTouch
 	{
@@ -127,13 +127,18 @@ public partial class Player : Actor
 		}
 	}
 
+	public Weapon Weapon
+	{
+		get { return inventory[weaponIndex]; }
+	}
+
 	public int Ammo
 	{
-		get { return weapon.Ammo; }
+		get { return Weapon.Ammo; }
 	}
 	public int MaxAmmo
 	{
-		get { return weapon.MaxAmmo; }
+		get { return Weapon.MaxAmmo; }
 	}
 
 	public Player(int id, string name, Vector2 position, Map m)
@@ -169,7 +174,6 @@ public partial class Player : Actor
 		dodgeCooldown = new Timer(stats.DodgeCooldown, true);
 
 		hud = new PlayerHud(this);
-		EquipWeapon(3);
 	}
 
 	public override void Dispose()
@@ -178,25 +182,6 @@ public partial class Player : Actor
 		playerTileset.Dispose();
 
 		hud.Dispose();
-	}
-
-	public void EquipWeapon(int id)
-	{
-		switch ((WeaponList)id)
-		{
-			case WeaponList.Pistol: EquipWeapon(new Pistol(this, Map)); break;
-			case WeaponList.Rifle: EquipWeapon(new Rifle(this, Map)); break;
-			case WeaponList.GrenadeLauncher: EquipWeapon(new GrenadeLauncher(this, Map)); break;
-			case WeaponList.Bow: EquipWeapon(new Bow(this, Map)); break;
-		}
-	}
-
-	public void EquipWeapon(Weapon w)
-	{
-		if (weapon != null)
-			weapon = null;
-
-		weapon = w;
 	}
 
 	public override void Hit(float dmg)
@@ -226,7 +211,8 @@ public partial class Player : Actor
 	public override void Logic()
 	{
 		hud.Logic();
-		weapon.Logic();
+		if (Weapon != null)
+			Weapon.Logic();
 
 		if (!IsAlive) return;
 
@@ -369,12 +355,15 @@ public partial class Player : Actor
 			}
 
 			//Shooting
-			if (input[PlayerKey.Shoot] && !oldInput[PlayerKey.Shoot])
-				weapon.Press();
-			if (input[PlayerKey.Shoot] && oldInput[PlayerKey.Shoot])
-				weapon.Hold();
-			if (!input[PlayerKey.Shoot] && oldInput[PlayerKey.Shoot])
-				weapon.Release();
+			if (Weapon != null)
+			{
+				if (input[PlayerKey.Shoot] && !oldInput[PlayerKey.Shoot])
+					Weapon.Press();
+				if (input[PlayerKey.Shoot] && oldInput[PlayerKey.Shoot])
+					Weapon.Hold();
+				if (!input[PlayerKey.Shoot] && oldInput[PlayerKey.Shoot])
+					Weapon.Release();
+			}
 		}
 		else
 		{
@@ -425,13 +414,22 @@ public partial class Player : Actor
 		inputData[PlayerKey.Dash] = MouseInput.Current[MouseButton.Right];
 		inputData[PlayerKey.Shoot] = MouseInput.Current[MouseButton.Left];
 
-		if (KeyboardInput.KeyPressed(Key.Number1)) SendEquipWeapon(0);
-		if (KeyboardInput.KeyPressed(Key.Number2)) SendEquipWeapon(1);
-		if (KeyboardInput.KeyPressed(Key.Number3)) SendEquipWeapon(2);
-		if (KeyboardInput.KeyPressed(Key.Number4)) SendEquipWeapon(3);
+		if (KeyboardInput.KeyPressed(Key.Number1))
+			SendBuyWeapon(WeaponList.Pistol);
+		if (KeyboardInput.KeyPressed(Key.Number2))
+			SendBuyWeapon(WeaponList.Rifle);
+		if (KeyboardInput.KeyPressed(Key.Number3))
+			SendBuyWeapon(WeaponList.GrenadeLauncher);
+		if (KeyboardInput.KeyPressed(Key.Number4))
+			SendBuyWeapon(WeaponList.Bow);
+
+		if (KeyboardInput.KeyPressed(Key.Q))
+		{
+			SendSwapWeapon();
+		}
 		if (KeyboardInput.KeyPressed(Key.R))
 		{
-			weapon.Reload();
+			Weapon.Reload();
 			SendReload();
 		}
 	}

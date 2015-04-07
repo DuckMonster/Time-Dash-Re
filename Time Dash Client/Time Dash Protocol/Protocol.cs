@@ -36,6 +36,9 @@ public enum Protocol
 
 	PlayerEquipWeapon,
 	PlayerReload,
+	PlayerInventory,
+	PlayerSwapWeapon,
+	PlayerBuyWeapon,
 
 	PlayerWin,
 	TeamWin,
@@ -75,6 +78,8 @@ public enum Protocol_CTF
 
 public enum Protocol_SY
 {
+	PlayerScrap,
+
 	ScrapExistance,
 	ScrapPosition,
 	ScrapCollect,

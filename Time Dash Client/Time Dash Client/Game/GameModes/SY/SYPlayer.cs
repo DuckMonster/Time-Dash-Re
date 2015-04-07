@@ -21,25 +21,27 @@ public class SYPlayer : Player
 		: base(id, name, position, m)
 	{
 		scrapMesh.Texture = SYScrap.scrapTexture;
-		scrap = 1;
+		scrap = 20;
 	}
 
 	public override void Die(Vector2 diePos)
 	{
 		base.Die(diePos);
-		scrap = 0;
 	}
 
 	public void CollectScrap(SYScrap s)
 	{
 		s.CollectedBy(this);
-		scrap++;
 	}
 
 	public void ReturnScrap(SYStash stash)
 	{
 		int scrapReturned = stash.AddScrap(scrap);
-		scrap -= scrapReturned;
+	}
+
+	public void ReceiveScrap(int n)
+	{
+		scrap = n;
 	}
 
 	public override void DrawHUD()

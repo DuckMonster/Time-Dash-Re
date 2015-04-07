@@ -3,7 +3,7 @@
 public class Rifle : Weapon
 {
 	public Rifle(Player p, Map m)
-		: base(WeaponStats.Rifle, p, m)
+		: base(WeaponList.Rifle, p, m)
 	{
 
 	}

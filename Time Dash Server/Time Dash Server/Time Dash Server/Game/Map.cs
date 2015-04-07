@@ -427,8 +427,12 @@ public class Map
 
 						break;
 
-					case Protocol.PlayerEquipWeapon:
-						p.ReceiveEquipWeapon(msg.ReadByte());
+					case Protocol.PlayerBuyWeapon:
+						p.BuyWeapon((WeaponList)msg.ReadByte());
+						break;
+
+					case Protocol.PlayerSwapWeapon:
+						p.ReceiveSwapWeapon();
 						break;
 
 					case Protocol.PlayerReload:

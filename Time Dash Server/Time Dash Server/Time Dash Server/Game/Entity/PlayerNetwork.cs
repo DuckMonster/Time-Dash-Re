@@ -93,19 +93,26 @@ public partial class Player : Actor
 	public void ReceiveShoot(Vector2 position, Vector2 target, float charge)
 	{
 		this.Position = position;
-		weapon.Charge = charge;
+		Weapon.Charge = charge;
 
 		Shoot(target);
 	}
 
-	public void ReceiveEquipWeapon(int id)
+	public void ReceiveSwapWeapon()
 	{
-		EquipWeapon(id);
+		int origin = weaponIndex;
+		do
+		{
+			weaponIndex = (weaponIndex + 1) % inventory.Length;
+			if (weaponIndex == origin) break;
+		} while (inventory[weaponIndex] == null);
+
+        SendEquipWeaponToPlayer(weaponIndex, Map.playerList);
 	}
 
 	public void ReceiveReload()
 	{
-		weapon.Reload();
+		Weapon.Reload();
 		SendReloadToPlayer(Map.playerList);
 	}
 
@@ -113,7 +120,13 @@ public partial class Player : Actor
 	{
 		SendMessageToPlayer(GetExistanceMessage(), false, players);
 		SendPositionToPlayer(players);
-		SendEquipWeaponToPlayer(weapon.weaponID, players);
+
+		for (int i = 0; i < inventory.Length; i++)
+			if (inventory[i] != null)
+				SendInventoryToPlayer(i, inventory[i].type, players);
+
+		if (Weapon != null)
+			SendEquipWeaponToPlayer(weaponIndex, players);
 	}
 
 	public void SendLeaveToPlayer(params Player[] players)
@@ -196,9 +209,14 @@ public partial class Player : Actor
 		SendMessageToPlayer(GetShootMessage(position, hitpos, projID, charge), false, players);
 	}
 
-	public void SendEquipWeaponToPlayer(int id, params Player[] players)
+	public void SendEquipWeaponToPlayer(int inventoryID, params Player[] players)
 	{
-		SendMessageToPlayer(GetEquipWeaponMessage(id), false, players);
+		SendMessageToPlayer(GetEquipWeaponMessage(inventoryID), false, players);
+	}
+
+	public void SendInventoryToPlayer(int inventoryID, WeaponList weapon, params Player[] players)
+	{
+		SendMessageToPlayer(GetInventoryMessage(inventoryID, weapon), false, players);
 	}
 
 	public void SendReloadToPlayer(params Player[] players)
@@ -426,13 +444,26 @@ public partial class Player : Actor
 		return msg;
 	}
 
-	MessageBuffer GetEquipWeaponMessage(int weaponID)
+	MessageBuffer GetEquipWeaponMessage(int inventoryID)
 	{
 		MessageBuffer msg = new MessageBuffer();
 
 		msg.WriteShort((short)Protocol.PlayerEquipWeapon);
 		msg.WriteByte(id);
-		msg.WriteByte(weaponID);
+		msg.WriteByte(inventoryID);
+
+		return msg;
+	}
+
+	MessageBuffer GetInventoryMessage(int inventoryID, WeaponList weapon)
+	{
+		MessageBuffer msg = new MessageBuffer();
+
+		msg.WriteShort((short)Protocol.PlayerInventory);
+		msg.WriteByte(id);
+
+		msg.WriteByte(inventoryID);
+		msg.WriteByte((byte)weapon);
 
 		return msg;
 	}

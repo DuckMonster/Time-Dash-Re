@@ -131,14 +131,41 @@ public partial class Player
 	public void ReceiveShoot(Vector2 position, Vector2 target, int projID, float charge)
 	{
 		this.position = position;
-		weapon.Charge = charge;
+		Weapon.Charge = charge;
 
 		Shoot(target, projID);
 	}
 
+	public void ReceiveInventory(int index, int weaponID)
+	{
+		switch((WeaponList)weaponID)
+		{
+			case WeaponList.Pistol:
+				inventory[index] = new Pistol(this, Map);
+				break;
+
+			case WeaponList.Rifle:
+				inventory[index] = new Rifle(this, Map);
+				break;
+
+			case WeaponList.GrenadeLauncher:
+				inventory[index] = new GrenadeLauncher(this, Map);
+				break;
+
+			case WeaponList.Bow:
+				inventory[index] = new Bow(this, Map);
+				break;
+		}
+	}
+
+	public void ReceiveEquipWeapon(int index)
+	{
+		weaponIndex = index;
+	}
+
 	public void ReceiveReload()
 	{
-		weapon.Reload();
+		Weapon.Reload();
 	}
 
 	void SendInput()
@@ -242,6 +269,16 @@ public partial class Player
 		Game.client.Send(msg);
 	}
 
+	void SendBuyWeapon(WeaponList weapon)
+	{
+		MessageBuffer msg = new MessageBuffer();
+
+		msg.WriteShort((short)Protocol.PlayerBuyWeapon);
+		msg.WriteByte((byte)weapon);
+
+		Game.client.Send(msg);
+	}
+
 	void SendEquipWeapon(int id)
 	{
 		MessageBuffer msg = new MessageBuffer();
@@ -257,6 +294,15 @@ public partial class Player
 		MessageBuffer msg = new MessageBuffer();
 
 		msg.WriteShort((short)Protocol.PlayerReload);
+
+		Game.client.Send(msg);
+	}
+
+	void SendSwapWeapon()
+	{
+		MessageBuffer msg = new MessageBuffer();
+
+		msg.WriteShort((short)Protocol.PlayerSwapWeapon);
 
 		Game.client.Send(msg);
 	}

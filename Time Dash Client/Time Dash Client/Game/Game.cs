@@ -69,7 +69,7 @@ public class Game
 		windowRatio = (float)height / width;
 
 		Matrix4 pers = Matrix4.CreatePerspectiveOffCenter(-1, 1, -windowRatio, windowRatio, 1, 200f);
-		Matrix4 orth = Matrix4.CreateOrthographicOffCenter(0, 1, -windowRatio, 0, 1, 200f);
+		Matrix4 orth = Matrix4.CreateOrthographicOffCenter(-10f, 10f, -windowRatio * 10f, windowRatio * 10f, 1, 200f);
 
 		defaultShader["projection"].SetValue(pers);
 		hudShader["projection"].SetValue(orth);

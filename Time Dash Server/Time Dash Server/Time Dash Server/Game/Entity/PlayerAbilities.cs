@@ -280,11 +280,11 @@ public partial class Player : Actor
 
 	public void Shoot(Vector2 target)
 	{
-		Projectile p = weapon.CreateProjectile(target);
-		weapon.OnShoot();
+		Projectile p = Weapon.CreateProjectile(target);
+		Weapon.OnShoot();
 
-		if (weapon.FireType == WeaponStats.FireType.Charge)
-			SendShootToPlayer(Position, target, p.id, weapon.Charge, Map.playerList);
+		if (Weapon.FireType == WeaponStats.FireType.Charge)
+			SendShootToPlayer(Position, target, p.id, Weapon.Charge, Map.playerList);
 		else
 			SendShootToPlayer(Position, target, p.id, Map.playerList);
 	}

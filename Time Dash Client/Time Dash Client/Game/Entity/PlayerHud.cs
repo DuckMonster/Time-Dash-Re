@@ -22,9 +22,14 @@ public class PlayerHud : IDisposable
 	float healthAlpha = 0.2f;
 	float healthBlinkFactor = 0f;
 
+	Mesh weaponMesh;
+
 	public PlayerHud(Player p)
 	{
 		this.player = p;
+
+		weaponMesh = Mesh.OrthoBox;
+		weaponMesh.Texture = new Texture("Res/pistol.png");
 	}
 
 	public void Dispose()
@@ -63,28 +68,31 @@ public class PlayerHud : IDisposable
 		healthBar.Progress = player.health / player.MaxHealth;
 		healthBar.Logic();
 
-		if (player.weapon.ReloadProgress != -1)
+		if (player.Weapon != null)
 		{
-			reloadBar.Progress = player.weapon.ReloadProgress;
-			reloadBar.Logic();
-		}
-		else if (player.weapon.RearmProgress != -1 && player.weapon.FireType == WeaponStats.FireType.SingleTimed)
-		{
-			rearmBar.Progress = 1f - player.weapon.RearmProgress;
-			rearmBar.Logic();
-		}
-		else if (player.weapon.FireType == WeaponStats.FireType.Charge)
-		{
-			rearmBar.Progress = player.weapon.Charge;
-			rearmBar.Logic();
-		}
+			if (player.Weapon.ReloadProgress != -1)
+			{
+				reloadBar.Progress = player.Weapon.ReloadProgress;
+				reloadBar.Logic();
+			}
+			else if (player.Weapon.RearmProgress != -1 && player.Weapon.FireType == WeaponStats.FireType.SingleTimed)
+			{
+				rearmBar.Progress = 1f - player.Weapon.RearmProgress;
+				rearmBar.Logic();
+			}
+			else if (player.Weapon.FireType == WeaponStats.FireType.Charge)
+			{
+				rearmBar.Progress = player.Weapon.Charge;
+				rearmBar.Logic();
+			}
 
-		if (player.Ammo >= player.MaxAmmo && ammoGainTimer.IsDone && ammoUseTimer.IsDone)
-			ammoAlpha -= 4f * Game.delta;
-		else
-			ammoAlpha += 4f * Game.delta;
+			if (player.Ammo >= player.MaxAmmo && ammoGainTimer.IsDone && ammoUseTimer.IsDone)
+				ammoAlpha -= 4f * Game.delta;
+			else
+				ammoAlpha += 4f * Game.delta;
 
-		ammoAlpha = MathHelper.Clamp(ammoAlpha, 0f, 1f);
+			ammoAlpha = MathHelper.Clamp(ammoAlpha, 0f, 1f);
+		}
 	}
 
 	public void OnReload()
@@ -118,76 +126,103 @@ public class PlayerHud : IDisposable
 		#endregion
 
 		#region Ammo
-		int maxAmmo = player.MaxAmmo;
-		float dir = 90f / (maxAmmo - 1);
-
-		if (ammoAlpha > 0f && player.weapon.ReloadProgress == -1)
+		if (player.Weapon != null)
 		{
-			ammoMesh.Color = new Color(1f, 1f, 1f, ammoAlpha);
+			int maxAmmo = player.MaxAmmo;
+			float dir = 90f / (maxAmmo - 1);
 
-			for (int i = 0; i < player.MaxAmmo; i++)
+			if (ammoAlpha > 0f && player.Weapon.ReloadProgress == -1)
 			{
-				float d = 90 + 45 - dir * i;
+				ammoMesh.Color = new Color(1f, 1f, 1f, ammoAlpha);
 
-				if (!ammoGainTimer.IsDone)
+				for (int i = 0; i < player.MaxAmmo; i++)
 				{
-					float f = 1f - TKMath.Exp(ammoGainTimer.PercentageDone, 10);
+					float d = 90 + 45 - dir * i;
 
-					Color c = new Color(1f, 1f, 1f, f);
-					ammoMesh.Color = c;
+					if (!ammoGainTimer.IsDone)
+					{
+						float f = 1f - TKMath.Exp(ammoGainTimer.PercentageDone, 10);
 
-					ammoMesh.Reset();
+						Color c = new Color(1f, 1f, 1f, f);
+						ammoMesh.Color = c;
 
-					ammoMesh.Translate(player.Position);
-					ammoMesh.Rotate(d);
-					ammoMesh.Translate(f * 2f, 0);
-					ammoMesh.Scale(0.4f, 0.15f);
+						ammoMesh.Reset();
 
-					ammoMesh.Draw();
-				}
-				else
-				{
-					ammoMesh.Color = new Color(1f, 1f, 1f, (i < player.Ammo ? 1f : 0.2f) * ammoAlpha);
+						ammoMesh.Translate(player.Position);
+						ammoMesh.Rotate(d);
+						ammoMesh.Translate(f * 2f, 0);
+						ammoMesh.Scale(0.4f, 0.15f);
 
-					ammoMesh.Reset();
+						ammoMesh.Draw();
+					}
+					else
+					{
+						ammoMesh.Color = new Color(1f, 1f, 1f, (i < player.Ammo ? 1f : 0.2f) * ammoAlpha);
 
-					ammoMesh.Translate(player.Position);
-					ammoMesh.Rotate(d);
-					ammoMesh.Translate(2f, 0f);
-					ammoMesh.Scale(0.4f, 0.15f);
+						ammoMesh.Reset();
 
-					ammoMesh.Draw();
+						ammoMesh.Translate(player.Position);
+						ammoMesh.Rotate(d);
+						ammoMesh.Translate(2f, 0f);
+						ammoMesh.Scale(0.4f, 0.15f);
+
+						ammoMesh.Draw();
+					}
 				}
 			}
+
+			if (player.Weapon.ReloadProgress != -1)
+				reloadBar.Draw(player.Position, Color.White);
+
+			if (player.Weapon.RearmProgress != -1 && player.Weapon.FireType == WeaponStats.FireType.SingleTimed)
+				rearmBar.Draw(player.Position, Color.White);
+
+			if (player.Weapon.Charge != 0 && player.Weapon.FireType == WeaponStats.FireType.Charge)
+				rearmBar.Draw(player.Position, Color.White);
+
+			if (!ammoUseTimer.IsDone)
+			{
+				float d = 90 + 45 - dir * ammoUseIndex;
+				float f = 1f - TKMath.Exp(ammoUseTimer.PercentageDone, 10);
+
+				Color c = new Color(1f, 1f, 1f, 1f - f);
+				ammoMesh.Color = c;
+
+				ammoMesh.Reset();
+
+				ammoMesh.Translate(player.Position);
+				ammoMesh.Rotate(d);
+				ammoMesh.Translate(2f, 0);
+				ammoMesh.Scale(0.4f, 0.15f);
+				ammoMesh.Scale(1 + f * 2f);
+
+				ammoMesh.Draw();
+			}
 		}
+		#endregion
 
-		if (player.weapon.ReloadProgress != -1)
-			reloadBar.Draw(player.Position, Color.White);
+		#region Inventory
+		int nmbr = player.inventory.Length;
 
-		if (player.weapon.RearmProgress != -1 && player.weapon.FireType == WeaponStats.FireType.SingleTimed)
-			rearmBar.Draw(player.Position, Color.White);
-
-		if (player.weapon.Charge != 0 && player.weapon.FireType == WeaponStats.FireType.Charge)
-			rearmBar.Draw(player.Position, Color.White);
-
-		if (!ammoUseTimer.IsDone)
+		for (int i = 0; i < nmbr; i++)
 		{
-			float d = 90 + 45 - dir * ammoUseIndex;
-			float f = 1f - TKMath.Exp(ammoUseTimer.PercentageDone, 10);
+			if (player.inventory[i] == null) continue;
+			bool equipped = player.weaponIndex == i;
 
-			Color c = new Color(1f, 1f, 1f, 1f - f);
-			ammoMesh.Color = c;
+			weaponMesh.Color = new Color(1f, 1f, 1f, equipped ? 0.8f : 0.3f);
 
-			ammoMesh.Reset();
+			weaponMesh.Reset();
+			
+			weaponMesh.Translate(-2f + (2f / (nmbr - 1)) * i, -10f * Game.windowRatio + (equipped ? 0.5f : 0f));
+			weaponMesh.Rotate(30f - (60f / (nmbr - 1)) * i);
+			if (i == 0)
+				weaponMesh.Scale(-1, 1);
+			weaponMesh.Rotate(90f);
+			weaponMesh.Scale(2f);
 
-			ammoMesh.Translate(player.Position);
-			ammoMesh.Rotate(d);
-			ammoMesh.Translate(2f, 0);
-			ammoMesh.Scale(0.4f, 0.15f);
-			ammoMesh.Scale(1 + f * 2f);
-
-			ammoMesh.Draw();
+			weaponMesh.Draw();
 		}
+
 		#endregion
 	}
 }

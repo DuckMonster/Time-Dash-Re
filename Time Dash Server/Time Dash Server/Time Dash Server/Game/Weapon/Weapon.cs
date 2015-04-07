@@ -2,7 +2,7 @@
 
 public abstract class Weapon
 {
-	public readonly int weaponID;
+	public readonly WeaponList type;
 
 	protected Map map;
 	protected Player owner;
@@ -58,12 +58,14 @@ public abstract class Weapon
 		set { reloadTimer.Reset(value); }
 	}
 
-	public Weapon(WeaponStats.Stats stats, Player p, Map map)
+	public Weapon(WeaponList weapon, Player p, Map map)
 	{
 		owner = p;
 		this.map = map;
 
-		weaponID = stats.id;
+		WeaponStats.Stats stats = WeaponStats.GetStats(weapon);
+
+		type = stats.type;
 
 		damage = stats.damage;
 		fireType = stats.fireType;

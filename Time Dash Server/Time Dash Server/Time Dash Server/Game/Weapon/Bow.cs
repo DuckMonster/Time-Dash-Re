@@ -3,7 +3,7 @@
 public class Bow : Weapon
 {
 	public Bow(Player owner, Map map)
-		: base(WeaponStats.Bow, owner, map)
+		: base(WeaponList.Bow, owner, map)
 	{
 	}
 

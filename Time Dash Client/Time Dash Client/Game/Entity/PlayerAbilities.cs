@@ -284,8 +284,8 @@ public partial class Player : Actor
 				SendShoot(target);
 		}*/
 
-		weapon.CreateProjectile(target, projectileID);
-		weapon.OnShoot();
+		Weapon.CreateProjectile(target, projectileID);
+		Weapon.OnShoot();
 	}
 
 	public static Direction GetInputDirection(PlayerInput input, Player p)
