@@ -20,8 +20,6 @@ public class Projectile : Entity
 		this.id = id;
 
 		Map.AddProjectile(this);
-
-		Logic();
 	}
 
 	public override void Logic()

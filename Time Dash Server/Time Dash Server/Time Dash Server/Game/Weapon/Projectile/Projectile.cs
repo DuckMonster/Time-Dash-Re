@@ -30,8 +30,6 @@ public abstract class Projectile : Entity
 		this.owner = owner;
 		this.damage = damage;
 		id = map.AddProjectile(this);
-
-		Logic();
 	}
 
 	public override void Logic()

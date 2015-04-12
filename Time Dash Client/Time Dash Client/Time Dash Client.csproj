@@ -87,6 +87,8 @@
     <Compile Include="Game\GameModes\SY\SYScrap.cs" />
     <Compile Include="Game\GameModes\SY\SYTower.cs" />
     <Compile Include="Game\GameModes\SY\SYTowerPoint.cs" />
+    <Compile Include="Game\UI\Menu\Button.cs" />
+    <Compile Include="Game\UI\Menu\Menu.cs" />
     <Compile Include="Game\Weapon\Bow.cs" />
     <Compile Include="Game\Weapon\GrenadeLauncher.cs" />
     <Compile Include="Game\Weapon\Projectile\Arrow.cs" />

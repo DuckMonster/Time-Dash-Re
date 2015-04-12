@@ -31,6 +31,14 @@ public class MouseInput
 			}
 		}
 
+		public Vector2 PositionOrtho
+		{
+			get
+			{
+				return new Vector2(x, y) * 10f;
+			}
+		}
+
 		public MouseStatus(float x, float y, MouseState status)
 		{
 			this.x = x;

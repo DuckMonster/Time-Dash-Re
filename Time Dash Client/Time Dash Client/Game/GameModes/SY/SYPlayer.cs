@@ -1,9 +1,12 @@
 ﻿using OpenTK;
 using System;
+using TKTools;
 
 public class SYPlayer : Player
 {
 	Mesh scrapMesh = Mesh.Box;
+	TextBox scrapTextBox;
+	Mesh scrapTextMesh;
 
 	protected new SYMap Map
 	{
@@ -22,6 +25,11 @@ public class SYPlayer : Player
 	{
 		scrapMesh.Texture = SYScrap.scrapTexture;
 		scrap = 20;
+
+		scrapTextMesh = Mesh.OrthoBox;
+
+		scrapTextBox = new TextBox();
+		scrapTextBox.VerticalAlign = TextBox.VerticalAlignment.Center;
 	}
 
 	public override void Die(Vector2 diePos)
@@ -42,6 +50,7 @@ public class SYPlayer : Player
 	public void ReceiveScrap(int n)
 	{
 		scrap = n;
+		scrapTextBox.Text = n.ToString();
 	}
 
 	public override void DrawHUD()

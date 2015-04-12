@@ -11,6 +11,8 @@ public class SYMap : Map
 
 	SYTower[] towerList = new SYTower[4];
 
+	Menu shopMenu;
+
 	int stashIndex = 0;
 
 	public override IEnumerable<Actor> Actors
@@ -28,6 +30,7 @@ public class SYMap : Map
 	public SYMap(int id, string filename)
 		: base(id, filename, GameMode.ScrapYard)
 	{
+		shopMenu = new Menu(new Vector2(14f, 8f), this);
 	}
 
 	public void SpawnCreep(CreepType type, int id, Vector2 position, Vector2 velocity)
@@ -107,6 +110,8 @@ public class SYMap : Map
 		foreach (SYStash b in stashList) if (b != null) b.Logic();
 		foreach (SYCreep c in creepList) if (c != null) c.Logic();
 		foreach (SYTower t in towerList) if (t != null) t.Logic();
+
+		shopMenu.Logic();
 	}
 
 	public override void Draw()
@@ -118,6 +123,8 @@ public class SYMap : Map
 		foreach (SYCreep c in creepList) if (c != null) c.Draw();
 		foreach (SYTower t in towerList) if (t != null) t.Draw();
 		DrawMap();
+
+		shopMenu.Draw();
 	}
 
 	public override void MessageHandle(EZUDP.MessageBuffer msg)
