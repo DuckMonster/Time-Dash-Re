@@ -13,7 +13,7 @@ public class CPPoint : Entity
 
 	float progress = 0f;
 
-	Texture circle = new Texture("Res/circleBig.png");
+	Texture circle = Art.Load("Res/circleBig.png");
 
 	public CPPoint(int id, Vector2 position, Map map)
 		: base(position, map)

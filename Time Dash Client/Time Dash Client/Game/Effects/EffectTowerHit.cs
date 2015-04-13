@@ -16,8 +16,8 @@ public class EffectTowerHit : Effect
 		headMesh = Mesh.Box;
 		barrelMesh = Mesh.Box;
 
-		headMesh.Texture = SYTower.texHead;
-		barrelMesh.Texture = SYTower.texBarrel;
+		headMesh.Texture = tower.texHead;
+		barrelMesh.Texture = tower.texBarrel;
 
 		headMesh.FillColor = true;
 		barrelMesh.FillColor = true;

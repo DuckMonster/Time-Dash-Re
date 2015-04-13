@@ -136,6 +136,11 @@ public partial class Player
 		Shoot(target, projID);
 	}
 
+	public void ReceiveBuyWeapon(WeaponList weapon)
+	{
+		ownedWeapons.Add(weapon);
+	}
+
 	public void ReceiveInventory(int index, int weaponID)
 	{
 		switch((WeaponList)weaponID)
@@ -269,7 +274,7 @@ public partial class Player
 		Game.client.Send(msg);
 	}
 
-	void SendBuyWeapon(WeaponList weapon)
+	public void SendBuyWeapon(WeaponList weapon)
 	{
 		MessageBuffer msg = new MessageBuffer();
 

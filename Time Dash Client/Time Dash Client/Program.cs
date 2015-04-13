@@ -68,9 +68,9 @@ public class Program : GameWindow
 
 		//GL.Enable(EnableCap.DepthTest);
 
-		Icon = new System.Drawing.Icon("icon.ico");
+		Icon = new Icon("icon.ico");
 
-		WindowBorder = OpenTK.WindowBorder.Resizable;
+		WindowBorder = WindowBorder.Resizable;
 		VSync = VSyncMode.Off;
 
 		game = new Game(this);

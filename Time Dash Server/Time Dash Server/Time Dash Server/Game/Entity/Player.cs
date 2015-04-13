@@ -140,6 +140,7 @@ public partial class Player : Actor
 		if (ownedWeapons.Contains(weapon)) return;
 
 		ownedWeapons.Add(weapon);
+		SendBuyWeaponToPlayer(weapon, Map.playerList);
 		for (int i = 0; i < inventory.Length; i++)
 			if (inventory[i] == null)
 			{

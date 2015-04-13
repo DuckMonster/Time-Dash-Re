@@ -25,7 +25,7 @@ public class Camera
 
 		if (p != null)
 		{
-			Vector2 mouseDelta = (MouseInput.Current.Position - position.Xy) * 0.4f;
+			Vector2 mouseDelta = map.PauseInput ? Vector2.Zero : (MouseInput.Current.Position - position.Xy) * 0.4f;
 			if (mouseDelta.Length > 2f)
 				mouseDelta = mouseDelta.Normalized() * 2f;
 

@@ -32,7 +32,8 @@ public class PlayerShadow : IDisposable
 	}
 
 	static Tileset shadowTileset = new Tileset(250, 200, "Res/jackShadowTileset.png");
-	static Texture circleTexture = new Texture("Res/circlebig.png");
+
+	Texture circleTexture = Art.Load("Res/circlebig.png");
 
 	Player player;
 	Mesh mesh;

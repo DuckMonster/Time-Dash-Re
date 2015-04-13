@@ -26,7 +26,7 @@ public class Game
 
 	public static float windowRatio;
 
-	Program program;
+	public static Program program;
 	Map map;
 	Stopwatch tickWatch, frameWatch;
 
@@ -46,6 +46,8 @@ public class Game
 
 		defaultShader = new ShaderProgram("Shaders/standardShader.glsl");
 		hudShader = new ShaderProgram("Shaders/standardShader.glsl");
+
+		Log.Write(defaultShader.Log);
 
 		ConnectTo(hostIP);
 	}

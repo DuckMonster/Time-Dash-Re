@@ -87,6 +87,8 @@ public class Mesh : IDisposable
 	Color color = Color.White;
 	bool fillColor = false;
 	bool usingBlur = false;
+	float blurIntensity = 0f;
+	int blurRadius = 4;
 	Texture texture;
 
 	bool ortho = false;
@@ -194,6 +196,24 @@ public class Mesh : IDisposable
 		{
 			ortho = value;
 		}
+	}
+
+	public bool UsingBlur
+	{
+		get { return usingBlur; }
+		set { usingBlur = value; }
+	}
+
+	public float BlurIntensity
+	{
+		get { return blurIntensity; }
+		set { blurIntensity = value; }
+	}
+
+	public int BlurRadius
+	{
+		get { return blurRadius; }
+		set { blurRadius = value; }
 	}
 
 	public Matrix4 ModelMaxtrix
@@ -336,6 +356,16 @@ public class Mesh : IDisposable
 		{
 			texture.Bind();
 			Shader["usingTexture"].SetValue(true);
+			Shader["textureWidth"].SetValue(texture.Width);
+			Shader["textureHeight"].SetValue(texture.Height);
+
+			Shader["usingBlur"].SetValue(UsingBlur);
+
+			if (usingBlur)
+			{
+				Shader["blurRadius"].SetValue(BlurRadius);
+				Shader["blurIntensity"].SetValue(BlurIntensity);
+			}
 		}
 		else
 		{

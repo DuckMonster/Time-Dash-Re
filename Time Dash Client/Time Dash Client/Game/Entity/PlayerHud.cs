@@ -29,7 +29,7 @@ public class PlayerHud : IDisposable
 		this.player = p;
 
 		weaponMesh = Mesh.OrthoBox;
-		weaponMesh.Texture = new Texture("Res/pistol.png");
+		weaponMesh.Texture = Art.Load("Res/pistol.png");
 	}
 
 	public void Dispose()

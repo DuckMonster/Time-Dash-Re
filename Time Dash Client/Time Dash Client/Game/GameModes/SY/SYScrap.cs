@@ -3,13 +3,14 @@ using System;
 using TKTools;
 public class SYScrap : Entity
 {
-	public static Texture scrapTexture = new Texture("Res/scrap.png");
 	static Random rng = new Random();
 
 	protected new SYMap Map
 	{
 		get { return (SYMap)base.Map; }
 	}
+
+	Texture scrapTexture = Art.Load("Res/scrap.png");
 
 	public int id;
 	Vector2 velocity;

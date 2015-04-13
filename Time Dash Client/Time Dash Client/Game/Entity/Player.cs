@@ -1,6 +1,7 @@
 ﻿using OpenTK;
 using OpenTK.Input;
 using System;
+using System.Collections.Generic;
 using TKTools;
 
 public partial class Player : Actor
@@ -60,6 +61,8 @@ public partial class Player : Actor
 
 	public int weaponIndex;
 	public Weapon[] inventory = new Weapon[2];
+	public List<WeaponList> ownedWeapons = new List<WeaponList>();
+	public bool OwnsWeapon(WeaponList w) { return ownedWeapons.Contains(w); }
 
 	public int WallTouch
 	{
@@ -397,6 +400,8 @@ public partial class Player : Actor
 
 	public void LocalInput()
 	{
+		if (Map.PauseInput) return;
+
 		if (Program.client.Focused)
 		{
 			inputData[PlayerKey.Right] = KeyboardInput.Current[Key.D];
@@ -413,15 +418,6 @@ public partial class Player : Actor
 		inputData[PlayerKey.Jump] = KeyboardInput.Current[Key.Space];
 		inputData[PlayerKey.Dash] = MouseInput.Current[MouseButton.Right];
 		inputData[PlayerKey.Shoot] = MouseInput.Current[MouseButton.Left];
-
-		if (KeyboardInput.KeyPressed(Key.Number1))
-			SendBuyWeapon(WeaponList.Pistol);
-		if (KeyboardInput.KeyPressed(Key.Number2))
-			SendBuyWeapon(WeaponList.Rifle);
-		if (KeyboardInput.KeyPressed(Key.Number3))
-			SendBuyWeapon(WeaponList.GrenadeLauncher);
-		if (KeyboardInput.KeyPressed(Key.Number4))
-			SendBuyWeapon(WeaponList.Bow);
 
 		if (KeyboardInput.KeyPressed(Key.Q))
 		{

@@ -6,7 +6,7 @@ using TKTools;
 
 public class CircleBar : IDisposable
 {
-	static Texture circleTexture = new Texture("Res/circlebig.png");
+	Texture circleTexture = Art.Load("Res/circlebig.png");
 
 	Mesh stencilMesh, circleMesh;
 

@@ -74,6 +74,14 @@ public class Map : IDisposable
 		}
 	}
 
+	public virtual bool PauseInput
+	{
+		get
+		{
+			return false;
+		}
+	}
+
 	public virtual IEnumerable<Actor> Actors
 	{
 		get
@@ -415,6 +423,10 @@ public class Map : IDisposable
 
 						break;
 					}
+
+				case Protocol.PlayerBuyWeapon:
+					playerList[msg.ReadByte()].ReceiveBuyWeapon((WeaponList)msg.ReadByte());
+					break;
 
 				case Protocol.PlayerInventory:
 					playerList[msg.ReadByte()].ReceiveInventory(msg.ReadByte(), msg.ReadByte());

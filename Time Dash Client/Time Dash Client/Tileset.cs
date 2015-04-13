@@ -61,12 +61,11 @@ public class Tileset : IDisposable
 
 	public void Dispose()
 	{
-		sourceTexture.Dispose();
 	}
 
 	public void Load(string filename)
 	{
-		sourceTexture = new Texture(filename);
+		sourceTexture = Art.Load(filename);
 	}
 
 	public void Upload() { Upload(X, Y); }

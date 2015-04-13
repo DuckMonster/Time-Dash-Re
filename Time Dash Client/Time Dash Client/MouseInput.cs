@@ -83,11 +83,13 @@ public class MouseInput
 
 	public static bool GetPressed(MouseButton btn)
 	{
+		if (Previous == null || Current == null) return false;
 		return (Current[btn] && !Previous[btn]);
 	}
 
 	public static bool GetReleased(MouseButton btn)
 	{
+		if (Previous == null || Current == null) return false;
 		return (!Current[btn] && Previous[btn]);
 	}
 }

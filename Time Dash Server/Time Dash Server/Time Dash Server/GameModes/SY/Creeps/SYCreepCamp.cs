@@ -48,7 +48,7 @@ public class SYCreepCamp : Entity
 	{
 		creepList.Clear();
 
-		for (int i = 0; i < 5; i++)
+		for (int i = 0; i < 4; i++)
 		{
 			SYCreep c = new SYScroot(RandomPosition, this, Map);
 			creepList.Add(c);

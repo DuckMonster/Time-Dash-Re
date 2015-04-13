@@ -7,7 +7,7 @@ public class KothPoint : Scoreboard
 	public Player owner = null;
 	public float radius = 7f;
 
-	Texture circle = new Texture("Res/circleBig.png");
+	Texture circle = Art.Load("Res/circleBig.png");
 
 	Timer scoreTimer = new Timer(0.7f, false);
 

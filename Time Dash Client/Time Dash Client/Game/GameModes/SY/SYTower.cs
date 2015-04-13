@@ -5,7 +5,7 @@ using TKTools;
 public class SYTower : Actor
 {
 	static readonly float TurretHeight = 5f;
-	public static Texture 
+	public Texture 
 		texBase, 
 		texHead,
 		texBarrel;
@@ -43,14 +43,11 @@ public class SYTower : Actor
 	}
 
 	public SYTower(int id, SYTowerPoint point, Vector2 position, Map map)
-		:base(position, map)
+		: base(position, map)
 	{
-		if (texBase == null)
-		{
-			texBase = new Texture("Res/cannon_base.png");
-			texHead = new Texture("Res/cannon_head.png");
-			texBarrel = new Texture("Res/cannon_brl.png");
-		}
+		texBase = Art.Load("Res/cannon_base.png");
+		texHead = Art.Load("Res/cannon_head.png");
+		texBarrel = Art.Load("Res/cannon_brl.png");
 
 		this.id = id;
 		this.point = point;

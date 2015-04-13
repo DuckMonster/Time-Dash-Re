@@ -2,6 +2,8 @@
 using System;
 using System.Drawing;
 using System.Collections.Generic;
+using TKTools;
+using OpenTK.Graphics.OpenGL;
 
 public class SYMap : Map
 {
@@ -15,6 +17,11 @@ public class SYMap : Map
 
 	int stashIndex = 0;
 
+	bool showShop = false;
+
+	FrameBuffer frameBuffer;
+	Mesh frameBufferMesh;
+
 	public override IEnumerable<Actor> Actors
 	{
 		get
@@ -27,10 +34,29 @@ public class SYMap : Map
 		}
 	}
 
+	public override bool PauseInput
+	{
+		get { return showShop; }
+	}
+
 	public SYMap(int id, string filename)
 		: base(id, filename, GameMode.ScrapYard)
 	{
-		shopMenu = new Menu(new Vector2(14f, 8f), this);
+		shopMenu = new ShopMenu.ShopMenu(this);
+
+		frameBuffer = new FrameBuffer(2056, 2056);
+		frameBufferMesh = Mesh.OrthoBox;
+		frameBufferMesh.UV = new Vector2[] {
+				new Vector2(0f, 1f),
+				new Vector2(1f, 1f),
+				new Vector2(1f, 0f),
+				new Vector2(0f, 0f)
+			};
+
+		frameBufferMesh.Texture = frameBuffer.Texture;
+		frameBufferMesh.UsingBlur = true;
+		frameBufferMesh.BlurIntensity = 1f;
+		frameBufferMesh.BlurRadius = 6;
 	}
 
 	public void SpawnCreep(CreepType type, int id, Vector2 position, Vector2 velocity)
@@ -111,20 +137,54 @@ public class SYMap : Map
 		foreach (SYCreep c in creepList) if (c != null) c.Logic();
 		foreach (SYTower t in towerList) if (t != null) t.Logic();
 
-		shopMenu.Logic();
+		if (KeyboardInput.KeyPressed(OpenTK.Input.Key.B))
+		{
+			showShop = !showShop;
+			if (showShop)
+				shopMenu.Open();
+			else
+				shopMenu.Close();
+		}
+
+		if (showShop)
+			shopMenu.Logic();
 	}
 
 	public override void Draw()
 	{
 		UpdateView();
-		DrawBackground();
-		foreach (SYScrap s in scrapList) if (s != null) s.Draw();
-		foreach (SYStash b in stashList) if (b != null) b.Draw();
-		foreach (SYCreep c in creepList) if (c != null) c.Draw();
-		foreach (SYTower t in towerList) if (t != null) t.Draw();
-		DrawMap();
 
-		shopMenu.Draw();
+		if (showShop)
+		{
+			frameBuffer.Bind();
+			GL.Viewport(0, 0, frameBuffer.Width, frameBuffer.Height);
+			GL.Clear(ClearBufferMask.ColorBufferBit);
+
+			DrawBackground();
+			foreach (SYScrap s in scrapList) if (s != null) s.Draw();
+			foreach (SYStash b in stashList) if (b != null) b.Draw();
+			foreach (SYCreep c in creepList) if (c != null) c.Draw();
+			foreach (SYTower t in towerList) if (t != null) t.Draw();
+			DrawMap();
+
+			frameBuffer.Release();
+			GL.Viewport(Game.program.ClientRectangle);
+
+			frameBufferMesh.Reset();
+			frameBufferMesh.Scale(20f, 20f * Game.windowRatio);
+
+			frameBufferMesh.Draw();
+
+			shopMenu.Draw();
+		} else
+		{
+			DrawBackground();
+			foreach (SYScrap s in scrapList) if (s != null) s.Draw();
+			foreach (SYStash b in stashList) if (b != null) b.Draw();
+			foreach (SYCreep c in creepList) if (c != null) c.Draw();
+			foreach (SYTower t in towerList) if (t != null) t.Draw();
+			DrawMap();
+		}
 	}
 
 	public override void MessageHandle(EZUDP.MessageBuffer msg)

@@ -18,7 +18,7 @@ public class SYStash : Entity
 	Mesh progressMesh = Mesh.Box;
 
 	float areaSize = 5f;
-	Texture pointTexture = new Texture("Res/circlebig.png");
+	Texture pointTexture = Art.Load("Res/circlebig.png");
 
 	protected int scrap = 0;
 	protected int targetScrap = 50;

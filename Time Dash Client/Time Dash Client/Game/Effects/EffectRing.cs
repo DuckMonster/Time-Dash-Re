@@ -6,7 +6,7 @@ using TKTools;
 
 public class EffectRing : Effect
 {
-	public static readonly Texture ringTexture = new Texture("Res/circlebig.png");
+	public static readonly Texture ringTexture = Art.Load("Res/circlebig.png");
 	Timer ringTimer;
 
 	Vector2 position;

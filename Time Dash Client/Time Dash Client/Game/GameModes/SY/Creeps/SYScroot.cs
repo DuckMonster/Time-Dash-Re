@@ -4,7 +4,7 @@ using TKTools;
 
 public class SYScroot : SYCreep
 {
-	static Texture texture;
+	Texture texture;
 
 	Stats idleStats = Stats.defaultStats;
 
@@ -50,9 +50,8 @@ public class SYScroot : SYCreep
 		idleStats.DecelerationTime = GetStat<float>("accelerationTime");
 
 		chargeTimer = new Timer(GetStat<float>("chargeTime"), true);
-
-		if (texture == null)
-			texture = new Texture("Res/creep.png");
+		
+		texture = Art.Load("Res/creep.png");
 
 		mesh.Texture = texture;
 	}

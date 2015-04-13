@@ -52,7 +52,7 @@ public class CTFFlag : Entity
 
 		size = new Vector2(1, 1);
 
-		flagTexture = new Texture("Res/flag.png");
+		flagTexture = Art.Load("Res/flag.png");
 		mesh.Texture = flagTexture;
 	}
 

@@ -60,6 +60,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Art.cs" />
     <Compile Include="Game\Camera.cs" />
     <Compile Include="Game\Effects\Effect.cs" />
     <Compile Include="Game\Effects\EffectBullet.cs" />
@@ -89,6 +90,9 @@
     <Compile Include="Game\GameModes\SY\SYTowerPoint.cs" />
     <Compile Include="Game\UI\Menu\Button.cs" />
     <Compile Include="Game\UI\Menu\Menu.cs" />
+    <Compile Include="Game\UI\Menu\WeaponMenu\BuyButton.cs" />
+    <Compile Include="Game\UI\Menu\WeaponMenu\WeaponButton.cs" />
+    <Compile Include="Game\UI\Menu\WeaponMenu\ShopMenu.cs" />
     <Compile Include="Game\Weapon\Bow.cs" />
     <Compile Include="Game\Weapon\GrenadeLauncher.cs" />
     <Compile Include="Game\Weapon\Projectile\Arrow.cs" />
@@ -210,6 +214,21 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Res\Snd\jump.wav">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Res\weapons\bow.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Res\weapons\grenadeLauncher.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Res\weapons\lock.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Res\weapons\pistol.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Res\weapons\rifle.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

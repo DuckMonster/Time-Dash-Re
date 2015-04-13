@@ -7,8 +7,9 @@ public class EffectSmoke : Effect
 {
 	static Random rng = new Random();
 
-	static Texture smokeTexture;
 	public static Color defaultColor = new Color(212, 190, 166);
+
+	Texture smokeTexture;
 
 	Vector2 position;
 	Mesh mesh;
@@ -41,7 +42,7 @@ public class EffectSmoke : Effect
 	public EffectSmoke(Vector2 position, float size, float time, float floatDirection, float velocity, Color color, Map m)
 		:base(m)
 	{
-		if (smokeTexture == null) smokeTexture = new Texture("Res/circlebig.png");
+		smokeTexture = Art.Load("Res/circlebig.png");
 
 		this.position = position;
 

@@ -9,10 +9,10 @@ public class SlowBullet : Projectile
 		Mesh mesh = Mesh.Box;
 		Timer effectTimer = new Timer(0.5f, false);
 
-		public Trail(Vector2 position, Map map)
+		public Trail(Vector2 position, Texture t, Map map)
 			:base(map)
 		{
-			mesh.Texture = texture;
+			mesh.Texture = t;
 			this.position = position;
 		}
 
@@ -43,16 +43,14 @@ public class SlowBullet : Projectile
 	}
 
 	static readonly float speed = 5f;
-	static Texture texture;
 
+	Texture texture = Art.Load("Res/circlebig.png");
 	Timer trailTimer = new Timer(0.05f, false);
 
 	public SlowBullet(Actor owner, int id, Vector2 position, Vector2 target, Map m)
 		:base(owner, id, position, m)
 	{
 		velocity = (target - position).Normalized() * speed;
-
-		if (texture == null) texture = new Texture("Res/circlebig.png");
 		mesh.Texture = texture;
 
 		size = new Vector2(0.2f, 0.2f);
@@ -76,7 +74,7 @@ public class SlowBullet : Projectile
 		trailTimer.Logic();
 		if (trailTimer.IsDone)
 		{
-			Map.AddEffect(new Trail(Position, Map));
+			Map.AddEffect(new Trail(Position, texture, Map));
 			trailTimer.Reset();
 		}
 

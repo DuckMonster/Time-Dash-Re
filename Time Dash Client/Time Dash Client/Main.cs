@@ -51,7 +51,7 @@ public class MainClass
 	{
 		Game.hostIP = ip;
 
-		using (Program p = new Program(1025, 768, new GraphicsMode(new ColorFormat(32), 24, 8, 3)))
+		using (Program p = new Program(1025, 768, new GraphicsMode(new ColorFormat(32), 24, 8,8)))
 		{
 			p.Run(142.0, 120.0);
 		}

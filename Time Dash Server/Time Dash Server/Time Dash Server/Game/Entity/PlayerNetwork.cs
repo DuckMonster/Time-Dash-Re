@@ -209,6 +209,11 @@ public partial class Player : Actor
 		SendMessageToPlayer(GetShootMessage(position, hitpos, projID, charge), false, players);
 	}
 
+	public void SendBuyWeaponToPlayer(WeaponList weapon, params Player[] players)
+	{
+		SendMessageToPlayer(GetBuyWeaponMessage(weapon), false, players);
+	}
+
 	public void SendEquipWeaponToPlayer(int inventoryID, params Player[] players)
 	{
 		SendMessageToPlayer(GetEquipWeaponMessage(inventoryID), false, players);
@@ -440,6 +445,18 @@ public partial class Player : Actor
 
 		msg.WriteByte(projID);
 		msg.WriteFloat(charge);
+
+		return msg;
+	}
+
+	MessageBuffer GetBuyWeaponMessage(WeaponList weapon)
+	{
+		MessageBuffer msg = new MessageBuffer();
+
+		msg.WriteShort((short)Protocol.PlayerBuyWeapon);
+
+		msg.WriteByte(id);
+		msg.WriteByte((byte)weapon);
 
 		return msg;
 	}

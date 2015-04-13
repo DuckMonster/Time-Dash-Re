@@ -5,7 +5,7 @@ using TKTools;
 public class EffectSkull : Effect
 {
 	public static readonly Texture
-		skullTexture = new Texture("Res/skull.png");
+		skullTexture = Art.Load("Res/skull.png");
 
 	Mesh skullMesh, spikeMesh;
 	Vector2 position;
