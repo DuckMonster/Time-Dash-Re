@@ -284,12 +284,13 @@ public partial class Player
 		Game.client.Send(msg);
 	}
 
-	void SendEquipWeapon(int id)
+	public void SendInventory(int invID, WeaponList weapon)
 	{
 		MessageBuffer msg = new MessageBuffer();
 
-		msg.WriteShort((short)Protocol.PlayerEquipWeapon);
-		msg.WriteByte(id);
+		msg.WriteShort((short)Protocol.PlayerInventory);
+		msg.WriteByte(invID);
+		msg.WriteByte((byte)(weapon));
 
 		Game.client.Send(msg);
 	}

@@ -20,6 +20,8 @@ namespace ShopMenu
 
 		Vector2 previewWeaponPosition = new Vector2(4, 2);
 
+		EquipButton[] equipButtons = new EquipButton[2];
+
 		public ShopMenu(Map map)
 			: base(new Vector2(18f, 10f), map)
 		{
@@ -42,6 +44,9 @@ namespace ShopMenu
 					this, map));
 			}
 
+			equipButtons[0] = new EquipButton(0, (id) => map.LocalPlayer.SendInventory(id, selectedWeapon.Value), previewWeaponPosition - new Vector2(4f, 2f), new Vector2(2f, 2f), this, map);
+			equipButtons[1] = new EquipButton(1, (id) => map.LocalPlayer.SendInventory(id, selectedWeapon.Value), previewWeaponPosition - new Vector2(-4f, 2f), new Vector2(2f, 2f), this, map);
+
 			buyButton = new BuyButton(() => map.LocalPlayer.SendBuyWeapon(selectedWeapon.Value), previewWeaponPosition + new Vector2(0, -4), new Vector2(3f, 1f), this, map);
 
 			lockMesh.Texture = Art.Load("Res/weapons/lock.png");
@@ -61,7 +66,11 @@ namespace ShopMenu
 			base.Logic();
 
 			if (selectedWeapon != null)
+			{
 				buyButton.Logic();
+				equipButtons[0].Logic();
+				equipButtons[1].Logic();
+			}
 
 			weaponRotation += 40f * Game.delta;
 		}
@@ -72,7 +81,7 @@ namespace ShopMenu
 
 			if (selectedWeapon != null)
 			{
-				weaponMesh.Texture = WeaponButton.GetWeaponIcon(selectedWeapon.Value);
+				weaponMesh.Texture = Weapon.GetIcon(selectedWeapon.Value);
 				if (map.LocalPlayer.OwnsWeapon(selectedWeapon.Value))
 				{
 					weaponMesh.FillColor = false;
@@ -121,6 +130,10 @@ namespace ShopMenu
 					costMesh.Draw();
 
 					buyButton.Draw();
+				} else
+				{
+					equipButtons[0].Draw();
+					equipButtons[1].Draw();
 				}
 			}
 		}

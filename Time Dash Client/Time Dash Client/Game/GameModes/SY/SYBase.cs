@@ -1,9 +1,23 @@
 ﻿using OpenTK;
 
-public class SYBase : SYStash
+public class SYBase : Entity
 {
-	public SYBase(int id, Vector2 position, Map m)
-		: base(id, 8f, 50, position, m)
+	Team team;
+
+	public SYBase(Vector2 position, Team team, Map map)
+		:base(position, map)
 	{
+		this.team = team;
+
+		mesh.Texture = Art.Load("Res/circlebig.png");
+
+		mesh.Translate(position);
+		mesh.Scale(6f);
+	}
+
+	public override void Draw()
+	{
+		//base.Draw();
+		mesh.Draw();
 	}
 }

@@ -45,7 +45,7 @@ public class Menu
 		menuMesh.Reset();
 		menuMesh.Scale(20f, 20f * Game.windowRatio);
 
-		//menuMesh.Draw();
+		menuMesh.Draw();
 		foreach (Button b in buttonList) b.Draw();
 	}
 }

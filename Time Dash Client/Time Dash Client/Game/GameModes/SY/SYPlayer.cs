@@ -23,13 +23,23 @@ public class SYPlayer : Player
 	public SYPlayer(int id, string name, Vector2 position, Map m)
 		: base(id, name, position, m)
 	{
-		scrapMesh.Texture = Art.Load("Res/scrap.png");
 		scrap = 20;
+
+		scrapMesh = Mesh.OrthoBox;
+		scrapMesh.Texture = Art.Load("Res/scrap.png");
 
 		scrapTextMesh = Mesh.OrthoBox;
 
-		scrapTextBox = new TextBox();
+		scrapTextBox = new TextBox(new System.Drawing.Font("Adobe Song Std L", 120f));
+		scrapTextBox.UpdateRate = 0;
+		scrapTextBox.SetHeight = 1f;
 		scrapTextBox.VerticalAlign = TextBox.VerticalAlignment.Center;
+		scrapTextBox.Text = scrap.ToString();
+
+		scrapTextMesh.Vertices = scrapTextBox.Vertices;
+		scrapTextMesh.UV = scrapTextBox.UV;
+		scrapTextMesh.Texture = scrapTextBox.Texture;
+		scrapTextMesh.Color = Color.Yellow;
 	}
 
 	public override void Die(Vector2 diePos)
@@ -51,24 +61,31 @@ public class SYPlayer : Player
 	{
 		scrap = n;
 		scrapTextBox.Text = n.ToString();
+
+		scrapTextMesh.Texture = scrapTextBox.Texture;
+		scrapTextMesh.Vertices = scrapTextBox.Vertices;
 	}
 
 	public override void DrawHUD()
 	{
 		base.DrawHUD();
+	}
 
-		Vector2 scrapHud = position + new Vector2(1, -1);
-		float stepSize = 2 / 5f;
+	public void DrawScrap()
+	{
+		scrapMesh.Reset();
 
-		for (int i = 0; i < scrap; i++)
-		{
-			scrapMesh.Reset();
+		scrapMesh.Translate(-9f, 10f * Game.windowRatio - 1f);
+		scrapMesh.Scale(2f);
+		scrapMesh.Rotate(15f);
 
-			scrapMesh.Translate(scrapHud);
-			scrapMesh.Translate(new Vector2((int)Math.Floor(i / 5f), i % 5) * stepSize);
-			scrapMesh.Scale(stepSize);
+		scrapMesh.Draw();
 
-			scrapMesh.Draw();
-		}
+		scrapTextMesh.Reset();
+
+		scrapTextMesh.Translate(-9f, 10f * Game.windowRatio - 1f);
+		scrapTextMesh.Scale(2f);
+
+		scrapTextMesh.Draw();
 	}
 }

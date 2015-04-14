@@ -435,6 +435,10 @@ public class Map
 						p.ReceiveSwapWeapon();
 						break;
 
+					case Protocol.PlayerInventory:
+						p.ReceiveInventory(msg.ReadByte(), (WeaponList)msg.ReadByte());
+						break;
+
 					case Protocol.PlayerReload:
 						p.ReceiveReload();
 						break;

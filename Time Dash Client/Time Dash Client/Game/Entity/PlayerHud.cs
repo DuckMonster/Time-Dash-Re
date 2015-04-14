@@ -24,12 +24,13 @@ public class PlayerHud : IDisposable
 
 	Mesh weaponMesh;
 
+	float weaponEquipAnimation = 0f;
+
 	public PlayerHud(Player p)
 	{
 		this.player = p;
 
 		weaponMesh = Mesh.OrthoBox;
-		weaponMesh.Texture = Art.Load("Res/pistol.png");
 	}
 
 	public void Dispose()
@@ -93,6 +94,8 @@ public class PlayerHud : IDisposable
 
 			ammoAlpha = MathHelper.Clamp(ammoAlpha, 0f, 1f);
 		}
+
+		weaponEquipAnimation += ((float)player.weaponIndex - weaponEquipAnimation) * 18f * Game.delta;
 	}
 
 	public void OnReload()
@@ -202,27 +205,30 @@ public class PlayerHud : IDisposable
 		#endregion
 
 		#region Inventory
-		int nmbr = player.inventory.Length;
-
-		for (int i = 0; i < nmbr; i++)
-		{
-			if (player.inventory[i] == null) continue;
-			bool equipped = player.weaponIndex == i;
-
-			weaponMesh.Color = new Color(1f, 1f, 1f, equipped ? 0.8f : 0.3f);
-
-			weaponMesh.Reset();
-			
-			weaponMesh.Translate(-2f + (2f / (nmbr - 1)) * i, -10f * Game.windowRatio + (equipped ? 0.5f : 0f));
-			weaponMesh.Rotate(30f - (60f / (nmbr - 1)) * i);
-			if (i == 0)
-				weaponMesh.Scale(-1, 1);
-			weaponMesh.Rotate(90f);
-			weaponMesh.Scale(2f);
-
-			weaponMesh.Draw();
-		}
+		DrawWeapon(0, 1f - weaponEquipAnimation);
+		DrawWeapon(1, weaponEquipAnimation);
 
 		#endregion
+	}
+
+	void DrawWeapon(int index, float animation)
+	{
+		if (player.inventory[index] == null) return;
+		weaponMesh.Texture = Weapon.GetIcon(player.inventory[index].type);
+		weaponMesh.Color = new Color(1f, 1f, 1f, 0.3f + 0.7f * animation);
+
+		weaponMesh.Reset();
+
+		weaponMesh.Translate(0, -9f * Game.windowRatio);
+		weaponMesh.Scale(index == 0 ? -1 : 1, 1);
+
+		weaponMesh.Translate(0.6f, 0f);
+		weaponMesh.Translate(0f, -0.2f + 0.5f * animation);
+		weaponMesh.Rotate(-40f + 90f * animation);
+		weaponMesh.Translate(0.3f, 0f);
+		weaponMesh.Rotate(-15f + 30f * animation);
+		weaponMesh.Scale(2f);
+
+		weaponMesh.Draw();
 	}
 }

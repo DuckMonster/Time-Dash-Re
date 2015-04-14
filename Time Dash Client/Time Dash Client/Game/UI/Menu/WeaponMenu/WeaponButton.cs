@@ -6,21 +6,6 @@ namespace ShopMenu
 {
 	public class WeaponButton : Button
 	{
-		static Texture[] weaponIcons;
-		public static Texture GetWeaponIcon(WeaponList weapon)
-		{
-			if (weaponIcons == null)
-			{
-				weaponIcons = new Texture[Enum.GetNames(typeof(WeaponList)).Length];
-				weaponIcons[(int)WeaponList.Pistol] = Art.Load("Res/weapons/pistol.png");
-				weaponIcons[(int)WeaponList.Rifle] = Art.Load("Res/weapons/rifle.png");
-				weaponIcons[(int)WeaponList.GrenadeLauncher] = Art.Load("Res/weapons/grenadeLauncher.png");
-				weaponIcons[(int)WeaponList.Bow] = Art.Load("Res/weapons/bow.png");
-			}
-
-			return weaponIcons[(int)weapon];
-		}
-
 		public delegate void SelectWeapon(WeaponList w);
 
 		WeaponList weaponType;
@@ -68,7 +53,7 @@ namespace ShopMenu
 			this.selectWeapon = selectWeapon;
 
 			weaponMesh = Mesh.OrthoBox;
-			weaponMesh.Texture = GetWeaponIcon(weapon);
+			weaponMesh.Texture = Weapon.GetIcon(weapon);
 
 			lockMesh.Texture = Art.Load("Res/weapons/lock.png");
 			lockMesh.Color = new Color(0, 0, 0, 0.5f);

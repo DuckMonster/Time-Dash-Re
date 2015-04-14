@@ -13,6 +13,8 @@ public class SYMap : Map
 
 	SYTower[] towerList = new SYTower[4];
 
+	SYBase[] baseList = new SYBase[2];
+
 	Menu shopMenu;
 
 	int stashIndex = 0;
@@ -118,9 +120,9 @@ public class SYMap : Map
 		RectangleF bounds = pos.Bounds;
 
 		if (typeID == 2)
-			stashList[0] = new SYBase(0, new Vector2(bounds.X + bounds.Width / 2, bounds.Y), this);
+			baseList[0] = new SYBase(pos.Center, teamList[0], this);
 		if (typeID == 3)
-			stashList[1] = new SYBase(1, new Vector2(bounds.X + bounds.Width / 2, bounds.Y), this);
+			baseList[1] = new SYBase(pos.Center, teamList[1], this);
 
 		if (typeID == 10)
 		{
@@ -153,7 +155,7 @@ public class SYMap : Map
 	public override void Draw()
 	{
 		UpdateView();
-
+		/*
 		if (showShop)
 		{
 			frameBuffer.Bind();
@@ -185,6 +187,20 @@ public class SYMap : Map
 			foreach (SYTower t in towerList) if (t != null) t.Draw();
 			DrawMap();
 		}
+		*/
+
+		DrawBackground();
+		foreach (SYScrap s in scrapList) if (s != null) s.Draw();
+		foreach (SYStash b in stashList) if (b != null) b.Draw();
+		foreach (SYCreep c in creepList) if (c != null) c.Draw();
+		foreach (SYTower t in towerList) if (t != null) t.Draw();
+		foreach (SYBase b in baseList) if (b != null) b.Draw();
+		DrawMap();
+
+		if (showShop)
+			shopMenu.Draw();
+
+		(LocalPlayer as SYPlayer).DrawScrap();
 	}
 
 	public override void MessageHandle(EZUDP.MessageBuffer msg)

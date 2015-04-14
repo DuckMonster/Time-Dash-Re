@@ -155,7 +155,7 @@ public class SYScroot : SYCreep
 			}
 		} else
 		{
-			if (!target.IsAlive || !CollidesWith(creepCamp.Position, creepCamp.Size))
+			if (!target.IsAlive || !target.CollidesWith(creepCamp.Position, creepCamp.Size))
 			{
 				SetTarget(null);
 			}

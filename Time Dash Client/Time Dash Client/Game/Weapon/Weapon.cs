@@ -1,8 +1,25 @@
 ﻿using OpenTK;
+using System;
 using System.Collections.Generic;
+using TKTools;
 
 public abstract class Weapon
 {
+	static Texture[] weaponIcons;
+	public static Texture GetIcon(WeaponList weapon)
+	{
+		if (weaponIcons == null)
+		{
+			weaponIcons = new Texture[Enum.GetNames(typeof(WeaponList)).Length];
+			weaponIcons[(int)WeaponList.Pistol] = Art.Load("Res/weapons/pistol.png");
+			weaponIcons[(int)WeaponList.Rifle] = Art.Load("Res/weapons/rifle.png");
+			weaponIcons[(int)WeaponList.GrenadeLauncher] = Art.Load("Res/weapons/grenadeLauncher.png");
+			weaponIcons[(int)WeaponList.Bow] = Art.Load("Res/weapons/bow.png");
+		}
+
+		return weaponIcons[(int)weapon];
+	}
+
 	public readonly WeaponList type;
 
 	protected Map map;

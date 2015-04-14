@@ -160,6 +160,7 @@ public class Button
 		buttonMesh.Draw();
 
 		textMesh.Texture = textBox.Texture;
+		textMesh.Vertices = textBox.Vertices;
 
 		textMesh.Reset();
 

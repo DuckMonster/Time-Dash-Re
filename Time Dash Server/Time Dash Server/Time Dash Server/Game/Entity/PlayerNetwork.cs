@@ -98,6 +98,14 @@ public partial class Player : Actor
 		Shoot(target);
 	}
 
+	public void ReceiveInventory(int inventoryID, WeaponList weapon)
+	{
+		if (!ownedWeapons.Contains(weapon))
+			return;
+
+		EquipWeapon(inventoryID, weapon);
+	}
+
 	public void ReceiveSwapWeapon()
 	{
 		int origin = weaponIndex;
