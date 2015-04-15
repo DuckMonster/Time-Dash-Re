@@ -6,7 +6,7 @@ md .\TimeDash\Res
 md .\TimeDash\Shaders
 
 copy .\Debug\Maps\* .\TimeDash\Maps\
-copy .\Debug\Res\* .\TimeDash\Res\
+xcopy .\Debug\Res\* .\TimeDash\Res\ /E > log.txt
 copy .\Debug\Shaders\* .\TimeDash\Shaders\
 
 copy .\Debug\openal32.dll .\TimeDash\

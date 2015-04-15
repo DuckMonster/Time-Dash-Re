@@ -72,7 +72,10 @@ public class SYScroot : SYCreep
 				if (msg.ReadByte() == 1)
 					target = Map.playerList[msg.ReadByte()];
 				else
+				{
 					target = null;
+					chargeTimer.IsDone = true;
+				}
 
 				break;
 

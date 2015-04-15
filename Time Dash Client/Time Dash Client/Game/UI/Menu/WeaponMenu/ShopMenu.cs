@@ -30,7 +30,7 @@ namespace ShopMenu
 			float padding = 0.2f;
 
 			Vector2 buttonSize = new Vector2(1.25f, 1.25f);
-			Vector2 buttonStart = (size / 2 - buttonSize / 2 - new Vector2(padding, padding)) * new Vector2(-1, 1);
+			Vector2 buttonStart = new Vector2(-8f, 2f);
 
 			for (int i=0; i<nmbrOfWeapons; i++)
 			{

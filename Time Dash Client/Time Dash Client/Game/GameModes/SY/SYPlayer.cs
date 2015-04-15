@@ -23,8 +23,6 @@ public class SYPlayer : Player
 	public SYPlayer(int id, string name, Vector2 position, Map m)
 		: base(id, name, position, m)
 	{
-		scrap = 20;
-
 		scrapMesh = Mesh.OrthoBox;
 		scrapMesh.Texture = Art.Load("Res/scrap.png");
 

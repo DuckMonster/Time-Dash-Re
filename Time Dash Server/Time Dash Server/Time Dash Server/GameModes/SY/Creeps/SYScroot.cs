@@ -17,6 +17,8 @@ public class SYScroot : SYCreep
 	Timer reloadTimer;
 	Timer chargeTimer;
 
+	Timer updateTimer = new Timer(0.1f, false);
+
 	Vector2? TargetPosition
 	{
 		get
@@ -101,6 +103,10 @@ public class SYScroot : SYCreep
 
 	void SetTarget(Player target)
 	{
+		if (target == null)
+		{
+			chargeTimer.IsDone = true;
+		}
 		this.target = target;
 		SendTargetToPlayer(Map.playerList);
 	}
@@ -125,6 +131,13 @@ public class SYScroot : SYCreep
 			velocity += (TargetPosition.Value - Position).Normalized() * Acceleration * Game.delta;
 
 		velocity -= velocity * Friction * Game.delta;
+
+		updateTimer.Logic();
+		if (updateTimer.IsDone)
+		{
+			//SendPositionToPlayer(Map.playerList);
+			updateTimer.Reset();
+		}
 
 		//Move
 		DoMovement();
@@ -189,7 +202,9 @@ public class SYScroot : SYCreep
 		SYCreep coll = Map.GetActorAtPos<SYCreep>(Position + velocity * new Vector2(Game.delta, 0), Size, this);
 		if (coll != null || Map.GetCollision(this, velocity * new Vector2(Game.delta, 0)))
 		{
-			IdleTargetReached();
+			if (target == null)
+				IdleTargetReached();
+
 			velocity.X *= -0.7f;
 
 			SendPositionToPlayer(Map.playerList);
@@ -202,7 +217,9 @@ public class SYScroot : SYCreep
 		coll = Map.GetActorAtPos<SYCreep>(Position + velocity * new Vector2(0, Game.delta), Size, this);
 		if (coll != null || Map.GetCollision(this, velocity * new Vector2(0, Game.delta)))
 		{
-			IdleTargetReached();
+			if (target == null)
+				IdleTargetReached();
+
 			velocity.Y *= -0.7f;
 
 			SendPositionToPlayer(Map.playerList);
