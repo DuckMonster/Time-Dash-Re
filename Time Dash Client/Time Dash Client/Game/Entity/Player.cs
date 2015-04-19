@@ -177,6 +177,8 @@ public partial class Player : Actor
 		dodgeCooldown = new Timer(stats.DodgeCooldown, true);
 
 		hud = new PlayerHud(this);
+
+		ownedWeapons.Add(WeaponList.Pistol);
 	}
 
 	public override void Dispose()
@@ -332,7 +334,9 @@ public partial class Player : Actor
 						Dodge(Direction.Down);
 				}
 
-				dodgeIntervalTimer = dodgeInterval;
+				if (inputDirection != oldInputDirection)
+					dodgeIntervalTimer = dodgeInterval;
+
 				lastDirection = inputDirection;
 			}
 

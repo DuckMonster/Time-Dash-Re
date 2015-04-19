@@ -32,13 +32,19 @@ public class SYMap : Map
 				yield return a;
 
 			foreach (SYCreep c in creepList)
-				yield return c;
+				if (c != null) yield return c;
+
+			foreach (SYTower t in towerList)
+				if (t != null) yield return t;
+
+			foreach (SYBase b in baseList)
+				if (b != null) yield return b;
 		}
 	}
 
 	public override bool PauseInput
 	{
-		get { return showShop; }
+		get { return showShop || !baseList[0].IsAlive || !baseList[1].IsAlive; }
 	}
 
 	public SYMap(int id, string filename)
@@ -120,9 +126,9 @@ public class SYMap : Map
 		RectangleF bounds = pos.Bounds;
 
 		if (typeID == 2)
-			baseList[0] = new SYBase(pos.Center, teamList[0], this);
+			baseList[0] = new SYBase(pos.Center, 0, this);
 		if (typeID == 3)
-			baseList[1] = new SYBase(pos.Center, teamList[1], this);
+			baseList[1] = new SYBase(pos.Center, 1, this);
 
 		if (typeID == 10)
 		{
@@ -136,8 +142,6 @@ public class SYMap : Map
 		base.Logic();
 		foreach (SYScrap s in scrapList) if (s != null) s.Logic();
 		foreach (SYStash b in stashList) if (b != null) b.Logic();
-		foreach (SYCreep c in creepList) if (c != null) c.Logic();
-		foreach (SYTower t in towerList) if (t != null) t.Logic();
 
 		if (KeyboardInput.KeyPressed(OpenTK.Input.Key.B))
 		{
@@ -150,6 +154,14 @@ public class SYMap : Map
 
 		if (showShop)
 			shopMenu.Logic();
+
+		if (!baseList[0].IsAlive)
+		{
+			camera.FocusObject = baseList[0];
+		} else if (!baseList[1].IsAlive)
+		{
+			camera.FocusObject = baseList[1];
+		}
 	}
 
 	public override void Draw()
@@ -192,9 +204,6 @@ public class SYMap : Map
 		DrawBackground();
 		foreach (SYScrap s in scrapList) if (s != null) s.Draw();
 		foreach (SYStash b in stashList) if (b != null) b.Draw();
-		foreach (SYCreep c in creepList) if (c != null) c.Draw();
-		foreach (SYTower t in towerList) if (t != null) t.Draw();
-		foreach (SYBase b in baseList) if (b != null) b.Draw();
 		DrawMap();
 
 		if (showShop)
@@ -260,9 +269,9 @@ public class SYMap : Map
 					case Protocol_SY.TowerExistance:
 						{
 							int id = msg.ReadByte();
-							SYTowerPoint stash = stashList[msg.ReadByte()] as SYTowerPoint;
+							//SYTowerPoint stash = stashList[msg.ReadByte()] as SYTowerPoint;
 
-							towerList[id] = new SYTower(id, stash, stash.Position, this);
+							towerList[id] = new SYTower(id, msg.ReadVector2(), this);
 							break;
 						}
 
@@ -284,6 +293,10 @@ public class SYMap : Map
 
 					case Protocol_SY.TowerDie:
 						towerList[msg.ReadByte()].ReceiveDie();
+						break;
+
+					case Protocol_SY.BaseHit:
+						baseList[msg.ReadByte()].ReceiveHit(msg.ReadFloat(), msg.ReadFloat(), msg.ReadByte(), msg.ReadVector2());
 						break;
 				}
 			}

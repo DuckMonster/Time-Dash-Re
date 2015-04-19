@@ -42,6 +42,9 @@ public class SYTower : Actor
 		get { return TurretPosition; }
 	}
 
+	public SYTower(int id, Vector2 position, Map map)
+		: this(id, null, position, map)
+	{ }
 	public SYTower(int id, SYTowerPoint point, Vector2 position, Map map)
 		: base(position, map)
 	{
@@ -52,7 +55,8 @@ public class SYTower : Actor
 		this.id = id;
 		this.point = point;
 
-		point.tower = this;
+		if (point != null)
+			point.tower = this;
 
 		mesh.Texture = texHead;
 		barrelMesh.Texture = texBarrel;
@@ -96,7 +100,7 @@ public class SYTower : Actor
 	public void ReceiveDie()
 	{
 		EffectExplosion.CreateExplosion(Position, 1.8f, Map);
-		point.Reset();
+		if (point != null) point.Reset();
 
 		Map.TowerDestroyed(this);
 	}

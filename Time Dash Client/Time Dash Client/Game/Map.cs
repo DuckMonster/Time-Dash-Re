@@ -287,7 +287,7 @@ public class Map : IDisposable
 		scene.Logic();
 		 
 		if (LocalPlayer != null) LocalPlayer.LocalInput();
-		foreach (Player p in playerList) if (p != null) p.Logic();
+		foreach (Actor a in Actors) if (a != null) a.Logic();
 
 		if (!effectList.Equals(effectBufferList))
 		{
@@ -329,7 +329,7 @@ public class Map : IDisposable
 
 	public void DrawMap()
 	{
-		foreach (Player p in playerList) if (p != null) p.Draw();
+		foreach (Actor a in Actors) if (a != null) a.Draw();
 		foreach (Effect e in effectList) e.Draw();
 		foreach (Projectile p in projectileList) if (p != null) p.Draw();
 		if (LocalPlayer != null) LocalPlayer.DrawHUD();

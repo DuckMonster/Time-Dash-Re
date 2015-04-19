@@ -98,5 +98,10 @@ public enum Protocol_SY
 	TowerRotation,
 	TowerShoot,
 	TowerHit,
-	TowerDie
+	TowerDie,
+
+	BaseExistance,
+	BaseHit,
+	BaseShoot,
+	BaseDie
 }

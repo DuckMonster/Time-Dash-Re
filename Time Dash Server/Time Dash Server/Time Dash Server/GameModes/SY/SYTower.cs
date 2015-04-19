@@ -49,6 +49,10 @@ public class SYTower : Actor
 		set { base.Position = value; }
 	}
 
+	public SYTower(int id, Vector2 position, Map map)
+		:this(id, null, position, map)
+	{
+	}
 	public SYTower(int id, SYTowerPoint point, Vector2 position, Map map)
 		:base(position, map)
 	{
@@ -71,19 +75,14 @@ public class SYTower : Actor
 		base.Die();
 		SendDieToPlayer(Map.playerList);
 
-		point.Reset();
+		if (point != null) point.Reset();
 		Map.TowerDestroyed(this);
 	}
 
 	public override bool CollidesWith(Vector2 pos, float radius)
 	{
 		Vector2 tp = TurretPosition;
-
-		Vector2 checkpos = new Vector2(
-			MathHelper.Clamp(pos.X, tp.X - Size.X / 2, tp.X + Size.X / 2),
-			MathHelper.Clamp(pos.Y, tp.Y - Size.Y / 2, tp.Y + Size.Y / 2));
-
-		return (pos - checkpos).Length <= radius;
+		return (pos - tp).Length <= (radius + size.X/2);
 	}
 
 	void SetTarget(Player p)
@@ -216,7 +215,10 @@ public class SYTower : Actor
 		msg.WriteShort((short)Protocol_SY.TowerExistance);
 
 		msg.WriteByte(id);
-		msg.WriteByte(point.id);
+		if (point != null)
+			msg.WriteByte(point.id);
+		else
+			msg.WriteVector(position);
 
 		return msg;
 	}

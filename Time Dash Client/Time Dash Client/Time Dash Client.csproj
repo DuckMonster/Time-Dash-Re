@@ -77,6 +77,7 @@
     <Compile Include="Game\Effects\EffectBlood.cs" />
     <Compile Include="Game\Effects\EffectSpike.cs" />
     <Compile Include="Game\Effects\EffectSmoke.cs" />
+    <Compile Include="Game\Effects\EffectBaseHit.cs" />
     <Compile Include="Game\Effects\EffectTowerHit.cs" />
     <Compile Include="Game\Entity\Actor.cs" />
     <Compile Include="Game\GameModes\SY\Creeps\SYCreep.cs" />

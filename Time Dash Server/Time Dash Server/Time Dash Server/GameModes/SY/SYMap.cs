@@ -16,6 +16,7 @@ public class SYMap : Map
 	int stashIndex = 0;
 	int creepIndex = 0;
 
+	SYBase[] baseList = new SYBase[2];
 	SYTower[] towerList = new SYTower[4];
 	int NextTowerID
 	{
@@ -59,6 +60,9 @@ public class SYMap : Map
 			foreach (SYTower t in towerList)
 				if (t != null) yield return t;
 
+			foreach (SYBase b in baseList)
+				if (b != null) yield return b;
+
 			foreach (Actor a in base.Actors)
 				yield return a;
 		}
@@ -73,6 +77,15 @@ public class SYMap : Map
 	{
 		int id = NextTowerID;
 		SYTower tower = new SYTower(id, point, point.Position, this);
+		towerList[id] = tower;
+
+		return tower;
+	}
+
+	public SYTower SpawnTower(Vector2 point)
+	{
+		int id = NextTowerID;
+		SYTower tower = new SYTower(id, point, this);
 		towerList[id] = tower;
 
 		return tower;
@@ -151,17 +164,16 @@ public class SYMap : Map
 			spawnPoints[1] = new SpawnPoint(p.Center, new Vector2(rect.Width, rect.Height), this);
 
 		if (typeID == 2)
-			stashList[0] = new SYBase(0, 0, new Vector2(rect.X + rect.Width / 2, rect.Y), this);
+			baseList[0] = new SYBase(p.Center, 0, this);
 		if (typeID == 3)
-			stashList[1] = new SYBase(1, 1, new Vector2(rect.X + rect.Width / 2, rect.Y), this);
+			baseList[1] = new SYBase(p.Center, 1, this);
 
 		if (typeID == 5)
 			campList.Add(new SYCreepCamp(rect, this));
 
 		if (typeID == 10)
 		{
-			stashList[5 + stashIndex] = new SYTowerPoint(5 + stashIndex, new Vector2(rect.X + rect.Width / 2, rect.Y), this);
-			stashIndex++;
+			SpawnTower(new Vector2(rect.X + rect.Width / 2, rect.Y));
 		}
 	}
 
