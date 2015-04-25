@@ -32,15 +32,15 @@ public class Team
 
 	public void AddMember(Player p)
 	{
-		if (p.team != null) p.team.RemoveMember(p);
+		if (p.Team != null) p.Team.RemoveMember(p);
 		memberList.Add(p);
-		p.team = this;
+		p.Team = this;
 	}
 
 	public void RemoveMember(Player p)
 	{
 		memberList.Remove(p);
-		p.team = null;
+		p.Team = null;
 	}
 
 	public bool IsMember(Player p)

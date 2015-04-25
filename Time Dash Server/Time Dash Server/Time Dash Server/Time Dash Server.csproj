@@ -74,6 +74,7 @@
     <Compile Include="GameModes\SY\SYStash.cs" />
     <Compile Include="GameModes\SY\SYTowerPoint.cs" />
     <Compile Include="GameModes\SY\SYTower.cs" />
+    <Compile Include="GameModes\SY\SYTowerWall.cs" />
     <Compile Include="Game\Entity\Actor.cs" />
     <Compile Include="Game\Entity\Entity.cs" />
     <Compile Include="Game\Entity\Player.cs" />

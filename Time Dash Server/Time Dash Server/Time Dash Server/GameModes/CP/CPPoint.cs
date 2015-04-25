@@ -35,7 +35,7 @@ public class CPPoint : Entity
 		foreach (Player p in playerList)
 		{
 			if (p.Position.Y < Position.Y) continue;
-			if (!returnList.Contains(p.team)) returnList.Add(p.team);
+			if (!returnList.Contains(p.Team)) returnList.Add(p.Team);
 		}
 
 		return returnList;

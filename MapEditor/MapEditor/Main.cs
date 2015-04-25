@@ -10,6 +10,7 @@ namespace MapEditor
 		[STAThread]
 		static void Main(string[] args)
 		{
+			System.Windows.Forms.Application.EnableVisualStyles();
 			Container.ExecutableLocation = Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location);
 
 			using (EditorProgram p = new EditorProgram(1025, 768, new GRFX.GraphicsMode(new GRFX.ColorFormat(32), 24, 8, 3)))

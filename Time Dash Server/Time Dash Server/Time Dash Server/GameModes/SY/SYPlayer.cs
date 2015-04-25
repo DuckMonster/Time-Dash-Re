@@ -38,6 +38,12 @@ public class SYPlayer : Player
 		SetScrap(scrap - WeaponStats.GetStats(weapon).scrapCost);
 	}
 
+	public override void KilledBy(Actor a)
+	{
+		if (a is SYPlayer) (a as SYPlayer).GainScrap(20);
+		base.KilledBy(a);
+	}
+
 	void SetScrap(int n)
 	{
 		scrap = n;
@@ -53,10 +59,7 @@ public class SYPlayer : Player
 	{
 		base.Die();
 
-		for (int i = 0; i < scrap; i++)
-			Map.CreateScrap(Position);
-
-		SetScrap(0);
+		GainScrap(-scrap / 2, Position);
 	}
 
 	public void ReturnScrap(SYStash stash)
@@ -65,10 +68,21 @@ public class SYPlayer : Player
 		SetScrap(scrap - scrapReturned);
 	}
 
+	public void GainScrap(int n)
+	{
+		SetScrap(scrap + n);
+	}
+
+	public void GainScrap(int n, Vector2 pos)
+	{
+		SetScrap(scrap + n);
+		SendScrapGainEffectToPlayer(pos, n, this);
+	}
+
 	public void CollectScrap(SYScrap s)
 	{
 		s.CollectedBy(this);
-		SetScrap(scrap + 1);
+		GainScrap(1, s.Position);
 	}
 
 	public override void Logic()
@@ -90,6 +104,11 @@ public class SYPlayer : Player
 		SendMessageToPlayer(GetScrapMessage(), false, players);
 	}
 
+	public void SendScrapGainEffectToPlayer(Vector2 pos, int n, params Player[] players)
+	{
+		SendMessageToPlayer(GetScrapGainEffectMessage(pos, n), false, players);
+	}
+
 	MessageBuffer GetScrapMessage()
 	{
 		MessageBuffer msg = new MessageBuffer();
@@ -99,6 +118,19 @@ public class SYPlayer : Player
 
 		msg.WriteByte(id);
 		msg.WriteByte(scrap);
+
+		return msg;
+	}
+
+	MessageBuffer GetScrapGainEffectMessage(Vector2 pos, int n)
+	{
+		MessageBuffer msg = new MessageBuffer();
+
+		msg.WriteShort((short)Protocol.MapArgument);
+		msg.WriteShort((short)Protocol_SY.ScrapGainEffect);
+
+		msg.WriteVector(pos);
+		msg.WriteShort(n);
 
 		return msg;
 	}

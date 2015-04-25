@@ -5,14 +5,14 @@ using EZUDP.Server;
 using EZUDP;
 using System.Collections.Generic;
 
-using MapScene;
+using Scene;
 using TKTools;
 
 public class Map
 {
 	public static Map currentMap;
 	public Random rng = new Random();
-	protected Scene scene;
+	protected Scene.Scene scene;
 
 	public string filename;
 	public GameMode mode;
@@ -159,7 +159,7 @@ public class Map
 		this.mode = mode;
 
 		currentMap = this;
-		scene = new Scene(filename, this);
+		scene = new Scene.Scene(filename, this);
 	}
 
 	public Map(string filename, GameMode mode, Player[] players)
@@ -168,7 +168,7 @@ public class Map
 		this.mode = mode;
 
 		currentMap = this;
-		scene = new Scene(filename, this);
+		scene = new Scene.Scene(filename, this);
 
 		List<Player> playerBuffer = new List<Player>(players);
 		Random r = new Random();
@@ -196,19 +196,20 @@ public class Map
 	{
 		if (winPlayer != null) return;
 
-		winPlayer = t.memberList[0];
+		winPlayer = (t.memberList[0] as Player);
 
 		SendTeamWin(t);
 	}
 
-	public virtual void SceneZone(int typeID, Polygon p)
+	public virtual void SceneEvent(EnvEvent e, int[] args, Polygon p)
 	{
 
 	}
 
-	public bool GetCollision(Entity e) { return GetCollision(e.Position, e.Size); }
-	public bool GetCollision(Entity e, Vector2 offset) { return GetCollision(e.Position + offset, e.Size); }
-	public bool GetCollision(Vector2 pos, Vector2 size)
+	public bool GetCollision(Entity e) { return GetCollision(e.Position, e.Size, e); }
+	public bool GetCollision(Entity e, Vector2 offset) { return GetCollision(e.Position + offset, e.Size, e); }
+	public bool GetCollision(Vector2 pos, Vector2 size) { return GetCollision(pos, size, null); }
+	public virtual bool GetCollision(Vector2 pos, Vector2 size, Entity e)
 	{
 		return scene.GetCollisionFast(pos, size);
 	}
@@ -264,7 +265,7 @@ public class Map
 		return null;
 	}
 
-	public bool RayTraceCollision(Vector2 start, Vector2 end, Vector2 size, out Vector2 freepos)
+	public bool RayTraceCollision(Vector2 start, Vector2 end, Vector2 size, out Vector2 freepos, Entity e = null)
 	{
 		Vector2 diffVector = end - start, directionVector = diffVector.Normalized();
 
@@ -277,7 +278,7 @@ public class Map
 			Vector2 buffer = checkpos;
 			buffer += directionVector * step;
 
-			if (GetCollision(buffer, size))
+			if (GetCollision(buffer, size, e))
 			{
 				freepos = checkpos;
 				return true;

@@ -58,13 +58,13 @@ public class CTFPlayer : Player
 	{
 		base.Draw();
 
-		CTFFlag flag = Map.flags[team.id];
+		CTFFlag flag = Map.flags[Team.id];
 
 		if ((!flag.IsInBase || flag.holder != null) && IsLocalPlayer)
 		{
 			Vector2 flagPosition = flag.holder == null ? flag.Position : flag.holder.Position;
 			float dis = (flagPosition - Position).Length;
-			Color c = team.Color;
+			Color c = Team.Color;
 			c.A = MathHelper.Clamp((dis - 7f) / 2f, 0, 1);
 
 			arrowMesh.Color = c;

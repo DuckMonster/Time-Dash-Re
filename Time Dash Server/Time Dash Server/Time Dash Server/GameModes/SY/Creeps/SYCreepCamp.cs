@@ -17,6 +17,8 @@ public class SYCreepCamp : Entity
 
 	Timer spawnTimer = new Timer(5f, false);
 
+	int nmbrOfCreeps;
+
 	public Vector2 RandomPosition
 	{
 		get
@@ -35,10 +37,11 @@ public class SYCreepCamp : Entity
 		}
 	}
 
-	public SYCreepCamp(RectangleF rect, Map map)
+	public SYCreepCamp(RectangleF rect, int n, Map map)
 		:base(Vector2.Zero, map)
 	{
 		rectangle = rect;
+		nmbrOfCreeps = n;
 
 		Position = new Vector2(rectangle.X + rectangle.Width / 2, rectangle.Y + rectangle.Height / 2);
 		Size = new Vector2(rectangle.Width, rectangle.Height);
@@ -48,7 +51,7 @@ public class SYCreepCamp : Entity
 	{
 		creepList.Clear();
 
-		for (int i = 0; i < 4; i++)
+		for (int i = 0; i < nmbrOfCreeps; i++)
 		{
 			SYCreep c = new SYScroot(RandomPosition, this, Map);
 			creepList.Add(c);

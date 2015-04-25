@@ -13,6 +13,8 @@ public class Actor : Entity
 
 	public float health;
 
+	protected int teamID = -1;
+
 	public virtual float Acceleration
 	{
 		get
@@ -47,6 +49,20 @@ public class Actor : Entity
 		}
 	}
 
+	public virtual Team Team
+	{
+		get
+		{
+			if (teamID == -1) return null;
+			else return Map.teamList[teamID];
+		}
+		set
+		{
+			if (value == null) teamID = -1;
+			else teamID = value.id;
+		}
+	}
+
 	public virtual float MaxHealth
 	{
 		get { return stats.PlayerHealth; }
@@ -76,6 +92,9 @@ public class Actor : Entity
 		Hit(dmg);
 		if (force != 0)
 			velocity = TKMath.GetAngleVector(dir) * force;
+
+		if (!IsAlive)
+			KilledBy(a);
 	}
 
 	public virtual void Hit(float dmg, float dir, Projectile proj, float force = 0)
@@ -83,6 +102,13 @@ public class Actor : Entity
 		Hit(dmg);
 		if (force != 0)
 			velocity = TKMath.GetAngleVector(dir) * force;
+
+		if (!IsAlive)
+			KilledBy(proj.Owner);
+	}
+
+	public virtual void KilledBy(Actor a)
+	{
 	}
 
 	public virtual void Hit(float dmg)

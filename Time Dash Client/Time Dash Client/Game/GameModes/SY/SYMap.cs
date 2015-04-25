@@ -3,15 +3,16 @@ using System;
 using System.Drawing;
 using System.Collections.Generic;
 using TKTools;
-using OpenTK.Graphics.OpenGL;
+using MapScene;
 
 public class SYMap : Map
 {
 	SYScrap[] scrapList = new SYScrap[500];
 	SYStash[] stashList = new SYStash[10];
 	SYCreep[] creepList = new SYCreep[50];
+	SYTowerWall[] wallList = new SYTowerWall[8];
 
-	SYTower[] towerList = new SYTower[4];
+	public SYTower[] towerList = new SYTower[8];
 
 	SYBase[] baseList = new SYBase[2];
 
@@ -39,6 +40,9 @@ public class SYMap : Map
 
 			foreach (SYBase b in baseList)
 				if (b != null) yield return b;
+
+			foreach (SYTowerWall w in wallList)
+				if (w != null) yield return w;
 		}
 	}
 
@@ -65,6 +69,45 @@ public class SYMap : Map
 		frameBufferMesh.UsingBlur = true;
 		frameBufferMesh.BlurIntensity = 1f;
 		frameBufferMesh.BlurRadius = 6;
+
+		teamList[0] = new Team(0);
+		teamList[1] = new Team(1);
+	}
+
+	public override bool GetCollision(Entity e, Vector2 offset)
+	{
+		bool c = base.GetCollision(e, offset);
+		if (!c)
+		{
+			foreach (SYTowerWall w in wallList)
+			{
+				if (w == null) continue;
+				if (e is Player && (e as Player).Team == w.Team) continue;
+
+				if (w.CollidesWith(e.Position, e.Size))
+					return true;
+			}
+		}
+
+		return c;
+	}
+
+	public override bool GetCollision(Vector2 pos, Vector2 size, Entity e = null)
+	{
+		bool c = base.GetCollision(pos, size);
+		if (!c)
+		{
+			foreach (SYTowerWall w in wallList)
+			{
+				if (w == null) continue;
+				if (e != null && (e is Actor && (e as Actor).Team == w.Team)) continue;
+
+				if (w.CollidesWith(pos, size))
+					return true;
+			}
+		}
+
+		return c;
 	}
 
 	public void SpawnCreep(CreepType type, int id, Vector2 position, Vector2 velocity)
@@ -119,22 +162,17 @@ public class SYMap : Map
 		base.Dispose();
 	}
 
-	public override void SceneZone(int typeID, TKTools.Polygon pos)
+	public override void SceneEvent(EnvEvent e, int[] args, Polygon p)
 	{
-		base.SceneZone(typeID, pos);
+		base.SceneEvent(e, args, p);
 
-		RectangleF bounds = pos.Bounds;
+		RectangleF rect = p.Bounds;
 
-		if (typeID == 2)
-			baseList[0] = new SYBase(pos.Center, 0, this);
-		if (typeID == 3)
-			baseList[1] = new SYBase(pos.Center, 1, this);
+		if (e.ID == 1)
+			baseList[args[0]] = new SYBase(p.Center, args[0], this);
 
-		if (typeID == 10)
-		{
-			stashList[5 + stashIndex] = new SYTowerPoint(5 + stashIndex, new Vector2(bounds.X + bounds.Width / 2, bounds.Y), this);
-			stashIndex++;
-		}
+		if (e.ID == 6)
+			wallList[args[0]] = new SYTowerWall(p, args[0], this);
 	}
 
 	public override void Logic()
@@ -224,6 +262,10 @@ public class SYMap : Map
 						(playerList[msg.ReadByte()] as SYPlayer).ReceiveScrap(msg.ReadByte());
 						break;
 
+					case Protocol_SY.ScrapGainEffect:
+						AddEffect(new EffectGainScrap(msg.ReadVector2(), msg.ReadShort(), this));
+						break;
+
 					case Protocol_SY.ScrapExistance:
 						CreateScrap(msg.ReadShort(), msg.ReadVector2(), msg.ReadVector2());
 						break;
@@ -271,7 +313,7 @@ public class SYMap : Map
 							int id = msg.ReadByte();
 							//SYTowerPoint stash = stashList[msg.ReadByte()] as SYTowerPoint;
 
-							towerList[id] = new SYTower(id, msg.ReadVector2(), this);
+							towerList[id] = new SYTower(id, msg.ReadByte(), msg.ReadVector2(), this);
 							break;
 						}
 

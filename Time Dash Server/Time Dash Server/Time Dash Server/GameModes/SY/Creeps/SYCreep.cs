@@ -76,12 +76,17 @@ public class SYCreep : Actor
 			SendPositionToPlayer(Map.playerList);
 	}
 
+	public override void KilledBy(Actor a)
+	{
+		if (a is SYPlayer) (a as SYPlayer).GainScrap(2, Position);
+		base.KilledBy(a);
+	}
+
 	public override void Die()
 	{
 		base.Die();
 		SendDieToPlayer(Map.playerList);
 		Map.RemoveCreep(id);
-		Map.CreateScrap(Position);
 	}
 
 	public override void Logic()

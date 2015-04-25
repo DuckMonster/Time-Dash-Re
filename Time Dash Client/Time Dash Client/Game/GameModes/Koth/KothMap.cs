@@ -12,7 +12,8 @@ public class KothMap : Map
 	{
 	}
 
-	public override void SceneZone(int typeID, TKTools.Polygon p)
+	/*
+	public override void SceneEvent(int typeID, TKTools.Polygon p)
 	{
 		RectangleF rect = p.Bounds;
 
@@ -20,8 +21,9 @@ public class KothMap : Map
 		{
 			point = new KothPoint(new Vector2(rect.X + rect.Width / 2, rect.Y), this);
 		}
-		base.SceneZone(typeID, p);
+		base.SceneEvent(typeID, p);
 	}
+	*/
 
 	public override void PlayerJoin(int id, string name)
 	{

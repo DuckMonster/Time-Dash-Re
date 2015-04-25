@@ -22,8 +22,6 @@ public partial class Player : Actor
 
 	protected PlayerShadow shadow;
 
-	public Team team;
-
 	float wallStick = -1;
 	bool canDoublejump = true;
 
@@ -78,7 +76,7 @@ public partial class Player : Actor
 	{
 		get
 		{
-			if (team != null) return team.Color;
+			if (Team != null) return Team.Color;
 			return colorList[playerID % colorList.Length];
 		}
 	}

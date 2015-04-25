@@ -40,7 +40,7 @@ namespace MapEditor
 
 		private void textBox1_TextChanged_1(object sender, EventArgs e)
 		{
-			editor.gameModeID = int.Parse(gameModeBox.Text);
+			int.TryParse(gameModeBox.Text, out editor.gameModeID);
 		}
 	}
 }

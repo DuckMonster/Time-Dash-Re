@@ -6,7 +6,7 @@ using TKTools;
 using System;
 using TKTools.AStar;
 
-namespace MapScene
+namespace Scene
 {
 	public class Scene : IDisposable
 	{
@@ -15,6 +15,7 @@ namespace MapScene
 		public List<EnvTemplate> templateList = new List<EnvTemplate>();
 		public List<EnvSolid> solidList = new List<EnvSolid>();
 		public List<EnvObject> objectList = new List<EnvObject>();
+		public List<EnvEvent> eventList = new List<EnvEvent>();
 
 		public float width = 40f, height = 40;
 		public Vector2 originOffset;
@@ -67,6 +68,16 @@ namespace MapScene
 				for (int i = 0; i < nmbrOfTemplates; i++)
 					templateList.Add(new EnvTemplate(reader, this));
 
+				int nmbrOfEvents = reader.ReadInt32();
+				for(int i=0; i<nmbrOfEvents; i++)
+				{
+					eventList.Add(new EnvEvent(
+						reader.ReadInt32(),
+						reader.ReadString(),
+						new TKTools.Color(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle())
+						));
+				}
+
 				int nmbrOfLayers = reader.ReadInt32();
 				for (int i = 0; i < nmbrOfLayers; i++)
 				{
@@ -85,10 +96,11 @@ namespace MapScene
 							else
 							{
 								int id = reader.ReadInt32();
+								int argNmbr = reader.ReadInt32();
 
-								reader.ReadSingle();		//Red color
-								reader.ReadSingle();		//Green color
-								reader.ReadSingle();		//Blue color
+								int[] argList = new int[argNmbr];
+								for (int a = 0; a < argList.Length; a++)
+									argList[a] = reader.ReadInt32();
 
 								Polygon p = new Polygon(new Vector2[] {
 								new Vector2(reader.ReadSingle(), reader.ReadSingle()),
@@ -97,7 +109,8 @@ namespace MapScene
 								new Vector2(reader.ReadSingle(), reader.ReadSingle())
 							});
 
-								map.SceneZone(id, p);
+								if (id != -1)
+									map.SceneEvent(eventList.Find((x) => x.ID == id), argList, p);
 							}
 						}
 					}
@@ -249,6 +262,35 @@ namespace MapScene
 			scene = s;
 			tilesetIndex = reader.ReadInt32();
 			uv = new RectangleF(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
+		}
+	}
+
+	public class EnvEvent
+	{
+		int id;
+		string name;
+		TKTools.Color color;
+
+		public int ID
+		{
+			get { return id; }
+		}
+
+		public string Name
+		{
+			get { return name; }
+		}
+
+		public TKTools.Color Color
+		{
+			get { return color; }
+		}
+
+		public EnvEvent(int id, string name, TKTools.Color color)
+		{
+			this.id = id;
+			this.name = name;
+			this.color = color;
 		}
 	}
 

@@ -61,9 +61,9 @@ public class CTFFlag : Entity
 				{
 					if (p.CollidesWith(Position, 0.5f))
 					{
-						if (p.team == OwnerTeam && !IsInBase)
+						if (p.Team == OwnerTeam && !IsInBase)
 							Return();
-						if (p.team != OwnerTeam)
+						if (p.Team != OwnerTeam)
 							p.GrabFlag(this);
 					}
 				}

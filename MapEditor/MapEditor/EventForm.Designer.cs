@@ -28,62 +28,124 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
-			this.IDLabel = new System.Windows.Forms.Label();
-			this.textBox1 = new System.Windows.Forms.TextBox();
 			this.colorDialog1 = new System.Windows.Forms.ColorDialog();
-			this.colorButton = new System.Windows.Forms.Button();
-			this.okButton = new System.Windows.Forms.Button();
+			this.eventList = new System.Windows.Forms.ListView();
+			this.eventID = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+			this.eventName = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+			this.buttonOK = new System.Windows.Forms.Button();
+			this.buttonEdit = new System.Windows.Forms.Button();
+			this.buttonCancel = new System.Windows.Forms.Button();
+			this.buttonAdd = new System.Windows.Forms.Button();
+			this.buttonRemove = new System.Windows.Forms.Button();
+			this.textBoxParams = new System.Windows.Forms.TextBox();
+			this.lblParams = new System.Windows.Forms.Label();
 			this.SuspendLayout();
 			// 
-			// IDLabel
+			// eventList
 			// 
-			this.IDLabel.AutoSize = true;
-			this.IDLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 15F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.IDLabel.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-			this.IDLabel.Location = new System.Drawing.Point(12, 9);
-			this.IDLabel.Name = "IDLabel";
-			this.IDLabel.Size = new System.Drawing.Size(86, 25);
-			this.IDLabel.TabIndex = 0;
-			this.IDLabel.Text = "Event ID";
+			this.eventList.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.eventID,
+            this.eventName});
+			this.eventList.FullRowSelect = true;
+			this.eventList.Location = new System.Drawing.Point(12, 12);
+			this.eventList.Name = "eventList";
+			this.eventList.Size = new System.Drawing.Size(478, 210);
+			this.eventList.TabIndex = 0;
+			this.eventList.UseCompatibleStateImageBehavior = false;
+			this.eventList.View = System.Windows.Forms.View.Details;
+			this.eventList.SelectedIndexChanged += new System.EventHandler(this.eventList_SelectedIndexChanged);
+			this.eventList.DoubleClick += new System.EventHandler(this.eventList_DoubleClick);
 			// 
-			// textBox1
+			// eventID
 			// 
-			this.textBox1.Location = new System.Drawing.Point(12, 37);
-			this.textBox1.Name = "textBox1";
-			this.textBox1.Size = new System.Drawing.Size(228, 20);
-			this.textBox1.TabIndex = 1;
-			this.textBox1.TextChanged += new System.EventHandler(this.IDBox_Changed);
+			this.eventID.Text = "ID";
+			this.eventID.Width = 31;
 			// 
-			// colorButton
+			// eventName
 			// 
-			this.colorButton.Location = new System.Drawing.Point(12, 63);
-			this.colorButton.Name = "colorButton";
-			this.colorButton.Size = new System.Drawing.Size(112, 39);
-			this.colorButton.TabIndex = 2;
-			this.colorButton.Text = "Choose Color";
-			this.colorButton.UseVisualStyleBackColor = true;
-			this.colorButton.Click += new System.EventHandler(this.colorButton_Click);
+			this.eventName.Text = "EventName";
+			this.eventName.Width = 185;
 			// 
-			// okButton
+			// buttonOK
 			// 
-			this.okButton.Font = new System.Drawing.Font("PMingLiU", 20F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.okButton.Location = new System.Drawing.Point(141, 64);
-			this.okButton.Name = "okButton";
-			this.okButton.Size = new System.Drawing.Size(100, 38);
-			this.okButton.TabIndex = 3;
-			this.okButton.Text = "OK";
-			this.okButton.UseVisualStyleBackColor = true;
-			this.okButton.Click += new System.EventHandler(this.okButton_Click);
+			this.buttonOK.Location = new System.Drawing.Point(13, 292);
+			this.buttonOK.Name = "buttonOK";
+			this.buttonOK.Size = new System.Drawing.Size(142, 35);
+			this.buttonOK.TabIndex = 1;
+			this.buttonOK.Text = "OK";
+			this.buttonOK.UseVisualStyleBackColor = true;
+			this.buttonOK.Click += new System.EventHandler(this.buttonOK_Click);
+			// 
+			// buttonEdit
+			// 
+			this.buttonEdit.Location = new System.Drawing.Point(160, 292);
+			this.buttonEdit.Name = "buttonEdit";
+			this.buttonEdit.Size = new System.Drawing.Size(49, 22);
+			this.buttonEdit.TabIndex = 2;
+			this.buttonEdit.Text = "Edit";
+			this.buttonEdit.UseVisualStyleBackColor = true;
+			this.buttonEdit.Click += new System.EventHandler(this.buttonEdit_Click);
+			// 
+			// buttonCancel
+			// 
+			this.buttonCancel.Location = new System.Drawing.Point(406, 292);
+			this.buttonCancel.Name = "buttonCancel";
+			this.buttonCancel.Size = new System.Drawing.Size(84, 35);
+			this.buttonCancel.TabIndex = 3;
+			this.buttonCancel.Text = "Cancel";
+			this.buttonCancel.UseVisualStyleBackColor = true;
+			this.buttonCancel.Click += new System.EventHandler(this.buttonCancel_Click);
+			// 
+			// buttonAdd
+			// 
+			this.buttonAdd.Location = new System.Drawing.Point(309, 292);
+			this.buttonAdd.Name = "buttonAdd";
+			this.buttonAdd.Size = new System.Drawing.Size(49, 22);
+			this.buttonAdd.TabIndex = 4;
+			this.buttonAdd.Text = "Add";
+			this.buttonAdd.UseVisualStyleBackColor = true;
+			this.buttonAdd.Click += new System.EventHandler(this.buttonAdd_Click);
+			// 
+			// buttonRemove
+			// 
+			this.buttonRemove.Location = new System.Drawing.Point(215, 292);
+			this.buttonRemove.Name = "buttonRemove";
+			this.buttonRemove.Size = new System.Drawing.Size(58, 22);
+			this.buttonRemove.TabIndex = 5;
+			this.buttonRemove.Text = "Remove";
+			this.buttonRemove.UseVisualStyleBackColor = true;
+			this.buttonRemove.Click += new System.EventHandler(this.buttonRemove_Click);
+			// 
+			// textBoxParams
+			// 
+			this.textBoxParams.Location = new System.Drawing.Point(13, 260);
+			this.textBoxParams.Name = "textBoxParams";
+			this.textBoxParams.Size = new System.Drawing.Size(477, 20);
+			this.textBoxParams.TabIndex = 6;
+			this.textBoxParams.TextChanged += new System.EventHandler(this.textBoxParams_TextChanged);
+			// 
+			// lblParams
+			// 
+			this.lblParams.AutoSize = true;
+			this.lblParams.Location = new System.Drawing.Point(12, 244);
+			this.lblParams.Name = "lblParams";
+			this.lblParams.Size = new System.Drawing.Size(60, 13);
+			this.lblParams.TabIndex = 7;
+			this.lblParams.Text = "Parameters";
 			// 
 			// EventForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(253, 114);
-			this.Controls.Add(this.okButton);
-			this.Controls.Add(this.colorButton);
-			this.Controls.Add(this.textBox1);
-			this.Controls.Add(this.IDLabel);
+			this.ClientSize = new System.Drawing.Size(502, 339);
+			this.Controls.Add(this.lblParams);
+			this.Controls.Add(this.textBoxParams);
+			this.Controls.Add(this.buttonRemove);
+			this.Controls.Add(this.buttonAdd);
+			this.Controls.Add(this.buttonCancel);
+			this.Controls.Add(this.buttonEdit);
+			this.Controls.Add(this.buttonOK);
+			this.Controls.Add(this.eventList);
 			this.Name = "EventForm";
 			this.Text = "EventForm";
 			this.ResumeLayout(false);
@@ -92,11 +154,16 @@
 		}
 
 		#endregion
-
-		private System.Windows.Forms.Label IDLabel;
-		private System.Windows.Forms.TextBox textBox1;
 		private System.Windows.Forms.ColorDialog colorDialog1;
-		private System.Windows.Forms.Button colorButton;
-		private System.Windows.Forms.Button okButton;
+		private System.Windows.Forms.ListView eventList;
+		private System.Windows.Forms.ColumnHeader eventID;
+		private System.Windows.Forms.ColumnHeader eventName;
+		private System.Windows.Forms.Button buttonOK;
+		private System.Windows.Forms.Button buttonEdit;
+		private System.Windows.Forms.Button buttonCancel;
+		private System.Windows.Forms.Button buttonAdd;
+		private System.Windows.Forms.Button buttonRemove;
+		private System.Windows.Forms.TextBox textBoxParams;
+		private System.Windows.Forms.Label lblParams;
 	}
 }

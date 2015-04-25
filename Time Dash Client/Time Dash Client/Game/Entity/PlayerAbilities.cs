@@ -165,7 +165,7 @@ public partial class Player : Actor
 		}
 
 		Vector2 collisionPosition;
-		bool collision = Map.RayTraceCollision(position, position + step, size, out collisionPosition);
+		bool collision = Map.RayTraceCollision(position, position + step, size, out collisionPosition, this);
 
 		step = collisionPosition - position;
 

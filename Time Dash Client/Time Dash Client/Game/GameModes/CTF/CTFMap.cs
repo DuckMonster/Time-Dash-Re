@@ -112,15 +112,17 @@ public class CTFMap : Map
 		playerList[id] = new CTFPlayer(id, name, Vector2.Zero, this);
 	}
 
-	public override void SceneZone(int typeID, TKTools.Polygon p)
+	/*
+	public override void SceneEvent(int typeID, TKTools.Polygon p)
 	{
-		base.SceneZone(typeID, p);
+		base.SceneEvent(typeID, p);
 
 		if (typeID == 2)
 			flags[0] = new CTFFlag(0, p.Center, this);
 		if (typeID == 1)
 			flags[1] = new CTFFlag(1, p.Center, this);
 	}
+	*/
 
 	public override void Logic()
 	{
@@ -180,7 +182,7 @@ public class CTFMap : Map
 					case Protocol_CTF.FlagGrabbed:
 						{
 							CTFPlayer player = (CTFPlayer)playerList[msg.ReadByte()];
-							player.GrabFlag(flags[(player.team.id + 1) % 2]);
+							player.GrabFlag(flags[(player.Team.id + 1) % 2]);
 							break;
 						}
 

@@ -10,16 +10,7 @@ public class SYBase : Actor
 		}
 	}
 
-	int teamID;
 	Timer dieTimer = new Timer(5f, false);
-
-	public Team Team
-	{
-		get
-		{
-			return Map.teamList[teamID];
-		}
-	}
 
 	public override float MaxHealth
 	{
@@ -60,7 +51,7 @@ public class SYBase : Actor
 		{
 			dieTimer.Logic();
 			if (dieTimer.IsDone)
-				Map.TeamWin(Team);
+				Map.TeamWin(Map.teamList[(teamID + 1) % 2]);
 		}
 	}
 

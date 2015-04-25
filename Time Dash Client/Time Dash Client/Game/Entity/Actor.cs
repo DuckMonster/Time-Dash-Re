@@ -18,11 +18,27 @@ public class Actor : Entity
 
 	public float health;
 
+	protected int teamID = -1;
+
 	public virtual float MaxHealth
 	{
 		get
 		{
 			return stats.PlayerHealth;
+		}
+	}
+
+	public virtual Team Team
+	{
+		get
+		{
+			if (teamID == -1) return null;
+			return Map.teamList[teamID];
+		}
+		set
+		{
+			if (value == null) teamID = -1;
+			else teamID = value.id;
 		}
 	}
 
@@ -107,7 +123,7 @@ public class Actor : Entity
 		if (Map.GetCollision(this, new Vector2(0, velocity.Y) * Game.delta))
 		{
 			Vector2 ground;
-			Map.RayTraceCollision(position, position + new Vector2(0, velocity.Y * Game.delta), size, out ground);
+			Map.RayTraceCollision(position, position + new Vector2(0, velocity.Y * Game.delta), size, out ground, this);
 
 			velocity.Y = 0;
 			position = ground;

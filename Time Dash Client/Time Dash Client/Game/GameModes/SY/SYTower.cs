@@ -42,10 +42,10 @@ public class SYTower : Actor
 		get { return TurretPosition; }
 	}
 
-	public SYTower(int id, Vector2 position, Map map)
-		: this(id, null, position, map)
+	public SYTower(int id, int teamID, Vector2 position, Map map)
+		: this(id, teamID, null, position, map)
 	{ }
-	public SYTower(int id, SYTowerPoint point, Vector2 position, Map map)
+	public SYTower(int id, int teamID, SYTowerPoint point, Vector2 position, Map map)
 		: base(position, map)
 	{
 		texBase = Art.Load("Res/cannon_base.png");
@@ -54,6 +54,7 @@ public class SYTower : Actor
 
 		this.id = id;
 		this.point = point;
+		this.teamID = teamID;
 
 		if (point != null)
 			point.tower = this;

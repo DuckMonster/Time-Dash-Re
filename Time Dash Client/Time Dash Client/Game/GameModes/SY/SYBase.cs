@@ -3,13 +3,7 @@ using System;
 
 public class SYBase : Actor
 {
-	int teamID;
 	CircleBar healthBar = new CircleBar(7f, 2f, 90f + 80f, -80f*2);
-
-	public Team Team
-	{
-		get { return Map.teamList[teamID]; }
-	}
 
 	public override float MaxHealth
 	{

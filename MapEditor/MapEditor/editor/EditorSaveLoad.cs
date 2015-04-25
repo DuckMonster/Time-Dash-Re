@@ -71,6 +71,8 @@ namespace MapEditor
 				foreach (Template t in templateList)
 					t.WriteToFile(writer);
 
+				EventTemplate.SaveTo(writer);
+
 				writer.Write(layerList.Count);
 				foreach (Layer l in layerList)
 					l.WriteToFile(writer);
@@ -95,6 +97,8 @@ namespace MapEditor
 				int templateNmbr = reader.ReadInt32();
 				for (int i = 0; i < templateNmbr; i++)
 					CreateTemplate(reader);
+
+				EventTemplate.LoadFrom(reader);
 
 				int layerNmbr = reader.ReadInt32();
 				for (int i = 0; i < layerNmbr; i++)

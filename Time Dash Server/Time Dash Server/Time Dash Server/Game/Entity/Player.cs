@@ -16,8 +16,6 @@ public partial class Player : Actor
 
 	protected PlayerShadow shadow;
 
-	public Team team;
-
 	float wallStick = -1;
 	bool canDoublejump = true;
 
@@ -133,8 +131,8 @@ public partial class Player : Actor
 
 	public virtual bool AlliedWith(Player p)
 	{
-		if (p.team == null || team == null) return false;
-		else return p.team == team;
+		if (p.Team == null || Team == null) return false;
+		else return p.Team == Team;
 	}
 
 	public virtual void BuyWeapon(WeaponList weapon)

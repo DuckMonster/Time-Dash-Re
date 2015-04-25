@@ -39,7 +39,7 @@ public class SYTower : Actor
 	{
 		get
 		{
-			return 20f;
+			return 1f;
 		}
 	}
 
@@ -49,15 +49,16 @@ public class SYTower : Actor
 		set { base.Position = value; }
 	}
 
-	public SYTower(int id, Vector2 position, Map map)
-		:this(id, null, position, map)
+	public SYTower(int id, int teamID, Vector2 position, Map map)
+		:this(id, teamID, null, position, map)
 	{
 	}
-	public SYTower(int id, SYTowerPoint point, Vector2 position, Map map)
+	public SYTower(int id, int teamID, SYTowerPoint point, Vector2 position, Map map)
 		:base(position, map)
 	{
 		this.point = point;
 		this.id = id;
+		this.teamID = teamID;
 
 		SendExistanceToPlayer(map.playerList);
 
@@ -68,6 +69,12 @@ public class SYTower : Actor
 	{
 		SendHitToPlayer(dmg, dir, proj, Map.playerList);
 		base.Hit(dmg, dir, proj, force);
+	}
+
+	public override void KilledBy(Actor a)
+	{
+		if (a is SYPlayer) (a as SYPlayer).GainScrap(45);
+		base.KilledBy(a);
 	}
 
 	public override void Die()
@@ -157,12 +164,14 @@ public class SYTower : Actor
 				List<Player> playerList = Map.GetActorRadius<Player>(TurretPosition, 20f);
 				foreach(Player p in playerList)
 				{
+					if (p.Team == Team) continue;
+
 					Vector2 outPos;
 
 					bool coll = Map.RayTraceCollision(TurretPosition, p.Position, Vector2.Zero, out outPos);
 					if (!coll)
 					{
-						SetTarget(p);
+						//SetTarget(p);
 						break;
 					}
 				}
@@ -215,6 +224,7 @@ public class SYTower : Actor
 		msg.WriteShort((short)Protocol_SY.TowerExistance);
 
 		msg.WriteByte(id);
+		msg.WriteByte(teamID);
 		if (point != null)
 			msg.WriteByte(point.id);
 		else

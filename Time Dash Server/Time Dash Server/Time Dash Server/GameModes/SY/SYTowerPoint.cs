@@ -18,6 +18,6 @@ public class SYTowerPoint : SYStash
 
 	public override void Finish()
 	{
-		tower = Map.SpawnTower(this);
+		tower = Map.SpawnTower(this, -1);
 	}
 }

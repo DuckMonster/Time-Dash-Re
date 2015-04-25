@@ -82,6 +82,12 @@
     <Compile Include="editor\TemplateCreator.cs" />
     <Compile Include="editor\TemplateMenu.cs" />
     <Compile Include="editor\TilesetList.cs" />
+    <Compile Include="EventCreator.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="EventCreator.Designer.cs">
+      <DependentUpon>EventCreator.cs</DependentUpon>
+    </Compile>
     <Compile Include="EventForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -123,6 +129,9 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="EventCreator.resx">
+      <DependentUpon>EventCreator.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="EventForm.resx">
       <DependentUpon>EventForm.cs</DependentUpon>
     </EmbeddedResource>

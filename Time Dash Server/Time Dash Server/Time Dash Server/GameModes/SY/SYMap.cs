@@ -17,7 +17,8 @@ public class SYMap : Map
 	int creepIndex = 0;
 
 	SYBase[] baseList = new SYBase[2];
-	SYTower[] towerList = new SYTower[4];
+	public SYTower[] towerList = new SYTower[8];
+	public SYTowerWall[] wallList = new SYTowerWall[8];
 	int NextTowerID
 	{
 		get
@@ -60,6 +61,9 @@ public class SYMap : Map
 			foreach (SYTower t in towerList)
 				if (t != null) yield return t;
 
+			foreach (SYTowerWall t in wallList)
+				if (t != null) yield return t;
+
 			foreach (SYBase b in baseList)
 				if (b != null) yield return b;
 
@@ -71,21 +75,23 @@ public class SYMap : Map
 	public SYMap(string filename, Player[] players)
 		: base(filename, GameMode.ScrapYard, players)
 	{
+		teamList[0] = new Team(0, this);
+		teamList[1] = new Team(1, this);
 	}
 
-	public SYTower SpawnTower(SYTowerPoint point)
+	public SYTower SpawnTower(SYTowerPoint point, int team) { return SpawnTower(point, team, NextTowerID); }
+	public SYTower SpawnTower(SYTowerPoint point, int team, int id)
 	{
-		int id = NextTowerID;
-		SYTower tower = new SYTower(id, point, point.Position, this);
+		SYTower tower = new SYTower(id, team, point, point.Position, this);
 		towerList[id] = tower;
 
 		return tower;
 	}
 
-	public SYTower SpawnTower(Vector2 point)
+	public SYTower SpawnTower(Vector2 point, int team) { return SpawnTower(point, team, NextTowerID); }
+    public SYTower SpawnTower(Vector2 point, int team, int id)
 	{
-		int id = NextTowerID;
-		SYTower tower = new SYTower(id, point, this);
+		SYTower tower = new SYTower(id, team, point, this);
 		towerList[id] = tower;
 
 		return tower;
@@ -152,29 +158,44 @@ public class SYMap : Map
 		return p;
 	}
 
-	public override void SceneZone(int typeID, TKTools.Polygon p)
+	public override bool GetCollision(Vector2 position, Vector2 size, Entity e)
 	{
-		base.SceneZone(typeID, p);
+		bool c = base.GetCollision(position, size, e);
+		if (!c)
+		{
+			foreach (SYTowerWall w in wallList)
+			{
+				if (w == null || e == null) continue;
+				if (e is Player && (e as Player).Team == w.Team) continue;
+
+				if (w.CollidesWith(e.Position, e.Size))
+					return true;
+			}
+		}
+
+		return c;
+	}
+
+	public override void SceneEvent(Scene.EnvEvent e, int[] args, TKTools.Polygon p)
+	{
+		base.SceneEvent(e, args, p);
 
 		RectangleF rect = p.Bounds;
 
-		if (typeID == 0)
-			spawnPoints[0] = new SpawnPoint(p.Center, new Vector2(rect.Width, rect.Height), this);
-		if (typeID == 1)
-			spawnPoints[1] = new SpawnPoint(p.Center, new Vector2(rect.Width, rect.Height), this);
+		if (e.ID == 0)
+			spawnPoints[args[0]] = new SpawnPoint(p.Center, new Vector2(rect.Width, rect.Height), this);
 
-		if (typeID == 2)
-			baseList[0] = new SYBase(p.Center, 0, this);
-		if (typeID == 3)
-			baseList[1] = new SYBase(p.Center, 1, this);
+		if (e.ID == 1)
+			baseList[args[0]] = new SYBase(p.Center, args[0], this);
 
-		if (typeID == 5)
-			campList.Add(new SYCreepCamp(rect, this));
+		if (e.ID == 10)
+			campList.Add(new SYCreepCamp(rect, args[0], this));
 
-		if (typeID == 10)
-		{
-			SpawnTower(new Vector2(rect.X + rect.Width / 2, rect.Y));
-		}
+		if (e.ID == 5)
+			SpawnTower(new Vector2(rect.X + rect.Width / 2, rect.Y), args[0], args[1]);
+
+		if (e.ID == 6)
+			wallList[args[0]] = new SYTowerWall(p, args[0], this);
 	}
 
 	public override void Logic()
@@ -187,13 +208,13 @@ public class SYMap : Map
 
 	public override Vector2 GetFreeSpawnPosition(Player p)
 	{
-		if (p.team == null) return Vector2.Zero;
+		if (p.Team == null) return Vector2.Zero;
 
 		Vector2 pos;
 
 		do
 		{
-			pos = spawnPoints[p.team.id].GetSpawnPosition();
+			pos = spawnPoints[p.Team.id].GetSpawnPosition();
 		} while (GetCollision(pos, p.Size));
 
 		return pos;

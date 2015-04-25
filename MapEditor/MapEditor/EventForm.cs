@@ -13,43 +13,123 @@ namespace MapEditor
 	public partial class EventForm : Form
 	{
 		EventObject[] eventObjects;
+		EventTemplate selectedTemplate;
+
+		List<int> parameters = new List<int>();
 
 		public EventForm(EventObject[] objects)
 		{
 			InitializeComponent();
 			eventObjects = objects;
 
-			textBox1.Text = objects[0].EventID.ToString();
+			UpdateEventList();
+			UpdateButtons();
+
+			if (objects.Length > 0)
+			{
+				string str = "";
+
+				for(int i=0; i<objects[0].parameters.Count; i++)
+				{
+					str += objects[0].parameters[i];
+					if (i < objects[0].parameters.Count - 1)
+						str += ", ";
+				}
+
+				textBoxParams.Text = str;
+			}
 		}
 
-		private void IDBox_Changed(object sender, EventArgs e)
+		void UpdateButtons()
 		{
-			int id;
+			bool selected = selectedTemplate != null;
 
-			if (int.TryParse(textBox1.Text, out id))
-			{
+			buttonRemove.Enabled = selected;
+			buttonEdit.Enabled = selected;
+			buttonOK.Enabled = selected;
+		}
+
+		public void UpdateEventList()
+		{
+			eventList.Items.Clear();
+
+			foreach (EventTemplate t in EventTemplate.eventList)
+				eventList.Items.Add(new ListViewItem(new string[] { t.ID.ToString(), t.Name }));
+		}
+
+		void Apply()
+		{
+			if (selectedTemplate != null)
 				foreach (EventObject o in eventObjects)
-					o.EventID = id;
-			}
+				{
+					o.SetTemplate(selectedTemplate);
+					o.SetParameters(parameters);
+				}
 		}
 
-		private void colorButton_Click(object sender, EventArgs e)
+		private void eventList_SelectedIndexChanged(object sender, EventArgs e)
 		{
-			DialogResult result = colorDialog1.ShowDialog();
+			if (eventList.SelectedItems.Count > 0)
+				selectedTemplate = EventTemplate.eventList[eventList.SelectedItems[0].Index];
+			else
+				selectedTemplate = null;
 
-			if (result == DialogResult.OK)
+			UpdateButtons();			
+		}
+
+		private void eventList_DoubleClick(object sender, EventArgs e)
+		{
+			Apply();
+			Close();
+		}
+
+		private void buttonAdd_Click(object sender, EventArgs e)
+		{
+			EventCreator c = new EventCreator(this);
+			c.ShowDialog();
+		}
+
+		private void buttonEdit_Click(object sender, EventArgs e)
+		{
+			EventCreator c = new EventCreator(this, selectedTemplate);
+			c.ShowDialog();
+		}
+
+		private void buttonRemove_Click(object sender, EventArgs e)
+		{
+			if (selectedTemplate == null) return;
+
+			EventTemplate.eventList.Remove(selectedTemplate);
+			UpdateEventList();
+			UpdateButtons();
+		}
+
+		private void buttonOK_Click(object sender, EventArgs e)
+		{
+			Apply();
+			Close();
+		}
+
+		private void buttonCancel_Click(object sender, EventArgs e)
+		{
+			Close();
+		}
+
+		private void textBoxParams_TextChanged(object sender, EventArgs e)
+		{
+			string[] par = textBoxParams.Text.Split(',');
+			parameters.Clear();
+
+			for(int i=0; i<par.Length; i++)
 			{
-				colorButton.BackColor = colorDialog1.Color;
-				TKTools.Color c = new TKTools.Color(colorDialog1.Color.R, colorDialog1.Color.G, colorDialog1.Color.B);
+				if (par[i] == "") continue;
 
-				foreach (EventObject eo in eventObjects)
-					eo.color = c;
+				par[i] = par[i].Trim();
+				int p;
+
+				int.TryParse(par[i], out p);
+				parameters.Add(p);
 			}
-		}
-
-		private void okButton_Click(object sender, EventArgs e)
-		{
-			this.Close();
 		}
 	}
 }

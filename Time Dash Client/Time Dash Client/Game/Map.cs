@@ -111,7 +111,7 @@ public class Map : IDisposable
 
 	public void PlayerLeave(int id)
 	{
-		if (playerList[id].team != null) playerList[id].team.RemoveMember(playerList[id]);
+		if (playerList[id].Team != null) playerList[id].Team.RemoveMember(playerList[id]);
 
 		playerList[id].Dispose();
 		playerList[id] = null;
@@ -194,13 +194,13 @@ public class Map : IDisposable
 		hudDrawer.Dispose();
 	}
 
-	public virtual void SceneZone(int typeID, Polygon pos)
+	public virtual void SceneEvent(EnvEvent e, int[] args, Polygon pos)
 	{
 	}
 
-	public bool GetCollision(Entity e) { return GetCollision(e.Position, e.Size); }
-	public bool GetCollision(Entity e, Vector2 offset) { return GetCollision(e.Position + offset, e.Size); }
-	public bool GetCollision(Vector2 pos, Vector2 size)
+	public bool GetCollision(Entity e) { return GetCollision(e.Position, e.Size, e); }
+	public virtual bool GetCollision(Entity e, Vector2 offset) { return GetCollision(e.Position + offset, e.Size, e); }
+	public virtual bool GetCollision(Vector2 pos, Vector2 size, Entity e = null)
 	{
 		return scene.GetCollisionFast(pos, size);
 	}
@@ -213,7 +213,7 @@ public class Map : IDisposable
 		return null;
 	}
 
-	public bool RayTraceCollision(Vector2 start, Vector2 end, Vector2 size, out Vector2 freepos)
+	public bool RayTraceCollision(Vector2 start, Vector2 end, Vector2 size, out Vector2 freepos, Entity e = null)
 	{
 		Vector2 diffVector = end - start, directionVector = diffVector.Normalized();
 
@@ -226,7 +226,7 @@ public class Map : IDisposable
 			Vector2 buffer = checkpos;
 			buffer += directionVector * step;
 
-			if (GetCollision(buffer, size))
+			if (GetCollision(buffer, size, e))
 			{
 				freepos = checkpos;
 				return true;

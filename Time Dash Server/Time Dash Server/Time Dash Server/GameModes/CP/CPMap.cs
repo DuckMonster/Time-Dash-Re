@@ -35,12 +35,12 @@ public class CPMap : Map
 
 	public override Vector2 GetFreeSpawnPosition(Player p)
 	{
-		if (p.team == null) return base.GetFreeSpawnPosition(p);
+		if (p.Team == null) return base.GetFreeSpawnPosition(p);
 
 		Vector2 pos;
 
 		double x = (rng.NextDouble() * 2) - 1, y = rng.NextDouble();
-		pos = spawnPoint[p.team.id] + new Vector2(2f * (float)x, 0);
+		pos = spawnPoint[p.Team.id] + new Vector2(2f * (float)x, 0);
 
 		return pos;
 	}

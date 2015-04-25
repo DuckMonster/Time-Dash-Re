@@ -53,9 +53,10 @@ public class CTFMap : Map
 		score[(f.ownerID + 1) % 2]++;
 	}
 
-	public override void SceneZone(int typeID, TKTools.Polygon p)
+	/*
+	public override void SceneEvent(int typeID, TKTools.Polygon p)
 	{
-		base.SceneZone(typeID, p);
+		base.SceneEvent(typeID, p);
 
 		RectangleF rect = p.Bounds;
 
@@ -69,6 +70,7 @@ public class CTFMap : Map
 		if (typeID == 1)
 			flags[1] = new CTFFlag(1, p.Center, this);
 	}
+	*/
 
 	public void SendScoreboardToPlayer(params Player[] players)
 	{
@@ -115,13 +117,13 @@ public class CTFMap : Map
 
 	public override Vector2 GetFreeSpawnPosition(Player p)
 	{
-		if (p.team == null) return Vector2.Zero;
+		if (p.Team == null) return Vector2.Zero;
 
 		Vector2 pos;
 
 		do
 		{
-			pos = spawnPoints[p.team.id].GetSpawnPosition();
+			pos = spawnPoints[p.Team.id].GetSpawnPosition();
 		} while (GetCollision(pos, p.Size));
 
 		return pos;

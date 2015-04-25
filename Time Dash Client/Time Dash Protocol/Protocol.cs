@@ -79,6 +79,7 @@ public enum Protocol_CTF
 public enum Protocol_SY
 {
 	PlayerScrap,
+	ScrapGainEffect,
 
 	ScrapExistance,
 	ScrapPosition,

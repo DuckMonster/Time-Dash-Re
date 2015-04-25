@@ -10,7 +10,7 @@ public class Team
 	Map map;
 
 	public int id;
-	public List<Player> memberList = new List<Player>(10);
+	public List<Actor> memberList = new List<Actor>(10);
 
 	public int Size
 	{
@@ -26,24 +26,25 @@ public class Team
 		this.id = id;
 	}
 
-	public void AddMember(Player p)
+	public void AddMember(Actor a)
 	{
-		if (p.team != null) p.team.RemoveMember(p);
-		memberList.Add(p);
-		p.team = this;
+		if (a.Team != null) a.Team.RemoveMember(a);
+		memberList.Add(a);
+		a.Team = this;
 
-		SendPlayerJoinToPlayer(p, map.playerList);
+		if (a is Player)
+			SendPlayerJoinToPlayer(a as Player, map.playerList);
 	}
 
-	public void RemoveMember(Player p)
+	public void RemoveMember(Actor a)
 	{
-		memberList.Remove(p);
-		p.team = null;
+		memberList.Remove(a);
+		a.Team = null;
 	}
 
-	public bool IsMember(Player p)
+	public bool IsMember(Actor a)
 	{
-		return memberList.Contains(p);
+		return memberList.Contains(a);
 	}
 
 	public void SendMemberListToPlayer(params Player[] players)

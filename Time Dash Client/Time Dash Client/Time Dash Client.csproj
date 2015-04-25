@@ -67,6 +67,7 @@
     <Compile Include="Game\Effects\EffectCollision.cs" />
     <Compile Include="Game\Effects\EffectEnemyHit.cs" />
     <Compile Include="Game\Effects\EffectExplosion.cs" />
+    <Compile Include="Game\Effects\EffectGainScrap.cs" />
     <Compile Include="Game\Effects\EffectImpactQuad.cs" />
     <Compile Include="Game\Effects\EffectPlayerHit.cs" />
     <Compile Include="Game\Effects\EffectRing.cs" />
@@ -89,6 +90,7 @@
     <Compile Include="Game\GameModes\SY\SYScrap.cs" />
     <Compile Include="Game\GameModes\SY\SYTower.cs" />
     <Compile Include="Game\GameModes\SY\SYTowerPoint.cs" />
+    <Compile Include="Game\GameModes\SY\SYTowerWall.cs" />
     <Compile Include="Game\UI\Menu\Button.cs" />
     <Compile Include="Game\UI\Menu\Menu.cs" />
     <Compile Include="Game\UI\Menu\WeaponMenu\BuyButton.cs" />

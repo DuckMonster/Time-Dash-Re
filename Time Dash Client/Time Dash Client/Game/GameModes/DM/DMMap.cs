@@ -22,15 +22,17 @@ public class DMMap : Map
 		base.Dispose();
 	}
 
-	public override void SceneZone(int typeID, TKTools.Polygon pos)
+	/*
+	public override void SceneEvent(int typeID, TKTools.Polygon pos)
 	{
-		base.SceneZone(typeID, pos);
+		base.SceneEvent(typeID, pos);
 
 		if (typeID == 1)
 		{
 			scoreboard = new Scoreboard(20, pos.Bounds.Width, pos.Bounds.Height, new Vector2(pos.Bounds.X + pos.Bounds.Width / 2, pos.Bounds.Y), this);
 		}
 	}
+	*/
 
 	public override void Logic()
 	{

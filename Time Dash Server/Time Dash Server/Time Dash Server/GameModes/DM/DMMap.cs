@@ -14,15 +14,16 @@ public class DMMap : Map
 	{
 	}
 
-	public override void SceneZone(int typeID, TKTools.Polygon pos)
+	/*
+	public override void SceneEvent(Env, TKTools.Polygon pos)
 	{
-		base.SceneZone(typeID, pos);
+		base.SceneEvent(typeID, pos);
 
 		if (typeID == 1)
 		{
 			scoreboard = new Scoreboard(20, new Vector2(pos.Bounds.X + pos.Bounds.Width / 2, pos.Bounds.Y), this);
 		}
-	}
+	}*/
 
 	public override Player CreatePlayer(int id, string name, EZUDP.Server.Client c)
 	{
