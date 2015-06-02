@@ -36,6 +36,11 @@ namespace MapEditor
 						str += ", ";
 				}
 
+				if (objects[0].Template.ID != -1)
+				{
+					eventList.SelectedIndices.Clear();
+					eventList.SelectedIndices.Add(EventTemplate.GetEventIndex(objects[0].Template.ID));
+				}
 				textBoxParams.Text = str;
 			}
 		}

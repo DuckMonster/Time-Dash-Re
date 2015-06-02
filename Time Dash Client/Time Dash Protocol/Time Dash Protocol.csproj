@@ -47,13 +47,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CreepProtocol.cs" />
-    <Compile Include="CustomStats.cs" />
+    <Compile Include="Stats\CustomStats.cs" />
     <Compile Include="GameMode.cs" />
-    <Compile Include="Stats.cs" />
+    <Compile Include="Stats\Stats.cs" />
     <Compile Include="PlayerInput.cs" />
     <Compile Include="Protocol.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="WeaponStats.cs" />
+    <Compile Include="Stats\VariousStats.cs" />
+    <Compile Include="Stats\WeaponStats.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -111,6 +111,7 @@ public class Actor : Entity
 	public virtual void Respawn(Vector2 pos)
 	{
 		position = pos;
+		velocity = Vector2.Zero;
 		health = MaxHealth;
 	}
 

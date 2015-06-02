@@ -24,11 +24,18 @@ public abstract class Projectile : Entity
 		get { return damage; }
 	}
 
-	public Projectile(Actor owner, Vector2 position, float damage, Map map)
+	Vector2 targetPosition;
+	public Vector2 TargetPosition
+	{
+		get { return targetPosition; }
+	}
+
+	public Projectile(Actor owner, Vector2 position, Vector2 targetPosition, float damage, Map map)
 		: base(position, map)
 	{
 		this.owner = owner;
 		this.damage = damage;
+		this.targetPosition = targetPosition;
 		id = map.AddProjectile(this);
 	}
 

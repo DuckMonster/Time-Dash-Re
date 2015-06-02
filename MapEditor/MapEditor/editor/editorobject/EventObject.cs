@@ -18,6 +18,11 @@ namespace MapEditor
 			return t;
 		}
 
+		public static int GetEventIndex(int id)
+		{
+			return eventList.FindIndex((x) => x.ID == id);
+		}
+
 		public static void CreateEvent(string name, int id, Color color)
 		{
 			if (EventExists(id)) return;
@@ -175,6 +180,18 @@ namespace MapEditor
 			{
 				v.Position = new Vector2(reader.ReadSingle(), reader.ReadSingle());
 			}
+		}
+		public EventObject(Layer layer, EventObject copy, Editor e)
+			:base(layer, copy, e)
+		{
+			nameBox.VerticalAlign = TextBox.VerticalAlignment.Center;
+			nameBox.HorizontalAlign = TextBox.HorizontalAlignment.Center;
+
+			paramBox.VerticalAlign = TextBox.VerticalAlignment.Top;
+			paramBox.HorizontalAlign = TextBox.HorizontalAlignment.Center;
+
+			SetTemplate(copy.Template);
+			SetParameters(copy.parameters);
 		}
 
 		public void SetTemplate(EventTemplate temp)

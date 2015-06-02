@@ -203,7 +203,6 @@ public class Map
 
 	public virtual void SceneEvent(EnvEvent e, int[] args, Polygon p)
 	{
-
 	}
 
 	public bool GetCollision(Entity e) { return GetCollision(e.Position, e.Size, e); }
@@ -263,6 +262,28 @@ public class Map
 
 		freepos = end;
 		return null;
+	}
+
+	public bool RayTraceCollision(Vector2 start, Vector2 end, Vector2 size, Entity e = null)
+	{
+		Vector2 diffVector = end - start, directionVector = diffVector.Normalized();
+
+		int accuracy = 1 + (int)(diffVector.Length * 6);
+		float step = diffVector.Length / accuracy;
+		Vector2 checkpos = start;
+
+		for (int i = 0; i < accuracy; i++)
+		{
+			Vector2 buffer = checkpos;
+			buffer += directionVector * step;
+
+			if (GetCollision(buffer, size, e))
+				return true;
+
+			checkpos = buffer;
+		}
+
+		return false;
 	}
 
 	public bool RayTraceCollision(Vector2 start, Vector2 end, Vector2 size, out Vector2 freepos, Entity e = null)

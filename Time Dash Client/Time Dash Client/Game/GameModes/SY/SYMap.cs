@@ -13,6 +13,7 @@ public class SYMap : Map
 	SYTowerWall[] wallList = new SYTowerWall[8];
 
 	public SYTower[] towerList = new SYTower[8];
+	List<SYTowerArea> towerAreaList = new List<SYTowerArea>();
 
 	SYBase[] baseList = new SYBase[2];
 
@@ -173,6 +174,9 @@ public class SYMap : Map
 
 		if (e.ID == 6)
 			wallList[args[0]] = new SYTowerWall(p, args[0], this);
+
+		if (e.ID == 7)
+			towerAreaList.Add(new SYTowerArea(new Vector2(rect.X + rect.Width / 2, rect.Y + rect.Height / 2), new Vector2(rect.Width, rect.Height), this));
 	}
 
 	public override void Logic()
@@ -180,6 +184,7 @@ public class SYMap : Map
 		base.Logic();
 		foreach (SYScrap s in scrapList) if (s != null) s.Logic();
 		foreach (SYStash b in stashList) if (b != null) b.Logic();
+		foreach (SYTowerArea a in towerAreaList) a.Logic();
 
 		if (KeyboardInput.KeyPressed(OpenTK.Input.Key.B))
 		{

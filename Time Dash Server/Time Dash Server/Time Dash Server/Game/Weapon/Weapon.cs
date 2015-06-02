@@ -81,6 +81,8 @@ public abstract class Weapon
 
 	public void OnShoot()
 	{
+		if (!shootTimer.IsDone) return;
+
 		ammo--;
 		shootTimer.Reset();
 

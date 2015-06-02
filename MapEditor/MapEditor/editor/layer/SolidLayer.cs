@@ -72,14 +72,21 @@ namespace MapEditor
 
 		public override void DuplicateSelected()
 		{
-			List<SolidObject> newObjects = new List<SolidObject>();
+			List<EditorObject> newObjects = new List<EditorObject>();
 
 			foreach (EditorObject obj in objectList)
 			{
 				if (obj.Selected)
 				{
-					SolidObject copy = new SolidObject(this, obj, editor);
-					newObjects.Add(copy);
+					EditorObject copy = null;
+
+					if (obj is SolidObject)
+						copy = new SolidObject(this, obj, editor);
+					if (obj is EventObject)
+						copy = new EventObject(this, (obj as EventObject), editor);
+
+					if (copy != null)
+						newObjects.Add(copy);
 				}
 			}
 
@@ -89,7 +96,7 @@ namespace MapEditor
 
 				editor.DeselectAll();
 
-				foreach (SolidObject obj in newObjects)
+				foreach (EditorObject obj in newObjects)
 					editor.SelectAdd(obj.Vertices);
 			}
 		}
@@ -98,7 +105,7 @@ namespace MapEditor
 		{
 			base.Logic();
 
-			if (MouseInput.ButtonPressed(MouseButton.Right))
+			if (MouseInput.ButtonPressed(MouseButton.Right) && !KeyboardInput.Current[Key.LAlt])
 			{
 				origin = new Vector2((float)Math.Floor(MouseInput.Current.Position.X), (float)Math.Ceiling(MouseInput.Current.Position.Y));
 				a = origin;

@@ -89,6 +89,7 @@
     <Compile Include="Game\GameModes\SY\SYPlayer.cs" />
     <Compile Include="Game\GameModes\SY\SYScrap.cs" />
     <Compile Include="Game\GameModes\SY\SYTower.cs" />
+    <Compile Include="Game\GameModes\SY\SYTowerArea.cs" />
     <Compile Include="Game\GameModes\SY\SYTowerPoint.cs" />
     <Compile Include="Game\GameModes\SY\SYTowerWall.cs" />
     <Compile Include="Game\UI\Menu\Button.cs" />

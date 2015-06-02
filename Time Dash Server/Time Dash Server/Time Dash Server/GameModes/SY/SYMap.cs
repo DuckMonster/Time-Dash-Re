@@ -19,6 +19,7 @@ public class SYMap : Map
 	SYBase[] baseList = new SYBase[2];
 	public SYTower[] towerList = new SYTower[8];
 	public SYTowerWall[] wallList = new SYTowerWall[8];
+	List<SYTowerArea> towerAreaList = new List<SYTowerArea>();
 	int NextTowerID
 	{
 		get
@@ -196,6 +197,9 @@ public class SYMap : Map
 
 		if (e.ID == 6)
 			wallList[args[0]] = new SYTowerWall(p, args[0], this);
+
+		if (e.ID == 7)
+			towerAreaList.Add(new SYTowerArea(new Vector2(rect.X + rect.Width / 2, rect.Y + rect.Height / 2), new Vector2(rect.Width, rect.Height), this));
 	}
 
 	public override void Logic()
@@ -204,6 +208,7 @@ public class SYMap : Map
 		foreach (SYScrap s in scrapList) if (s != null) s.Logic();
 		foreach (SYStash s in stashList) if (s != null) s.Logic();
 		foreach (SYCreepCamp c in campList) c.Logic();
+		foreach (SYTowerArea a in towerAreaList) a.Logic();
 	}
 
 	public override Vector2 GetFreeSpawnPosition(Player p)

@@ -6,6 +6,7 @@ public class Camera
 	Map map;
 	public Vector3 position = new Vector3(0, 0, 5);
 	public Entity focusObject;
+	public Entity secondaryObject;
 
 	public Matrix4 ViewMatrix
 	{
@@ -49,6 +50,9 @@ public class Camera
 
 			if (f is Actor)
 				target += (f as Actor).velocity * 0.1f + mouseDelta;
+
+			if (secondaryObject != null)
+				target = (target + secondaryObject.Position) / 2;
 
             Vector2 difference = target - position.Xy;
 			position.Xy += difference * 5f * Game.delta;

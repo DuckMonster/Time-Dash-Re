@@ -7,7 +7,7 @@ public class Arrow : Projectile
 	List<Actor> hitActors = new List<Actor>();
 
 	public Arrow(Actor owner, Vector2 position, Vector2 target, float damage, float charge, Map map)
-		: base(owner, position, damage * charge, map)
+		: base(owner, position, target, damage * charge, map)
 	{
 		Size = new Vector2(0.2f, 0.2f);
 		velocity = (target - position).Normalized() * (10 + 120f * charge);

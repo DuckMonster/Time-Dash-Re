@@ -7,7 +7,7 @@ public class TowerBullet : Projectile
 	Actor hitActor = null;
 
 	public TowerBullet(Actor owner, Vector2 position, Vector2 target, float damage, Map map)
-		:base(owner, position, damage, map)
+		:base(owner, position, target, damage, map)
 	{
 		Size = new Vector2(0.8f, 0.8f);
 		velocity = (target - position).Normalized() * 60f;

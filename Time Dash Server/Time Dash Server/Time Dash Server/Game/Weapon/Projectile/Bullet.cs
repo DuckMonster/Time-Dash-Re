@@ -16,7 +16,7 @@ public class Bullet : Projectile
 	}
 
 	public Bullet(Actor p, Vector2 position, Vector2 target, float damage, Map m)
-		: base(p, position, damage, m)
+		: base(p, position, target, damage, m)
 	{
 		directionVector = (target - position).Normalized();
 		Size = new Vector2(0.1f, 0.1f);

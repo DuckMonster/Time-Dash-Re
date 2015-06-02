@@ -7,7 +7,7 @@ public class Grenade : Projectile
 	Actor hitActor = null;
 
 	public Grenade(Actor owner, Vector2 position, Vector2 target, float damage, Map map)
-		: base(owner, position, damage, map)
+		: base(owner, position, target, damage, map)
 	{
 		Size = new Vector2(0.4f, 0.4f);
 		velocity = (target - position).Normalized() * 30f;

@@ -6,7 +6,7 @@ public class SlowBullet : Projectile
 	Vector2 directionVector;
 
 	public SlowBullet(Actor owner, Vector2 position, Vector2 target, float damage, Map m)
-		:base(owner, position, damage, m)
+		:base(owner, position, target, damage, m)
 	{
 		directionVector = (target - position).Normalized();
 		velocity = directionVector * 5f;

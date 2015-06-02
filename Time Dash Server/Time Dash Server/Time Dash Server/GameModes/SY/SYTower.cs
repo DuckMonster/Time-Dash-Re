@@ -17,13 +17,13 @@ public class SYTower : Actor
 
 	SYTowerPoint point;
 
+	List<SYTowerArea> areaList = new List<SYTowerArea>();
+
 	Player target;
 	float aimDir = 0f;
 
-	Timer playerSearchTimer = new Timer(0.5f, true);
-
-	Timer reloadTimer = new Timer(1.2f, false);
-	Timer shootTimer = new Timer(0.2f, false);
+	Timer reloadTimer;
+	Timer shootTimer;
 
 	int ammo = 0;
 
@@ -35,13 +35,10 @@ public class SYTower : Actor
 		}
 	}
 
-	public override float MaxHealth
-	{
-		get
-		{
-			return 1f;
-		}
-	}
+	float TurnSpeed { get { return VariousStats.towerStats.GetStat<float>("turnSpeed"); } }
+	float FireSpeed { get { return VariousStats.towerStats.GetStat<float>("fireSpeed"); } }
+	int MaxAmmo { get { return VariousStats.towerStats.GetStat<int>("ammo"); } }
+	public override float MaxHealth { get { return VariousStats.towerStats.GetStat<float>("health"); } }
 
 	public override Vector2 Position
 	{
@@ -63,6 +60,9 @@ public class SYTower : Actor
 		SendExistanceToPlayer(map.playerList);
 
 		Size = new Vector2(2.5f, 2.5f);
+
+		shootTimer = new Timer(1f / FireSpeed, true);
+		reloadTimer = new Timer(1.5f, true);
 	}
 
 	public override void Hit(float dmg, float dir, Projectile proj, float force = 0)
@@ -92,6 +92,11 @@ public class SYTower : Actor
 		return (pos - tp).Length <= (radius + size.X/2);
 	}
 
+	public void AddTowerArea(SYTowerArea a)
+	{
+		areaList.Add(a);
+	}
+
 	void SetTarget(Player p)
 	{
 		target = p;
@@ -109,13 +114,59 @@ public class SYTower : Actor
 		ammo--;
 	}
 
-	public override void Logic()
+	void SearchTarget()
 	{
 		if (target != null)
 		{
-			Vector2 outPos;
+			if (!Map.RayTraceCollision(TurretPosition, target.Position, Vector2.Zero)) return;
 
-			if (!target.IsAlive || (target.Position - Position).Length > 20f || Map.RayTraceCollision(TurretPosition, target.Position, Vector2.Zero, out outPos))
+			foreach (SYTowerArea a in areaList)
+			{
+				List<Player> players = a.BoundPlayers;
+
+				foreach (Player p in players)
+				{
+					if (p == target || p.Team == Team) continue;
+
+					if (!Map.RayTraceCollision(TurretPosition, p.Position, Vector2.Zero))
+						SetTarget(p);
+				}
+			}
+		}
+		else
+		{
+			foreach (SYTowerArea a in areaList)
+			{
+				List<Player> players = a.BoundPlayers;
+
+				foreach (Player p in players)
+				{
+					if (p.Team == Team) continue;
+
+					SetTarget(p);
+					break;
+				}
+			}
+		}
+	}
+
+	bool TargetInArea(Player p)
+	{
+		foreach(SYTowerArea a in areaList)
+		{
+			if (!p.CollidesWith(a.Position, a.Size)) return false;
+		}
+
+		return true;
+	}
+
+	public override void Logic()
+	{
+		SearchTarget();
+
+		if (target != null)
+		{
+			if (!target.IsAlive || !TargetInArea(target))
 			{
 				SetTarget(null);
 			}
@@ -130,7 +181,7 @@ public class SYTower : Actor
 				while (dif < -180)
 					dif += 360;
 
-				aimDir += dif * 8f * Game.delta;
+				aimDir += dif * TurnSpeed * Game.delta;
 				aimDir = TKMath.Mod(aimDir, -180, 180);
 
 				if (ammo <= 0)
@@ -139,7 +190,7 @@ public class SYTower : Actor
 
 					if (reloadTimer.IsDone)
 					{
-						ammo = 5;
+						ammo = MaxAmmo;
 						reloadTimer.Reset();
 					}
 				} else
@@ -148,37 +199,16 @@ public class SYTower : Actor
 
 					if (shootTimer.IsDone)
 					{
-						Shoot();
-						shootTimer.Reset();
+						if (!Map.RayTraceCollision(TurretPosition, target.Position, Vector2.Zero))
+						{
+							Shoot();
+							shootTimer.Reset();
+						}
 					}
 				}
 			}
 		} else
-		{
 			aimDir += 25f * Game.delta;
-
-			playerSearchTimer.Logic();
-
-			if (playerSearchTimer.IsDone)
-			{
-				List<Player> playerList = Map.GetActorRadius<Player>(TurretPosition, 20f);
-				foreach(Player p in playerList)
-				{
-					if (p.Team == Team) continue;
-
-					Vector2 outPos;
-
-					bool coll = Map.RayTraceCollision(TurretPosition, p.Position, Vector2.Zero, out outPos);
-					if (!coll)
-					{
-						//SetTarget(p);
-						break;
-					}
-				}
-
-				playerSearchTimer.Reset();
-			}
-		}
 	}
 
 	public void SendExistanceToPlayer(params Player[] player)

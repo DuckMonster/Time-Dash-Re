@@ -284,9 +284,9 @@ public partial class Player : Actor
 		Weapon.OnShoot();
 
 		if (Weapon.FireType == WeaponStats.FireType.Charge)
-			SendShootToPlayer(Position, target, p.id, Weapon.Charge, Map.playerList);
+			SendShootToPlayer(Position, p.TargetPosition, p.id, Weapon.Charge, Map.playerList);
 		else
-			SendShootToPlayer(Position, target, p.id, Map.playerList);
+			SendShootToPlayer(Position, p.TargetPosition, p.id, Map.playerList);
 	}
 
 	public static Direction GetInputDirection(PlayerInput input)

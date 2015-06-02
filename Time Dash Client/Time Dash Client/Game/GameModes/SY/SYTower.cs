@@ -5,6 +5,7 @@ using TKTools;
 public class SYTower : Actor
 {
 	static readonly float TurretHeight = 5f;
+
 	public Texture 
 		texBase, 
 		texHead,
@@ -26,6 +27,8 @@ public class SYTower : Actor
 	Mesh barrelMesh = Mesh.Box;
 	float barrelPosition = 0f;
 
+	Mesh ammoMesh = Mesh.Box;
+
 	Timer reloadTimer = new Timer(1.2f, false);
 	int ammo = 0;
 
@@ -36,6 +39,11 @@ public class SYTower : Actor
 			return position + new Vector2(0, TurretHeight);
 		}
 	}
+
+	float TurnSpeed { get { return VariousStats.towerStats.GetStat<float>("turnSpeed"); } }
+	float FireSpeed { get { return VariousStats.towerStats.GetStat<float>("fireSpeed"); } }
+	float MaxAmmo { get { return VariousStats.towerStats.GetStat<float>("ammo"); } }
+	public override float MaxHealth { get { return VariousStats.towerStats.GetStat<float>("health"); } }
 
 	public override Vector2 Position
 	{
@@ -85,6 +93,8 @@ public class SYTower : Actor
 		barrelPosition = -1;
 
 		ammo--;
+
+		reloadTimer.Reset();
 	}
 
 	public void ReceiveHit(float damage, float direction, int projID, Vector2 hitpos)
@@ -104,6 +114,8 @@ public class SYTower : Actor
 		if (point != null) point.Reset();
 
 		Map.TowerDestroyed(this);
+
+		health = 0;
 	}
 
 	public override void Logic()
@@ -119,17 +131,14 @@ public class SYTower : Actor
 			while (dif < -180)
 				dif += 360;
 
-			aimDir += dif * 8f * Game.delta;
+			aimDir += dif * TurnSpeed * Game.delta;
 			aimDir = TKMath.Mod(aimDir, -180, 180);
 
 			if (ammo <= 0)
 			{
 				reloadTimer.Logic();
 				if (reloadTimer.IsDone)
-				{
 					ammo = 5;
-					reloadTimer.Reset();
-				}
 			}
 		}
 		else
@@ -179,5 +188,7 @@ public class SYTower : Actor
 		mesh.Rotate(aimDir);
 
 		mesh.Draw();
+
+		
 	}
 }
