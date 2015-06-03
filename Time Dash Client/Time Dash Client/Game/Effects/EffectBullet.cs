@@ -1,5 +1,7 @@
 ﻿using OpenTK;
 using TKTools;
+using TKTools.Context;
+
 public class EffectBullet : Effect
 {
 	Timer effectTimer;
@@ -13,8 +15,7 @@ public class EffectBullet : Effect
 		this.a = a;
 		this.b = b;
 
-		mesh = Mesh.Box;
-		mesh.Vertices = new Vector2[] {
+		mesh = new Mesh(new Vector2[] {
 			new Vector2(0, 0),
 			new Vector2(0.2f, -0.5f),
 			new Vector2(1f, 0),

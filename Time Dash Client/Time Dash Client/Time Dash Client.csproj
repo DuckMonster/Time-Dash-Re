@@ -131,11 +131,8 @@
     <Compile Include="Game\Weapon\Projectile\TowerBullet.cs" />
     <Compile Include="Game\Weapon\Rifle.cs" />
     <Compile Include="Game\Weapon\Weapon.cs" />
-    <Compile Include="KeyboardInput.cs" />
     <Compile Include="Log.cs" />
     <Compile Include="Main.cs" />
-    <Compile Include="Mesh.cs" />
-    <Compile Include="MouseInput.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ServerList.cs" />

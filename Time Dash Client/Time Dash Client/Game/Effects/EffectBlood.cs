@@ -1,5 +1,8 @@
 ﻿using OpenTK;
 using TKTools;
+using TKTools.Context;
+using TKTools.Mathematics;
+
 public class EffectBlood : Effect
 {
 	static Color defaultColor = new Color(0.9f, 0f, 0.01f);
@@ -9,7 +12,7 @@ public class EffectBlood : Effect
 
 	float size;
 
-	Mesh mesh;
+	Sprite sprite;
 
 	bool active = true;
 
@@ -22,7 +25,7 @@ public class EffectBlood : Effect
 		this.velocity = force;
 		this.size = size;
 
-		mesh = Mesh.Box;
+		sprite = new Sprite();
 	}
 
 	public override void Logic()
@@ -34,13 +37,9 @@ public class EffectBlood : Effect
 
 		Color c = defaultColor;
 		c.A = (1f - effectTimer.PercentageDone);
-		mesh.Color = c;
+		sprite.Color = c;
 
-		mesh.Reset();
-
-		mesh.Translate(position);
-		mesh.Rotate(TKMath.GetAngle(velocity));
-		mesh.Scale(size + size * velocity.Length * 0.02f, size);
+		sprite.SetTransform(position, size, TKMath.GetAngle(velocity));
 
 		if (!active)
 			return;
@@ -61,6 +60,6 @@ public class EffectBlood : Effect
 	{
 		if (effectTimer.IsDone) return;
 
-		mesh.Draw();
+		sprite.Draw();
 	}
 }
