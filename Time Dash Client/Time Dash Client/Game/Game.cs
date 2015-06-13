@@ -16,15 +16,15 @@ public class Game
 	public const int portTCP = Port.TCP, portUDP = Port.UDP;
 	public static string hostIP;
 
-	public static ShaderProgram defaultShader;
-	public static ShaderProgram hudShader;
-
 	public static string myName;
 
 	public static float delta;
 	public static EzClient client;
 
-	public static float windowRatio;
+	public static float AspectRatio
+	{
+		get { return Program.context.AspectRatio; }
+	}
 
 	public static Program program;
 	Map map;
@@ -44,11 +44,6 @@ public class Game
 
 		Log.Init();
 
-		defaultShader = new ShaderProgram("Shaders/standardShader.glsl");
-		hudShader = new ShaderProgram("Shaders/standardShader.glsl");
-
-		Log.Write(defaultShader.Log);
-
 		ConnectTo(hostIP);
 	}
 
@@ -59,25 +54,8 @@ public class Game
 
 	public void Dispose()
 	{
-		defaultShader.Dispose();
-		hudShader.Dispose();
-
 		client.Disconnect();
 		client = null;
-	}
-
-	public void UpdateProjection(int width, int height)
-	{
-		windowRatio = (float)height / width;
-
-		Matrix4 pers = Matrix4.CreatePerspectiveOffCenter(-1, 1, -windowRatio, windowRatio, 1, 200f);
-		Matrix4 orth = Matrix4.CreateOrthographicOffCenter(-10f, 10f, -windowRatio * 10f, windowRatio * 10f, 1, 200f);
-
-		defaultShader["projection"].SetValue(pers);
-		hudShader["projection"].SetValue(orth);
-		hudShader["view"].SetValue(Matrix4.LookAt(new Vector3(0, 0, 3), Vector3.Zero, Vector3.UnitY));
-	
-		Tileset.tileProgram["projection"].SetValue(pers);
 	}
 
 	public void LoadMap(int id, string filename)
@@ -110,6 +88,7 @@ public class Game
 
 		switch (mode)
 		{
+			/*
 			case GameMode.KingOfTheHill:
 				map = new KothMap(id, filename);
 				modeName = "King of the Hill";
@@ -129,7 +108,7 @@ public class Game
 				map = new CTFMap(id, filename);
 				modeName = "Capture The Flag";
 				break;
-
+				*/
 			case GameMode.ScrapYard:
 				map = new SYMap(id, filename);
 				modeName = "Scrapyard";
@@ -145,7 +124,6 @@ public class Game
 	{
 		CalculateDelta();
 		Log.Logic();
-		Log.Debug("Calculations: {0}\nDraw Calls: {1}", Mesh.CALCULATIONS, Mesh.DRAW_CALLS);
 
 		if (client.Connected)
 		{
@@ -180,7 +158,6 @@ public class Game
 	public void Draw()
 	{
 		CalculateFrameDelta();
-		Mesh.DRAW_CALLS = Mesh.CALCULATIONS = 0;
 
 		if (client.Connected)
 		{
@@ -212,7 +189,7 @@ public class Game
 	public void OnDisconnect()
 	{
 		Log.Write("Disconnected from server!");
-		program.Exit();
+		Program.context.Exit();
 	}
 	public void OnMessage(MessageBuffer msg)
 	{

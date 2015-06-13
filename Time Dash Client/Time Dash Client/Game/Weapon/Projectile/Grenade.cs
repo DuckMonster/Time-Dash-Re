@@ -1,6 +1,8 @@
 ﻿using OpenTK;
 using System;
 using TKTools;
+using TKTools.Mathematics;
+
 public class Grenade : Projectile
 {
 	Timer smokeTimer = new Timer(0.002f, true);
@@ -64,14 +66,8 @@ public class Grenade : Projectile
 	public override void Draw()
 	{
 		if (!Active) return;
-
-		mesh.Reset();
-
-		mesh.Translate(position);
-		mesh.Rotate(TKMath.GetAngle(velocity));
-		mesh.Scale(size);
-		mesh.Scale(1f + velocity.Length / 20f, 1f - velocity.Length / 60f);
-
-		mesh.Draw();
+		sprite.Draw(position,
+			size * new Vector2(1f + velocity.Length / 20f, 1f - velocity.Length / 60f),
+			TKMath.GetAngle(velocity));
 	}
 }

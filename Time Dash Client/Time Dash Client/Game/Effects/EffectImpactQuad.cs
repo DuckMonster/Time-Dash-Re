@@ -1,6 +1,8 @@
 ﻿using OpenTK;
 using System;
 using TKTools;
+using TKTools.Context;
+using TKTools.Mathematics;
 
 public class EffectImpactQuad : Effect
 {
@@ -19,15 +21,12 @@ public class EffectImpactQuad : Effect
 		this.position = position;
 		this.size = size;
 
-		spikeMesh = new Mesh(OpenTK.Graphics.OpenGL.PrimitiveType.TriangleStrip);
-
-		spikeMesh.Vertices = new Vector2[] {
-			new Vector2(0, 0f),
-			new Vector2(0.3f, -0.4f),
-			new Vector2(0.3f, 0.4f),
-			new Vector2(1f, 0f)
-		};
-		spikeMesh.UV = spikeMesh.Vertices;
+		spikeMesh = new Mesh(new Vector3[] {
+			new Vector3(0, 0f, 0f),
+			new Vector3(0.3f, -0.4f, 0f),
+			new Vector3(0.3f, 0.4f, 0f),
+			new Vector3(1f, 0f, 0f)
+		});
 
 		rotation = 360f * (float)rng.NextDouble();
 	}
@@ -53,7 +52,7 @@ public class EffectImpactQuad : Effect
 			spikeMesh.Reset();
 
 			spikeMesh.Translate(position);
-			spikeMesh.Rotate(rotation + 90f * i);
+			spikeMesh.RotateZ(rotation + 90f * i);
 
 			spikeMesh.Translate(-0.3f + 2 * f * size, 0);
 			spikeMesh.Scale(size);

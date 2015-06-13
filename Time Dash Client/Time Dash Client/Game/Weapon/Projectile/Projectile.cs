@@ -44,12 +44,6 @@ public class Projectile : Entity
 	public override void Draw()
 	{
 		if (!Active) return;
-
-		mesh.Reset();
-
-		mesh.Translate(Position);
-		mesh.Scale(Size);
-
-		mesh.Draw();
+		sprite.Draw(Position, Size, 0f);
 	}
 }

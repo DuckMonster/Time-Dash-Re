@@ -1,5 +1,6 @@
 ﻿using OpenTK;
 using TKTools;
+using TKTools.Mathematics;
 
 public class Bullet : Projectile
 {
@@ -56,12 +57,6 @@ public class Bullet : Projectile
 	{
 		if (!Active) return;
 
-		mesh.Reset();
-
-		mesh.Translate(position);
-		mesh.Rotate(direction);
-		mesh.Scale(bulletSize);
-
-		mesh.Draw();
+		sprite.Draw(position, bulletSize, direction);
 	}
 }

@@ -3,14 +3,15 @@
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
 using TKTools;
+using TKTools.Context;
+using TKTools.Mathematics;
 
 public class EffectRing : Effect
 {
-	public static readonly Texture ringTexture = Art.Load("Res/circlebig.png");
 	Timer ringTimer;
 
 	Vector2 position;
-	Mesh mesh;
+	Sprite sprite;
 
 	float diameter = 4f, ringWidth = 0.9f;
 
@@ -22,14 +23,13 @@ public class EffectRing : Effect
 		ringWidth = diameter * 0.3f;
 		ringTimer = new Timer(dur, false);
 
-		mesh = Mesh.Box;
-		mesh.Texture = ringTexture;
-		mesh.Color = c;
+		sprite = new Sprite(Art.Load("Res/circlebig.png"));
+		sprite.Color = c;
 	}
 
 	public override void Dispose()
 	{
-		mesh.Dispose();
+		sprite.Dispose();
 		base.Dispose();
 	}
 
@@ -60,23 +60,13 @@ public class EffectRing : Effect
 		GL.StencilFunc(StencilFunction.Never, 1, 0xFF);
 		GL.StencilOp(StencilOp.Replace, StencilOp.Replace, StencilOp.Replace);
 
-		mesh.Reset();
-
-		mesh.Translate(position);
-		mesh.Scale(r2 * diameter);
-
-		mesh.Draw();
-
+		sprite.Draw(position, r2 * diameter, 0f);
 
 		//RING
 		GL.StencilMask(0x00);
 		GL.StencilFunc(StencilFunction.Notequal, 1, 0xFF);
 
-		mesh.Reset();
-		mesh.Translate(position);
-		mesh.Scale(r * diameter);
-
-		mesh.Draw();
+		sprite.Draw(position, r * diameter, 0f);
 
 		GL.Disable(EnableCap.StencilTest);
 	}

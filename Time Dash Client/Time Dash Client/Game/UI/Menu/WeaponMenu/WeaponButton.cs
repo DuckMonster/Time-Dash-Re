@@ -1,24 +1,34 @@
 ﻿using OpenTK;
 using System;
 using TKTools;
+using TKTools.Context;
 
 namespace ShopMenu
 {
 	public class WeaponButton : Button
 	{
+		static Vector2 ButtonOrigin
+		{
+			get { return new Vector2(-4f * Game.AspectRatio, 3f); }
+		}
+
 		public delegate void SelectWeapon(WeaponList w);
 
 		WeaponList weaponType;
 		
-		Mesh weaponMesh;
+		Sprite weaponSprite;
 		SelectWeapon selectWeapon;
 
-		Mesh lockMesh = Mesh.OrthoBox;
+		Sprite lockSprite = new Sprite(Art.Load("Res/weapons/lock.png"));
 
-		Mesh scrapMesh = Mesh.OrthoBox,
-			costMesh = Mesh.OrthoBox;
+		Sprite scrapSprite = new Sprite(Art.Load("Res/scrap.png"));
 
 		TextBox costBox;
+
+		public override Vector2 Position
+		{
+			get { return ButtonOrigin + position; }
+		}
 
 		protected override float Alpha
 		{
@@ -52,24 +62,16 @@ namespace ShopMenu
 			this.weaponType = weapon;
 			this.selectWeapon = selectWeapon;
 
-			weaponMesh = Mesh.OrthoBox;
-			weaponMesh.Texture = Weapon.GetIcon(weapon);
+			weaponSprite = new Sprite(Weapon.GetIcon(weapon));
 
-			lockMesh.Texture = Art.Load("Res/weapons/lock.png");
-			lockMesh.Color = new Color(0, 0, 0, 0.5f);
-			lockMesh.FillColor = true;
-
-			scrapMesh.Texture = Art.Load("Res/scrap.png");
+			lockSprite.FillColor = true;
+			lockSprite.Color = new Color(0, 0, 0, 0.5f);
 
 			costBox = new TextBox(120f);
 			costBox.SetHeight = size.Y * 0.4f;
 			costBox.Text = WeaponStats.GetStats(weapon).scrapCost.ToString();
 			costBox.VerticalAlign = TextBox.VerticalAlignment.Center;
 			costBox.HorizontalAlign = TextBox.HorizontalAlignment.Left;
-
-			costMesh.Texture = costBox.Texture;
-			costMesh.Vertices = costBox.Vertices;
-			costMesh.UV = costBox.UV;
 		}
 
 		protected override void OnClicked()
@@ -88,50 +90,30 @@ namespace ShopMenu
 
 			if (map.LocalPlayer.OwnsWeapon(weaponType))
 			{
-				weaponMesh.Color = Color.White;
-				weaponMesh.FillColor = false;
+				weaponSprite.Color = Color.White;
+				weaponSprite.FillColor = false;
 			} else
 			{
-				weaponMesh.Color = Color.Black;
-				weaponMesh.FillColor = true;
+				weaponSprite.Color = Color.Black;
+				weaponSprite.FillColor = true;
 			}
 
-			weaponMesh.Reset();
-
-			weaponMesh.Translate(position);
-			weaponMesh.Scale(size);
-			weaponMesh.Rotate(10f + Rotation);
-
-			weaponMesh.Draw();
+			weaponSprite.Draw(Position, size, 10f + Rotation);
 
 			if (!map.LocalPlayer.OwnsWeapon(weaponType))
 			{
-				lockMesh.Reset();
+				lockSprite.Draw(Position, size, Rotation);
+				scrapSprite.Draw(Position - new Vector2(size.X * 0.3f, size.Y * 0.4f), size * 0.4f, 20f + Rotation);
 
-				lockMesh.Translate(position);
-				lockMesh.Scale(size);
-				lockMesh.Rotate(Rotation);
+				Mesh m = costBox.Mesh;
 
-				lockMesh.Draw();
+				m.Reset();
 
+				m.Translate(Position);
+				m.Translate(-size.X * 0.3f, -size.Y * 0.4f);
+				m.RotateZ(Rotation);
 
-				scrapMesh.Reset();
-
-				scrapMesh.Translate(position);
-				scrapMesh.Translate(-size.X * 0.3f, -size.Y * 0.4f);
-				scrapMesh.Scale(size * 0.4f);
-				scrapMesh.Rotate(20f + Rotation);
-
-				scrapMesh.Draw();
-
-
-				costMesh.Reset();
-
-				costMesh.Translate(position);
-				costMesh.Translate(-size.X * 0.3f, -size.Y * 0.4f);
-				costMesh.Rotate(Rotation);
-
-				costMesh.Draw();
+				m.Draw();
 			}
 		}
 	}

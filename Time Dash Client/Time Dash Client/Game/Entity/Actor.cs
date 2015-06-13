@@ -203,12 +203,6 @@ public class Actor : Entity
 	{
 		if (!IsAlive) return;
 
-		mesh.Reset();
-
-		mesh.Scale(size);
-		mesh.Scale(new Vector2(-dir, 1));
-		mesh.Translate(position);
-
-		mesh.Draw();
+		sprite.Draw(Position, size * new Vector2(-dir, 1), 0f);
 	}
 }

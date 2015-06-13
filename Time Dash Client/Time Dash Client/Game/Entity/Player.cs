@@ -3,6 +3,8 @@ using OpenTK.Input;
 using System;
 using System.Collections.Generic;
 using TKTools;
+using TKTools.Context;
+using TKTools.Context.Input;
 
 public partial class Player : Actor
 {
@@ -47,8 +49,8 @@ public partial class Player : Actor
 	float dodgeGravityIgnoreTime = 0.1f;
 	float gravityIgnore = 0f;
 
-	public Tileset playerTileset = new Tileset(250, 200, "Res/jacktilesetnew.png"),
-		occlusionTileset = new Tileset(250, 200, "Res/jackShadowTileset.png");
+	public Tileset playerTileset = new Tileset(Art.Load("Res/jacktilesetnew.png"), 250, 200),
+		occlusionTileset = new Tileset(Art.Load("Res/jackShadowTileset.png"), 250, 200);
 
 	public Sound jumpSound = new Sound(@"Res\Snd\jump.wav"),
 		dashSound = new Sound(@"Res\Snd\dash.wav");
@@ -61,6 +63,11 @@ public partial class Player : Actor
 	public Weapon[] inventory = new Weapon[2];
 	public List<WeaponList> ownedWeapons = new List<WeaponList>();
 	public bool OwnsWeapon(WeaponList w) { return ownedWeapons.Contains(w); }
+
+	Mesh playerMesh;
+
+	KeyboardWatch keyboard;
+	MouseWatch mouse;
 
 	public int WallTouch
 	{
@@ -144,32 +151,36 @@ public partial class Player : Actor
 
 	public Player(int id, string name, Vector2 position, Map m)
 		: base(position, m)
-	{
+	{ 
 		playerID = id;
 		playerName = name;
 
+		keyboard = new KeyboardWatch();
+		mouse = new MouseWatch();
+		mouse.Perspective = Map.GameCamera;
+
 		float charHeight = 165f;
-		float h = (float)playerTileset.TileHeight / charHeight;
-		float w = ((float)playerTileset.TileWidth / playerTileset.TileHeight);
+		float h = (float)playerTileset.Height / charHeight;
+		float w = ((float)playerTileset.Width / playerTileset.Height);
 
-		mesh.Dispose();
-		mesh = new Mesh(OpenTK.Graphics.OpenGL.PrimitiveType.Quads);
+		playerMesh = sprite.Mesh;
+		playerMesh.Tileset = playerTileset;
 
-		mesh.Vertices = new Vector2[] {
+		playerMesh.Vertices2 = new Vector2[] {
 			new Vector2(-0.5f * w * h, -0.5f + h),
 			new Vector2(0.5f * w * h, -0.5f + h),
 			new Vector2(0.5f * w * h, -0.5f),
 			new Vector2(-0.5f * w * h, - 0.5f)
 		};
 
-		mesh.UV = new Vector2[] {
-			new Vector2(0, 0),
-			new Vector2(1, 0),
+		playerMesh.UV = new Vector2[] {
+			new Vector2(0, 1),
 			new Vector2(1, 1),
-			new Vector2(0, 1)
+			new Vector2(1, 0),
+			new Vector2(0, 0)
 		};
 
-		shadow = new PlayerShadow(this, mesh);
+		shadow = new PlayerShadow(this, playerMesh);
 
 		dashCooldown = new Timer(stats.DashCooldown, false);
 		dodgeCooldown = new Timer(stats.DodgeCooldown, true);
@@ -182,8 +193,6 @@ public partial class Player : Actor
 	public override void Dispose()
 	{
 		base.Dispose();
-		playerTileset.Dispose();
-
 		hud.Dispose();
 	}
 
@@ -213,6 +222,8 @@ public partial class Player : Actor
 
 	public override void Logic()
 	{
+		mouse.PlaneDistance = mouse.Perspective.Position.Z;
+
 		hud.Logic();
 		if (Weapon != null)
 			Weapon.Logic();
@@ -320,7 +331,7 @@ public partial class Player : Actor
 			//Dodging
 			if (dodgeCooldown.IsDone && inputDirection != Vector2.Zero)
 			{
-				if ((inputDirection == lastDirection && dodgeIntervalTimer > 0 && oldInputDirection != inputDirection) || KeyboardInput.KeyPressed(Key.LShift))
+				if ((inputDirection == lastDirection && dodgeIntervalTimer > 0 && oldInputDirection != inputDirection) || keyboard.KeyPressed(Key.LShift))
 				{
 					if (inputDirection.X > 0)
 						Dodge(Direction.Right);
@@ -404,28 +415,28 @@ public partial class Player : Actor
 	{
 		if (Map.PauseInput) return;
 
-		if (Program.client.Focused)
+		if (Program.context.Focused)
 		{
-			inputData[PlayerKey.Right] = KeyboardInput.Current[Key.D];
-			inputData[PlayerKey.Left] = KeyboardInput.Current[Key.A];
+			inputData[PlayerKey.Right] = keyboard[Key.D];
+			inputData[PlayerKey.Left] = keyboard[Key.A];
 		}
 		else
 		{
-			inputData[PlayerKey.Right] = KeyboardInput.Current[Key.Left];
-			inputData[PlayerKey.Left] = KeyboardInput.Current[Key.Right];
+			inputData[PlayerKey.Right] = keyboard[Key.Left];
+			inputData[PlayerKey.Left] = keyboard[Key.Right];
 		}
 
-		inputData[PlayerKey.Up] = KeyboardInput.Current[Key.W];
-		inputData[PlayerKey.Down] = KeyboardInput.Current[Key.S];
-		inputData[PlayerKey.Jump] = KeyboardInput.Current[Key.Space];
-		inputData[PlayerKey.Dash] = MouseInput.Current[MouseButton.Right];
-		inputData[PlayerKey.Shoot] = MouseInput.Current[MouseButton.Left];
+		inputData[PlayerKey.Up] = keyboard[Key.W];
+		inputData[PlayerKey.Down] = keyboard[Key.S];
+		inputData[PlayerKey.Jump] = keyboard[Key.Space];
+		inputData[PlayerKey.Dash] = mouse[MouseButton.Right];
+		inputData[PlayerKey.Shoot] = mouse[MouseButton.Left];
 
-		if (KeyboardInput.KeyPressed(Key.Q))
+		if (keyboard.KeyPressed(Key.Q))
 		{
 			SendSwapWeapon();
 		}
-		if (KeyboardInput.KeyPressed(Key.R))
+		if (keyboard.KeyPressed(Key.R))
 		{
 			Weapon.Reload();
 			SendReload();
@@ -457,65 +468,74 @@ public partial class Player : Actor
 			else playerTileset.X = 3;
 		}
 
-		mesh.FillColor = false;
+		occlusionTileset.Position = playerTileset.Position;
 
-		mesh.Reset();
+		playerMesh.FillColor = false;
 
-		mesh.Translate(position);
-		mesh.Scale(size);
+		playerMesh.Reset();
+
+		playerMesh.Translate(position);
+		playerMesh.Scale(size);
 
 		if (dashTarget != null)
 		{
-			mesh.Rotate(dashTarget.angle);
-			mesh.Scale(1 + dashTarget.lastStep * 2.4f, 1 - dashTarget.lastStep * 0.5f);
-			mesh.Rotate(-dashTarget.angle);
+			playerMesh.RotateZ(dashTarget.angle);
+			playerMesh.Scale(1 + dashTarget.lastStep * 2.4f, 1 - dashTarget.lastStep * 0.5f);
+			playerMesh.RotateZ(-dashTarget.angle);
 		}
 
 		if (dodgeTarget != null)
 		{
-			mesh.Rotate(dodgeTarget.stepAngle);
-			mesh.Scale(1 + dodgeTarget.stepLength * 1.5f, 1 - dodgeTarget.stepLength * 0.7f);
-			mesh.Rotate(-dodgeTarget.stepAngle);
+			playerMesh.RotateZ(dodgeTarget.stepAngle);
+			playerMesh.Scale(1 + dodgeTarget.stepLength * 1.5f, 1 - dodgeTarget.stepLength * 0.7f);
+			playerMesh.RotateZ(-dodgeTarget.stepAngle);
 		}
 
-		mesh.Scale(new Vector2(dir, 1));
+		playerMesh.Scale(new Vector2(dir, 1));
 
-		mesh.Color = Color.Black;
-		mesh.Draw(occlusionTileset, playerTileset.X, playerTileset.Y);
-		mesh.Color = Color.White;
+		playerMesh.Color = Color.Black;
 
-		mesh.Draw(playerTileset);
+		playerMesh.Tileset = occlusionTileset;
+		playerMesh.Draw();
+
+		playerMesh.Color = Color.White;
+
+		playerMesh.Tileset = playerTileset;
+		playerMesh.Draw();
 
 		float glow = Math.Max(1 - dodgeCooldown.PercentageDone, 1 - dashCooldown.PercentageDone);
 		if (glow > 0)
 		{
-			mesh.FillColor = true;
-			mesh.Color = new Color(1, 1, 1, glow);
+			playerMesh.FillColor = true;
+			playerMesh.Color = new Color(1, 1, 1, glow);
 
-			mesh.Draw(playerTileset, playerTileset.X, playerTileset.Y);
+			playerMesh.Draw();
 		}
 
 		if (receivedServerPosition)
 		{
-			mesh.Color = new Color(0, 1, 0, 0.5f);
-			mesh.FillColor = true;
+			playerMesh.Color = new Color(0, 1, 0, 0.5f);
+			playerMesh.FillColor = true;
 
-			mesh.Reset();
+			playerMesh.Reset();
 
-			mesh.Translate(serverPosition);
-			mesh.Scale(size);
-			mesh.Scale(new Vector2(-dir, 1));
+			playerMesh.Translate(serverPosition);
+			playerMesh.Scale(size);
+			playerMesh.Scale(new Vector2(-dir, 1));
 
-			mesh.Draw(playerTileset);
+			playerMesh.Draw();
 		}
 
 		//if (shadow != null && IsLocalPlayer && (dashCooldown.IsDone || IsDashing) && !Disabled) shadow.Draw();
 		if (IsLocalPlayer && (CanDash || IsDashing)) shadow.Draw();
+
+		hud.Draw();
 	}
 
 	public virtual void DrawHUD()
 	{
 		if (!IsAlive) return;
-		hud.Draw();
+
+		hud.DrawHUD();
 	}
 }

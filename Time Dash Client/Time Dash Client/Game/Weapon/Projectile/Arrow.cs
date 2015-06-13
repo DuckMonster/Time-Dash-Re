@@ -1,6 +1,8 @@
 ﻿using OpenTK;
 using System.Collections.Generic;
 using TKTools;
+using TKTools.Context;
+using TKTools.Mathematics;
 
 public class Arrow : Projectile
 {
@@ -12,20 +14,17 @@ public class Arrow : Projectile
 		public ArrowTrace(Vector2 start, Vector2 end, float startsize, float endsize, Map map)
 			: base(map)
 		{
-			mesh = new Mesh(OpenTK.Graphics.OpenGL.PrimitiveType.Quads);
-			mesh.Vertices = new Vector2[] {
+			mesh = new Mesh(new Vector2[] {
 				new Vector2(0, 0.5f * startsize),
 				new Vector2(1, 0.5f * endsize),
 				new Vector2(1, -0.5f * endsize),
 				new Vector2(0, -0.5f * startsize)
-			};
-
-			mesh.UV = mesh.Vertices;
+			});
 
 			mesh.Reset();
 
 			mesh.Translate(start);
-			mesh.Rotate(TKMath.GetAngle(start, end));
+			mesh.RotateZ(TKMath.GetAngle(start, end));
 			mesh.Scale((end - start).Length, 0.1f);
 		}
 

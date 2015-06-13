@@ -1,6 +1,8 @@
 ﻿using OpenTK;
 using System;
 using TKTools;
+using TKTools.Context;
+using TKTools.Mathematics;
 
 public class EffectEnemyHit : Effect
 {
@@ -13,14 +15,12 @@ public class EffectEnemyHit : Effect
 	{
 		size = MathHelper.Clamp(size, 0.2f, 2f);
 
-		mesh = new Mesh(OpenTK.Graphics.OpenGL.PrimitiveType.Quads);
-		mesh.Vertices = enemy.mesh.Vertices;
-		mesh.UV = enemy.mesh.UV;
+		mesh = new Mesh(enemy.sprite.Mesh.Vertices, enemy.sprite.Mesh.UV);
 
 		mesh.FillColor = true;
-		mesh.Texture = enemy.mesh.Texture;
+		mesh.Texture = enemy.sprite.Texture;
 
-		mesh.ModelMaxtrix = enemy.mesh.ModelMaxtrix;
+		mesh.ModelMatrix = enemy.sprite.Mesh.ModelMatrix;
 		mesh.Scale(1.2f);
 
 		/*

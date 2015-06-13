@@ -52,16 +52,16 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="GameModes\CP\CPMap.cs" />
-    <Compile Include="GameModes\CP\CPPoint.cs" />
-    <Compile Include="GameModes\CTF\CTFFlag.cs" />
-    <Compile Include="GameModes\CTF\CTFMap.cs" />
-    <Compile Include="GameModes\CTF\CTFPlayer.cs" />
-    <Compile Include="GameModes\DM\DMMap.cs" />
-    <Compile Include="GameModes\DM\DMPlayer.cs" />
-    <Compile Include="GameModes\Koth\KothMap.cs" />
-    <Compile Include="GameModes\Koth\KothPlayer.cs" />
-    <Compile Include="GameModes\Koth\KothPoint.cs" />
+    <None Include="GameModes\CP\CPMap.cs" />
+    <None Include="GameModes\CP\CPPoint.cs" />
+    <None Include="GameModes\CTF\CTFFlag.cs" />
+    <None Include="GameModes\CTF\CTFMap.cs" />
+    <None Include="GameModes\CTF\CTFPlayer.cs" />
+    <None Include="GameModes\DM\DMMap.cs" />
+    <None Include="GameModes\DM\DMPlayer.cs" />
+    <None Include="GameModes\Koth\KothMap.cs" />
+    <None Include="GameModes\Koth\KothPlayer.cs" />
+    <None Include="GameModes\Koth\KothPoint.cs" />
     <Compile Include="GameModes\Scoreboard.cs" />
     <Compile Include="GameModes\SpawnPoint.cs" />
     <Compile Include="GameModes\SY\Creeps\SYCreep.cs" />

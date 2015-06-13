@@ -1,11 +1,12 @@
 ﻿using OpenTK;
 using System;
 using TKTools;
+using TKTools.Context;
+using TKTools.Mathematics;
 
 public class EffectPlayerHit : Effect
 {
 	Tileset tileset;
-	int tilex, tiley;
 	Mesh mesh;
 
 	Timer effectTimer = new Timer(0.4f, false);
@@ -15,14 +16,10 @@ public class EffectPlayerHit : Effect
 	{
 		size = MathHelper.Clamp(size, 0.2f, 2f);
 
-		tilex = p.playerTileset.X;
-		tiley = p.playerTileset.Y;
+		tileset = new Tileset(p.playerTileset);
 
-		tileset = p.playerTileset;
-
-		mesh = new Mesh(OpenTK.Graphics.OpenGL.PrimitiveType.Quads);
-		mesh.Vertices = p.mesh.Vertices;
-		mesh.UV = p.mesh.UV;
+		mesh = new Mesh(p.sprite.Mesh.Vertices, p.sprite.Mesh.UV);
+		mesh.Tileset = p.playerTileset;
 
 		mesh.Reset();
 
@@ -71,8 +68,6 @@ public class EffectPlayerHit : Effect
 
 	public override void Draw()
 	{
-		tileset.X = tilex;
-		tileset.Y = tiley;
-		mesh.Draw(tileset);
+		mesh.Draw();
 	}
 }

@@ -1,5 +1,9 @@
 ﻿using OpenTK;
+using OpenTK.Input;
 using TKTools;
+using TKTools.Context;
+using TKTools.Context.Input;
+using TKTools.Mathematics;
 
 public class Button
 {
@@ -13,9 +17,6 @@ public class Button
 		{
 			text = value;
 			textBox.Text = text;
-
-			textMesh.Texture = textBox.Texture;
-			textMesh.Vertices = textBox.Vertices;
 		}
 	}
 
@@ -23,11 +24,19 @@ public class Button
 
 	protected TextBox textBox;
 
-	protected Mesh buttonMesh, textMesh;
+	protected Mesh buttonMesh;
 
 	protected Timer hoveredEffectTimer = new Timer(0.5f, true);
 	protected Timer pressEffectTimer = new Timer(0.5f, true);
 	bool previousHovered = false;
+
+	protected MouseWatch mouse;
+
+	public virtual Vector2 Position
+	{
+		get { return position; }
+		set { position = value; }
+	}
 
 	public virtual bool Enabled
 	{
@@ -38,7 +47,7 @@ public class Button
 	{
 		get
 		{
-			return CollidesWith(MouseInput.Current.PositionOrtho);
+			return CollidesWith(mouse.Position.Xy);
 		}
 	}
 
@@ -47,7 +56,7 @@ public class Button
 		get
 		{
 			if (Hovered)
-				return (MouseInput.Current[OpenTK.Input.MouseButton.Left] ? 1f : 0.6f);
+				return (mouse[OpenTK.Input.MouseButton.Left] ? 1f : 0.6f);
 			else
 				return 0.2f;
 		}
@@ -90,20 +99,14 @@ public class Button
 
 		textBox.SetHeight = size.Y;
 
-		textMesh = Mesh.OrthoBox;
-		textMesh.Color = Color.Red;
-
-		textMesh.Texture = textBox.Texture;
-		textMesh.Vertices = textBox.Vertices;
-		textMesh.UV = textBox.UV;
-
-		buttonMesh = Mesh.OrthoBox;
+		buttonMesh = Mesh.CreateFromPrimitive(MeshPrimitive.Quad);
 		buttonMesh.Color = new Color(0, 0, 0, 0.4f);
 
 		buttonMesh.Translate(position);
 		buttonMesh.Scale(size);
 
-		textMesh.Translate(position);
+		mouse = new MouseWatch();
+		mouse.Perspective = Map.UICamera;
 	}
 
 	protected virtual void OnClicked()
@@ -114,10 +117,10 @@ public class Button
 	public bool CollidesWith(Vector2 point)
 	{
 		return (
-			point.X >= position.X - size.X / 2 &&
-			point.X <= position.X + size.X / 2 &&
-			point.Y >= position.Y - size.Y / 2 &&
-			point.Y <= position.Y + size.Y / 2);
+			point.X >= Position.X - size.X / 2 &&
+			point.X <= Position.X + size.X / 2 &&
+			point.Y >= Position.Y - size.Y / 2 &&
+			point.Y <= Position.Y + size.Y / 2);
 	}
 
 	public virtual void Logic()
@@ -130,10 +133,10 @@ public class Button
 			if (!previousHovered)
 				hoveredEffectTimer.Reset();
 
-			if (MouseInput.Current[OpenTK.Input.MouseButton.Left])
+			if (mouse[MouseButton.Left])
 				pressEffectTimer.Reset();
 
-			if (MouseInput.GetReleased(OpenTK.Input.MouseButton.Left))
+			if (mouse.ButtonReleased(MouseButton.Left))
 				OnClicked();
 		}
 
@@ -149,28 +152,25 @@ public class Button
 
 		buttonMesh.Reset();
 
-		buttonMesh.Translate(position);
+		buttonMesh.Translate(Position);
 		buttonMesh.Scale(size);
 
 		if (!hoveredEffectTimer.IsDone)
 		{
-			buttonMesh.Rotate(10f * TKMath.Exp(hoveredEffectTimer.PercentageDone, 6f));
+			buttonMesh.RotateZ(10f * TKMath.Exp(hoveredEffectTimer.PercentageDone, 6f));
 		}
 
 		buttonMesh.Draw();
 
-		textMesh.Texture = textBox.Texture;
-		textMesh.Vertices = textBox.Vertices;
-
-		textMesh.Reset();
-
-		textMesh.Translate(position);
+		Mesh m = textBox.Mesh;
+		m.Reset();
+		m.Translate(Position);
 
 		if (!hoveredEffectTimer.IsDone)
 		{
-			textMesh.Rotate(10f * TKMath.Exp(hoveredEffectTimer.PercentageDone, 6f));
+			m.RotateZ(10f * TKMath.Exp(hoveredEffectTimer.PercentageDone, 6f));
 		}
 
-		textMesh.Draw();
+		m.Draw();
 	}
 }

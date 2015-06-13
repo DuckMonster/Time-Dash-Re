@@ -53,7 +53,7 @@ public class SYScroot : SYCreep
 		
 		texture = Art.Load("Res/creep.png");
 
-		mesh.Texture = texture;
+		sprite.Texture = texture;
 	}
 
 	public override void ReceiveCustom(MessageBuffer msg)
@@ -111,24 +111,15 @@ public class SYScroot : SYCreep
 
 	public override void Draw()
 	{
-		mesh.FillColor = false;
-		mesh.Color = Color.White;
-
-		mesh.Reset();
-
-		mesh.Translate(Position);
-		mesh.Scale(Size);
-
-		mesh.Rotate(velocity.Y * 6f);
-
-		mesh.Draw();
+		sprite.FillColor = false;
+		sprite.Draw(Position, Size, velocity.Y * 6f);
 
 		if (!chargeTimer.IsDone)
 		{
-			mesh.FillColor = true;
-			mesh.Color = new Color(1, 1, 1, chargeTimer.PercentageDone);
+			sprite.FillColor = true;
+			sprite.Color = new Color(1, 1, 1, chargeTimer.PercentageDone);
 
-			mesh.Draw();
+			sprite.Draw();
 		}
 	}
 }

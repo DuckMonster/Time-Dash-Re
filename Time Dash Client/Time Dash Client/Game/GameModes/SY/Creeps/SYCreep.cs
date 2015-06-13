@@ -22,9 +22,6 @@ public class SYCreep : Actor
 	CustomStats creepStats;
 	CircleBar healthBar = new CircleBar(2f, 0.15f, 90 + 50f, -50f * 2);
 
-	protected Mesh textMesh = Mesh.Box;
-	protected TextBox td;
-
 	public SYCreep(int id, Vector2 position, Vector2 velocity, CustomStats stats, Map map)
 		:base(position, map)
 	{
@@ -32,9 +29,6 @@ public class SYCreep : Actor
 		this.velocity = velocity;
 
 		creepStats = stats;
-
-		td = new TextBox(60f);
-		td.Text = "Hello!";
 	}
 
 	public override void Die(Vector2 diePos)
@@ -91,13 +85,8 @@ public class SYCreep : Actor
 	{
 		if (!IsAlive) return;
 
-		mesh.Color = Color.Red;
-		mesh.Reset();
-
-		mesh.Translate(position);
-		mesh.Scale(size);
-
-		mesh.Draw();
+		sprite.Color = Color.Red;
+		sprite.Draw(position, size, 0f);
 
 		if (health < MaxHealth)
 			healthBar.Draw(position, Color.Red);

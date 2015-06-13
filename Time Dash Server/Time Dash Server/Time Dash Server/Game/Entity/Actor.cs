@@ -2,6 +2,7 @@
 using OpenTK.Input;
 using System;
 using TKTools;
+using TKTools.Mathematics;
 
 public class Actor : Entity
 {

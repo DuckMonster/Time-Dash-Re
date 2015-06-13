@@ -1,13 +1,14 @@
 ﻿using OpenTK;
 using System;
 using TKTools;
+using TKTools.Context;
+using TKTools.Mathematics;
 
 public class EffectSkull : Effect
 {
-	public static readonly Texture
-		skullTexture = Art.Load("Res/skull.png");
+	Sprite skullSprite;
+	Mesh spikeMesh;
 
-	Mesh skullMesh, spikeMesh;
 	Vector2 position;
 	float rotation;
 
@@ -25,21 +26,19 @@ public class EffectSkull : Effect
 
 		color = c;
 
-		skullMesh = Mesh.Box;
-		spikeMesh = Mesh.Box;
-
-		skullMesh.Texture = skullTexture;
-		spikeMesh.Vertices = new Vector2[] {
-			new Vector2(-0.5f, 0f),
-			new Vector2(-0.3f, 0.5f),
-			new Vector2(0.5f, 0f),
-			new Vector2(-0.3f, -0.5f)
-		};
+		skullSprite = new Sprite(Art.Load("Res/skull.png"));
+		spikeMesh = new Mesh(new Vector3[] {
+			new Vector3(-0.5f, 0f, 0f),
+			new Vector3(-0.3f, 0.5f, 0f),
+			new Vector3(0.5f, 0f, 0f),
+			new Vector3(-0.3f, -0.5f, 0f)
+		});
 	}
 
 	public override void Dispose()
 	{
-		skullMesh.Dispose();
+		skullSprite.Dispose();
+		spikeMesh.Dispose();
 		base.Dispose();
 	}
 
@@ -60,16 +59,16 @@ public class EffectSkull : Effect
 
 		color.A = 1 - effectTimer.PercentageDone;
 
-		skullMesh.Color = color;
+		skullSprite.Color = color;
 		spikeMesh.Color = color;
 
-		float f = 1 - TKMath.Exp(effectTimer.PercentageDone, 5);
+		float f = 1 - TKMath.Exp(effectTimer.PercentageDone);
 
 		for (int i = 0; i < 4; i++)
 		{
 			spikeMesh.Reset();
 			spikeMesh.Translate(position);
-			spikeMesh.Rotate(rotation + 90 * i);
+			spikeMesh.RotateZ(rotation + 90 * i);
 			spikeMesh.Scale(1 + 2 * f, 2 - 2 * f);
 			spikeMesh.Translate(f * 2, 0);
 			spikeMesh.Draw();
@@ -78,12 +77,6 @@ public class EffectSkull : Effect
 		float pos = (1 - TKMath.Exp(effectTimer.PercentageDone, 3)) * 3f,
 			rot = 20 * effectTimer.PercentageDone;
 
-		skullMesh.Reset();
-
-		skullMesh.Translate(position + new Vector2(0, pos));
-		skullMesh.Rotate(rotation + rot);
-		skullMesh.Scale(3f);
-
-		skullMesh.Draw();
+		skullSprite.Draw(position + new Vector2(0, pos), 3f, rotation + rot);
 	}
 }

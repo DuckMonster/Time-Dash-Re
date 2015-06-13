@@ -1,6 +1,7 @@
 ﻿using OpenTK;
 using TKTools;
 using TKTools.Context;
+using TKTools.Mathematics;
 
 public class EffectBullet : Effect
 {
@@ -15,12 +16,12 @@ public class EffectBullet : Effect
 		this.a = a;
 		this.b = b;
 
-		mesh = new Mesh(new Vector2[] {
-			new Vector2(0, 0),
-			new Vector2(0.2f, -0.5f),
-			new Vector2(1f, 0),
-			new Vector2(0.2f, 0.5f)
-		};
+		mesh = new Mesh(new Vector3[] {
+			new Vector3(0, 0, 0),
+			new Vector3(0.2f, -0.5f, 0),
+			new Vector3(1f, 0, 0),
+			new Vector3(0.2f, 0.5f, 0)
+		});
 
 		effectTimer = new Timer(0.8f, false);
 	}
@@ -40,7 +41,7 @@ public class EffectBullet : Effect
 
 		mesh.Reset();
 		mesh.Translate(a);
-		mesh.Rotate(TKMath.GetAngle(a, b));
+		mesh.RotateZ(TKMath.GetAngle(a, b));
 		mesh.Scale((b - a).Length, w);
 
 		effectTimer.Logic();

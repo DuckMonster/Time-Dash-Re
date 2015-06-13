@@ -1,26 +1,31 @@
 ﻿using OpenTK;
 using System;
 using TKTools;
+using TKTools.Context;
 
 namespace ShopMenu
 {
 	public class ShopMenu : Menu
 	{
 		public WeaponList? selectedWeapon = null;
-		Mesh weaponMesh = Mesh.OrthoBox;
+		Sprite weaponSprite = new Sprite();
 		float weaponRotation = 0f;
 
 		BuyButton buyButton;
 
-		Mesh lockMesh = Mesh.OrthoBox,
-			scrapMesh = Mesh.OrthoBox,
-			costMesh = Mesh.OrthoBox;
+		Sprite lockSprite = new Sprite(Art.Load("Res/weapons/lock.png")),
+			scrapSprite = new Sprite(Art.Load("Res/scrap.png"));
 
 		TextBox costBox;
 
-		Vector2 previewWeaponPosition = new Vector2(4, 2);
+		Vector2 previewWeaponPosition = new Vector2(2.4f, 2);
 
 		EquipButton[] equipButtons = new EquipButton[2];
+
+		Vector2 PreviewPosition
+		{
+			get { return previewWeaponPosition * new Vector2(Game.AspectRatio, 1f); }
+		}
 
 		public ShopMenu(Map map)
 			: base(new Vector2(18f, 10f), map)
@@ -30,7 +35,6 @@ namespace ShopMenu
 			float padding = 0.2f;
 
 			Vector2 buttonSize = new Vector2(1.25f, 1.25f);
-			Vector2 buttonStart = new Vector2(-8f, 2f);
 
 			for (int i=0; i<nmbrOfWeapons; i++)
 			{
@@ -40,25 +44,23 @@ namespace ShopMenu
 				AddButton(new WeaponButton(
 					(WeaponList)(i % nmbrOfWeapons),
 					(w) => { selectedWeapon = w; costBox.Text = WeaponStats.GetStats(w).scrapCost.ToString(); } ,
-					buttonStart + new Vector2(x, y), buttonSize, 
+					new Vector2(x, y), buttonSize, 
 					this, map));
 			}
 
-			equipButtons[0] = new EquipButton(0, (id) => map.LocalPlayer.SendInventory(id, selectedWeapon.Value), previewWeaponPosition - new Vector2(4f, 2f), new Vector2(2f, 2f), this, map);
-			equipButtons[1] = new EquipButton(1, (id) => map.LocalPlayer.SendInventory(id, selectedWeapon.Value), previewWeaponPosition - new Vector2(-4f, 2f), new Vector2(2f, 2f), this, map);
+			equipButtons[0] = new EquipButton(0, (id) => map.LocalPlayer.SendInventory(id, selectedWeapon.Value), previewWeaponPosition - new Vector2(4f, 2f), new Vector2(1.2f, 1.2f), this, map);
+			equipButtons[1] = new EquipButton(1, (id) => map.LocalPlayer.SendInventory(id, selectedWeapon.Value), previewWeaponPosition - new Vector2(-4f, 2f), new Vector2(1.2f, 1.2f), this, map);
 
 			buyButton = new BuyButton(() => map.LocalPlayer.SendBuyWeapon(selectedWeapon.Value), previewWeaponPosition + new Vector2(0, -4), new Vector2(3f, 1f), this, map);
 
-			lockMesh.Texture = Art.Load("Res/weapons/lock.png");
-			lockMesh.FillColor = true;
-			lockMesh.Color = new Color(0f, 0f, 0f, 0.5f);
-
-			scrapMesh.Texture = Art.Load("Res/scrap.png");
+			lockSprite.FillColor = true;
+			lockSprite.Color = new Color(0f, 0f, 0f, 0.8f);
 
 			costBox = new TextBox(new System.Drawing.Font("Adobe Song Std L", 200f));
 			costBox.VerticalAlign = TextBox.VerticalAlignment.Center;
 			costBox.UpdateRate = 0;
 			costBox.SetHeight = 3f;
+			costBox.Color = SYScrap.HUDColor;
         }
 
 		public override void Logic()
@@ -67,6 +69,10 @@ namespace ShopMenu
 
 			if (selectedWeapon != null)
 			{
+				buyButton.Position = PreviewPosition + new Vector2(0f, -2.5f);
+				equipButtons[0].Position = PreviewPosition + new Vector2(-2f, -2.5f);
+				equipButtons[1].Position = PreviewPosition + new Vector2(2f, -2.5f);
+
 				buyButton.Logic();
 				equipButtons[0].Logic();
 				equipButtons[1].Logic();
@@ -81,53 +87,30 @@ namespace ShopMenu
 
 			if (selectedWeapon != null)
 			{
-				weaponMesh.Texture = Weapon.GetIcon(selectedWeapon.Value);
+				weaponSprite.Texture = Weapon.GetIcon(selectedWeapon.Value);
 				if (map.LocalPlayer.OwnsWeapon(selectedWeapon.Value))
 				{
-					weaponMesh.FillColor = false;
-					weaponMesh.Color = Color.White;
+					weaponSprite.FillColor = false;
+					weaponSprite.Color = Color.White;
 				} else
 				{
-					weaponMesh.FillColor = true;
-					weaponMesh.Color = Color.Black;
+					weaponSprite.FillColor = true;
+					weaponSprite.Color = Color.Black;
 				}
 
-				weaponMesh.Reset();
-
-				weaponMesh.Translate(previewWeaponPosition);
-				weaponMesh.Scale(5f);
-				weaponMesh.Rotate(weaponRotation);
-
-				weaponMesh.Draw();
+				weaponSprite.Draw(PreviewPosition, 4f, weaponRotation);
 
 				if (!map.LocalPlayer.OwnsWeapon(selectedWeapon.Value))
 				{
-					lockMesh.Reset();
+					lockSprite.Draw(PreviewPosition, 2f, 0f);
+					scrapSprite.Draw(PreviewPosition - new Vector2(0.3f, 0.2f), 1.2f, 10f);
 
-					lockMesh.Translate(previewWeaponPosition);
-					lockMesh.Scale(3f);
+					Mesh m = costBox.Mesh;
 
-					lockMesh.Draw();
+					m.Reset();
 
-					scrapMesh.Reset();
-
-					scrapMesh.Translate(previewWeaponPosition);
-					scrapMesh.Translate(-0.5f, -0.2f);
-					scrapMesh.Rotate(10f);
-					scrapMesh.Scale(1.2f);
-
-					scrapMesh.Draw();
-
-					costMesh.Texture = costBox.Texture;
-					costMesh.UV = costBox.UV;
-					costMesh.Vertices = costBox.Vertices;
-
-					costMesh.Reset();
-
-					costMesh.Translate(previewWeaponPosition);
-					costMesh.Translate(-0.3f, 0f);
-
-					costMesh.Draw();
+					m.Translate(PreviewPosition - new Vector2(0.3f, 0f));
+					m.Draw();
 
 					buyButton.Draw();
 				} else

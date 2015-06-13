@@ -3,6 +3,7 @@ using System;
 using TKTools;
 public class SYScrap : Entity
 {
+	public static Color HUDColor = new Color(0.9f, 0.5f, 0.1f);
 	static Random rng = new Random();
 
 	protected new SYMap Map
@@ -26,7 +27,7 @@ public class SYScrap : Entity
 		this.velocity = velocity;
 
 		size = new Vector2(0.5f, 0.5f);
-		mesh.Texture = scrapTexture;
+		sprite.Texture = scrapTexture;
 
 		rotation = 360f * (float)rng.NextDouble();
 	}
@@ -64,12 +65,6 @@ public class SYScrap : Entity
 
 	public override void Draw()
 	{
-		mesh.Reset();
-
-		mesh.Translate(position);
-		mesh.Scale(size);
-		mesh.Rotate(rotation);
-
-		mesh.Draw();
+		sprite.Draw(position, size, rotation);
 	}
 }

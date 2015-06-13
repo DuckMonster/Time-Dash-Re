@@ -61,7 +61,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Art.cs" />
-    <Compile Include="Game\Camera.cs" />
+    <Compile Include="Game\CameraControl.cs" />
     <Compile Include="Game\Effects\Effect.cs" />
     <Compile Include="Game\Effects\EffectBullet.cs" />
     <Compile Include="Game\Effects\EffectCollision.cs" />
@@ -110,20 +110,20 @@
     <Compile Include="Game\Entity\PlayerShadow.cs" />
     <Compile Include="Game\Weapon\Projectile\Grenade.cs" />
     <Compile Include="Game\Weapon\Projectile\Projectile.cs" />
-    <Compile Include="Game\GameModes\CTF\CTFFlag.cs" />
-    <Compile Include="Game\GameModes\CTF\CTFMap.cs" />
-    <Compile Include="Game\GameModes\CTF\CTFPlayer.cs" />
+    <None Include="Game\GameModes\CTF\CTFFlag.cs" />
+    <None Include="Game\GameModes\CTF\CTFMap.cs" />
+    <None Include="Game\GameModes\CTF\CTFPlayer.cs" />
     <Compile Include="Game\Scene.cs" />
     <Compile Include="Game\Game.cs" />
-    <Compile Include="Game\GameModes\CP\CPMap.cs" />
-    <Compile Include="Game\GameModes\CP\CPPoint.cs" />
-    <Compile Include="Game\GameModes\DM\DMMap.cs" />
-    <Compile Include="Game\GameModes\DM\DMPlayer.cs" />
-    <Compile Include="Game\GameModes\Koth\KothPlayer.cs" />
-    <Compile Include="Game\GameModes\Koth\KothPoint.cs" />
-    <Compile Include="Game\GameModes\Scoreboard.cs" />
+    <None Include="Game\GameModes\CP\CPMap.cs" />
+    <None Include="Game\GameModes\CP\CPPoint.cs" />
+    <None Include="Game\GameModes\DM\DMMap.cs" />
+    <None Include="Game\GameModes\DM\DMPlayer.cs" />
+    <None Include="Game\GameModes\Koth\KothPlayer.cs" />
+    <None Include="Game\GameModes\Koth\KothPoint.cs" />
+    <None Include="Game\GameModes\Scoreboard.cs" />
     <Compile Include="Game\Map.cs" />
-    <Compile Include="Game\GameModes\Koth\KothMap.cs" />
+    <None Include="Game\GameModes\Koth\KothMap.cs" />
     <Compile Include="Game\Team.cs" />
     <Compile Include="Game\UI\CircleBar.cs" />
     <Compile Include="Game\Weapon\Pistol.cs" />
@@ -136,7 +136,6 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ServerList.cs" />
-    <Compile Include="Tileset.cs" />
     <Compile Include="Timer.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -2,6 +2,8 @@
 using OpenTK.Graphics.OpenGL;
 using System;
 using TKTools;
+using TKTools.Context;
+using TKTools.Mathematics;
 
 public class PlayerShadow : IDisposable
 {
@@ -31,10 +33,6 @@ public class PlayerShadow : IDisposable
 		}
 	}
 
-	static Tileset shadowTileset = new Tileset(250, 200, "Res/jackShadowTileset.png");
-
-	Texture circleTexture = Art.Load("Res/circlebig.png");
-
 	Player player;
 	Mesh mesh;
 	Mesh circleMesh, arrowMesh;
@@ -43,6 +41,8 @@ public class PlayerShadow : IDisposable
 
 	ShadowPosition[] positionBuffer;
 	int positionBufferIndex = 0;
+
+	Tileset tileset;
 
 	public ShadowPosition CurrentPosition
 	{
@@ -55,24 +55,22 @@ public class PlayerShadow : IDisposable
 	public PlayerShadow(Player p, Mesh m)
 	{
 		player = p;
-		mesh = new Mesh(PrimitiveType.Quads);
-		mesh.Vertices = m.Vertices;
-		mesh.UV = m.UV;
+		mesh = new Mesh(m.Vertices, m.UV);
+		tileset = new Tileset(m.Tileset);
+
+		mesh.Tileset = tileset;
 
 		positionBuffer = new ShadowPosition[(int)(bufferLength / updateRate)];
 		for (int i = 0; i < positionBuffer.Length; i++)
 			positionBuffer[i] = new ShadowPosition(p.Position, p.playerTileset, p.dir);
 
-		circleMesh = Mesh.Box;
-		circleMesh.Texture = circleTexture;
-		arrowMesh = new Mesh(PrimitiveType.TriangleStrip);
-
-		arrowMesh.Vertices = new Vector2[] {
-			new Vector2(-0.1f, 0f),
-			new Vector2(0f, 0.5f),
-			new Vector2(0f, -0.5f),
-			new Vector2(1f, 0f)
-		};
+		circleMesh = Mesh.CreateFromTexture(Art.Load("Res/circlebig.png"));
+		arrowMesh = new Mesh(new Vector3[] {
+			new Vector3(-0.1f, 0f, 0f),
+			new Vector3(0f, 0.5f, 0f),
+			new Vector3(0f, -0.5f, 0f),
+			new Vector3(1f, 0f, 0f)
+		});
 	}
 
 	public void Dispose()
@@ -90,6 +88,9 @@ public class PlayerShadow : IDisposable
 			UpdateBuffer();
 			updateTimer -= updateRate;
 		}
+
+		tileset.X = CurrentPosition.tilex;
+		tileset.Y = CurrentPosition.tiley;
 	}
 
 	public void UpdateBuffer()
@@ -114,7 +115,7 @@ public class PlayerShadow : IDisposable
 			mesh.Scale(player.Size);
 			mesh.Scale(CurrentPosition.direction, 1);
 
-			mesh.Draw(shadowTileset, CurrentPosition.tilex, CurrentPosition.tiley);
+			mesh.Draw();
 		}
 
 		//DrawArrow();
@@ -143,7 +144,7 @@ public class PlayerShadow : IDisposable
 
 		circleMesh.Reset();
 		circleMesh.Translate(player.Position);
-		circleMesh.Rotate(direction);
+		circleMesh.RotateZ(direction);
 		circleMesh.Translate(-distance, 0f);
 		circleMesh.Scale(2.2f - distance * 1.5f);
 
@@ -156,7 +157,7 @@ public class PlayerShadow : IDisposable
 		circleMesh.Translate(player.Position);
 		circleMesh.Scale(2f);
 
-		circleMesh.Rotate(direction);
+		circleMesh.RotateZ(direction);
 
 		circleMesh.Draw();
 
@@ -169,7 +170,7 @@ public class PlayerShadow : IDisposable
 		{
 			arrowMesh.Reset();
 			arrowMesh.Translate(player.Position);
-			arrowMesh.Rotate(direction);
+			arrowMesh.RotateZ(direction);
 			arrowMesh.Translate(0.9f, 0);
 			arrowMesh.Scale(distance, 0.5f);
 

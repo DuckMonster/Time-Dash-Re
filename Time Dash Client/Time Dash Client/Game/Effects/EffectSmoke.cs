@@ -2,6 +2,8 @@
 using OpenTK.Graphics.OpenGL;
 using System;
 using TKTools;
+using TKTools.Context;
+using TKTools.Mathematics;
 
 public class EffectSmoke : Effect
 {
@@ -9,10 +11,8 @@ public class EffectSmoke : Effect
 
 	public static Color defaultColor = new Color(212, 190, 166);
 
-	Texture smokeTexture;
-
 	Vector2 position;
-	Mesh mesh;
+	Sprite sprite;
 
 	Timer smokeTimer = new Timer(1f, false);
 	Color color;
@@ -42,8 +42,6 @@ public class EffectSmoke : Effect
 	public EffectSmoke(Vector2 position, float size, float time, float floatDirection, float velocity, Color color, Map m)
 		:base(m)
 	{
-		smokeTexture = Art.Load("Res/circlebig.png");
-
 		this.position = position;
 
 		this.color = color;
@@ -51,8 +49,7 @@ public class EffectSmoke : Effect
 		speed = velocity;
 		smokeSize = size;
 
-		mesh = Mesh.Box;
-		mesh.Texture = smokeTexture;
+		sprite = new Sprite(Art.Load("Res/circlebig.png"));
 
 		smokeTimer.Reset(time);
 
@@ -62,8 +59,7 @@ public class EffectSmoke : Effect
 	public override void Dispose()
 	{
 		base.Dispose();
-
-		mesh.Dispose();
+		sprite.Dispose();
 	}
 
 	public override void Logic()
@@ -78,19 +74,16 @@ public class EffectSmoke : Effect
 
 		speed -= speed * 4f * Game.delta;
 
-		mesh.Reset();
-
-		mesh.Translate(position);
-		mesh.Scale(Size);
-
 		color.A = 1f;
-		mesh.Color = color;
+
+		sprite.Position = new Vector3(position);
+		sprite.ScaleF = Size;
 	}
 
 	public override void Draw()
 	{
 		if (smokeTimer.IsDone) return;
 
-		mesh.Draw();
+		sprite.Draw();
 	}
 }

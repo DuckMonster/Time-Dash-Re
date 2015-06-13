@@ -40,23 +40,23 @@ public class SYTowerArea : Entity
 			if (Map.LocalPlayer != null && Map.LocalPlayer.Team == tower.Team)
 				return;
 
-			if (Map.camera.secondaryObject == null)
+			if (Map.cameraController.secondaryObject == null)
 			{
 				bool localPlayer = BoundPlayers.Contains(Map.LocalPlayer);
 				if (localPlayer)
-					Map.camera.secondaryObject = tower;
+					Map.cameraController.secondaryObject = tower;
 			}
-			else if (Map.camera.secondaryObject == tower)
+			else if (Map.cameraController.secondaryObject == tower)
 			{
 				bool localPlayer = BoundPlayers.Contains(Map.LocalPlayer);
 				if (!localPlayer)
-					Map.camera.secondaryObject = null;
+					Map.cameraController.secondaryObject = null;
 			}
 
 			if (!tower.IsAlive)
 			{
-				if (Map.camera.secondaryObject == tower)
-					Map.camera.secondaryObject = null;
+				if (Map.cameraController.secondaryObject == tower)
+					Map.cameraController.secondaryObject = null;
 
 				tower = null;
 			}

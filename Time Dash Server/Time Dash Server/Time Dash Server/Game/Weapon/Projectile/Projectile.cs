@@ -1,6 +1,8 @@
 ﻿using EZUDP;
 using OpenTK;
 using TKTools;
+using TKTools.Mathematics;
+
 public abstract class Projectile : Entity
 {
 	public int id = -1;

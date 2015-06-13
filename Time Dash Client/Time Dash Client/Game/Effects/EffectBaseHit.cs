@@ -1,10 +1,11 @@
 ﻿using OpenTK;
 using OpenTK.Graphics.OpenGL;
 using TKTools;
+using TKTools.Context;
 
 public class EffectBaseHit : Effect
 {
-	Mesh mesh;
+	Sprite sprite;
 
 	Timer effectTimer = new Timer(0.1f, false);
 
@@ -13,11 +14,8 @@ public class EffectBaseHit : Effect
 	{
 		size = MathHelper.Clamp(size, 0.2f, 2f);
 
-		mesh = Mesh.Box;
-		mesh.Texture = b.mesh.Texture;
-		mesh.ModelMaxtrix = b.mesh.ModelMaxtrix;
-
-		mesh.Scale(1.1f);
+		sprite = new Sprite(b.sprite.Texture);
+		sprite.SetTransform(b.sprite.Position, b.sprite.Scale * 1.1f, b.sprite.Rotation);
 
 		effectTimer.Reset(size / 7f);
 	}
@@ -26,7 +24,7 @@ public class EffectBaseHit : Effect
 	{
 		base.Dispose();
 
-		mesh.Dispose();
+		sprite.Dispose();
 	}
 
 	public override void Logic()
@@ -35,7 +33,7 @@ public class EffectBaseHit : Effect
 			Remove();
 
 		Color color = new Color(1, 1, 1, 1f - effectTimer.PercentageDone);
-		mesh.Color = color;
+		sprite.Color = color;
 
 		effectTimer.Logic();
 
@@ -44,6 +42,6 @@ public class EffectBaseHit : Effect
 
 	public override void Draw()
 	{
-		mesh.Draw();
+		sprite.Draw();
 	}
 }

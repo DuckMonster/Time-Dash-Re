@@ -5,16 +5,30 @@ using TKTools;
 using EZUDP;
 using System.Collections.Generic;
 using MapScene;
+using TKTools.Context;
+using TKTools.Context.Input;
 
 public class Map : IDisposable
 {
+	public static Camera GameCamera
+	{
+		get { return currentMap.gameCamera; }
+	}
+	public static Camera UICamera
+	{
+		get { return currentMap.uiCamera; }
+	}
+
+	static Map currentMap;
+
 	public Random rng = new Random();
 
 	public string filename;
 	public GameMode mode;
 
 	public int myID;
-	public Camera camera;
+	public Camera gameCamera, uiCamera;
+	public CameraControl cameraController;
 	public Scene scene;
 
 	public Team[] teamList = new Team[10];
@@ -30,6 +44,8 @@ public class Map : IDisposable
 	public Projectile[] projectileList = new Projectile[100];
 	int projectileIndex = 0;
 
+	protected KeyboardWatch keyboard;
+
 	public int NextProjectileIndex
 	{
 		get
@@ -40,9 +56,6 @@ public class Map : IDisposable
 			return projectileIndex;
 		}
 	}
-
-	public TextDrawer hudDrawer = new TextDrawer(2000, 2000);
-	Mesh hudMesh;
 
 	protected Player winPlayer = null;
 	
@@ -120,15 +133,7 @@ public class Map : IDisposable
 	public void PlayerWin(Player p)
 	{
 		winPlayer = p;
-		hudDrawer.Clear();
-
-		Vector2 nameSize = hudDrawer.MeasureString(p.playerName, 0.4f);
-		Vector2 winSize = hudDrawer.MeasureString("WINS", 0.2f);
-
-		hudDrawer.Write(p.playerName, 0.5f, 0.5f, 0.4f);
-		hudDrawer.Write("WINS", 0.5f, 0.5f + nameSize.Y / 2 + winSize.Y / 2 + 0.016f, 0.2f);
-
-		hudDrawer.UpdateTexture();
+		//DRAW WIN PLAYER HERE PLOX LOLOLOLLLOLOLOLLOLOLOLOLOLOLOLOLOLOLOLOLOLOL
 	}
 
 	public void TeamWin(Team t)
@@ -137,13 +142,7 @@ public class Map : IDisposable
 
 		string teamName = t.id == 0 ? "Blue team" : "Orange team";
 
-		Vector2 nameSize = hudDrawer.MeasureString(teamName, 0.4f);
-		Vector2 winSize = hudDrawer.MeasureString("WINS", 0.2f);
-
-		hudDrawer.Write(teamName, 0.5f, 0.5f, 0.4f);
-		hudDrawer.Write("WINS", 0.5f, 0.5f + nameSize.Y / 2 + winSize.Y / 2 + 0.016f, 0.2f);
-
-		hudDrawer.UpdateTexture();
+		//DRAW WIN TEAM HERE LOLOLOLLOLOLOLLOLLOLOLOLLOLOLOLLOLOLOLOLOLO
 	}
 
 	public void AddProjectile(Projectile p)
@@ -168,18 +167,24 @@ public class Map : IDisposable
 
 	public Map(int id, string filename, GameMode mode)
 	{
+		currentMap = this;
+
 		this.filename = filename;
 		this.mode = mode;
 
 		myID = id;
 
 		scene = new Scene(filename, this);
-		camera = new Camera(this);
 
-		hudMesh = new Mesh(hudDrawer);
-		hudDrawer.UpdateTexture();
+		gameCamera = new Camera();
+		gameCamera.Use();
 
-		MouseInput.SetCamera(camera);
+		uiCamera = new Camera();
+		uiCamera.Orthogonal = true;
+
+		cameraController = new CameraControl(this, gameCamera);
+
+		keyboard = new KeyboardWatch();
 	}
 
 	public virtual void Dispose()
@@ -189,9 +194,6 @@ public class Map : IDisposable
 
 		foreach (Effect e in effectList)
 			if (e != null) e.Dispose();
-
-		hudMesh.Dispose();
-		hudDrawer.Dispose();
 	}
 
 	public virtual void SceneEvent(EnvEvent e, int[] args, Polygon pos)
@@ -283,7 +285,7 @@ public class Map : IDisposable
 
 	public virtual void Logic()
 	{
-		camera.Logic();
+		cameraController.Logic();
 		scene.Logic();
 		 
 		if (LocalPlayer != null) LocalPlayer.LocalInput();
@@ -310,13 +312,6 @@ public class Map : IDisposable
 			Log.Debug(winPlayer.playerID + " WINS!");
 	}
 
-	public void UpdateView()
-	{
-		Game.defaultShader["view"].SetValue(camera.ViewMatrix);
-		Tileset.tileProgram["view"].SetValue(camera.ViewMatrix);
-		Game.hudShader["view"].SetValue(Matrix4.LookAt(new Vector3(0, 0, 3), Vector3.Zero, Vector3.UnitY));
-	}
-
 	public void DrawBackground()
 	{
 		scene.Draw();
@@ -332,25 +327,27 @@ public class Map : IDisposable
 		foreach (Actor a in Actors) if (a != null) a.Draw();
 		foreach (Effect e in effectList) e.Draw();
 		foreach (Projectile p in projectileList) if (p != null) p.Draw();
-		if (LocalPlayer != null) LocalPlayer.DrawHUD();
 
 		if (winPlayer != null)
 		{
-			hudMesh.Color = Player.colorList[winPlayer.playerID];
-
-			hudMesh.Reset();
-			hudMesh.Translate(camera.position.Xy);
-			hudMesh.Scale(20f);
-
-			hudMesh.Draw();
 		}
 	}
 
 	public virtual void Draw()
 	{
-		UpdateView();
 		DrawBackground();
 		DrawMap();
+
+		UICamera.Use();
+
+		DrawHUD();
+
+		GameCamera.Use();
+	}
+
+	public virtual void DrawHUD()
+	{
+		if (LocalPlayer != null) LocalPlayer.DrawHUD();
 	}
 
 	//ONLINE

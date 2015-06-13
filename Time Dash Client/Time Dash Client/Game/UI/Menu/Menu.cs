@@ -1,12 +1,14 @@
 ﻿using OpenTK;
 using System.Collections.Generic;
+using TKTools.Context;
+using TKTools.Mathematics;
 
 public class Menu
 {
 	protected Map map;
 	protected Vector2 size;
 
-	Mesh menuMesh = Mesh.OrthoBox;
+	Mesh menuMesh = Mesh.CreateFromPrimitive(MeshPrimitive.Quad);
 
 	List<Button> buttonList = new List<Button>();
 
@@ -40,10 +42,10 @@ public class Menu
 
 	public virtual void Draw()
 	{
-		menuMesh.Color = new TKTools.Color(0, 0, 0, 0.7f * (1f - TKTools.TKMath.Exp(alphaTimer.PercentageDone, 5f)));
+		menuMesh.Color = new TKTools.Color(0, 0, 0, 0.7f * (1f - TKMath.Exp(alphaTimer.PercentageDone, 5f)));
 
 		menuMesh.Reset();
-		menuMesh.Scale(20f, 20f * Game.windowRatio);
+		menuMesh.Scale(10f * Game.AspectRatio - 1f, 9f);
 
 		menuMesh.Draw();
 		foreach (Button b in buttonList) b.Draw();

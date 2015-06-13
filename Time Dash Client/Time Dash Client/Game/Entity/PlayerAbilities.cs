@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using OpenTK;
 using TKTools;
 using System.Diagnostics;
+using TKTools.Mathematics;
 
 public enum Direction
 {
@@ -199,7 +200,7 @@ public partial class Player : Actor
 	{
 		if (shadow == null)
 		{
-			shadow = new PlayerShadow(this, mesh);
+			shadow = new PlayerShadow(this, playerMesh);
 		}
 	}
 

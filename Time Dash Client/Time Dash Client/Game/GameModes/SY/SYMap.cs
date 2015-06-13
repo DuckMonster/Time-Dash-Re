@@ -23,9 +23,6 @@ public class SYMap : Map
 
 	bool showShop = false;
 
-	FrameBuffer frameBuffer;
-	Mesh frameBufferMesh;
-
 	public override IEnumerable<Actor> Actors
 	{
 		get
@@ -56,20 +53,6 @@ public class SYMap : Map
 		: base(id, filename, GameMode.ScrapYard)
 	{
 		shopMenu = new ShopMenu.ShopMenu(this);
-
-		frameBuffer = new FrameBuffer(2056, 2056);
-		frameBufferMesh = Mesh.OrthoBox;
-		frameBufferMesh.UV = new Vector2[] {
-				new Vector2(0f, 1f),
-				new Vector2(1f, 1f),
-				new Vector2(1f, 0f),
-				new Vector2(0f, 0f)
-			};
-
-		frameBufferMesh.Texture = frameBuffer.Texture;
-		frameBufferMesh.UsingBlur = true;
-		frameBufferMesh.BlurIntensity = 1f;
-		frameBufferMesh.BlurRadius = 6;
 
 		teamList[0] = new Team(0);
 		teamList[1] = new Team(1);
@@ -186,7 +169,7 @@ public class SYMap : Map
 		foreach (SYStash b in stashList) if (b != null) b.Logic();
 		foreach (SYTowerArea a in towerAreaList) a.Logic();
 
-		if (KeyboardInput.KeyPressed(OpenTK.Input.Key.B))
+		if (keyboard.KeyPressed(OpenTK.Input.Key.B))
 		{
 			showShop = !showShop;
 			if (showShop)
@@ -200,16 +183,15 @@ public class SYMap : Map
 
 		if (!baseList[0].IsAlive)
 		{
-			camera.FocusObject = baseList[0];
+			cameraController.FocusObject = baseList[0];
 		} else if (!baseList[1].IsAlive)
 		{
-			camera.FocusObject = baseList[1];
+			cameraController.FocusObject = baseList[1];
 		}
 	}
 
 	public override void Draw()
 	{
-		UpdateView();
 		/*
 		if (showShop)
 		{
@@ -248,6 +230,15 @@ public class SYMap : Map
 		foreach (SYScrap s in scrapList) if (s != null) s.Draw();
 		foreach (SYStash b in stashList) if (b != null) b.Draw();
 		DrawMap();
+
+		Map.UICamera.Use();
+		DrawHUD();
+		Map.GameCamera.Use();
+	}
+
+	public override void DrawHUD()
+	{
+		base.DrawHUD();
 
 		if (showShop)
 			shopMenu.Draw();

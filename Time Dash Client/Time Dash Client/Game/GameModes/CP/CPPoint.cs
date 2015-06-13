@@ -20,26 +20,17 @@ public class CPPoint : Entity
 	{
 		this.id = id;
 
-		mesh = new Mesh(OpenTK.Graphics.OpenGL.PrimitiveType.TriangleStrip);
-
-		mesh.Vertices = new Vector2[] {
-			new Vector2(-0.5f, 0.5f),
-			new Vector2(0.5f, 0.5f),
-			new Vector2(-0.5f, 0f),
-			new Vector2(0.5f, 0f)
-		};
-
-		mesh.UV = new Vector2[] {
+		sprite.Mesh.UV = new Vector2[] {
 			new Vector2(0, 1),
 			new Vector2(1, 1),
 			new Vector2(0, 0.5f),
 			new Vector2(1, 0.5f)
 		};
 
-		mesh.Texture = circle;
+		sprite.Texture = circle;
 
-		mesh.Translate(position);
-		mesh.Scale(radius * 2);
+		sprite.Position = new Vector3(position);
+		sprite.ScaleF = radius * 2;
 	}
 
 	public override void Dispose()
@@ -117,13 +108,7 @@ public class CPPoint : Entity
 		GL.StencilFunc(StencilFunction.Never, 1, 0xff);
 		GL.StencilOp(StencilOp.Replace, StencilOp.Keep, StencilOp.Keep);
 
-		mesh.Reset();
-
-		mesh.Translate(position);
-		mesh.Scale(radius * 2 * 1.1f);
-		mesh.Rotate(180);
-
-		mesh.Draw();
+		sprite.Draw(position, radius * 2 * 1.1f, 180f);
 
 		GL.StencilFunc(StencilFunction.Notequal, 1, 0xff);
 
@@ -134,16 +119,11 @@ public class CPPoint : Entity
 		else
 			c = currentContender == null ? Color.Gray : currentContender.Color;
 
-		mesh.Reset();
+		sprite.Color = Color.Gray * new Color(1, 1, 1, 0.4f);
+		sprite.Draw(position, radius * 2, 0f);
 
-		mesh.Translate(position);
-		mesh.Scale(radius * 2);
-
-		mesh.Color = Color.Gray * new Color(1, 1, 1, 0.4f);
-		mesh.Draw();
-		mesh.Rotate(180 - (180 * progress));
-		mesh.Color = c * new Color(1, 1, 1, 0.4f);
-		mesh.Draw();
+		sprite.Color = c * new Color(1, 1, 1, 0.4f);
+		sprite.Draw(position, radius * 2, 180f - (180 * progress));
 
 		GL.Disable(EnableCap.StencilTest);
 	}

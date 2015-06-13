@@ -1,15 +1,12 @@
 ﻿using OpenTK;
 using System;
 using TKTools;
+using TKTools.Context;
+using TKTools.Mathematics;
 
 public class SYTower : Actor
 {
 	static readonly float TurretHeight = 5f;
-
-	public Texture 
-		texBase, 
-		texHead,
-		texBarrel;
 
 	new SYMap Map
 	{
@@ -23,11 +20,12 @@ public class SYTower : Actor
 	float aimDir = 0f;
 	Player target;
 
-	Mesh baseMesh = Mesh.Box;
-	Mesh barrelMesh = Mesh.Box;
+	Sprite baseSprite = new Sprite(Art.Load("Res/cannon_base.png"));
+	Sprite headSprite = new Sprite(Art.Load("Res/cannon_head.png"));
+	Mesh barrelMesh = Mesh.CreateFromTexture(Art.Load("Res/cannon_brl.png"));
 	float barrelPosition = 0f;
 
-	Mesh ammoMesh = Mesh.Box;
+	Mesh ammoMesh = Mesh.CreateFromPrimitive(MeshPrimitive.Quad);
 
 	Timer reloadTimer = new Timer(1.2f, false);
 	int ammo = 0;
@@ -56,10 +54,6 @@ public class SYTower : Actor
 	public SYTower(int id, int teamID, SYTowerPoint point, Vector2 position, Map map)
 		: base(position, map)
 	{
-		texBase = Art.Load("Res/cannon_base.png");
-		texHead = Art.Load("Res/cannon_head.png");
-		texBarrel = Art.Load("Res/cannon_brl.png");
-
 		this.id = id;
 		this.point = point;
 		this.teamID = teamID;
@@ -67,9 +61,16 @@ public class SYTower : Actor
 		if (point != null)
 			point.tower = this;
 
-		mesh.Texture = texHead;
-		barrelMesh.Texture = texBarrel;
-		baseMesh.Texture = texBase;
+		baseSprite.Mesh.Vertices2 = new Vector2[] {
+			new Vector2(-1f, 0f),
+			new Vector2(-1f, TurretHeight),
+			new Vector2(1f, TurretHeight),
+			new Vector2(1f, 0f)
+		};
+
+		baseSprite.Position = new Vector3(position);
+		headSprite.Position = new Vector3(TurretPosition);
+		headSprite.ScaleF = 3f;
 	}
 
 	public void ReceiveRotation(float dir)
@@ -147,18 +148,12 @@ public class SYTower : Actor
 		}
 
 		barrelPosition -= barrelPosition * 5f * Game.delta;
+
+		headSprite.Rotation = aimDir;
 	}
 
 	public override void Draw()
 	{
-		baseMesh.Reset();
-		baseMesh.Translate(Position);
-
-		baseMesh.Scale(2f, TurretHeight);
-		baseMesh.Translate(0, -0.5f);
-
-		baseMesh.Draw();
-
 		barrelMesh.FillColor = false;
 		barrelMesh.Color = Color.White;
 
@@ -166,7 +161,7 @@ public class SYTower : Actor
 
 		barrelMesh.Translate(TurretPosition);
 		barrelMesh.Scale(2.1f);
-		barrelMesh.Rotate(aimDir);
+		barrelMesh.RotateZ(aimDir);
 		barrelMesh.Translate(1f + 0.5f * barrelPosition, 0f);
 
 		barrelMesh.Draw();
@@ -178,17 +173,7 @@ public class SYTower : Actor
 			barrelMesh.Draw();
 		}
 
-		mesh.FillColor = false;
-		mesh.Color = new Color(1f, 1f, 1f);
-
-		mesh.Reset();
-
-		mesh.Translate(TurretPosition);
-		mesh.Scale(3f);
-		mesh.Rotate(aimDir);
-
-		mesh.Draw();
-
-		
+		baseSprite.Draw();
+		headSprite.Draw();
 	}
 }

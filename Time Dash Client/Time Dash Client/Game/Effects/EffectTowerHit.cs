@@ -1,6 +1,7 @@
 ﻿using OpenTK;
 using OpenTK.Graphics.OpenGL;
 using TKTools;
+using TKTools.Context;
 
 public class EffectTowerHit : Effect
 {
@@ -13,11 +14,8 @@ public class EffectTowerHit : Effect
 	{
 		size = MathHelper.Clamp(size, 0.2f, 2f);
 
-		headMesh = Mesh.Box;
-		barrelMesh = Mesh.Box;
-
-		headMesh.Texture = tower.texHead;
-		barrelMesh.Texture = tower.texBarrel;
+		headMesh = Mesh.CreateFromTexture(Art.Load("Res/cannon_head.png"));
+		barrelMesh = Mesh.CreateFromTexture(Art.Load("Res/cannon_brl.png"));
 
 		headMesh.FillColor = true;
 		barrelMesh.FillColor = true;
@@ -27,11 +25,11 @@ public class EffectTowerHit : Effect
 		
 		headMesh.Translate(tower.Position);
 		headMesh.Scale(3f);
-		headMesh.Rotate(dir);
+		headMesh.RotateZ(dir);
 
 		barrelMesh.Translate(tower.Position);
 		barrelMesh.Scale(2.1f);
-		barrelMesh.Rotate(dir);
+		barrelMesh.RotateZ(dir);
 		barrelMesh.Translate(1f, 0f);
 
 		barrelMesh.Scale(1f);

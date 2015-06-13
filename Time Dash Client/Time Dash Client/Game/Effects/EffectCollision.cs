@@ -1,6 +1,8 @@
 ﻿using OpenTK;
 using System;
 using TKTools;
+using TKTools.Context;
+using TKTools.Mathematics;
 
 class EffectCollision : Effect
 {
@@ -19,17 +21,17 @@ class EffectCollision : Effect
 
 		m.AddEffect(new EffectRing(position, 4f, 0.7f, Color.White, m));
 
-		spikeMesh = new Mesh(OpenTK.Graphics.OpenGL.PrimitiveType.TriangleStrip);
-		lineMesh = new Mesh(OpenTK.Graphics.OpenGL.PrimitiveType.TriangleStrip);
+		spikeMesh = new Mesh();
+		lineMesh = new Mesh();
 
-		spikeMesh.Vertices = new Vector2[] {
+		spikeMesh.Vertices2 = new Vector2[] {
 			new Vector2(-0.5f, 0f),
 			new Vector2(-0.3f, 0.5f),
 			new Vector2(-0.3f, -0.5f),
 			new Vector2(0.5f, 0f)
 		};
 
-		lineMesh.Vertices = new Vector2[] {
+		lineMesh.Vertices2 = new Vector2[] {
 			new Vector2(0, 0.5f),
 			new Vector2(-0.4f, 0f),
 			new Vector2(0.4f, 0f),
@@ -64,7 +66,7 @@ class EffectCollision : Effect
 		{
 			spikeMesh.Reset();
 			spikeMesh.Translate(position);
-			spikeMesh.Rotate(rotation + 90 * i);
+			spikeMesh.RotateZ(rotation + 90 * i);
 			spikeMesh.Scale(1 + 1 * f, 1 - f);
 			spikeMesh.Translate(f * 2, 0);
 			spikeMesh.Draw();
@@ -72,7 +74,7 @@ class EffectCollision : Effect
 
 		lineMesh.Reset();
 		lineMesh.Translate(position);
-		lineMesh.Rotate(lineRotation);
+		lineMesh.RotateZ(lineRotation);
 		lineMesh.Scale(1 - f, 1 + 1.3f * f);
 		lineMesh.Scale(4f);
 		lineMesh.Draw();

@@ -1,6 +1,7 @@
 ﻿using OpenTK;
 using System;
 using TKTools;
+using TKTools.Mathematics;
 
 public class TowerBullet : Projectile
 {
@@ -54,13 +55,6 @@ public class TowerBullet : Projectile
 
 	public override void Draw()
 	{
-		mesh.Reset();
-
-		mesh.Translate(Position);
-		mesh.Scale(Size);
-		mesh.Rotate(angle);
-		mesh.Scale(1f + velocity.Length * 0.05f, 1f);
-
-		mesh.Draw();
+		sprite.Draw(Position, Size * (1f + velocity.Length * 0.05f), angle);
 	}
 }

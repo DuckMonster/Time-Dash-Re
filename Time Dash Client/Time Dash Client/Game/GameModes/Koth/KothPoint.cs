@@ -14,26 +14,26 @@ public class KothPoint : Scoreboard
 	public KothPoint(Vector2 position, Map map)
 		: base(40, 6f, 6f, position, map)
 	{
-		mesh = new Mesh(OpenTK.Graphics.OpenGL.PrimitiveType.TriangleStrip);
+		sprite = new Mesh(OpenTK.Graphics.OpenGL.PrimitiveType.TriangleStrip);
 
-		mesh.Vertices = new Vector2[] {
+		sprite.Vertices = new Vector2[] {
 			new Vector2(-0.5f, 0.5f),
 			new Vector2(0.5f, 0.5f),
 			new Vector2(-0.5f, 0f),
 			new Vector2(0.5f, 0f)
 		};
 
-		mesh.UV = new Vector2[] {
+		sprite.UV = new Vector2[] {
 			new Vector2(0, 1),
 			new Vector2(1, 1),
 			new Vector2(0, 0.5f),
 			new Vector2(1, 0.5f)
 		};
 
-		mesh.Texture = circle;
+		sprite.Texture = circle;
 
-		mesh.Translate(position);
-		mesh.Scale(radius * 2);
+		sprite.Translate(position);
+		sprite.Scale(radius * 2);
 	}
 
 	public override bool IsLeader(Player p)
@@ -84,8 +84,8 @@ public class KothPoint : Scoreboard
 
 	public override void Draw()
 	{
-		mesh.Color = (owner == null ? Color.Gray : Player.colorList[owner.playerID]) * new Color(1f, 1f, 1f, 0.4f);
-		mesh.Draw();
+		sprite.Color = (owner == null ? Color.Gray : Player.colorList[owner.playerID]) * new Color(1f, 1f, 1f, 0.4f);
+		sprite.Draw();
 
 		base.Draw();
 	}

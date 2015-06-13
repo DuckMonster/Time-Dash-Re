@@ -2,6 +2,8 @@
 using OpenTK;
 using System;
 using TKTools;
+using TKTools.Mathematics;
+
 public class SYScrap : Entity
 {
 	static Random rng = new Random();

@@ -1,18 +1,19 @@
 ﻿using OpenTK;
 using TKTools;
+using TKTools.Context;
 
 public class SlowBullet : Projectile
 {
 	class Trail : Effect
 	{
 		Vector2 position;
-		Mesh mesh = Mesh.Box;
+		Sprite sprite = new Sprite();
 		Timer effectTimer = new Timer(0.5f, false);
 
 		public Trail(Vector2 position, Texture t, Map map)
 			:base(map)
 		{
-			mesh.Texture = t;
+			sprite.Texture = t;
 			this.position = position;
 		}
 
@@ -31,14 +32,8 @@ public class SlowBullet : Projectile
 
 		public override void Draw()
 		{
-			mesh.Color = new Color(1, 1, 1, 1 - effectTimer.PercentageDone);
-
-			mesh.Reset();
-
-			mesh.Translate(position);
-			mesh.Scale(0.2f * (1f - effectTimer.PercentageDone));
-
-			mesh.Draw();
+			sprite.Color = new Color(1, 1, 1, 1 - effectTimer.PercentageDone);
+			sprite.Draw(position, 0.2f * (1f - effectTimer.PercentageDone), 0f);
 		}
 	}
 
@@ -51,7 +46,7 @@ public class SlowBullet : Projectile
 		:base(owner, id, position, m)
 	{
 		velocity = (target - position).Normalized() * speed;
-		mesh.Texture = texture;
+		sprite.Texture = texture;
 
 		size = new Vector2(0.2f, 0.2f);
 	}

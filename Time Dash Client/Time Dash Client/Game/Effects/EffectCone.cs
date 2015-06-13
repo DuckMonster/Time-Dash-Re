@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using TKTools;
+using TKTools.Mathematics;
 
 public static class EffectCone
 {	

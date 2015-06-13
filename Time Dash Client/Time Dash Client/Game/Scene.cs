@@ -6,6 +6,7 @@ using System.Drawing;
 using System.IO;
 using TKTools;
 using TKTools.AStar;
+using TKTools.Context;
 
 namespace MapScene
 {
@@ -45,8 +46,7 @@ namespace MapScene
 		public Scene(string filename, Map map)
 		{
 			this.map = map;
-			backgroundMesh = Mesh.Box;
-			backgroundMesh.Orthographic = true;
+			backgroundMesh = Mesh.CreateFromPrimitive(MeshPrimitive.Quad);
 			backgroundMesh.Translate(0.5f, -0.5f);
 
 			LoadMap(filename);
@@ -271,7 +271,7 @@ namespace MapScene
 
 			mesh = template.Mesh;
 
-			mesh.Vertices3D = new Vector3[] {
+			mesh.Vertices = new Vector3[] {
 				new Vector3(reader.ReadSingle(), reader.ReadSingle(), -depth),
 				new Vector3(reader.ReadSingle(), reader.ReadSingle(), -depth),
 				new Vector3(reader.ReadSingle(), reader.ReadSingle(), -depth),
@@ -309,8 +309,8 @@ namespace MapScene
 				new Vector2(reader.ReadSingle(), reader.ReadSingle())
 			});
 
-			mesh = Mesh.Box;
-			mesh.Vertices = polygon;
+			mesh = new Mesh();
+			mesh.Vertices2 = polygon.pointList.ToArray();
 
 			rectangle = polygon.Bounds;
 			center = polygon.Center;
@@ -387,10 +387,10 @@ namespace MapScene
 		{
 			get
 			{
-				Mesh m = new Mesh(PrimitiveType.Quads);
+				Mesh m = new Mesh();
 				Vector2 size = Size / 2;
 
-				m.Vertices = new Vector2[] {
+				m.Vertices2 = new Vector2[] {
 					new Vector2(-size.X, size.Y),
 					new Vector2(size.X, size.Y),
 					new Vector2(size.X, -size.Y),
@@ -509,14 +509,14 @@ namespace MapScene
 				}
 
 				int id = textureList.IndexOf(t);
-				verticesList[id].AddRange(obj.mesh.Vertices3D);
+				verticesList[id].AddRange(obj.mesh.Vertices);
 				uvList[id].AddRange(obj.mesh.UV);
 			}
 
 			for (int i = 0; i < textureList.Count; i++)
 			{
-				Mesh mesh = new Mesh(PrimitiveType.Quads);
-				mesh.Vertices3D = verticesList[i].ToArray();
+				Mesh mesh = new Mesh();
+				mesh.Vertices = verticesList[i].ToArray();
 				mesh.UV = uvList[i].ToArray();
 
 				mesh.Texture = textureList[i];

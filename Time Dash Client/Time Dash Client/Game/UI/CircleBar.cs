@@ -3,12 +3,15 @@ using OpenTK.Graphics.OpenGL;
 using System;
 using System.Collections.Generic;
 using TKTools;
+using TKTools.Context;
+using TKTools.Mathematics;
 
 public class CircleBar : IDisposable
 {
 	Texture circleTexture = Art.Load("Res/circlebig.png");
 
-	Mesh stencilMesh, circleMesh;
+	Mesh stencilMesh;
+	Sprite circleSprite;
 
 	float progress = 1f;
 	float size, barsize;
@@ -45,19 +48,19 @@ public class CircleBar : IDisposable
 		this.size = size;
 		this.barsize = barsize;
 
-		circleMesh = Mesh.Box;
-		circleMesh.Texture = circleTexture;
+		circleSprite = new Sprite(Art.Load("Res/circlebig.png"));
 
 		this.startAngle = startAngle;
 		this.fillAngle = fillAngle;
 
-		stencilMesh = new Mesh(OpenTK.Graphics.OpenGL.PrimitiveType.TriangleFan);
+		stencilMesh = new Mesh();
+		stencilMesh.PrimitiveType = PrimitiveType.TriangleFan;
 	}
 
 	public void Dispose()
 	{
 		stencilMesh.Dispose();
-		circleMesh.Dispose();
+		circleSprite.Dispose();
 	}
 
 	public void Logic()
@@ -80,12 +83,12 @@ public class CircleBar : IDisposable
 			}
 		}
 
-		stencilMesh.Vertices = vectorList.ToArray();
+		stencilMesh.Vertices2 = vectorList.ToArray();
 	}
 
 	public void Draw(Vector2 position, Color c)
 	{
-		circleMesh.Color = c;
+		circleSprite.Color = c;
 
 		GL.Enable(EnableCap.StencilTest);
 
@@ -104,21 +107,11 @@ public class CircleBar : IDisposable
 
 		GL.StencilOp(StencilOp.Decr, StencilOp.Keep, StencilOp.Keep);
 
-		circleMesh.Reset();
-
-		circleMesh.Translate(position);
-		circleMesh.Scale(size - barsize);
-
-		circleMesh.Draw();
+		circleSprite.Draw(position, size - barsize, 0f);
 
 		GL.StencilFunc(StencilFunction.Equal, 1, 0xff);
 
-		circleMesh.Reset();
-
-		circleMesh.Translate(position);
-		circleMesh.Scale(size);
-
-		circleMesh.Draw();
+		circleSprite.Draw(position, size, 0f);
 
 		GL.Disable(EnableCap.StencilTest);
 	}

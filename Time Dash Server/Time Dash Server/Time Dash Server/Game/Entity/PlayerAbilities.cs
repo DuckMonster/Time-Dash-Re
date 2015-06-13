@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using OpenTK;
 using TKTools;
 using System.Diagnostics;
+using TKTools.Mathematics;
 
 public enum Direction
 {

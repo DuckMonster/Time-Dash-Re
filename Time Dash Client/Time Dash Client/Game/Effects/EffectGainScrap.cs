@@ -1,6 +1,8 @@
 ﻿using OpenTK;
 using System;
 using TKTools;
+using TKTools.Context;
+using TKTools.Mathematics;
 
 public class EffectGainScrap : Effect
 {
@@ -9,7 +11,7 @@ public class EffectGainScrap : Effect
 	Timer effectTimer;
 
 	TextBox amountBox = new TextBox(50f);
-	Mesh scrapMesh = Mesh.Box, amountMesh = Mesh.Box;
+	Sprite scrapSprite = new Sprite(Art.Load("Res/scrap.png"));
 
 	int amount;
 	float scrapRotation;
@@ -32,15 +34,10 @@ public class EffectGainScrap : Effect
 	{
 		this.position = position;
 		this.amount = amount;
-		scrapMesh.Texture = Art.Load("Res/scrap.png");
 
 		amountBox.SetHeight = 1f;
 		amountBox.VerticalAlign = TextBox.VerticalAlignment.Center;
 		amountBox.Text = amount.ToString();
-
-		amountMesh.Vertices = amountBox.Vertices;
-		amountMesh.UV = amountBox.UV;
-		amountMesh.Texture = amountBox.Texture;
 
 		effectTimer = new Timer(1.2f + (float)amount / 40, false);
 
@@ -49,8 +46,7 @@ public class EffectGainScrap : Effect
 
 	public override void Dispose()
 	{
-		amountMesh.Dispose();
-		scrapMesh.Dispose();
+		scrapSprite.Dispose();
 	}
 
 	public override void Logic()
@@ -72,23 +68,17 @@ public class EffectGainScrap : Effect
 		float f = 1f - TKMath.Exp(effectTimer.PercentageDone, 8f);
 		float size = 0.8f + (float)amount / 40;
 
-		scrapMesh.Color = new Color(1, 1, 1, 1f - effectTimer.PercentageDone);
+		scrapSprite.Draw(position + new Vector2(-0.1f, 1f * f), size * 0.8f, scrapRotation);
 
-		scrapMesh.Reset();
-		scrapMesh.Translate(position);
-		scrapMesh.Translate(-0.1f, 1f * f);
-		scrapMesh.Scale(size * 0.8f);
-		scrapMesh.Rotate(scrapRotation);
+		Mesh m = amountBox.Mesh;
 
-		scrapMesh.Draw();
+		m.Color = Color * new Color(1f, 1f,1f, 1f - effectTimer.PercentageDone);
 
-		amountMesh.Color = Color * new Color(1f, 1f,1f, 1f - effectTimer.PercentageDone);
+		m.Reset();
+		m.Translate(position);
+		m.Translate(0f, 0.1f + 1f * f);
+		m.Scale(size);
 
-		amountMesh.Reset();
-		amountMesh.Translate(position);
-		amountMesh.Translate(0f, 0.1f + 1f * f);
-		amountMesh.Scale(size);
-
-		amountMesh.Draw();
+		m.Draw();
 	}
 }

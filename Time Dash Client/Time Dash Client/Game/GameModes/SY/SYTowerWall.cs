@@ -74,12 +74,7 @@ public class SYTowerWall : Actor
 
 	public override void Draw()
 	{
-		mesh.Color = Color;
-
-		mesh.Reset();
-		mesh.Translate(Position);
-		mesh.Scale(Size);
-
-		mesh.Draw();
+		sprite.Color = Color;
+		sprite.Draw(Position, Size, 0f);
 	}
 }

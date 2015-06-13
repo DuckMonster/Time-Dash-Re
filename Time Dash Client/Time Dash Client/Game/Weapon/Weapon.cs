@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using TKTools;
+using TKTools.Context.Input;
 
 public abstract class Weapon
 {
@@ -32,6 +33,7 @@ public abstract class Weapon
 	bool releasable = false;
 
 	Timer overChargeTimer = new Timer(0.5f, false);
+	MouseWatch mouse = new MouseWatch();
 
 	public int Ammo
 	{
@@ -113,6 +115,8 @@ public abstract class Weapon
 		ammo = maxAmmo;
 
 		reloadTimer.IsDone = true;
+
+		mouse.Perspective = Map.GameCamera;
 	}
 
 	public abstract Projectile CreateProjectile(Vector2 target, int id);
@@ -142,7 +146,7 @@ public abstract class Weapon
 	{
 		if ((fireType == WeaponStats.FireType.Single || fireType == WeaponStats.FireType.SingleTimed)
 			&& CanShoot)
-			owner.SendShoot(MouseInput.Current.Position);
+			owner.SendShoot(mouse.Position.Xy);
 
 		releasable = true;
 	}
@@ -153,7 +157,7 @@ public abstract class Weapon
 			return;
 
 		if (fireType == WeaponStats.FireType.Auto && CanShoot)
-			owner.SendShoot(MouseInput.Current.Position);
+			owner.SendShoot(mouse.Position.Xy);
 		else if (fireType == WeaponStats.FireType.Charge)
 		{
 			charge += Game.delta;
@@ -172,7 +176,7 @@ public abstract class Weapon
 		if (!releasable) return;
 
 		if (fireType == WeaponStats.FireType.Charge)
-			owner.SendShoot(MouseInput.Current.Position, charge);
+			owner.SendShoot(mouse.Position.Xy, charge);
 
 		charge = 0;
 		overChargeTimer.Reset();
@@ -182,6 +186,8 @@ public abstract class Weapon
 
 	public void Logic()
 	{
+		mouse.PlaneDistance = mouse.Perspective.Position.Z;
+
 		if (!reloadTimer.IsDone)
 		{
 			reloadTimer.Logic();

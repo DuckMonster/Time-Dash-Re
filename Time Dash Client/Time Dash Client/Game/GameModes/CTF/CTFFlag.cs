@@ -1,6 +1,8 @@
 ﻿using OpenTK;
 using System;
 using TKTools;
+using TKTools.Mathematics;
+
 public class CTFFlag : Entity
 {
 	protected new CTFMap Map
@@ -53,7 +55,7 @@ public class CTFFlag : Entity
 		size = new Vector2(1, 1);
 
 		flagTexture = Art.Load("Res/flag.png");
-		mesh.Texture = flagTexture;
+		sprite.Texture = flagTexture;
 	}
 
 	public override void Dispose()
@@ -123,10 +125,7 @@ public class CTFFlag : Entity
 
 	public override void Draw()
 	{
-		mesh.Color = Player.colorList[ownerID];
-
-		mesh.Reset();
-		mesh.Translate(Position);
-		mesh.Draw();
+		sprite.Color = Player.colorList[ownerID];
+		sprite.Draw(Position, 0f, 0f);
 	}
 }

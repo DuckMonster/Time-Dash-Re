@@ -4,6 +4,8 @@ using OpenTK;
 using OpenTK.Graphics.OpenGL;
 
 using TKTools;
+using TKTools.Context;
+using TKTools.Mathematics;
 
 public class EffectLine : Effect
 {
@@ -22,13 +24,12 @@ public class EffectLine : Effect
 		this.startWidth = startWidth;
 		this.endWidth = endWidth;
 
-		mesh = new Mesh(PrimitiveType.TriangleStrip);
-		mesh.Vertices = new Vector2[] {
-			new Vector2(-0.5f, -0.5f * startWidth),
-			new Vector2(-0.5f, 0.5f * startWidth),
-			new Vector2(0.5f, -0.5f * endWidth),
-			new Vector2(0.5f, 0.5f * endWidth)
-		};
+		mesh = new Mesh(mesh.Vertices = new Vector3[] {
+			new Vector3(-0.5f, -0.5f * startWidth, 0f),
+			new Vector3(-0.5f, 0.5f * startWidth, 0f),
+			new Vector3(0.5f, -0.5f * endWidth, 0f),
+			new Vector3(0.5f, 0.5f * endWidth, 0f)
+		});
 
 		mesh.Color = c;
 		mesh.Reset();
@@ -36,7 +37,7 @@ public class EffectLine : Effect
 		Vector2 lenVector = target - origin;
 
 		mesh.Translate(origin);
-		mesh.Rotate(TKMath.GetAngle(lenVector));
+		mesh.RotateZ(TKMath.GetAngle(lenVector));
 		mesh.Scale(new Vector2(lenVector.Length, 1));
 		mesh.Translate(0.5f, 0);
 
@@ -54,7 +55,7 @@ public class EffectLine : Effect
 
 		float w = TKMath.Exp(effectTimer.PercentageDone, 5);
 
-		mesh.Vertices = new Vector2[] {
+		mesh.Vertices2 = new Vector2[] {
 			new Vector2(-0.5f, -0.5f * startWidth * w),
 			new Vector2(-0.5f, 0.5f * startWidth * w),
 			new Vector2(0.5f, -0.5f * endWidth * w),

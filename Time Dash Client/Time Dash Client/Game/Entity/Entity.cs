@@ -2,6 +2,7 @@
 using OpenTK.Input;
 using System;
 using TKTools;
+using TKTools.Context;
 
 public class Entity : IDisposable
 {
@@ -24,19 +25,19 @@ public class Entity : IDisposable
 		get { return size; }
 	}
 
-	public Mesh mesh;
+	public Sprite sprite;
 
 	public Entity(Vector2 pos, Map m)
 	{
 		map = m;
 		position = pos;
-		
-		mesh = Mesh.Box;
+
+		sprite = new Sprite();
 	}
 
 	public virtual void Dispose()
 	{
-		mesh.Dispose();
+		sprite.Dispose();
 	}
 
 	public virtual bool CollidesWith(Vector2 pos, Vector2 s)
@@ -75,11 +76,8 @@ public class Entity : IDisposable
 
 	public virtual void Draw()
 	{
-		mesh.Color = map.GetCollision(this) ? Color.Green : Color.Blue;
+		sprite.Color = map.GetCollision(this) ? Color.Green : Color.Blue;
 
-		mesh.Reset();
-		mesh.Scale(size);
-		mesh.Translate(position);
-		mesh.Draw();
+		sprite.Draw(position, size, 0f);
 	}
 }

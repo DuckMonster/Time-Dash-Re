@@ -85,6 +85,7 @@ public class Game
 
 		switch (mode)
 		{
+			/*
 			case GameMode.KingOfTheHill:
 				map = new KothMap(filename, playerList.ToArray());
 				modeName = "King of the Hill";
@@ -104,6 +105,8 @@ public class Game
 				map = new CTFMap(filename, playerList.ToArray());
 				modeName = "Capture The Flag";
 				break;
+
+	*/
 
 			case GameMode.ScrapYard:
 				map = new SYMap(filename, playerList.ToArray());

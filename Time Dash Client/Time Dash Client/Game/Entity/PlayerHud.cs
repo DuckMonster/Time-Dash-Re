@@ -1,6 +1,8 @@
 ﻿using OpenTK;
 using System;
 using TKTools;
+using TKTools.Context;
+using TKTools.Mathematics;
 
 public class PlayerHud : IDisposable
 {
@@ -11,7 +13,7 @@ public class PlayerHud : IDisposable
 	CircleBar reloadBar = new CircleBar(4f, 0.8f, 90 + 45, -90f);
 	CircleBar rearmBar = new CircleBar(4f, 0.8f, 90 + 45, -90f);
 
-	Mesh ammoMesh = Mesh.Box;
+	Mesh ammoMesh = Mesh.CreateFromPrimitive(MeshPrimitive.Quad);
 
 	int ammoUseIndex;
 	Timer ammoGainTimer = new Timer(0.4f, true), ammoUseTimer = new Timer(0.4f, true);
@@ -30,7 +32,7 @@ public class PlayerHud : IDisposable
 	{
 		this.player = p;
 
-		weaponMesh = Mesh.OrthoBox;
+		weaponMesh = Mesh.CreateFromPrimitive(MeshPrimitive.Quad);
 	}
 
 	public void Dispose()
@@ -144,7 +146,7 @@ public class PlayerHud : IDisposable
 
 					if (!ammoGainTimer.IsDone)
 					{
-						float f = 1f - TKMath.Exp(ammoGainTimer.PercentageDone, 10);
+						float f = 1f - TKMath.Exp(ammoGainTimer.PercentageDone);
 
 						Color c = new Color(1f, 1f, 1f, f);
 						ammoMesh.Color = c;
@@ -152,7 +154,7 @@ public class PlayerHud : IDisposable
 						ammoMesh.Reset();
 
 						ammoMesh.Translate(player.Position);
-						ammoMesh.Rotate(d);
+						ammoMesh.RotateZ(d);
 						ammoMesh.Translate(f * 2f, 0);
 						ammoMesh.Scale(0.4f, 0.15f);
 
@@ -165,7 +167,7 @@ public class PlayerHud : IDisposable
 						ammoMesh.Reset();
 
 						ammoMesh.Translate(player.Position);
-						ammoMesh.Rotate(d);
+						ammoMesh.RotateZ(d);
 						ammoMesh.Translate(2f, 0f);
 						ammoMesh.Scale(0.4f, 0.15f);
 
@@ -194,7 +196,7 @@ public class PlayerHud : IDisposable
 				ammoMesh.Reset();
 
 				ammoMesh.Translate(player.Position);
-				ammoMesh.Rotate(d);
+				ammoMesh.RotateZ(d);
 				ammoMesh.Translate(2f, 0);
 				ammoMesh.Scale(0.4f, 0.15f);
 				ammoMesh.Scale(1 + f * 2f);
@@ -203,11 +205,13 @@ public class PlayerHud : IDisposable
 			}
 		}
 		#endregion
+	}
 
+	public void DrawHUD()
+	{
 		#region Inventory
 		DrawWeapon(0, 1f - weaponEquipAnimation);
 		DrawWeapon(1, weaponEquipAnimation);
-
 		#endregion
 	}
 
@@ -219,14 +223,14 @@ public class PlayerHud : IDisposable
 
 		weaponMesh.Reset();
 
-		weaponMesh.Translate(0, -9f * Game.windowRatio);
+		weaponMesh.Translate(0, -4f);
 		weaponMesh.Scale(index == 0 ? -1 : 1, 1);
 
 		weaponMesh.Translate(0.6f, 0f);
 		weaponMesh.Translate(0f, -0.2f + 0.5f * animation);
-		weaponMesh.Rotate(-40f + 90f * animation);
+		weaponMesh.RotateZ(-40f + 90f * animation);
 		weaponMesh.Translate(0.3f, 0f);
-		weaponMesh.Rotate(-15f + 30f * animation);
+		weaponMesh.RotateZ(-15f + 30f * animation);
 		weaponMesh.Scale(2f);
 
 		weaponMesh.Draw();

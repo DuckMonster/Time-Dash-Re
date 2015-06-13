@@ -1,5 +1,6 @@
 ﻿using OpenTK;
 using System;
+using TKTools.Mathematics;
 
 public class SYBase : Actor
 {
@@ -22,12 +23,12 @@ public class SYBase : Actor
 		this.teamID = teamID;
 		this.size = new Vector2(4f, 4f);
 
-		mesh.Texture = Art.Load("Res/circlebig.png");
+		sprite.Texture = Art.Load("Res/circlebig.png");
 
-		mesh.Translate(position);
-		mesh.Scale(size);
+		sprite.Position = new Vector3(Position);
+		sprite.Scale = size;
 
-		mesh.Color = Player.colorList[teamID];
+		sprite.Color = Player.colorList[teamID];
 	}
 
 	public void ReceiveHit(float dmg, float dir, int projID, Vector2 hitPos)
@@ -49,7 +50,7 @@ public class SYBase : Actor
 	void CreateDieExplosion()
 	{
 		Random rng = new Random();
-		Vector2 position = TKTools.TKMath.GetAngleVector((float)rng.NextDouble() * 360f) * ((float)rng.NextDouble() * size.X * 0.5f);
+		Vector2 position = TKMath.GetAngleVector((float)rng.NextDouble() * 360f) * ((float)rng.NextDouble() * size.X * 0.5f);
 
 		EffectExplosion.CreateExplosion(Position + position, 0.8f, Map);
 	}
@@ -87,7 +88,7 @@ public class SYBase : Actor
 		if (!IsAlive && dieTimer.IsDone) return;
 
 		//base.Draw();
-		mesh.Draw();
+		sprite.Draw();
 		healthBar.Draw(position, Player.colorList[teamID]);
 	}
 }

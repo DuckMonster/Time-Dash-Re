@@ -4,6 +4,8 @@ using OpenTK;
 using OpenTK.Graphics.OpenGL;
 
 using TKTools;
+using TKTools.Context;
+using TKTools.Mathematics;
 
 public class EffectSpike : Effect
 {
@@ -18,13 +20,12 @@ public class EffectSpike : Effect
 		origin = pos1;
 		target = pos2;
 
-		mesh = new Mesh(PrimitiveType.TriangleStrip);
-		mesh.Vertices = new Vector2[] {
-			new Vector2(-0.5f, 0f),
-			new Vector2(-0.2f, 0.5f * width),
-			new Vector2(-0.2f, -0.5f * width),
-			new Vector2(0.5f, 0f)
-		};
+		mesh = new Mesh(new Vector3[] {
+			new Vector3(-0.5f, 0f, 0f),
+			new Vector3(-0.2f, 0.5f * width, 0f),
+			new Vector3(-0.2f, -0.5f * width, 0f),
+			new Vector3(0.5f, 0f, 0f)
+		});
 
 		mesh.Color = c;
 
@@ -50,7 +51,7 @@ public class EffectSpike : Effect
 		float w = TKMath.Exp(effectTimer.PercentageDone, 5);
 
 		mesh.Translate(origin);
-		mesh.Rotate(TKMath.GetAngle(lenVector));
+		mesh.RotateZ(TKMath.GetAngle(lenVector));
 		mesh.Scale(new Vector2(lenVector.Length, w));
 		mesh.Translate(0.5f, 0);
 

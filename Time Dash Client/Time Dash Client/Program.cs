@@ -1,4 +1,58 @@
-﻿using System;
+﻿using OpenTK.Graphics;
+using System;
+using TKTools.Context;
+
+public class Program : IDisposable
+{
+	public static Context context;
+
+	Game game;
+	Camera defaultCamera;
+
+	public Program(int width, int height, GraphicsMode gm)
+	{
+		context = new Context(width, height, gm);
+
+		context.OnBegin += Begin;
+		context.OnUpdate += Update;
+		context.OnRender += Render;
+
+		defaultCamera = new Camera();
+		defaultCamera.Use();
+	}
+
+	public void Run()
+	{
+		context.Run();
+	}
+
+	public void Dispose()
+	{
+		game.Dispose();
+		Log.ShutDown();
+		game = null;
+	}
+
+	void Begin()
+	{
+		game = new Game(this);
+		GL.Disable(EnableCap.DepthTest);
+		GL.ClearColor(.7f, .7f, .7f, 1f);
+	}
+
+	void Update()
+	{
+		game.Logic();
+	}
+
+	void Render()
+	{
+		game.Draw();
+	}
+}
+
+/*
+using System;
 using System.IO;
 using System.Collections.Generic;
 using System.Linq;
@@ -108,3 +162,4 @@ public class Program : GameWindow
 		SwapBuffers();
 	}
 }
+*/

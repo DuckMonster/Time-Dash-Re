@@ -2,6 +2,7 @@
 using OpenTK.Graphics.OpenGL;
 using System.Collections.Generic;
 using TKTools;
+using TKTools.Context;
 
 public class SYStash : Entity
 {
@@ -15,7 +16,7 @@ public class SYStash : Entity
 
 	public int id;
 
-	Mesh progressMesh = Mesh.Box;
+	Mesh progressMesh = Mesh.CreateFromPrimitive(MeshPrimitive.Quad);
 
 	float areaSize = 5f;
 	Texture pointTexture = Art.Load("Res/circlebig.png");
@@ -38,23 +39,23 @@ public class SYStash : Entity
 
 		scrapBar = new CircleBar(size + size * 0.2f, size * 0.2f, -180, -180);
 
-		mesh.Texture = pointTexture;
+		sprite.Texture = pointTexture;
 
-		mesh.Vertices = new Vector2[] {
+		sprite.Mesh.Vertices2 = new Vector2[] {
 			new Vector2(-0.5f, 0),
 			new Vector2(-0.5f, 0.5f),
 			new Vector2(0.5f, 0.5f),
 			new Vector2(0.5f, 0)
 		};
 
-		mesh.UV = new Vector2[] {
+		sprite.Mesh.UV = new Vector2[] {
 			new Vector2(0, 0.5f),
 			new Vector2(0, 0),
 			new Vector2(1, 0),
 			new Vector2(1, 0.5f)
 		};
 
-		progressMesh.Vertices = new Vector2[] {
+		progressMesh.Vertices2 = new Vector2[] {
 			new Vector2(0, 0.5f),
 			new Vector2(1, 0.5f),
 			new Vector2(1, -0.5f),
@@ -110,14 +111,8 @@ public class SYStash : Entity
 		GL.StencilFunc(StencilFunction.Always, 1, 0xff);
 		GL.StencilOp(StencilOp.Keep, StencilOp.Keep, StencilOp.Replace);
 
-		mesh.Color = new Color(1f, 1f, 1f, progress > 0 ? 0.3f : 0.1f);
-
-		mesh.Reset();
-
-		mesh.Translate(position);
-		mesh.Scale(areaSize);
-
-		mesh.Draw();
+		sprite.Color = new Color(1f, 1f, 1f, progress > 0 ? 0.3f : 0.1f);
+		sprite.Draw(position, areaSize, 0f);
 
 		GL.StencilFunc(StencilFunction.Equal, 1, 0xff);
 
