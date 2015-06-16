@@ -55,6 +55,6 @@ public class TowerBullet : Projectile
 
 	public override void Draw()
 	{
-		sprite.Draw(Position, Size * (1f + velocity.Length * 0.05f), angle);
+		sprite.Draw(Position, Size * new Vector2(1f + velocity.Length * 0.05f, 1f), angle);
 	}
 }

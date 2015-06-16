@@ -275,8 +275,6 @@ public partial class Player : Actor
 
 	public void Shoot(Vector2 target, int projectileID)
 	{
-		if (Ammo <= 0) return;
-
 		/*if (IsLocalPlayer)
 		{
 			if (weapon.FireType == WeaponStats.FireType.Charge)
@@ -286,7 +284,6 @@ public partial class Player : Actor
 		}*/
 
 		Weapon.CreateProjectile(target, projectileID);
-		Weapon.OnShoot();
 	}
 
 	public static Direction GetInputDirection(PlayerInput input, Player p)

@@ -25,6 +25,12 @@
 			inputData[i] = pi[i];
 	}
 
+	public void Reset()
+	{
+		for (int i = 0; i < inputData.Length; i++)
+			inputData[i] = false;
+	}
+
 	public byte GetFlag()
 	{
 		byte flag = 0;

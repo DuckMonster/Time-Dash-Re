@@ -121,10 +121,20 @@ public abstract class Weapon
 
 	public abstract Projectile CreateProjectile(Vector2 target, int id);
 
-	public void OnShoot()
+	void TryShoot()
 	{
 		if (!CanShoot) return;
 
+		if (fireType == WeaponStats.FireType.Charge)
+			owner.SendShoot(mouse.Position.Xy, charge);
+		else
+			owner.SendShoot(mouse.Position.Xy);
+
+		OnShoot();
+	}
+
+	public void OnShoot()
+	{
 		ammo--;
 		owner.hud.UseAmmo(ammo);
 		rearmTimer.Reset();
@@ -146,7 +156,7 @@ public abstract class Weapon
 	{
 		if ((fireType == WeaponStats.FireType.Single || fireType == WeaponStats.FireType.SingleTimed)
 			&& CanShoot)
-			owner.SendShoot(mouse.Position.Xy);
+			TryShoot();
 
 		releasable = true;
 	}
@@ -157,7 +167,7 @@ public abstract class Weapon
 			return;
 
 		if (fireType == WeaponStats.FireType.Auto && CanShoot)
-			owner.SendShoot(mouse.Position.Xy);
+			TryShoot();
 		else if (fireType == WeaponStats.FireType.Charge)
 		{
 			charge += Game.delta;
@@ -176,7 +186,7 @@ public abstract class Weapon
 		if (!releasable) return;
 
 		if (fireType == WeaponStats.FireType.Charge)
-			owner.SendShoot(mouse.Position.Xy, charge);
+			TryShoot();
 
 		charge = 0;
 		overChargeTimer.Reset();

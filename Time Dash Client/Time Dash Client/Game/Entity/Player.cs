@@ -413,7 +413,11 @@ public partial class Player : Actor
 
 	public void LocalInput()
 	{
-		if (Map.PauseInput) return;
+		if (Map.PauseInput)
+		{
+			inputData.Reset();
+			return;
+		}
 
 		if (Program.context.Focused)
 		{
