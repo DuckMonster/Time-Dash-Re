@@ -29,6 +29,17 @@ public class EffectGainScrap : Effect
 		}
 	}
 
+	float Size
+	{
+		get
+		{
+			if (amount > 0)
+				return 1.2f + amount / 40f;
+			else
+				return 1.6f + Math.Abs(amount) / 10f;
+		}
+	}
+
 	public EffectGainScrap(Vector2 position, int amount, Map map)
 		:base(map)
 	{
@@ -37,9 +48,12 @@ public class EffectGainScrap : Effect
 
 		amountBox.SetHeight = 1f;
 		amountBox.VerticalAlign = TextBox.VerticalAlignment.Center;
-		amountBox.Text = amount.ToString();
+		amountBox.Text = (amount >= 0 ? "+" : "") + amount.ToString();
 
-		effectTimer = new Timer(1.2f + (float)amount / 40, false);
+		if (amount > 0)
+			effectTimer = new Timer(2f + (float)amount / 40, false);
+		else
+			effectTimer = new Timer(2f + Math.Abs(amount) / 10f, false);
 
 		scrapRotation = (float)rng.NextDouble() * 360f;
 	}
@@ -66,9 +80,9 @@ public class EffectGainScrap : Effect
 	public override void Draw()
 	{
 		float f = 1f - TKMath.Exp(effectTimer.PercentageDone, 8f);
-		float size = 0.8f + (float)amount / 40;
 
-		scrapSprite.Draw(position + new Vector2(-0.1f, 1f * f), size * 0.8f, scrapRotation);
+		scrapSprite.Color = Color.Blend(Color, Color.White, 0.6f) * new Color(1f, 1f, 1f, 1f - effectTimer.PercentageDone);
+		scrapSprite.Draw(position + new Vector2(-0.1f, 1f * f), Size * 0.8f, scrapRotation);
 
 		Mesh m = amountBox.Mesh;
 
@@ -77,7 +91,7 @@ public class EffectGainScrap : Effect
 		m.Reset();
 		m.Translate(position);
 		m.Translate(0f, 0.1f + 1f * f);
-		m.Scale(size);
+		m.Scale(Size);
 
 		m.Draw();
 	}

@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using MapScene;
 using TKTools.Context;
 using TKTools.Context.Input;
+using MathUtils.Collections;
 
 public class Map : IDisposable
 {
@@ -39,7 +40,7 @@ public class Map : IDisposable
 	}
 
 	public Player[] playerList = new Player[10];
-	List<Effect> effectList = new List<Effect>(), effectBufferList = new List<Effect>();
+	DataTree<Effect> effectList = new DataTree<Effect>();
 
 	public Projectile[] projectileList = new Projectile[100];
 	int projectileIndex = 0;
@@ -59,13 +60,13 @@ public class Map : IDisposable
 
 	protected Player winPlayer = null;
 	
-	public void AddEffect(Effect e)
+	public void AddEffect(Effect e, float w = 0f)
 	{
-		effectList.Add(e);
+		effectList.AddItem(e, w);
 	}
 	public void RemoveEffect(Effect e)
 	{
-		effectList.Remove(e);
+		effectList.RemoveItem(e);
 		e.Dispose();
 	}
 
@@ -291,20 +292,7 @@ public class Map : IDisposable
 		if (LocalPlayer != null) LocalPlayer.LocalInput();
 		foreach (Actor a in Actors) if (a != null) a.Logic();
 
-		if (!effectList.Equals(effectBufferList))
-		{
-			effectBufferList.Clear();
-			effectBufferList.AddRange(effectList.ToArray());
-		}
-
-		foreach (Effect e in effectBufferList) e.Logic();
-
-		if (!effectList.Equals(effectBufferList))
-		{
-			effectBufferList.Clear();
-			effectBufferList.AddRange(effectList.ToArray());
-		}
-
+		foreach (Effect e in effectList) e.Logic();
 		foreach (Projectile p in projectileList)
 			if (p != null) p.Logic();
 

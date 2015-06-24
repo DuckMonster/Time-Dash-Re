@@ -269,7 +269,7 @@ public partial class Player : Actor
 		canDoublejump = true;
 		shadow = null;
 
-		//dashSound.Play();
+		//dashSound.Play()
 	}
 	#endregion
 
@@ -284,6 +284,7 @@ public partial class Player : Actor
 		}*/
 
 		Weapon.CreateProjectile(target, projectileID);
+		Weapon.Charge = 0f;
 	}
 
 	public static Direction GetInputDirection(PlayerInput input, Player p)

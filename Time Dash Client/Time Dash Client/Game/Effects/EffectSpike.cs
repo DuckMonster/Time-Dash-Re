@@ -21,10 +21,10 @@ public class EffectSpike : Effect
 		target = pos2;
 
 		mesh = new Mesh(new Vector3[] {
-			new Vector3(-0.5f, 0f, 0f),
-			new Vector3(-0.2f, 0.5f * width, 0f),
-			new Vector3(-0.2f, -0.5f * width, 0f),
-			new Vector3(0.5f, 0f, 0f)
+			new Vector3(0f, 0f, 0f),
+			new Vector3(0.3f, 0.5f * width, 0f),
+			new Vector3(1f, 0f, 0f),
+            new Vector3(0.3f, -0.5f * width, 0f)
 		});
 
 		mesh.Color = c;
@@ -53,8 +53,6 @@ public class EffectSpike : Effect
 		mesh.Translate(origin);
 		mesh.RotateZ(TKMath.GetAngle(lenVector));
 		mesh.Scale(new Vector2(lenVector.Length, w));
-		mesh.Translate(0.5f, 0);
-
 
 		mesh.Draw();
 	}

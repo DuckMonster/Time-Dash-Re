@@ -1,10 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{CEB20CD4-C570-4D13-A0B1-E9A13E3E0E74}</ProjectGuid>
+    <ProjectGuid>{37CCFBF9-29CE-49BD-8DF1-8387425C0C54}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Time_Dash_Server</RootNamespace>
@@ -31,13 +31,10 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
-  <PropertyGroup>
-    <ApplicationIcon>iconserver.ico</ApplicationIcon>
-  </PropertyGroup>
   <ItemGroup>
     <Reference Include="OpenTK, Version=1.1.0.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>C:\Users\DuckMonster\Documents\OpenTK\1.1\Binaries\OpenTK\Release\OpenTK.dll</HintPath>
+      <HintPath>..\..\..\..\C#\UDPEngine\UDPEngine\bin\Debug\OpenTK.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -47,55 +44,61 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="TKTools, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\C#\TKTools\TKTools\bin\Debug\TKTools.dll</HintPath>
+    <Reference Include="TKTools">
+      <HintPath>..\..\..\..\C#\TKTools\TKTools\bin\Debug\TKTools.dll</HintPath>
     </Reference>
     <Reference Include="UDPEngine">
-      <HintPath>..\..\..\C#\UDPEngine\UDPEngine\bin\Debug\UDPEngine.dll</HintPath>
+      <HintPath>..\..\..\..\C#\UDPEngine\UDPEngine\bin\Debug\UDPEngine.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="GameModes\CP\CPMap.cs" />
-    <Compile Include="GameModes\CP\CPPoint.cs" />
-    <Compile Include="GameModes\CTF\CTFFlag.cs" />
-    <Compile Include="GameModes\CTF\CTFMap.cs" />
-    <Compile Include="GameModes\CTF\CTFPlayer.cs" />
-    <Compile Include="GameModes\DM\DMMap.cs" />
-    <Compile Include="GameModes\DM\DMPlayer.cs" />
-    <Compile Include="GameModes\Koth\KothPlayer.cs" />
-    <Compile Include="GameModes\Koth\KothPoint.cs" />
-    <Compile Include="GameModes\Koth\KothMap.cs" />
+    <None Include="GameModes\CP\CPMap.cs" />
+    <None Include="GameModes\CP\CPPoint.cs" />
+    <None Include="GameModes\CTF\CTFFlag.cs" />
+    <None Include="GameModes\CTF\CTFMap.cs" />
+    <None Include="GameModes\CTF\CTFPlayer.cs" />
+    <None Include="GameModes\DM\DMMap.cs" />
+    <None Include="GameModes\DM\DMPlayer.cs" />
+    <None Include="GameModes\Koth\KothMap.cs" />
+    <None Include="GameModes\Koth\KothPlayer.cs" />
+    <None Include="GameModes\Koth\KothPoint.cs" />
     <Compile Include="GameModes\Scoreboard.cs" />
     <Compile Include="GameModes\SpawnPoint.cs" />
-    <Compile Include="GameModes\SY\SYBase.cs" />
     <Compile Include="GameModes\SY\Creeps\SYCreep.cs" />
-    <Compile Include="GameModes\SY\Creeps\SYFlyer.cs" />
+    <Compile Include="GameModes\SY\Creeps\SYCreepCamp.cs" />
+    <Compile Include="GameModes\SY\Creeps\SYScroot.cs" />
+    <Compile Include="GameModes\SY\SYBase.cs" />
     <Compile Include="GameModes\SY\SYMap.cs" />
     <Compile Include="GameModes\SY\SYPlayer.cs" />
     <Compile Include="GameModes\SY\SYScrap.cs" />
     <Compile Include="GameModes\SY\SYStash.cs" />
+    <Compile Include="GameModes\SY\SYTowerArea.cs" />
+    <Compile Include="GameModes\SY\SYTowerPoint.cs" />
+    <Compile Include="GameModes\SY\SYTower.cs" />
+    <Compile Include="GameModes\SY\SYTowerWall.cs" />
     <Compile Include="Game\Entity\Actor.cs" />
-    <Compile Include="Game\Weapon\Bow.cs" />
-    <Compile Include="Game\Weapon\GrenadeLauncher.cs" />
-    <Compile Include="Game\Weapon\Projectile\Arrow.cs" />
-    <Compile Include="Game\Weapon\Projectile\Bullet.cs" />
     <Compile Include="Game\Entity\Entity.cs" />
+    <Compile Include="Game\Entity\Player.cs" />
     <Compile Include="Game\Entity\PlayerAbilities.cs" />
     <Compile Include="Game\Entity\PlayerNetwork.cs" />
     <Compile Include="Game\Entity\PlayerShadow.cs" />
-    <Compile Include="Game\Scene.cs" />
     <Compile Include="Game\Game.cs" />
+    <Compile Include="Game\Map.cs" />
+    <Compile Include="Game\Scene.cs" />
     <Compile Include="Game\Team.cs" />
     <Compile Include="Game\TrackerHandler.cs" />
+    <Compile Include="Game\Weapon\Bow.cs" />
+    <Compile Include="Game\Weapon\GrenadeLauncher.cs" />
     <Compile Include="Game\Weapon\Pistol.cs" />
+    <Compile Include="Game\Weapon\Projectile\Arrow.cs" />
+    <Compile Include="Game\Weapon\Projectile\Bullet.cs" />
     <Compile Include="Game\Weapon\Projectile\Grenade.cs" />
     <Compile Include="Game\Weapon\Projectile\Projectile.cs" />
+    <Compile Include="Game\Weapon\Projectile\SlowBullet.cs" />
+    <Compile Include="Game\Weapon\Projectile\TowerBullet.cs" />
     <Compile Include="Game\Weapon\Rifle.cs" />
     <Compile Include="Game\Weapon\Weapon.cs" />
     <Compile Include="Log.cs" />
-    <Compile Include="Game\Map.cs" />
-    <Compile Include="Game\Entity\Player.cs" />
     <Compile Include="LogCommand.cs" />
     <Compile Include="MultimediaTimer.cs" />
     <Compile Include="Program.cs" />
@@ -110,6 +113,9 @@
     <None Include="Maps\factory_sy.tdm">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="Maps\factory_sy_temp.tdm">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="Maps\temple_dm.tdm">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -118,14 +124,10 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Time Dash Protocol\Time Dash Protocol.csproj">
+    <ProjectReference Include="..\..\Time Dash Client\Time Dash Protocol\Time Dash Protocol.csproj">
       <Project>{0d6edbc7-25e7-41f7-b98f-343b7409a402}</Project>
       <Name>Time Dash Protocol</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup />
-  <ItemGroup>
-    <Content Include="iconserver.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

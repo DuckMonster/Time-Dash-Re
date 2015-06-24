@@ -3,7 +3,7 @@ using System;
 using TKTools;
 public class SYScrap : Entity
 {
-	public static Color HUDColor = new Color(0.9f, 0.5f, 0.1f);
+	public static Color HUDColor = new Color(0.9f, 0.8f, 0.1f);
 	static Random rng = new Random();
 
 	protected new SYMap Map

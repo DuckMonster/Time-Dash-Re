@@ -112,6 +112,7 @@ public class SYScroot : SYCreep
 	public override void Draw()
 	{
 		sprite.FillColor = false;
+		sprite.Color = Color.White;
 		sprite.Draw(Position, Size, velocity.Y * 6f);
 
 		if (!chargeTimer.IsDone)

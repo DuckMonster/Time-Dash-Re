@@ -188,6 +188,8 @@ public partial class Player : Actor
 		hud = new PlayerHud(this);
 
 		ownedWeapons.Add(WeaponList.Pistol);
+
+		size = size * 1.4f;
 	}
 
 	public override void Dispose()

@@ -28,8 +28,6 @@ public class SYPlayer : Player
 	public SYPlayer(int id, string name, Client client, Vector2 position, Map m)
 		: base(id, name, client, position, m)
 	{
-		base.BuyWeapon(WeaponList.Rifle);
-		base.BuyWeapon(WeaponList.GrenadeLauncher);
 	}
 
 	public override void BuyWeapon(WeaponList weapon)

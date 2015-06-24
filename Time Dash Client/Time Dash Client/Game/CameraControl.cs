@@ -43,8 +43,8 @@ public class CameraControl
 		if (f != null)
 		{
 			Vector2 mouseDelta = map.PauseInput ? Vector2.Zero : (mouse.ScreenPosition) * 4f;
-			if (mouseDelta.Length > 2f)
-				mouseDelta = mouseDelta.Normalized() * 2f;
+			if (mouseDelta.Length > 4f)
+				mouseDelta = mouseDelta.Normalized() * 4f;
 
 			Vector2 target = f.Position;
 
@@ -57,7 +57,7 @@ public class CameraControl
             Vector2 difference = target - position.Xy;
 			position.Xy += difference * 5f * Game.delta;
 
-			float targetZ = 12f + difference.Length * 6f + mouseDelta.Length * 1.6f,
+			float targetZ = 12f + difference.Length * 2f + mouseDelta.Length * 1.6f,
 				ZDifference = targetZ - position.Z;
 			position.Z += ZDifference * 0.8f * Game.delta;
 

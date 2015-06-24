@@ -24,8 +24,8 @@ public class EffectImpactQuad : Effect
 		spikeMesh = new Mesh(new Vector3[] {
 			new Vector3(0, 0f, 0f),
 			new Vector3(0.3f, -0.4f, 0f),
-			new Vector3(0.3f, 0.4f, 0f),
-			new Vector3(1f, 0f, 0f)
+			new Vector3(1f, 0f, 0f),
+			new Vector3(0.3f, 0.4f, 0f)
 		});
 
 		rotation = 360f * (float)rng.NextDouble();
@@ -45,7 +45,7 @@ public class EffectImpactQuad : Effect
 
 	public override void Draw()
 	{
-		float f = 1f - TKMath.Exp(effectTimer.PercentageDone, 5f);
+		float f = TKMath.Exp(effectTimer.PercentageDone);
 
 		for(int i=0; i<4; i++)
 		{

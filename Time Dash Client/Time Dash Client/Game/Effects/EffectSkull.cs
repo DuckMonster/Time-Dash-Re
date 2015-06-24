@@ -62,7 +62,7 @@ public class EffectSkull : Effect
 		skullSprite.Color = color;
 		spikeMesh.Color = color;
 
-		float f = 1 - TKMath.Exp(effectTimer.PercentageDone);
+		float f = TKMath.Exp(effectTimer.PercentageDone);
 
 		for (int i = 0; i < 4; i++)
 		{
@@ -74,7 +74,7 @@ public class EffectSkull : Effect
 			spikeMesh.Draw();
 		}
 
-		float pos = (1 - TKMath.Exp(effectTimer.PercentageDone, 3)) * 3f,
+		float pos = TKMath.Exp(effectTimer.PercentageDone) * 3f,
 			rot = 20 * effectTimer.PercentageDone;
 
 		skullSprite.Draw(position + new Vector2(0, pos), 3f, rotation + rot);

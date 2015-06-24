@@ -28,6 +28,8 @@ public class SYPlayer : Player
 		scrapTextBox.SetHeight = 1f;
 		scrapTextBox.VerticalAlign = TextBox.VerticalAlignment.Center;
 		scrapTextBox.Text = scrap.ToString();
+
+		scrapTextBox.Color = SYScrap.HUDColor;
 	}
 
 	public override void Die(Vector2 diePos)

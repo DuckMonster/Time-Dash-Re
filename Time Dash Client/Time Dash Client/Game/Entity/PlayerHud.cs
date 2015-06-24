@@ -146,7 +146,7 @@ public class PlayerHud : IDisposable
 
 					if (!ammoGainTimer.IsDone)
 					{
-						float f = 1f - TKMath.Exp(ammoGainTimer.PercentageDone);
+						float f = TKMath.Exp(ammoGainTimer.PercentageDone);
 
 						Color c = new Color(1f, 1f, 1f, f);
 						ammoMesh.Color = c;

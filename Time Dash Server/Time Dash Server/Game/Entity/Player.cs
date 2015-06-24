@@ -127,6 +127,8 @@ public partial class Player : Actor
 		dodgeCooldown = new Timer(stats.DodgeCooldown, true);
 
 		ownedWeapons.Add(WeaponList.Pistol);
+
+		size = size * 1.4f;
 	}
 
 	public virtual bool AlliedWith(Player p)
