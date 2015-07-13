@@ -5,7 +5,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{C05C18E8-9A33-43E2-ABCE-71610E8AB38F}</ProjectGuid>
-    <OutputType>Exe</OutputType>
+    <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>MapEditor_2._0</RootNamespace>
     <AssemblyName>MapEditor 2.0</AssemblyName>
@@ -31,10 +31,16 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="OpenTK, Version=1.1.0.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\C#\TKTools\TKTools\bin\Debug\OpenTK.dll</HintPath>
+    </Reference>
+    <Reference Include="Prism Parser">
+      <HintPath>..\Prism Parser\bin\Debug\Prism Parser.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -50,28 +56,115 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CameraControl.cs" />
-    <Compile Include="Editor.cs" />
+    <Compile Include="Editor\CameraControl.cs" />
+    <Compile Include="Editor\Editor.cs" />
+    <Compile Include="EditorForm.cs" />
+    <Compile Include="Editor\EditorSaveLoad.cs" />
+    <Compile Include="Editor\EditorSelection.cs" />
     <Compile Include="EMesh\EMesh.cs" />
     <Compile Include="EMesh\EVertex.cs" />
+    <Compile Include="EMesh\MeshCreator.cs" />
+    <Compile Include="Forms\CreateLayerForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\CreateLayerForm.Designer.cs">
+      <DependentUpon>CreateLayerForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Forms\DebugForm.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Forms\DebugForm.Designer.cs">
       <DependentUpon>DebugForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Forms\EditLayerForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\EditLayerForm.Designer.cs">
+      <DependentUpon>EditLayerForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\LayerForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\LayerForm.Designer.cs">
+      <DependentUpon>LayerForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\OptionsForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\OptionsForm.Designer.cs">
+      <DependentUpon>OptionsForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\TileEditor.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\TileEditor.Designer.cs">
+      <DependentUpon>TileEditor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\TextureForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\TexturePicker.Designer.cs">
+      <DependentUpon>TextureForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\TilePicker.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\TilePicker.Designer.cs">
+      <DependentUpon>TilePicker.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Layer.cs" />
     <Compile Include="Manipulator\Manipulator.cs" />
+    <Compile Include="Manipulator\ManipulatorRotate.cs" />
+    <Compile Include="Manipulator\ManipulatorScale.cs" />
     <Compile Include="Manipulator\ManipulatorTranslate.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Editor\SelectionBox.cs" />
+    <Compile Include="TextureSet\TextureSet.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="ClassDiagram1.cd" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Forms\CreateLayerForm.resx">
+      <DependentUpon>CreateLayerForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Forms\DebugForm.resx">
       <DependentUpon>DebugForm.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Forms\EditLayerForm.resx">
+      <DependentUpon>EditLayerForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\LayerForm.resx">
+      <DependentUpon>LayerForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\OptionsForm.resx">
+      <DependentUpon>OptionsForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\TileEditor.resx">
+      <DependentUpon>TileEditor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\TextureForm.resx">
+      <DependentUpon>TextureForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\TilePicker.resx">
+      <DependentUpon>TilePicker.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="circle.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

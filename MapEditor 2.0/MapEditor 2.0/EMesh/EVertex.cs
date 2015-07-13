@@ -5,7 +5,7 @@ using TKTools;
 using TKTools.Context;
 using TKTools.Context.Input;
 
-public class EVertex
+public class EVertex : IDisposable
 {
 	static readonly float HoverRange = 0.08f;
 
@@ -13,7 +13,6 @@ public class EVertex
 
 	EMesh mesh;
 	Vector2 position;
-	Vector2 uv;
 
 	MouseWatch mouse = Editor.mouse;
 
@@ -22,20 +21,25 @@ public class EVertex
 	public Vector2 Position
 	{
 		get { return position; }
-		set { position = value; }
+		set
+		{
+			position = value;
+			mesh.SetDirty();
+		}
 	}
 
-	public Vector2 UV
+	public bool Enabled
 	{
-		get { return uv; }
-		set { uv = value; }
+		get { return mesh.Enabled; }
 	}
 
 	public bool Hovered
 	{
 		get
 		{
-			if (!editor.VertexSelection) return false;
+			if (editor.SelectMode != SelectMode.Vertices || !Enabled) return false;
+
+			if (editor.selectionBox.Active) return editor.selectionBox.Intersects(this);
 			return ((mouse.Position.Xy - position).LengthFast < HoverRange);
 		}
 	}
@@ -45,6 +49,12 @@ public class EVertex
 		get
 		{
 			return editor.SelectedVertices.Contains(this);
+		} set
+		{
+			if (value)
+				editor.Select(new EVertex[] { this });
+			else
+				editor.Deselect(new EVertex[] { this });
 		}
 	}
 
@@ -52,21 +62,16 @@ public class EVertex
 	{
 		get
 		{
-			float selectedAlpha = Selected ? 0.4f : 0.2f;
-			if (Hovered)
-				return selectedAlpha + (mouse[MouseButton.Left] ? 4f : 2f);
-			else
-				return selectedAlpha;
+			return Hovered ? 0.8f : 0.2f;
 		}
 	}
 
-	public EVertex(Editor e, EMesh mesh, Vector2 position, Vector2 uv)
+	public EVertex(Editor e, EMesh mesh, Vector2 position)
 	{
 		editor = e;
 
 		this.mesh = mesh;
 		this.position = position;
-		this.uv = uv;
 
 		vertexMesh = new Mesh(new Vector2[] {
 			new Vector2(-0.04f, -0.04f),
@@ -76,8 +81,15 @@ public class EVertex
 		});
 	}
 
+	public void Dispose()
+	{
+		vertexMesh.Dispose();
+	}
+
 	public bool Intersects(Polygon p)
 	{
+		if (!Enabled) return false;
+
 		if (p.pointList.Count == 1)
 			return (p.pointList[0].Xy - position).LengthFast < HoverRange;
 		else
@@ -90,13 +102,20 @@ public class EVertex
 
 	public void Draw()
 	{
-		if (editor.VertexSelection)
-		{
-			vertexMesh.Color = new Color(1f, 1f, 1f, Alpha);
+		if (!Enabled) return;
 
-			vertexMesh.Reset();
-			vertexMesh.Translate(position);
-			vertexMesh.Draw();
+		vertexMesh.Color = new Color(1f, 1f, 1f, Alpha);
+
+		vertexMesh.Reset();
+		vertexMesh.Translate(position);
+		vertexMesh.Draw();
+
+		if (Selected)
+		{
+			vertexMesh.Color = Color.Yellow;
+
+			vertexMesh.Scale(1.4f);
+			vertexMesh.Draw(OpenTK.Graphics.OpenGL.PrimitiveType.LineLoop);
 		}
 	}
 }

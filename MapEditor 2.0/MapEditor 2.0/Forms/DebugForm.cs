@@ -11,6 +11,13 @@ using TKTools.Context.Input;
 
 public partial class DebugForm : Form
 {
+	public static string debugString = "";
+
+	private const int WM_NCHITTEST = 0x84;
+	private const int HTCLIENT = 0x1;
+	private const int HTCAPTION = 0x2;
+
+	public static Editor editor;
 	MouseWatch mouse;
 
 	public DebugForm()
@@ -21,11 +28,21 @@ public partial class DebugForm : Form
 		mouse.Perspective = Editor.CurrentEditor.editorCamera;
 	}
 
+	protected override void WndProc(ref Message m)
+	{
+		switch (m.Msg)
+		{
+			case WM_NCHITTEST:
+				base.WndProc(ref m);
+				if ((int)m.Result == HTCLIENT)
+					m.Result = (IntPtr)HTCAPTION;
+				return;
+		}
+		base.WndProc(ref m);
+	}
+
 	public void Logic()
 	{
-		mouse.PlaneDistance = mouse.Perspective.Position.Z;
-
-		textPositionX.Text = "X: " + mouse.Position.X;
-		textPositionY.Text = "Y: " + mouse.Position.Y;
+		variousBox.Text = debugString;
 	}
 }

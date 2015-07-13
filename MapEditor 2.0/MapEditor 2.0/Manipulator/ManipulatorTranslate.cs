@@ -1,9 +1,11 @@
 ﻿using OpenTK;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Input;
+using System;
 using TKTools;
 using TKTools.Context;
 using TKTools.Context.Input;
+using TKTools.Mathematics;
 
 public class ManipulatorTranslate : Manipulator
 {
@@ -39,8 +41,25 @@ public class ManipulatorTranslate : Manipulator
 		{
 			get
 			{
-				if (!mouse[OpenTK.Input.MouseButton.Left] || HoveredAxis == Axis.None) return Axis.None;
-				return HoveredAxis;
+				return activeAxis;
+			}
+		}
+		public Vector2 TranslateVector
+		{
+			get
+			{
+				Vector2 delta = mouse.Position.Xy - origin.Value;
+
+				Vector2 x = Vector2.Dot(delta, manipulator.NormalX) * manipulator.NormalX;
+				Vector2 y = Vector2.Dot(delta, manipulator.NormalY) * manipulator.NormalY;
+
+				switch(ActiveAxis)
+				{
+					case Axis.X: return x;
+					case Axis.Y: return y;
+					case Axis.Plane: return x + y;
+					default: return Vector2.Zero;
+				}
 			}
 		}
 
@@ -50,14 +69,21 @@ public class ManipulatorTranslate : Manipulator
 			{
 				Vector2 p = manipulator.Position;
 
+				float cos = (float)Math.Cos(TKMath.ToRadians(TKMath.GetAngle(manipulator.NormalX)));
+				float sin = (float)Math.Sin(TKMath.ToRadians(TKMath.GetAngle(manipulator.NormalX)));
+				float scale = 0.04f * CameraControl.Position.Z;
+
 				return new Matrix4(
-					0.04f * CameraControl.Position.Z, 0f, 0f, 0f,
-					0f, 0.04f * CameraControl.Position.Z, 0f, 0f,
+					scale * cos, scale * sin, 0f, 0f,
+					scale * -sin, scale * cos, 0f, 0f,
 					0f, 0f, 1f, 0f,
 					p.X, p.Y, 0f, 1f
 					);
 			}
 		}
+
+		Axis activeAxis = Axis.None;
+		Vector2? origin = null;
 
 		public Tool(ManipulatorTranslate mt)
 		{
@@ -96,13 +122,24 @@ public class ManipulatorTranslate : Manipulator
 
 			bool hovered = HoveredAxis == a;
 
-			if (manipulator.activeAxis == a) return new Color(1f, 1f, 1f, 0.8f);
+			if (ActiveAxis == a) return new Color(1f, 1f, 1f, 0.8f);
 			else return baseColor * new Color(1f, 1f, 1f, hovered ? 0.8f : 0f);
 		}
 
 		public void Logic()
 		{
+			if (HoveredAxis != Axis.None && mouse.ButtonPressed(MouseButton.Left))
+			{
+				activeAxis = HoveredAxis;
+				origin = mouse.Position.Xy;
+				manipulator.BakeVertexPosition();
+			}
 
+			if (!mouse[MouseButton.Left] && activeAxis != Axis.None)
+			{
+				activeAxis = Axis.None;
+				origin = null;
+			}
 		}
 
 		public void Draw()
@@ -131,10 +168,7 @@ public class ManipulatorTranslate : Manipulator
 	}
 
 	Tool tool;
-	MouseWatch mouse = Editor.mouse;
-	Vector2 previousMousePosition;
-
-	Tool.Axis activeAxis = Tool.Axis.None;
+	Vector2[] vertexOriginPosition;
 
 	public override bool Hovered
 	{
@@ -149,7 +183,7 @@ public class ManipulatorTranslate : Manipulator
 	{
 		get
 		{
-			return activeAxis != Tool.Axis.None;
+			return tool.ActiveAxis != Tool.Axis.None;
 		}
 	}
 
@@ -162,39 +196,25 @@ public class ManipulatorTranslate : Manipulator
 	public override void Logic()
 	{
 		if (!Visible) return;
+
+		if (Active)
+		{
+			Manipulate(tool.TranslateVector);
+		}
 		tool.Logic();
-
-		if (activeAxis == Tool.Axis.None)
-		{
-			if (mouse.ButtonPressed(MouseButton.Left) && tool.HoveredAxis != Tool.Axis.None)
-				activeAxis = tool.HoveredAxis;
-		}
-		else
-		{
-			Manipulate(activeAxis);
-
-			if (!mouse[MouseButton.Left]) activeAxis = Tool.Axis.None;
-		}
-
-		previousMousePosition = mouse.Position.Xy;
 	}
 
-	void Manipulate(Tool.Axis axis)
+	protected void BakeVertexPosition()
 	{
-		Vector2 multiplier = Vector2.One;
-		switch(axis)
-		{
-			case Tool.Axis.X: multiplier = new Vector2(1, 0); break;
-			case Tool.Axis.Y: multiplier = new Vector2(0, 1); break;
-		}
+		vertexOriginPosition = new Vector2[editor.SelectedVertices.Count];
+		for (int i = 0; i < editor.SelectedVertices.Count; i++)
+			vertexOriginPosition[i] = editor.SelectedVertices[i].Position;
+	}
 
-		Vector2 delta = (mouse.Position.Xy - previousMousePosition) * multiplier;
-
-		foreach (EVertex v in editor.SelectedVertices)
-			v.Position += delta;
-
-		foreach (EMesh m in editor.selectedMeshes)
-			m.UpdateMesh();
+	void Manipulate(Vector2 delta)
+	{
+		for (int i = 0; i < editor.SelectedVertices.Count; i++)
+			editor.SelectedVertices[i].Position = vertexOriginPosition[i] + delta;
 	}
 
 	public override void Draw()

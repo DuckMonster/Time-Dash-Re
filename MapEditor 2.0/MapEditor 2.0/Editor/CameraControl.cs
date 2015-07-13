@@ -22,26 +22,34 @@ public class CameraControl
 	float zoomOrigin;
 	float zoomOriginZ;
 
+	public bool Active
+	{
+		get { return keyboard[Key.LAlt] || mouse[MouseButton.Middle]; }
+	}
+
 	public CameraControl(Editor e)
 	{
 		activeControl = this;
 		editor = e;
 	}
 
+	void Move()
+	{
+		Vector2 currentMouse = mouse.ScreenPosition * 0.5f;
+		currentMouse.X *= editor.form.AspectRatio;
+
+		Vector2 delta = (currentMouse - previousMouse) * Position.Z;
+		position.X -= delta.X;
+		position.Y -= delta.Y;
+	}
+
 	public void Logic()
 	{
+		if (keyboard[Key.LAlt] && mouse[MouseButton.Left] || mouse[MouseButton.Middle]) Move();
+
 		if (keyboard[Key.LAlt])
 		{
-			if (mouse[MouseButton.Left])
-			{
-				Vector2 currentMouse = mouse.ScreenPosition * 0.5f;
-				currentMouse.X *= editor.AspectRatio;
-
-				Vector2 delta = (currentMouse - previousMouse) * Position.Z;
-				position.X -= delta.X;
-				position.Y -= delta.Y;
-			}
-			else if (mouse[MouseButton.Right])
+			if (mouse[MouseButton.Right])
 			{
 				float currentMouse = (mouse.ScreenPosition.X + 1f) / 2f;
 
@@ -56,10 +64,9 @@ public class CameraControl
 			}
 		}
 
-		previousMouse = mouse.ScreenPosition * 0.5f;
-		previousMouse.X *= editor.AspectRatio;
+		position.Z -= mouse.WheelDelta * 0.1f * position.Z;
 
-		Console.Clear();
-		Console.WriteLine(previousMouse);
+		previousMouse = mouse.ScreenPosition * 0.5f;
+		previousMouse.X *= editor.form.AspectRatio;
 	}
 }
