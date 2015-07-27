@@ -184,8 +184,8 @@ public partial class Editor
 		activeLayers.Clear();
 		ActiveLayers.AddRange(layers);
 
-		if (Program.layerForm != null)
-			Program.layerForm.UpdateLayers();
+		//if (Program.layerForm != null)
+		//	Program.layerForm.UpdateLayers();
 	}
 
 	public void CreateTextureSet(TextureSet s)
@@ -193,7 +193,7 @@ public partial class Editor
 		textureSetList.Add(s);
 
 		if (Program.tilePicker != null)
-			Program.tilePicker.AddTexture(s);
+			Program.tilePicker.UpdateUI();
 	}
 
 	public void RemoveTextureSet(TextureSet s)
@@ -202,8 +202,8 @@ public partial class Editor
 		s.Texture.Dispose();
 		s.Bitmap.Dispose();
 
-		if (Program.tilePicker != null)	
-			Program.tilePicker.RemoveTexture(s);
+		if (Program.tilePicker != null)
+			Program.tilePicker.UpdateUI();
 	}
 
 	public void CreateMesh(System.Drawing.RectangleF rect, TextureSet.Tile tile)

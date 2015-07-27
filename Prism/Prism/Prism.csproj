@@ -35,6 +35,10 @@
     <StartupObject />
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="IniFile, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\C#\IniFile\IniFile\IniFile\bin\Debug\IniFile.dll</HintPath>
+    </Reference>
     <Reference Include="OpenTK, Version=1.1.0.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\C#\TKTools\TKTools\bin\Debug\OpenTK.dll</HintPath>
@@ -64,10 +68,10 @@
     <Compile Include="EMesh\EMesh.cs" />
     <Compile Include="EMesh\EVertex.cs" />
     <Compile Include="EMesh\MeshCreator.cs" />
-    <Compile Include="Forms\CreateLayerForm.cs">
+    <Compile Include="Forms\Layers\CreateLayerForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\CreateLayerForm.Designer.cs">
+    <Compile Include="Forms\Layers\CreateLayerForm.Designer.cs">
       <DependentUpon>CreateLayerForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Forms\DebugForm.cs">
@@ -76,40 +80,41 @@
     <Compile Include="Forms\DebugForm.Designer.cs">
       <DependentUpon>DebugForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Forms\EditLayerForm.cs">
+    <Compile Include="Forms\Layers\EditLayerForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\EditLayerForm.Designer.cs">
+    <Compile Include="Forms\Layers\EditLayerForm.Designer.cs">
       <DependentUpon>EditLayerForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Forms\LayerForm.cs">
+    <Compile Include="Forms\EditorUIForm.cs">
+      <SubType>form</SubType>
+    </Compile>
+    <Compile Include="Forms\Layers\LayerForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\LayerForm.Designer.cs">
+    <Compile Include="Forms\Layers\LayerForm.Designer.cs">
       <DependentUpon>LayerForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Forms\OptionsForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Include="Forms\OptionsForm.cs" />
     <Compile Include="Forms\OptionsForm.Designer.cs">
       <DependentUpon>OptionsForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Forms\TileEditor.cs">
+    <Compile Include="Forms\Textures\TileEditor.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\TileEditor.Designer.cs">
+    <Compile Include="Forms\Textures\TileEditor.Designer.cs">
       <DependentUpon>TileEditor.cs</DependentUpon>
     </Compile>
-    <Compile Include="Forms\TextureForm.cs">
+    <Compile Include="Forms\Textures\TextureForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\TexturePicker.Designer.cs">
+    <Compile Include="Forms\Textures\TexturePicker.Designer.cs">
       <DependentUpon>TextureForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Forms\TilePicker.cs">
+    <Compile Include="Forms\Textures\TilePicker.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\TilePicker.Designer.cs">
+    <Compile Include="Forms\Textures\TilePicker.Designer.cs">
       <DependentUpon>TilePicker.cs</DependentUpon>
     </Compile>
     <Compile Include="Layer.cs" />
@@ -129,31 +134,30 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <None Include="ClassDiagram1.cd" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Forms\CreateLayerForm.resx">
+    <EmbeddedResource Include="Forms\Layers\CreateLayerForm.resx">
       <DependentUpon>CreateLayerForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\DebugForm.resx">
       <DependentUpon>DebugForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\EditLayerForm.resx">
+    <EmbeddedResource Include="Forms\Layers\EditLayerForm.resx">
       <DependentUpon>EditLayerForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\LayerForm.resx">
+    <EmbeddedResource Include="Forms\Layers\LayerForm.resx">
       <DependentUpon>LayerForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\OptionsForm.resx">
       <DependentUpon>OptionsForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\TileEditor.resx">
+    <EmbeddedResource Include="Forms\Textures\TileEditor.resx">
       <DependentUpon>TileEditor.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\TextureForm.resx">
+    <EmbeddedResource Include="Forms\Textures\TextureForm.resx">
       <DependentUpon>TextureForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\TilePicker.resx">
+    <EmbeddedResource Include="Forms\Textures\TilePicker.resx">
       <DependentUpon>TilePicker.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">

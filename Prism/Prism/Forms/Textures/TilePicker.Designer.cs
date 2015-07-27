@@ -119,6 +119,7 @@
 			this.MaximizeBox = false;
 			this.MinimizeBox = false;
 			this.Name = "TilePicker";
+			this.ShowIcon = false;
 			this.Text = "Tile Picker";
 			this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.OnClose);
 			this.ResumeLayout(false);

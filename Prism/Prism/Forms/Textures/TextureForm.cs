@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using TKTools;
 
-public partial class TextureForm : Form
+public partial class TextureForm : EditorUIForm
 {
 	public class TextureItem : ListViewItem
 	{
@@ -37,6 +37,25 @@ public partial class TextureForm : Form
 		InitializeComponent();
 	}
 
+	public override void UpdateUI()
+	{
+		UpdateTextures();
+	}
+
+	private void UpdateTextures()
+	{
+		foreach(TextureItem item in textureList.Items)
+		{
+			if (!Editor.textureSetList.Contains(item.TextureSet))
+				item.TextureSet.Dispose();
+		}
+
+		textureList.Items.Clear();
+
+		foreach(TextureSet set in Editor.textureSetList)
+			textureList.Items.Add(new TextureItem(set));
+	}
+
 	private void ListIndexChanged(object sender, EventArgs e)
 	{
 		if (textureList.SelectedItems.Count > 0)
@@ -60,7 +79,7 @@ public partial class TextureForm : Form
 				Bitmap b = new Bitmap(f);
 
 				TextureSet set = new TextureSet("Untitled", b);
-				Editor.CurrentEditor.CreateTextureSet(set);
+				Editor.CreateTextureSet(set);
 				ListViewItem i = textureList.Items.Add(new TextureItem(set));
 				i.Selected = true;
 				i.BeginEdit();
@@ -72,7 +91,7 @@ public partial class TextureForm : Form
 	{
 		foreach(TextureItem t in textureList.SelectedItems)
 		{
-			Editor.CurrentEditor.RemoveTextureSet(t.TextureSet);
+			Editor.RemoveTextureSet(t.TextureSet);
 			textureList.Items.Remove(t);
 		}
 

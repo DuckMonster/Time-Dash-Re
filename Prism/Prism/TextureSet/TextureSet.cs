@@ -1,9 +1,10 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
 using TKTools;
 
-public class TextureSet : IEnumerable
+public class TextureSet : IEnumerable, IDisposable
 {
 	public class TileEnum : IEnumerator
 	{
@@ -33,7 +34,7 @@ public class TextureSet : IEnumerable
 		}
 	}
 
-	public class Tile
+	public class Tile : IDisposable, IEquatable<Tile>
 	{
 		string name;
 
@@ -96,7 +97,38 @@ public class TextureSet : IEnumerable
 			this.uv = uv;
 			this.aspectRatio = uv.Width / uv.Height;
 
-			tileBitmap = set.Bitmap.Clone(GetPreviewRectangle(set.Bitmap.Size), System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+			CreateTileBitmap();
+		}
+
+		void CreateTileBitmap()
+		{
+			Rectangle srcRect = GetPreviewRectangle(set.Bitmap.Size), destRect;
+			int padding;
+
+			if (aspectRatio >= 1)
+			{
+				tileBitmap = new Bitmap(srcRect.Width, (int)(srcRect.Height * aspectRatio));
+				padding = (int)(((srcRect.Height * aspectRatio) - srcRect.Height) / 2);
+				destRect = new Rectangle(0, padding, srcRect.Width, srcRect.Height);
+            }
+			else
+			{
+				tileBitmap = new Bitmap((int)(srcRect.Width / aspectRatio), srcRect.Height);
+				padding = (int)(((srcRect.Width / aspectRatio) - srcRect.Width) / 2);
+				destRect = new Rectangle(padding, 0, srcRect.Width, srcRect.Height);
+			}
+
+			Graphics g = Graphics.FromImage(tileBitmap);
+
+			g.DrawImage(set.Bitmap, destRect, srcRect, GraphicsUnit.Pixel);
+
+			g.Dispose();
+		}
+
+		public void Dispose()
+		{
+			tileBitmap.Dispose();
+			tileBitmap = null;
 		}
 
 		public Rectangle GetPreviewRectangle(Size size)
@@ -108,6 +140,11 @@ public class TextureSet : IEnumerable
 				(int)(rect.Width * size.Width),
 				(int)(rect.Height * size.Height)
 				);
+		}
+
+		public bool Equals(Tile t)
+		{
+			return t.TextureSet == TextureSet && t.uv == uv;
 		}
 	}
 
@@ -150,6 +187,17 @@ public class TextureSet : IEnumerable
 		texture.UploadBitmap(b);
 	}
 
+	public void Dispose()
+	{
+		bitmap.Dispose();
+		bitmap = null;
+
+		foreach (Tile t in Tiles)
+			t.Dispose();
+
+		Tiles.Clear();
+	}
+
 	public void AddTile(string name, RectangleF uv) { AddTile(new Tile(name, this, uv)); }
 	public void AddTile(Tile t)
 	{
@@ -161,6 +209,8 @@ public class TextureSet : IEnumerable
 	{
 		tileList.Remove(t);
 		Program.tilePicker.RemoveTile(t);
+
+		t.Dispose();
 	}
 
 	public IEnumerator GetEnumerator()

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using INI;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -8,7 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-public struct EditorOptions
+public class EditorOptions
 {
 	bool showGrid, focusLayer, meshBorders;
 	float gridOpacity, layerOpacity, meshBorderOpacity;
@@ -23,6 +24,11 @@ public struct EditorOptions
 	public float LayerOpacity { get { return layerOpacity; } set { layerOpacity = value; } }
 	public float MeshBorderOpacity { get { return meshBorderOpacity; } set { meshBorderOpacity = value; } }
 
+	public EditorOptions()
+	{
+		Load();
+	}
+
 	public EditorOptions(bool showGrid, float gridSize, bool focusLayer, bool meshBorders,
 		float gridOpacity, float layerOpacity, float meshBorderOpacity)
 	{
@@ -35,11 +41,70 @@ public struct EditorOptions
 		this.layerOpacity = layerOpacity;
 		this.meshBorderOpacity = meshBorderOpacity;
 	}
+
+	void SetDefault()
+	{
+		showGrid = true;
+		gridSize = 1f;
+		gridOpacity = 1f;
+
+		focusLayer = true;
+		layerOpacity = 0.4f;
+
+		meshBorders = true;
+		meshBorderOpacity = 1f;
+	}
+
+	public void Load()
+	{
+		try
+		{
+			IniFile file = new IniFile("config.cfg");
+
+			IniFile.Section s = file["editor"];
+			ShowGrid = s["showGrid"] == "1" ? true : false;
+			GridOpacity = Single.Parse(s["gridOpacity"], System.Globalization.NumberStyles.Any);
+			GridSize = Single.Parse(s["gridSize"], System.Globalization.NumberStyles.Any);
+
+			FocusLayer = s["focusLayer"] == "1" ? true : false;
+			LayerOpacity = Single.Parse(s["layerOpacity"], System.Globalization.NumberStyles.Any);
+
+			MeshBorders = s["meshBorders"] == "1" ? true : false;
+			MeshBorderOpacity = Single.Parse(s["meshBorderOpacity"], System.Globalization.NumberStyles.Any);
+		} catch(Exception e)
+		{
+			SetDefault();
+		}
+	}
+
+	public void Save()
+	{
+		IniFile file = new IniFile();
+
+		IniFile.Section s = file["editor"];
+
+		s["showGrid"] = showGrid ? "1" : "0";
+		s["gridOpacity"] = gridOpacity.ToString();
+		s["gridSize"] = gridSize.ToString();
+
+		s["focusLayer"] = focusLayer ? "1" : "0";
+		s["layerOpacity"] = LayerOpacity.ToString();
+
+		s["meshBorders"] = meshBorders ? "1" : "0";
+		s["meshBorderOpacity"] = meshBorderOpacity.ToString();
+
+		file.SaveTo("config.cfg");
+	}
+
+	void CreateStandard()
+	{
+		IniFile file = new IniFile("config.cfg");
+	}
 }
 
 public partial class OptionsForm : Form
 {
-	public static EditorOptions options = new EditorOptions(true, 1f, true, true, 1f, 0.4f, 1f);
+	public static EditorOptions options = new EditorOptions();
 
 	public OptionsForm()
 	{
@@ -99,5 +164,10 @@ public partial class OptionsForm : Form
 		{
 			gridSizeBox.BackColor = Color.Red;
 		}
+	}
+
+	protected override void OnClosing(CancelEventArgs e)
+	{
+		options.Save();
 	}
 }

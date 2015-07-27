@@ -18,6 +18,18 @@ public class EditorForm : Context
 		OnRender += Render;
 	}
 
+	void UpdateTitle()
+	{
+		string title = "Prism Editor - ";
+
+		if (editor.Filename == null)
+			title += "Untitled Map";
+		else
+			title += editor.Filename;
+
+		Title = title;
+	}
+
 	protected override void OnKeyDown(KeyboardKeyEventArgs e)
 	{
 		if (e.Keyboard.IsKeyDown(Key.LControl))
@@ -32,6 +44,8 @@ public class EditorForm : Context
 				if (dialog.ShowDialog() == DialogResult.OK)
 				{
 					editor = new Editor(this, dialog.FileName);
+
+					Program.NewEditorInstance(editor);
 				}
 			}
 		}
@@ -40,12 +54,13 @@ public class EditorForm : Context
 	void Begin()
 	{
 		editor = new Editor(this);
-		DebugForm.editor = editor;
+		Program.NewEditorInstance(editor);
 	}
 
 	void Update()
 	{
 		editor.Update();
+		UpdateTitle();
 	}
 
 	void Render()

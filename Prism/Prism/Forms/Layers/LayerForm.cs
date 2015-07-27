@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-public partial class LayerForm : Form
+public partial class LayerForm : EditorUIForm
 {
 	class LayerItem : ListViewItem
 	{
@@ -27,17 +27,24 @@ public partial class LayerForm : Form
 		UpdateLayers();
 	}
 
+	public override void UpdateUI()
+	{
+		UpdateLayers();
+	}
+
 	public void UpdateLayers()
 	{
 		layerList.Items.Clear();
 
-		List<Layer> layers = Editor.CurrentEditor.layerList;
+		if (Editor == null) return;
+
+		List<Layer> layers = Editor.layerList;
 		foreach (Layer l in layers)
 		{
 			ListViewItem item = layerList.Items.Add(new LayerItem(l));
 			item.ForeColor = l.Visible ? Color.Black : Color.Gray;
 
-			if (Editor.CurrentEditor.activeLayers.Contains(l))
+			if (Editor.activeLayers.Contains(l))
 				item.Selected = true;
 		}
 	}
@@ -53,7 +60,7 @@ public partial class LayerForm : Form
 				selectedLayers.Add(i.layer);
 		}
 
-		Editor.CurrentEditor.SetActiveLayers(selectedLayers);
+		Editor.SetActiveLayers(selectedLayers);
 
 		if (layerList.SelectedItems.Count > 0)
 			visibleCheckBox.Checked = (layerList.SelectedItems[0] as LayerItem).layer.Visible;
@@ -66,7 +73,7 @@ public partial class LayerForm : Form
 		CreateLayerForm f = new CreateLayerForm();
 
 		if (f.ShowDialog() == DialogResult.OK)
-			Editor.CurrentEditor.CreateLayer(f.LayerName);
+			Editor.CreateLayer(f.LayerName);
 
 		UpdateLayers();
 	}
@@ -75,7 +82,7 @@ public partial class LayerForm : Form
 	{
 		if (MessageBox.Show(string.Format("Are you sure you want to delete ({0}) layers?", layerList.SelectedItems.Count), "Confirm", MessageBoxButtons.YesNo) == DialogResult.No) return;
 		foreach (LayerItem l in layerList.SelectedItems)
-			Editor.CurrentEditor.RemoveLayer(l.layer);
+			Editor.RemoveLayer(l.layer);
 
 		UpdateLayers();
 	}
@@ -114,5 +121,9 @@ public partial class LayerForm : Form
 	{
 		this.Hide();
 		e.Cancel = true;
+	}
+
+	private void LayerForm_Load(object sender, EventArgs e)
+	{
 	}
 }

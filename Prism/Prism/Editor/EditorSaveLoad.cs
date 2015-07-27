@@ -62,6 +62,8 @@ public partial class Editor
 	}
 	public void LoadFrom(string filename)
 	{
+		this.filename = filename;
+
 		PrismMap map = PrismFile.LoadMapFrom(filename);
 
 		textureSetList.Clear();

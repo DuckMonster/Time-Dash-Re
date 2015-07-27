@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using TKTools.Context.Input;
 
-public partial class DebugForm : Form
+public partial class DebugForm : EditorUIForm
 {
 	public static string debugString = "";
 
@@ -17,15 +17,11 @@ public partial class DebugForm : Form
 	private const int HTCLIENT = 0x1;
 	private const int HTCAPTION = 0x2;
 
-	public static Editor editor;
-	MouseWatch mouse;
+	MouseWatch mouse = Editor.mouse;
 
 	public DebugForm()
 	{
 		InitializeComponent();
-
-		mouse = new MouseWatch();
-		mouse.Perspective = Editor.CurrentEditor.editorCamera;
 	}
 
 	protected override void WndProc(ref Message m)
@@ -44,5 +40,9 @@ public partial class DebugForm : Form
 	public void Logic()
 	{
 		variousBox.Text = debugString;
+	}
+
+	public override void UpdateUI()
+	{
 	}
 }

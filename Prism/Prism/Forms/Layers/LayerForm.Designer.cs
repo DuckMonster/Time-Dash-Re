@@ -128,6 +128,7 @@
 			this.ShowInTaskbar = false;
 			this.Text = "Layers";
 			this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.OnClose);
+			this.Load += new System.EventHandler(this.LayerForm_Load);
 			this.ResumeLayout(false);
 			this.PerformLayout();
 

@@ -1,5 +1,7 @@
 ﻿using OpenTK.Input;
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Windows.Forms;
 using TKTools.Context;
 using TKTools.Context.Input;
@@ -17,24 +19,33 @@ public class Program
 	public static DebugForm debugForm;
 	public static LayerForm layerForm;
 	public static TextureForm textureForm;
-	public static TilePicker tilePicker;
-	public static OptionsForm optionsForm;
+	public static TilePicker tilePicker; 
 
 	KeyboardWatch keyboard = new KeyboardWatch();
+
+	static IEnumerable<EditorUIForm> Forms
+	{
+		get
+		{
+			yield return layerForm;
+			yield return textureForm;
+			yield return tilePicker;
+			yield return debugForm;
+		}
+	}
 
 	public Program()
 	{
 		Application.EnableVisualStyles();
 
+		LoadForms();
+
 		e = new EditorForm();
-
 		e.OnUpdate += Update;
-		e.OnBegin += Load;
-
 		e.Run();
 	}
 
-	void Load()
+	void LoadForms()
 	{
 		debugForm = new DebugForm();
 		debugForm.Show();
@@ -51,9 +62,6 @@ public class Program
 		tilePicker = new TilePicker();
 		tilePicker.Show();
 		tilePicker.Visible = false;
-
-		optionsForm = new OptionsForm();
-		optionsForm.Show();
 	}
 
 	void Update()
@@ -68,5 +76,20 @@ public class Program
 			textureForm.Visible = !textureForm.Visible;
 		if (keyboard.KeyReleased(Key.F4))
 			tilePicker.Visible = !tilePicker.Visible;
+
+		if (keyboard.KeyReleased(Key.F12))
+			new OptionsForm().Show();
+	}
+
+	public static void NewEditorInstance(Editor e)
+	{
+		foreach (EditorUIForm f in Forms)
+			f.Editor = e;
+	}
+
+	public static void UpdateUI()
+	{
+		foreach (EditorUIForm f in Forms)
+			f.UpdateUI();
 	}
 }

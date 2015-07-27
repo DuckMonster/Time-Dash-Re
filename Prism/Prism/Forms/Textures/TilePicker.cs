@@ -1,15 +1,11 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
+using System.Diagnostics;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
-public partial class TilePicker : Form
+public partial class TilePicker : EditorUIForm
 {
 	public static TextureSet.Tile selectedTile;
 
@@ -49,7 +45,7 @@ public partial class TilePicker : Form
 			: base(t.Name)
 		{
 			this.tile = t;
-			this.ImageIndex = imageIndex;
+			this.ImageKey = imageIndex.ToString();
 		}
 
 		public void Update()
@@ -67,6 +63,15 @@ public partial class TilePicker : Form
 		tileList.LargeImageList.ImageSize = new Size(86, 86);
 	}
 
+	public override void UpdateUI()
+	{
+		Stopwatch watch = Stopwatch.StartNew();
+		RecreateList();
+		watch.Stop();
+
+		DebugForm.debugString = "Recreating list took " + watch.ElapsedMilliseconds + " milliseconds!";
+	}
+
 	TextureItem FindTextureItem(TextureSet s)
 	{
 		foreach (TextureItem t in textureList.Items)
@@ -82,15 +87,20 @@ public partial class TilePicker : Form
 		return null;
 	}
 
-	public void AddTexture(TextureSet s)
+	TextureItem AddTexture(TextureSet s)
 	{
-		textureList.Items.Add(new TextureItem(s));
+		return textureList.Items.Add(new TextureItem(s)) as TextureItem;
 	}
 
-	public void RemoveTexture(TextureSet s)
+	public void RemoveTexture(TextureSet s) { RemoveTexture(FindTextureItem(s)); }
+	void RemoveTexture(TextureItem t)
 	{
-		ListViewItem t = FindTextureItem(s);
 		textureList.Items.Remove(t);
+
+		TileItem[] buff = t.TileItems.ToArray();
+
+		foreach (TileItem item in buff)
+			RemoveTile(item);
 	}
 
 	public void AddTile(TextureSet.Tile t)
@@ -98,10 +108,10 @@ public partial class TilePicker : Form
 		TextureItem ti = FindTextureItem(t.TextureSet);
 		if (ti != null)
 		{
-			tileList.LargeImageList.Images.Add(t.TileBitmap);
+			tileList.LargeImageList.Images.Add(currentImageIndex.ToString(), t.TileBitmap);
 			TileItem newItem = new TileItem(t, currentImageIndex);
 
-			ti.TileItems.Add(newItem);
+			ti.AddTileItem(newItem);
 			if (ti.Selected)
 				tileList.Items.Add(newItem);
 
@@ -109,29 +119,37 @@ public partial class TilePicker : Form
 		}
 	}
 
-	public void RemoveTile(TextureSet.Tile t)
+	public void RemoveTile(TextureSet.Tile t) { RemoveTile(FindTileItem(t)); }
+	void RemoveTile(TileItem item)
 	{
-		TileItem item = FindTileItem(t);
+		if (item == null) return;
 
 		item.parent.TileItems.Remove(item);
 		if (tileList.Items.Contains(item))
 			tileList.Items.Remove(item);
+
+		tileList.LargeImageList.Images.RemoveByKey(item.ImageKey);
 	}
 
 	public void RecreateList()
 	{
-		tileList.Groups.Clear();
-		tileList.LargeImageList.Images.Clear();
-		currentImageIndex = 0;
+		Editor e = Editor;
 
-		Editor e = Editor.CurrentEditor;
+		foreach (TextureItem tex in textureList.Items)
+		{
+			if (!e.textureSetList.Contains(tex.textureSet))
+				RemoveTexture(tex);
+		}
 
 		foreach (TextureSet s in e.textureSetList)
 		{
-			AddTexture(s);
-			foreach (TextureSet.Tile t in s)
-				AddTile(t);
+			if (FindTextureItem(s) == null) AddTexture(s);
+
+			foreach(TextureSet.Tile t in s)
+				if (FindTileItem(t) == null) AddTile(t);
 		}
+
+		UpdateList();
 	}
 
 	public void UpdateList()
@@ -142,6 +160,8 @@ public partial class TilePicker : Form
 			foreach (TileItem ti in t.TileItems)
 				ti.Update();
 		}
+
+		UpdateTileView();
 	}
 
 	private void TextureSelected(object sender, EventArgs e)
@@ -162,7 +182,15 @@ public partial class TilePicker : Form
 	{
 		tileList.Items.Clear();
 
-		foreach (TextureItem t in textureList.SelectedItems)
+		ICollection collection;
+
+		if (textureList.SelectedItems.Count > 0)
+			collection = textureList.SelectedItems;
+		else
+			collection = textureList.Items;
+
+
+		foreach (TextureItem t in collection)
 			foreach (TileItem ti in t.TileItems)
 				if (ti.Text.Contains(filterBox.Text))
 					tileList.Items.Add(ti);
