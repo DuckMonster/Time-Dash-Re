@@ -7,8 +7,8 @@
     <ProjectGuid>{C05C18E8-9A33-43E2-ABCE-71610E8AB38F}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MapEditor_2._0</RootNamespace>
-    <AssemblyName>MapEditor 2.0</AssemblyName>
+    <RootNamespace>PrismEditor</RootNamespace>
+    <AssemblyName>Prism Editor</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -34,6 +34,9 @@
   <PropertyGroup>
     <StartupObject />
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>1438711037_diamonds.ico</ApplicationIcon>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="IniFile, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -55,8 +58,9 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="TKTools">
-      <HintPath>..\..\..\C#\TKTools\TKTools\bin\Debug\TKTools.dll</HintPath>
+    <Reference Include="TKTools, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\TKTools.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -95,7 +99,9 @@
     <Compile Include="Forms\Layers\LayerForm.Designer.cs">
       <DependentUpon>LayerForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Forms\OptionsForm.cs" />
+    <Compile Include="Forms\OptionsForm.cs">
+      <SubType>form</SubType>
+    </Compile>
     <Compile Include="Forms\OptionsForm.Designer.cs">
       <DependentUpon>OptionsForm.cs</DependentUpon>
     </Compile>
@@ -166,6 +172,7 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="1438711037_diamonds.ico" />
     <Content Include="circle.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
