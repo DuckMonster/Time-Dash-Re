@@ -43,6 +43,7 @@ public class EMesh : IEnumerable, IDisposable
 	public Layer Layer
 	{
 		get { return layer; }
+		set { SetLayer(value); }
 	}
 
 	EVertex[] vertices = new EVertex[4];
@@ -76,7 +77,7 @@ public class EMesh : IEnumerable, IDisposable
 		get
 		{
 			if (layer == null || !Visible) return false;
-			return layer.Active;
+			return layer.Enabled;
 		}
 	}
 
@@ -236,10 +237,11 @@ public class EMesh : IEnumerable, IDisposable
 
 	public void Logic()
 	{
+		/*
 		if (keyboard.KeyPressed(Key.Minus) && Selected)
 			layer.MoveMesh(this, 1);
 		if (keyboard.KeyPressed(Key.Slash) && Selected)
-			layer.MoveMesh(this, -1);
+			layer.MoveMesh(this, -1);*/
 	}
 
 	public void Draw()

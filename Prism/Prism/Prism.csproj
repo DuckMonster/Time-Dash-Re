@@ -38,6 +38,9 @@
     <ApplicationIcon>1438711037_diamonds.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Aga.Controls">
+      <HintPath>..\treeviewadv_1.7.0.0\treeviewadv\Aga.Controls\bin\Debug\Aga.Controls.dll</HintPath>
+    </Reference>
     <Reference Include="IniFile, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\C#\IniFile\IniFile\IniFile\bin\Debug\IniFile.dll</HintPath>
@@ -93,11 +96,17 @@
     <Compile Include="Forms\EditorUIForm.cs">
       <SubType>form</SubType>
     </Compile>
-    <Compile Include="Forms\Layers\LayerForm.cs">
+    <None Include="Forms\Layers\LayerForm.cs">
+      <SubType>Form</SubType>
+    </None>
+    <None Include="Forms\Layers\LayerForm.Designer.cs">
+      <DependentUpon>LayerForm.cs</DependentUpon>
+    </None>
+    <Compile Include="Forms\Layers\LayerFormAdv.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\Layers\LayerForm.Designer.cs">
-      <DependentUpon>LayerForm.cs</DependentUpon>
+    <Compile Include="Forms\Layers\LayerFormAdv.Designer.cs">
+      <DependentUpon>LayerFormAdv.cs</DependentUpon>
     </Compile>
     <Compile Include="Forms\OptionsForm.cs">
       <SubType>form</SubType>
@@ -123,7 +132,10 @@
     <Compile Include="Forms\Textures\TilePicker.Designer.cs">
       <DependentUpon>TilePicker.cs</DependentUpon>
     </Compile>
-    <Compile Include="Layer.cs" />
+    <None Include="Layer.cs" />
+    <Compile Include="Layer\LayerFolder.cs" />
+    <Compile Include="Layer\Layer.cs" />
+    <Compile Include="Layer\LayerNode.cs" />
     <Compile Include="Manipulator\Manipulator.cs" />
     <Compile Include="Manipulator\ManipulatorRotate.cs" />
     <Compile Include="Manipulator\ManipulatorScale.cs" />
@@ -154,6 +166,9 @@
     <EmbeddedResource Include="Forms\Layers\LayerForm.resx">
       <DependentUpon>LayerForm.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Forms\Layers\LayerFormAdv.resx">
+      <DependentUpon>LayerFormAdv.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Forms\OptionsForm.resx">
       <DependentUpon>OptionsForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -174,6 +189,9 @@
   <ItemGroup>
     <Content Include="1438711037_diamonds.ico" />
     <Content Include="circle.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="iconserver.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

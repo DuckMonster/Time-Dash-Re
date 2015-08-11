@@ -29,7 +29,7 @@ public partial class Editor
 			map.AddTexture(set);
 		}
 
-		foreach (Layer l in layerList)
+		foreach (Layer l in Layers)
 		{
 			PrismLayer newLayer = new PrismLayer(l.Name);
 			foreach (EMesh m in l)
@@ -67,7 +67,7 @@ public partial class Editor
 		PrismMap map = PrismFile.LoadMapFrom(filename);
 
 		textureSetList.Clear();
-		layerList.Clear();
+		rootLayer.Nodes.Clear();
 
 		Dictionary<PrismTexture.Tile, TextureSet.Tile> tileList = new Dictionary<PrismTexture.Tile, TextureSet.Tile>();
 
@@ -96,8 +96,6 @@ public partial class Editor
 
 				layer.AddMesh(newMesh);
 			}
-
-			CreateLayer(layer);
 		}
 	}
 }

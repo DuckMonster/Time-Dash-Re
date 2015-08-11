@@ -17,7 +17,7 @@ public class Program
 	EditorForm e;
 
 	public static DebugForm debugForm;
-	public static LayerForm layerForm;
+	public static LayerFormAdv layerForm;
 	public static TextureForm textureForm;
 	public static TilePicker tilePicker; 
 
@@ -51,7 +51,7 @@ public class Program
 		debugForm.Show();
 		debugForm.Visible = false;
 
-		layerForm = new LayerForm();
+		layerForm = new LayerFormAdv();
 		layerForm.Show();
 		layerForm.Visible = false;
 

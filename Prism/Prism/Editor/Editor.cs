@@ -34,7 +34,7 @@ public partial class Editor
 	CameraControl cameraControl;
 
 	public List<Layer> activeLayers = new List<Layer>();
-	public List<Layer> layerList = new List<Layer>();
+	public LayerNode rootLayer;
 
 	public List<TextureSet> textureSetList = new List<TextureSet>();
 
@@ -61,6 +61,11 @@ public partial class Editor
 		get { return Manipulator.Active || Manipulator.Hovered || cameraControl.Active; }
 	}
 
+	public IEnumerable<Layer> Layers
+	{
+		get { foreach (Layer l in rootLayer.Layers) yield return l; }
+	}
+
 	public List<Layer> ActiveLayers
 	{
 		get
@@ -81,7 +86,7 @@ public partial class Editor
 	{
 		get
 		{
-			foreach (Layer l in layerList)
+			foreach (Layer l in Layers)
 				foreach (EMesh m in l)
 					yield return m;
 		}
@@ -148,30 +153,12 @@ public partial class Editor
 		selectionBox = new SelectionBox(this);
 		meshCreator = new MeshCreator(this);
 
-		activeLayers.Add(CreateLayer("default"));
+		rootLayer = new LayerNode("root", this);
     }
 	public Editor(EditorForm form, string filename)
 		: this(form)
 	{
 		LoadFrom(filename);
-	}
-
-	public Layer CreateLayer(string n) { return CreateLayer(new Layer(n, this)); }
-	public Layer CreateLayer(Layer l)
-	{
-		layerList.Add(l);
-
-		if (Program.layerForm != null)
-			Program.layerForm.UpdateLayers();
-		return l;
-	}
-
-	public void RemoveLayer(Layer l)
-	{
-		layerList.Remove(l);
-
-		if (Program.layerForm != null)
-			Program.layerForm.UpdateLayers();
 	}
 
 	public void SetActiveLayers(IList<Layer> layers)
@@ -226,7 +213,6 @@ public partial class Editor
 		m.Selected = false;
 
 		m.Dispose();
-		m.Layer.RemoveMesh(m);
 	}
 
 	public void Update()
@@ -273,6 +259,8 @@ public partial class Editor
 			m.Logic();
 
 		Manipulator.Logic();
+
+		DebugForm.debugString = rootLayer.ToString();
 	}
 
 	public void Render()
