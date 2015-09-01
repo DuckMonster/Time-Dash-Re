@@ -35,6 +35,7 @@ public partial class TextureForm : EditorUIForm
 	public TextureForm()
 	{
 		InitializeComponent();
+
 	}
 
 	public override void UpdateUI()

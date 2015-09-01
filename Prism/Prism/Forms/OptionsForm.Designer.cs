@@ -40,9 +40,17 @@
 			this.label4 = new System.Windows.Forms.Label();
 			this.label5 = new System.Windows.Forms.Label();
 			this.label6 = new System.Windows.Forms.Label();
+			this.colorLabel = new System.Windows.Forms.Label();
+			this.colorDialog = new System.Windows.Forms.ColorDialog();
+			this.colorBoxL = new System.Windows.Forms.PictureBox();
+			this.colorBoxR = new System.Windows.Forms.PictureBox();
+			this.backColorPreview = new System.Windows.Forms.PictureBox();
 			((System.ComponentModel.ISupportInitialize)(this.gridOpacityBar)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.layerOpacityBar)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.meshBorderOpacity)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this.colorBoxL)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this.colorBoxR)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this.backColorPreview)).BeginInit();
 			this.SuspendLayout();
 			// 
 			// showGridBox
@@ -176,11 +184,51 @@
 			this.label6.TabIndex = 13;
 			this.label6.Text = "(CTRL + SHIFT + B)";
 			// 
+			// colorLabel
+			// 
+			this.colorLabel.AutoSize = true;
+			this.colorLabel.Location = new System.Drawing.Point(9, 287);
+			this.colorLabel.Name = "colorLabel";
+			this.colorLabel.Size = new System.Drawing.Size(175, 13);
+			this.colorLabel.TabIndex = 14;
+			this.colorLabel.Text = "Background Color (Click to change)";
+			// 
+			// colorBoxL
+			// 
+			this.colorBoxL.Location = new System.Drawing.Point(12, 303);
+			this.colorBoxL.Name = "colorBoxL";
+			this.colorBoxL.Size = new System.Drawing.Size(35, 34);
+			this.colorBoxL.TabIndex = 15;
+			this.colorBoxL.TabStop = false;
+			this.colorBoxL.Click += new System.EventHandler(this.BackColorLeftClick);
+			// 
+			// colorBoxR
+			// 
+			this.colorBoxR.Location = new System.Drawing.Point(349, 303);
+			this.colorBoxR.Name = "colorBoxR";
+			this.colorBoxR.Size = new System.Drawing.Size(35, 34);
+			this.colorBoxR.TabIndex = 16;
+			this.colorBoxR.TabStop = false;
+			this.colorBoxR.Click += new System.EventHandler(this.BackColorRightClick);
+			// 
+			// backColorPreview
+			// 
+			this.backColorPreview.Location = new System.Drawing.Point(53, 314);
+			this.backColorPreview.Name = "backColorPreview";
+			this.backColorPreview.Size = new System.Drawing.Size(290, 13);
+			this.backColorPreview.TabIndex = 17;
+			this.backColorPreview.TabStop = false;
+			this.backColorPreview.Paint += new System.Windows.Forms.PaintEventHandler(this.PreviewPaint);
+			// 
 			// OptionsForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(396, 361);
+			this.Controls.Add(this.backColorPreview);
+			this.Controls.Add(this.colorBoxR);
+			this.Controls.Add(this.colorBoxL);
+			this.Controls.Add(this.colorLabel);
 			this.Controls.Add(this.label6);
 			this.Controls.Add(this.label5);
 			this.Controls.Add(this.label4);
@@ -206,6 +254,9 @@
 			((System.ComponentModel.ISupportInitialize)(this.gridOpacityBar)).EndInit();
 			((System.ComponentModel.ISupportInitialize)(this.layerOpacityBar)).EndInit();
 			((System.ComponentModel.ISupportInitialize)(this.meshBorderOpacity)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this.colorBoxL)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this.colorBoxR)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this.backColorPreview)).EndInit();
 			this.ResumeLayout(false);
 			this.PerformLayout();
 
@@ -227,4 +278,9 @@
 	private System.Windows.Forms.Label label4;
 	private System.Windows.Forms.Label label5;
 	private System.Windows.Forms.Label label6;
+	private System.Windows.Forms.Label colorLabel;
+	private System.Windows.Forms.ColorDialog colorDialog;
+	private System.Windows.Forms.PictureBox colorBoxL;
+	private System.Windows.Forms.PictureBox colorBoxR;
+	private System.Windows.Forms.PictureBox backColorPreview;
 }

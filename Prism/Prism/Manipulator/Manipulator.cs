@@ -92,7 +92,7 @@ public class Manipulator
 	
 	public void UpdatePivot()
 	{
-		if (keyboard[Key.D])
+		if (keyboard[Key.D] && !keyboard[Key.LControl])
 		{
 			if (keyboard[Key.LControl])
 				pivot = new Vector2((float)Math.Round(mouse.Position.X), (float)Math.Round(mouse.Position.Y));

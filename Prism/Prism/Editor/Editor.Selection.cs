@@ -4,6 +4,22 @@ using System.Collections.Generic;
 
 public partial class Editor
 {
+	public void SwitchSelectMode()
+	{
+		selectMode = SelectMode == SelectMode.Mesh ? SelectMode.Vertices : SelectMode.Mesh;
+
+		if (SelectMode == SelectMode.Mesh)
+		{
+			List<EMesh> buffer = new List<EMesh>();
+
+			foreach (EMesh m in Meshes)
+				if (m.Selected)
+					buffer.Add(m);
+
+			SetSelected(buffer);
+		}
+	}
+
 	public void OnSelect()
 	{
 		switch (SelectMode)

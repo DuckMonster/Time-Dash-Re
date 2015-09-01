@@ -6,34 +6,6 @@ using TKTools;
 
 public class TextureSet : IEnumerable, IDisposable
 {
-	public class TileEnum : IEnumerator
-	{
-		Tile[] tiles;
-		int index = -1;
-
-		public TileEnum(Tile[] tiles)
-		{
-			this.tiles = tiles;
-		}
-
-		public bool MoveNext()
-		{
-			index++;
-
-			return index < tiles.Length;
-		}
-
-		public void Reset()
-		{
-			index = -1;
-		}
-
-		public object Current
-		{
-			get { return tiles[index]; }
-		}
-	}
-
 	public class Tile : IDisposable, IEquatable<Tile>
 	{
 		string name;
@@ -110,7 +82,7 @@ public class TextureSet : IEnumerable, IDisposable
 				tileBitmap = new Bitmap(srcRect.Width, (int)(srcRect.Height * aspectRatio));
 				padding = (int)(((srcRect.Height * aspectRatio) - srcRect.Height) / 2);
 				destRect = new Rectangle(0, padding, srcRect.Width, srcRect.Height);
-            }
+			}
 			else
 			{
 				tileBitmap = new Bitmap((int)(srcRect.Width / aspectRatio), srcRect.Height);
@@ -213,8 +185,5 @@ public class TextureSet : IEnumerable, IDisposable
 		t.Dispose();
 	}
 
-	public IEnumerator GetEnumerator()
-	{
-		return new TileEnum(tileList.ToArray());
-	}
+	public IEnumerator GetEnumerator() { foreach (Tile t in Tiles) yield return t; }
 }

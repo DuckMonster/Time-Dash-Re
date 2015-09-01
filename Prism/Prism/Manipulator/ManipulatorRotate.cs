@@ -16,7 +16,7 @@ class ManipulatorRotate : Manipulator
 	class Tool
 	{
 		ManipulatorRotate manipulator;
-		Mesh mesh;
+		Model2D model;
 
 		MouseWatch mouse = Editor.mouse;
 
@@ -78,8 +78,8 @@ class ManipulatorRotate : Manipulator
 		public Tool(ManipulatorRotate manip)
 		{
 			manipulator = manip;
-			mesh = Mesh.CreateFromTexture(new Texture("circle.png"));
-			mesh.Color = new Color(1f, 1f, 1f, 0.4f);
+			model = (Model2D)Model.CreateFromTexture(new Texture("circle.png"));
+			model.Color = new Color(1f, 1f, 1f, 0.4f);
 		}
 
 		public void Logic()
@@ -101,24 +101,24 @@ class ManipulatorRotate : Manipulator
 			
 			GL.ColorMask(false, false, false, false);
 
-			mesh.Reset();
+			model.Reset();
 
-			mesh.Translate(manipulator.Position);
-			mesh.Scale(Editor.CurrentEditor.editorCamera.Position.Z * 0.2f * 0.94f);
+			model.Translate(manipulator.Position);
+			model.Scale(Editor.CurrentEditor.editorCamera.Position.Z * 0.2f * 0.94f);
 
-			mesh.Draw();
+			model.Draw();
 
 			GL.StencilFunc(StencilFunction.Notequal, 1, 0xff);
 			GL.ColorMask(true, true, true, true);
 
-			mesh.Color = Color;
+			model.Color = Color;
 
-			mesh.Reset();
+			model.Reset();
 
-			mesh.Translate(manipulator.Position);
-			mesh.Scale(Editor.CurrentEditor.editorCamera.Position.Z * 0.2f);
+			model.Translate(manipulator.Position);
+			model.Scale(Editor.CurrentEditor.editorCamera.Position.Z * 0.2f);
 
-			mesh.Draw();
+			model.Draw();
 
 			GL.Disable(EnableCap.StencilTest);
 		}

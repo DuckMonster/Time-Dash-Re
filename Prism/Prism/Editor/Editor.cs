@@ -48,7 +48,7 @@ public partial class Editor
 
 	public Camera editorCamera;
 
-	Mesh gridMesh;
+	Model gridModel;
 
 	public SelectionBox selectionBox;
 	public MeshCreator meshCreator;
@@ -63,7 +63,7 @@ public partial class Editor
 
 	public IEnumerable<Layer> Layers
 	{
-		get { foreach (Layer l in rootLayer.Layers) yield return l; }
+		get { foreach (Layer l in rootLayer.LayersInverted) yield return l; }
 	}
 
 	public List<Layer> ActiveLayers
@@ -88,6 +88,16 @@ public partial class Editor
 		{
 			foreach (Layer l in Layers)
 				foreach (EMesh m in l)
+					yield return m;
+		}
+	}
+
+	public IEnumerable<EMesh> SelectedMeshes
+	{
+		get
+		{
+			foreach (EMesh m in Meshes)
+				if (m.Selected)
 					yield return m;
 		}
 	}
@@ -135,19 +145,19 @@ public partial class Editor
 
 		manipulators = new Manipulator[] { new Manipulator(this), new ManipulatorTranslate(this), new ManipulatorRotate(this), new ManipulatorScale(this) };
 
-		gridMesh = new Mesh();
-		gridMesh.PrimitiveType = PrimitiveType.Lines;
+		gridModel = new Model();
+		gridModel.PrimitiveType = PrimitiveType.Lines;
 
-		List<Vector2> gridVertices = new List<Vector2>();
+		List<Vector3> gridVertices = new List<Vector3>();
 		for (int i = -50; i <= 50; i++)
 		{
-			gridVertices.Add(new Vector2(-50f, i));
-			gridVertices.Add(new Vector2(50f, i));
-			gridVertices.Add(new Vector2(i, -50f));
-			gridVertices.Add(new Vector2(i, 50f));
+			gridVertices.Add(new Vector3(-50f, i, 0));
+			gridVertices.Add(new Vector3(50f, i, 0));
+			gridVertices.Add(new Vector3(i, -50f, 0));
+			gridVertices.Add(new Vector3(i, 50f, 0));
 		}
 
-		gridMesh.Vertices2 = gridVertices.ToArray();
+		gridModel.VertexPosition = gridVertices.ToArray();
 
 		cameraControl = new CameraControl(this);
 		selectionBox = new SelectionBox(this);
@@ -211,6 +221,8 @@ public partial class Editor
 	public void RemoveMesh(EMesh m)
 	{
 		m.Selected = false;
+		if (m.Layer != null)
+			m.Layer.RemoveMesh(m);
 
 		m.Dispose();
 	}
@@ -224,7 +236,7 @@ public partial class Editor
 		editorCamera.Target = CameraControl.Position * new Vector3(1, 1, 0);
 
 		if (keyboard.KeyPressed(Key.Tab))
-			selectMode = selectMode == SelectMode.Mesh ? SelectMode.Vertices : SelectMode.Mesh;
+			SwitchSelectMode();
 
 		if (keyboard.KeyReleased(Key.Delete))
 		{
@@ -244,12 +256,42 @@ public partial class Editor
 		foreach (Manipulator m in manipulators)
 			m.UpdatePivot();
 
-		//OPTIONS HOTKEYS
-		if (keyboard[Key.LControl] && keyboard[Key.LShift])
+		//SOME HOTKEYS
+		if (form.Focused)
 		{
-			if (keyboard.KeyPressed(Key.G)) OptionsForm.options.ShowGrid = !OptionsForm.options.ShowGrid;
-			if (keyboard.KeyPressed(Key.L)) OptionsForm.options.FocusLayer = !OptionsForm.options.FocusLayer;
-			if (keyboard.KeyPressed(Key.B)) OptionsForm.options.MeshBorders = !OptionsForm.options.MeshBorders;
+			if (keyboard[Key.LControl])
+			{
+				//OPTIONS
+				if (keyboard[Key.LShift])
+				{
+					if (keyboard.KeyPressed(Key.G)) OptionsForm.options.ShowGrid = !OptionsForm.options.ShowGrid;
+					if (keyboard.KeyPressed(Key.L)) OptionsForm.options.FocusLayer = !OptionsForm.options.FocusLayer;
+					if (keyboard.KeyPressed(Key.B)) OptionsForm.options.MeshBorders = !OptionsForm.options.MeshBorders;
+				}
+				else //OTHER EDITOR HOTKEYS
+				{
+					if (keyboard.KeyPressed(Key.D))
+					{
+						List<EMesh> copiedMeshes = new List<EMesh>();
+
+						foreach (EMesh mesh in SelectedMeshes)
+						{
+							EMesh newMesh = new EMesh(mesh, mesh.Layer, this);
+
+							mesh.Layer.AddMesh(newMesh);
+							copiedMeshes.Add(newMesh);
+						}
+
+						SetSelected(copiedMeshes);
+					}
+				}
+			}
+
+			if (keyboard.KeyPressed(Key.C))
+			{
+				HSLForm hslForm = new HSLForm(SelectedVertices);
+				hslForm.Show();
+			}
 		}
 
 		selectionBox.Logic();
@@ -260,7 +302,7 @@ public partial class Editor
 
 		Manipulator.Logic();
 
-		DebugForm.debugString = rootLayer.ToString();
+		DebugForm.debugString = "Active Layers = " + (activeLayers.Count == 0 ? "NULL" : activeLayers[0].ToString());
 	}
 
 	public void Render()
@@ -269,28 +311,38 @@ public partial class Editor
 		{
 			float a = OptionsForm.options.GridOpacity;
 			float size = OptionsForm.options.GridSize;
-			gridMesh.Color = new Color(0.4f, 0.4f, 0.4f, a);
+			gridModel.Color = new Color(0.4f, 0.4f, 0.4f, a);
 
 			GL.LineWidth(1f);
 
-			gridMesh.Reset();
-			gridMesh.Scale(size);
-			gridMesh.Draw();
+			gridModel.Reset();
+			gridModel.Scale(size);
+			gridModel.Draw();
 
-			gridMesh.Color = new Color(0.8f, 0.8f, 0.8f, a);
+			gridModel.Color = new Color(0.8f, 0.8f, 0.8f, a);
 
 			GL.LineWidth(3f);
 
-			gridMesh.Scale(10f);
-			gridMesh.Draw();
+			gridModel.Scale(10f);
+			gridModel.Draw();
 
 			GL.LineWidth(1f);
 		}
 
+		GL.Enable(EnableCap.StencilTest);
+		GL.Clear(ClearBufferMask.StencilBufferBit);
+		GL.Disable(EnableCap.StencilTest);
+
+		EMesh.Program["view"].SetValue(editorCamera.View);
+		EMesh.Program["projection"].SetValue(editorCamera.Projection);
 		foreach (EMesh m in Meshes)
 			m.Draw();
 		foreach (EMesh m in Meshes)
 			m.DrawUI();
+
+		GL.Enable(EnableCap.StencilTest);
+		GL.Clear(ClearBufferMask.StencilBufferBit);
+		GL.Disable(EnableCap.StencilTest);
 
 		Manipulator.Draw();
 

@@ -45,28 +45,32 @@ public class CameraControl
 
 	public void Logic()
 	{
-		if (keyboard[Key.LAlt] && mouse[MouseButton.Left] || mouse[MouseButton.Middle]) Move();
-
-		if (keyboard[Key.LAlt])
+		if (editor.form.Focused)
 		{
-			if (mouse[MouseButton.Right])
+			if (keyboard[Key.LAlt] && mouse[MouseButton.Left] || mouse[MouseButton.Middle]) Move();
+
+			if (keyboard[Key.LAlt])
 			{
-				float currentMouse = (mouse.ScreenPosition.X + 1f) / 2f;
-
-				if (mouse.ButtonPressed(MouseButton.Right))
+				if (mouse[MouseButton.Right])
 				{
-					zoomOrigin = currentMouse;
-					zoomOriginZ = position.Z;
+					float currentMouse = (mouse.ScreenPosition.X + 1f) / 2f;
+
+					if (mouse.ButtonPressed(MouseButton.Right))
+					{
+						zoomOrigin = currentMouse;
+						zoomOriginZ = position.Z;
+					}
+
+					position.Z = zoomOriginZ * (currentMouse / zoomOrigin);
+					if (position.Z < 1f) position.Z = 1f;
 				}
-
-				position.Z = zoomOriginZ * (currentMouse / zoomOrigin);
-				if (position.Z < 1f) position.Z = 1f;
 			}
+
+			//Zoom :)
+			position.Z -= mouse.WheelDelta * 0.1f * position.Z;
+
+			previousMouse = mouse.ScreenPosition * 0.5f;
+			previousMouse.X *= editor.form.AspectRatio;
 		}
-
-		position.Z -= mouse.WheelDelta * 0.1f * position.Z;
-
-		previousMouse = mouse.ScreenPosition * 0.5f;
-		previousMouse.X *= editor.form.AspectRatio;
 	}
 }

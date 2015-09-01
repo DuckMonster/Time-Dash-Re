@@ -7,12 +7,21 @@ public class LayerFolder : LayerNode
 	{
 	}
 
+	public LayerFolder(LayerFolder copy)
+		: base(copy)
+	{ }
+
 	public override void Logic()
 	{
 	}
 
 	public override void Draw()
 	{
+	}
+
+	public override LayerNode GetCopy()
+	{
+		return new LayerFolder(this);
 	}
 
 	public override string ToString()

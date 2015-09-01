@@ -34,7 +34,7 @@ public partial class Editor
 			PrismLayer newLayer = new PrismLayer(l.Name);
 			foreach (EMesh m in l)
 			{
-				Vector2[] pos = new Vector2[m.Vertices.Length];
+				Vector2[] pos = new Vector2[m.Vertices.Count];
 
 				for (int i = 0; i < pos.Length; i++)
 					pos[i] = m.Vertices[i].Position;

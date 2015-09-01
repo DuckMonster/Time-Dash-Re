@@ -11,7 +11,7 @@ public class SelectionBox
 	Vector2? target;
 
 	Editor editor;
-	Mesh mesh;
+	Model model;
 
 	MouseWatch mouse = Editor.mouse;
 
@@ -34,11 +34,11 @@ public class SelectionBox
 	public SelectionBox(Editor e)
 	{
 		editor = e;
-		mesh = new Mesh(new Vector2[] {
-			new Vector2(0, 0),
-			new Vector2(1, 0),
-			new Vector2(1, 1),
-			new Vector2(0, 1)
+		model = new Model(new Vector3[] {
+			new Vector3(0, 0, 0),
+			new Vector3(1, 0, 0),
+			new Vector3(1, 1, 0),
+			new Vector3(0, 1, 0)
 		});
 	}
 
@@ -106,22 +106,25 @@ public class SelectionBox
 
 	public void Logic()
 	{
-		if (mouse.ButtonPressed(MouseButton.Left) && !editor.DisableSelect)
-			origin = mouse.Position.Xy;
-
-		if (mouse[MouseButton.Left] && origin != null)
+		if (editor.form.Focused)
 		{
-			if (target != null || (mouse.Position.Xy - origin.Value).LengthFast > 0.01f)
-				target = mouse.Position.Xy;
-		}
+			if (mouse.ButtonPressed(MouseButton.Left) && !editor.DisableSelect)
+				origin = mouse.Position.Xy;
 
-		if (!mouse[MouseButton.Left] && origin != null)
-		{
-			if (!editor.DisableSelect)
-				editor.OnSelect();
+			if (mouse[MouseButton.Left] && origin != null)
+			{
+				if (target != null || (mouse.Position.Xy - origin.Value).LengthFast > 0.01f)
+					target = mouse.Position.Xy;
+			}
 
-			origin = null;
-			target = null;
+			if (!mouse[MouseButton.Left] && origin != null)
+			{
+				if (!editor.DisableSelect)
+					editor.OnSelect();
+
+				origin = null;
+				target = null;
+			}
 		}
 	}
 
@@ -129,14 +132,14 @@ public class SelectionBox
 	{
 		if (Active)
 		{
-			mesh.Reset();
-			mesh.Translate(origin.Value);
-			mesh.Scale(mouse.Position.Xy - origin.Value);
+			model.Reset();
+			model.Translate(origin.Value);
+			model.Scale(mouse.Position.Xy - origin.Value);
 
-			mesh.Color = new Color(1f, 1f, 1f, 0.1f);
-			mesh.Draw();
-			mesh.Color = Color.Yellow;
-			mesh.Draw(OpenTK.Graphics.OpenGL.PrimitiveType.LineLoop);
+			model.Color = new Color(1f, 1f, 1f, 0.1f);
+			model.Draw();
+			model.Color = Color.Yellow;
+			model.Draw(OpenTK.Graphics.OpenGL.PrimitiveType.LineLoop);
 		}
 	}
 }

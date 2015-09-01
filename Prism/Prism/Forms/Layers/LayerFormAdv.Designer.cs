@@ -30,11 +30,15 @@
 			this.layerTree = new Aga.Controls.Tree.TreeViewAdv();
 			this.nodeStateIcon = new Aga.Controls.Tree.NodeControls.NodeStateIcon();
 			this.nodeText = new Aga.Controls.Tree.NodeControls.NodeTextBox();
-			this.rightClickMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
-			this.newFolderItem = new System.Windows.Forms.ToolStripMenuItem();
-			this.newLayerItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.debugLabel = new System.Windows.Forms.Label();
 			this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
-			this.deleteItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.menuItemDelete = new System.Windows.Forms.ToolStripMenuItem();
+			this.menuItemCopy = new System.Windows.Forms.ToolStripMenuItem();
+			this.menuItemPaste = new System.Windows.Forms.ToolStripMenuItem();
+			this.rightClickMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
+			this.menuItemNew = new System.Windows.Forms.ToolStripMenuItem();
+			this.menuItemNewLayer = new System.Windows.Forms.ToolStripMenuItem();
+			this.menuItemNewFolder = new System.Windows.Forms.ToolStripMenuItem();
 			this.rightClickMenu.SuspendLayout();
 			this.SuspendLayout();
 			// 
@@ -55,14 +59,14 @@
 			this.layerTree.NodeControls.Add(this.nodeText);
 			this.layerTree.SelectedNode = null;
 			this.layerTree.SelectionMode = Aga.Controls.Tree.TreeSelectionMode.MultiSameParent;
-			this.layerTree.Size = new System.Drawing.Size(336, 387);
+			this.layerTree.Size = new System.Drawing.Size(336, 366);
 			this.layerTree.TabIndex = 0;
 			this.layerTree.Text = "treeViewAdv1";
-			this.layerTree.ItemDrag += new System.Windows.Forms.ItemDragEventHandler(this.ItemDrag);
-			this.layerTree.NodeMouseClick += new System.EventHandler<Aga.Controls.Tree.TreeNodeAdvMouseEventArgs>(this.NodeClicked);
+			this.layerTree.NodeMouseDoubleClick += new System.EventHandler<Aga.Controls.Tree.TreeNodeAdvMouseEventArgs>(this.ItemDoubleClicked);
 			this.layerTree.DragDrop += new System.Windows.Forms.DragEventHandler(this.ItemDrop);
 			this.layerTree.DragOver += new System.Windows.Forms.DragEventHandler(this.ItemDragOver);
-			this.layerTree.MouseClick += new System.Windows.Forms.MouseEventHandler(this.MouseClicked);
+			this.layerTree.KeyDown += new System.Windows.Forms.KeyEventHandler(this.KeyboardPress);
+			this.layerTree.MouseDown += new System.Windows.Forms.MouseEventHandler(this.MousePressed);
 			// 
 			// nodeStateIcon
 			// 
@@ -78,44 +82,76 @@
 			this.nodeText.LeftMargin = 3;
 			this.nodeText.ParentColumn = null;
 			// 
-			// rightClickMenu
+			// debugLabel
 			// 
-			this.rightClickMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.newFolderItem,
-            this.newLayerItem,
-            this.toolStripSeparator1,
-            this.deleteItem});
-			this.rightClickMenu.Name = "rightClickMenu";
-			this.rightClickMenu.Size = new System.Drawing.Size(153, 98);
-			// 
-			// newFolderItem
-			// 
-			this.newFolderItem.Name = "newFolderItem";
-			this.newFolderItem.Size = new System.Drawing.Size(152, 22);
-			this.newFolderItem.Text = "New Folder";
-			// 
-			// newLayerItem
-			// 
-			this.newLayerItem.Name = "newLayerItem";
-			this.newLayerItem.Size = new System.Drawing.Size(152, 22);
-			this.newLayerItem.Text = "New Layer";
+			this.debugLabel.AutoSize = true;
+			this.debugLabel.Location = new System.Drawing.Point(13, 385);
+			this.debugLabel.Name = "debugLabel";
+			this.debugLabel.Size = new System.Drawing.Size(35, 13);
+			this.debugLabel.TabIndex = 1;
+			this.debugLabel.Text = "label1";
 			// 
 			// toolStripSeparator1
 			// 
 			this.toolStripSeparator1.Name = "toolStripSeparator1";
-			this.toolStripSeparator1.Size = new System.Drawing.Size(149, 6);
+			this.toolStripSeparator1.Size = new System.Drawing.Size(104, 6);
 			// 
-			// deleteItem
+			// menuItemDelete
 			// 
-			this.deleteItem.Name = "deleteItem";
-			this.deleteItem.Size = new System.Drawing.Size(152, 22);
-			this.deleteItem.Text = "Delete";
+			this.menuItemDelete.Name = "menuItemDelete";
+			this.menuItemDelete.Size = new System.Drawing.Size(107, 22);
+			this.menuItemDelete.Text = "Delete";
+			// 
+			// menuItemCopy
+			// 
+			this.menuItemCopy.Name = "menuItemCopy";
+			this.menuItemCopy.Size = new System.Drawing.Size(107, 22);
+			this.menuItemCopy.Text = "Copy";
+			// 
+			// menuItemPaste
+			// 
+			this.menuItemPaste.Name = "menuItemPaste";
+			this.menuItemPaste.Size = new System.Drawing.Size(107, 22);
+			this.menuItemPaste.Text = "Paste";
+			// 
+			// rightClickMenu
+			// 
+			this.rightClickMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.menuItemNew,
+            this.toolStripSeparator1,
+            this.menuItemDelete,
+            this.menuItemCopy,
+            this.menuItemPaste});
+			this.rightClickMenu.Name = "rightClickMenu";
+			this.rightClickMenu.Size = new System.Drawing.Size(108, 98);
+			// 
+			// menuItemNew
+			// 
+			this.menuItemNew.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.menuItemNewLayer,
+            this.menuItemNewFolder});
+			this.menuItemNew.Name = "menuItemNew";
+			this.menuItemNew.Size = new System.Drawing.Size(107, 22);
+			this.menuItemNew.Text = "New...";
+			// 
+			// menuItemNewLayer
+			// 
+			this.menuItemNewLayer.Name = "menuItemNewLayer";
+			this.menuItemNewLayer.Size = new System.Drawing.Size(107, 22);
+			this.menuItemNewLayer.Text = "Layer";
+			// 
+			// menuItemNewFolder
+			// 
+			this.menuItemNewFolder.Name = "menuItemNewFolder";
+			this.menuItemNewFolder.Size = new System.Drawing.Size(107, 22);
+			this.menuItemNewFolder.Text = "Folder";
 			// 
 			// LayerFormAdv
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(360, 411);
+			this.Controls.Add(this.debugLabel);
 			this.Controls.Add(this.layerTree);
 			this.MaximizeBox = false;
 			this.MinimizeBox = false;
@@ -124,6 +160,7 @@
 			this.Text = "Layers";
 			this.rightClickMenu.ResumeLayout(false);
 			this.ResumeLayout(false);
+			this.PerformLayout();
 
 	}
 
@@ -132,9 +169,13 @@
 	private Aga.Controls.Tree.TreeViewAdv layerTree;
 	private Aga.Controls.Tree.NodeControls.NodeTextBox nodeText;
 	private Aga.Controls.Tree.NodeControls.NodeStateIcon nodeStateIcon;
-	private System.Windows.Forms.ContextMenuStrip rightClickMenu;
-	private System.Windows.Forms.ToolStripMenuItem newFolderItem;
-	private System.Windows.Forms.ToolStripMenuItem newLayerItem;
+	private System.Windows.Forms.Label debugLabel;
 	private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
-	private System.Windows.Forms.ToolStripMenuItem deleteItem;
+	private System.Windows.Forms.ToolStripMenuItem menuItemDelete;
+	private System.Windows.Forms.ToolStripMenuItem menuItemCopy;
+	private System.Windows.Forms.ToolStripMenuItem menuItemPaste;
+	private System.Windows.Forms.ContextMenuStrip rightClickMenu;
+	private System.Windows.Forms.ToolStripMenuItem menuItemNew;
+	private System.Windows.Forms.ToolStripMenuItem menuItemNewLayer;
+	private System.Windows.Forms.ToolStripMenuItem menuItemNewFolder;
 }

@@ -39,18 +39,13 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Aga.Controls">
-      <HintPath>..\treeviewadv_1.7.0.0\treeviewadv\Aga.Controls\bin\Debug\Aga.Controls.dll</HintPath>
+      <HintPath>..\..\..\!Libs\treeviewadv_1.7.0.0\treeviewadv\Aga.Controls\bin\Release\Aga.Controls.dll</HintPath>
     </Reference>
-    <Reference Include="IniFile, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\C#\IniFile\IniFile\IniFile\bin\Debug\IniFile.dll</HintPath>
+    <Reference Include="IniFile">
+      <HintPath>..\..\..\!Libs\inireader\IniFile\IniFile\bin\Release\IniFile.dll</HintPath>
     </Reference>
-    <Reference Include="OpenTK, Version=1.1.0.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\C#\TKTools\TKTools\bin\Debug\OpenTK.dll</HintPath>
-    </Reference>
-    <Reference Include="Prism Parser">
-      <HintPath>..\Prism Parser\bin\Debug\Prism Parser.dll</HintPath>
+    <Reference Include="OpenTK">
+      <HintPath>..\..\..\!Libs\OpenTK\1.1\Binaries\OpenTK\Release\OpenTK.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -61,17 +56,18 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="TKTools, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\TKTools.dll</HintPath>
+    <Reference Include="TKTools">
+      <HintPath>..\..\..\!Libs\TKTools\TKTools\bin\Debug\TKTools.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Editor\CameraControl.cs" />
     <Compile Include="Editor\Editor.cs" />
     <Compile Include="EditorForm.cs" />
-    <Compile Include="Editor\EditorSaveLoad.cs" />
-    <Compile Include="Editor\EditorSelection.cs" />
+    <Compile Include="Editor\Editor.SaveLoad.cs" />
+    <Compile Include="Editor\Editor.Selection.cs" />
+    <Content Include="EMesh\EMesh.Old.cs" />
+    <Content Include="EMesh\EVertex.Old.cs" />
     <Compile Include="EMesh\EMesh.cs" />
     <Compile Include="EMesh\EVertex.cs" />
     <Compile Include="EMesh\MeshCreator.cs" />
@@ -133,6 +129,12 @@
       <DependentUpon>TilePicker.cs</DependentUpon>
     </Compile>
     <None Include="Layer.cs" />
+    <Compile Include="Forms\Vertex Brush\HSLForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\Vertex Brush\HSLForm.Designer.cs">
+      <DependentUpon>HSLForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Layer\LayerFolder.cs" />
     <Compile Include="Layer\Layer.cs" />
     <Compile Include="Layer\LayerNode.cs" />
@@ -181,6 +183,9 @@
     <EmbeddedResource Include="Forms\Textures\TilePicker.resx">
       <DependentUpon>TilePicker.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Forms\Vertex Brush\HSLForm.resx">
+      <DependentUpon>HSLForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
@@ -191,9 +196,21 @@
     <Content Include="circle.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="EMesh\meshProgramFragment.cpp">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="EMesh\meshProgramVertex.cpp">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="iconserver.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Prism Parser\Prism Parser.csproj">
+      <Project>{0db94e14-783b-4136-adc5-b13f836a6de6}</Project>
+      <Name>Prism Parser</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

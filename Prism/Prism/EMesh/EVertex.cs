@@ -1,4 +1,5 @@
 ﻿using OpenTK;
+using OpenTK.Graphics.OpenGL;
 using OpenTK.Input;
 using System;
 using TKTools;
@@ -7,16 +8,19 @@ using TKTools.Context.Input;
 
 public class EVertex : IDisposable
 {
-	static readonly float HoverRange = 0.08f;
+	static readonly float HoverRange = 0.15f;
 
 	Editor editor;
-
 	EMesh mesh;
-	Vector2 position;
+
+	Vector2 position, uv;
+	float hue = 0f, saturation = 1f, lightness = 1f;
+
+	Vertex vertex;
+
+	Model2D rectModel;
 
 	MouseWatch mouse = Editor.mouse;
-
-	Mesh vertexMesh;
 
 	public Vector2 Position
 	{
@@ -24,7 +28,46 @@ public class EVertex : IDisposable
 		set
 		{
 			position = value;
-			mesh.SetDirty();
+			vertex.SetAttribute("vertexPosition", new Vector3(position));
+		}
+	}
+	public Vector2 UV
+	{ 
+		get { return uv; }
+		set
+		{
+			uv = value;
+			vertex.SetAttribute("vertexUV", uv);
+		}
+	}
+
+	public float Hue
+	{
+		get { return hue; }
+		set
+		{
+			hue = value;
+			UploadHSL();
+		}
+	}
+
+	public float Saturation
+	{
+		get { return saturation; }
+		set
+		{
+			saturation = value;
+			UploadHSL();
+		}
+	}
+
+	public float Lightness
+	{
+		get { return lightness; }
+		set
+		{
+			lightness = value;
+			UploadHSL();
 		}
 	}
 
@@ -37,19 +80,17 @@ public class EVertex : IDisposable
 	{
 		get
 		{
-			if (editor.SelectMode != SelectMode.Vertices || !Enabled) return false;
+			if (editor.selectionBox.Active)
+				return editor.selectionBox.Intersects(this);
 
-			if (editor.selectionBox.Active) return editor.selectionBox.Intersects(this);
-			return ((mouse.Position.Xy - position).LengthFast < HoverRange);
+			return (mouse.Position.Xy - Position).Length <= HoverRange;
 		}
 	}
 
 	public bool Selected
 	{
-		get
-		{
-			return editor.SelectedVertices.Contains(this);
-		} set
+		get { return editor.SelectedVertices.Contains(this); }
+		set
 		{
 			if (value)
 				editor.Select(new EVertex[] { this });
@@ -58,32 +99,22 @@ public class EVertex : IDisposable
 		}
 	}
 
-	public float Alpha
+	public EVertex(EMesh mesh, Vertex vertex, Editor editor)
 	{
-		get
-		{
-			return Hovered ? 0.8f : 0.2f;
-		}
-	}
-
-	public EVertex(Editor e, EMesh mesh, Vector2 position)
-	{
-		editor = e;
-
+		this.editor = editor;
 		this.mesh = mesh;
-		this.position = position;
+		this.vertex = vertex;
 
-		vertexMesh = new Mesh(new Vector2[] {
-			new Vector2(-0.04f, -0.04f),
-			new Vector2(0.04f, -0.04f),
-			new Vector2(0.04f, 0.04f),
-			new Vector2(-0.04f, 0.04f)
-		});
+		Position = Vector2.Zero;
+		UV = Vector2.Zero;
+		UploadHSL();
+
+		rectModel = (Model2D)Model.CreateFromPrimitive(MeshPrimitive.Quad);
 	}
 
-	public void Dispose()
+	void UploadHSL()
 	{
-		vertexMesh.Dispose();
+		vertex.SetAttribute<Vector3>("vertexHSL", new Vector3(hue, saturation, lightness));
 	}
 
 	public bool Intersects(Polygon p)
@@ -96,26 +127,28 @@ public class EVertex : IDisposable
 			return p.Intersects(new Vector3(position));
 	}
 
-	public void Logic()
+	public void Dispose()
 	{
 	}
 
 	public void Draw()
 	{
-		if (!Enabled) return;
+		rectModel.Color = Selected ? Color.White : Color.Yellow;
 
-		vertexMesh.Color = new Color(1f, 1f, 1f, Alpha);
+		rectModel.Reset();
 
-		vertexMesh.Reset();
-		vertexMesh.Translate(position);
-		vertexMesh.Draw();
+		rectModel.Translate(Position);
+		rectModel.Scale(0.1f);
 
-		if (Selected)
+		rectModel.Draw(PrimitiveType.LineLoop);
+
+		if (Hovered)
 		{
-			vertexMesh.Color = Color.Yellow;
+			rectModel.Color = new Color(1f, 1f, 1f, 
+				(mouse[MouseButton.Left] && !editor.DisableSelect && !editor.selectionBox.Active) ? 0.8f : 0.4f);
 
-			vertexMesh.Scale(1.4f);
-			vertexMesh.Draw(OpenTK.Graphics.OpenGL.PrimitiveType.LineLoop);
+			rectModel.Scale(0.6f);
+			rectModel.Draw(PrimitiveType.Polygon);
 		}
 	}
 }

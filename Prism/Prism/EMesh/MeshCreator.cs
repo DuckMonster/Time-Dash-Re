@@ -10,7 +10,7 @@ public class MeshCreator
 {
 	Editor editor;
 
-	Mesh selectMesh;
+	Model2D selectModel;
 	MouseWatch mouse = Editor.mouse;
 	KeyboardWatch keyboard = Editor.keyboard;
 
@@ -42,51 +42,55 @@ public class MeshCreator
 	{
 		editor = e;
 
-		selectMesh = new Mesh(new Vector2[] {
+		selectModel = new Model2D(new Vector2[] {
 			new Vector2(0, 0),
 			new Vector2(1, 0),
 			new Vector2(1, 1),
 			new Vector2(0, 1)
 		});
 
-		selectMesh.Color = new Color(1, 1, 1, 0.4f);
-		selectMesh.FillColor = true;
+		selectModel.Color = new Color(1, 1, 1, 0.4f);
+		selectModel.FillColor = true;
 	}
 
 	void UpdateMesh()
 	{
 		if (TilePicker.selectedTile == null)
 		{
-			selectMesh.Texture = null;
+			selectModel.Texture = null;
 		}
 		else
 		{
 			TextureSet.Tile tile = TilePicker.selectedTile;
 			SYS.RectangleF rect = tile.UV;
 
-			selectMesh.UV = new Vector2[] {
+			selectModel.VertexUV = new Vector2[] {
 				new Vector2(rect.X, rect.Y),
 				new Vector2(rect.X + rect.Width, rect.Y),
 				new Vector2(rect.X + rect.Width, rect.Y + rect.Height),
 				new Vector2(rect.X, rect.Y + rect.Height)
 			};
-			selectMesh.Texture = tile.Texture;
+			selectModel.Texture = tile.Texture;
 		}
 	}
 
 	public void Logic()
 	{
-		if (mouse[MouseButton.Right] && !editor.DisableSelect)
+		if (editor.form.Focused)
 		{
-			if (origin == null)
+			if (mouse[MouseButton.Right] && (!editor.DisableSelect || origin != null))
 			{
-				origin = mouse.Position.Xy;
-				UpdateMesh();
+				if (origin == null)
+				{
+					origin = mouse.Position.Xy;
+					UpdateMesh();
+				}
 			}
-		} else if (origin != null)
-		{
-			editor.CreateMesh(Rectangle, TilePicker.selectedTile);
-			origin = null;
+			else if (origin != null)
+			{
+				editor.CreateMesh(Rectangle, TilePicker.selectedTile);
+				origin = null;
+			}
 		}
 	}
 
@@ -96,18 +100,18 @@ public class MeshCreator
 		{
 			SYS.RectangleF r = Rectangle;
 
-			selectMesh.Reset();
+			selectModel.Reset();
 
-			selectMesh.Translate(r.X, r.Y);
-			selectMesh.Scale(r.Width, r.Height);
+			selectModel.Translate(r.X, r.Y);
+			selectModel.Scale(r.Width, r.Height);
 
-			selectMesh.Color = Color.Green;
-			selectMesh.TextureEnabled = false;
-			selectMesh.Draw(OpenTK.Graphics.OpenGL.PrimitiveType.LineLoop);
+			selectModel.Color = Color.Green;
+			selectModel.TextureEnabled = false;
+			selectModel.Draw(OpenTK.Graphics.OpenGL.PrimitiveType.LineLoop);
 
-			selectMesh.TextureEnabled = true;
-			selectMesh.Color = new Color(0, 1f, 0f, 0.5f);
-			selectMesh.Draw();
+			selectModel.TextureEnabled = true;
+			selectModel.Color = new Color(0, 1f, 0f, 0.2f);
+			selectModel.Draw();
 		}
 	}
 }

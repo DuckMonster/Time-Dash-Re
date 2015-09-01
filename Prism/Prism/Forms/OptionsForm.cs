@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -26,6 +27,9 @@ public partial class OptionsForm : Form
 
 		meshBorderBox.Checked = options.MeshBorders;
 		meshBorderOpacity.Value = (int)(options.MeshBorderOpacity * meshBorderOpacity.Maximum);
+
+		colorBoxL.BackColor = options.BackgroundColorLeft;
+		colorBoxR.BackColor = options.BackgroundColorRight;
 	}
 
 	private void ShowGridChanged(object sender, EventArgs e)
@@ -77,6 +81,37 @@ public partial class OptionsForm : Form
 	{
 		options.Save();
 	}
+
+	private void BackColorLeftClick(object sender, EventArgs e)
+	{
+		if (colorDialog.ShowDialog() == DialogResult.OK)
+		{
+			colorBoxL.BackColor = colorDialog.Color;
+			options.BackgroundColorLeft = colorDialog.Color;
+		}
+
+		backColorPreview.Invalidate();
+	}
+
+	private void BackColorRightClick(object sender, EventArgs e)
+	{
+		if (colorDialog.ShowDialog() == DialogResult.OK)
+		{
+			colorBoxR.BackColor = colorDialog.Color;
+			options.BackgroundColorRight = colorDialog.Color;
+		}
+
+		backColorPreview.Invalidate();
+	}
+
+	private void PreviewPaint(object sender, PaintEventArgs e)
+	{
+		Graphics g = e.Graphics;
+		int width = backColorPreview.Width;
+
+		LinearGradientBrush brush = new LinearGradientBrush(new Point(0, 0), new Point(width, 0), options.BackgroundColorLeft, options.BackgroundColorRight);
+		g.FillRectangle(brush, new Rectangle(Point.Empty, backColorPreview.Size));
+	}
 }
 
 
@@ -85,6 +120,7 @@ public class EditorOptions
 	bool showGrid, focusLayer, meshBorders;
 	float gridOpacity, layerOpacity, meshBorderOpacity;
 	float gridSize;
+	Color backgroundColorLeft, backgroundColorRight;
 
 	public bool ShowGrid { get { return showGrid; } set { showGrid = value; } }
 	public bool FocusLayer { get { return focusLayer; } set { focusLayer = value; } }
@@ -95,13 +131,16 @@ public class EditorOptions
 	public float LayerOpacity { get { return layerOpacity; } set { layerOpacity = value; } }
 	public float MeshBorderOpacity { get { return meshBorderOpacity; } set { meshBorderOpacity = value; } }
 
+	public Color BackgroundColorLeft { get { return backgroundColorLeft; } set { backgroundColorLeft = value; } }
+	public Color BackgroundColorRight { get { return backgroundColorRight; } set { backgroundColorRight = value; } }
+
 	public EditorOptions()
 	{
 		Load();
 	}
 
 	public EditorOptions(bool showGrid, float gridSize, bool focusLayer, bool meshBorders,
-		float gridOpacity, float layerOpacity, float meshBorderOpacity)
+		float gridOpacity, float layerOpacity, float meshBorderOpacity, Color backgroundColorLeft, Color backgroundColorRight)
 	{
 		this.showGrid = showGrid;
 		this.gridSize = gridSize;
@@ -111,6 +150,10 @@ public class EditorOptions
 		this.gridOpacity = gridOpacity;
 		this.layerOpacity = layerOpacity;
 		this.meshBorderOpacity = meshBorderOpacity;
+
+		this.backgroundColorLeft = backgroundColorLeft;
+		this.backgroundColorRight = backgroundColorRight;
+
 	}
 
 	void SetDefault()
@@ -124,6 +167,9 @@ public class EditorOptions
 
 		meshBorders = true;
 		meshBorderOpacity = 1f;
+
+		backgroundColorLeft = Color.FromArgb(0, 0, 22);
+		backgroundColorRight = Color.Black;
 	}
 
 	public void Load()
@@ -142,6 +188,9 @@ public class EditorOptions
 
 			MeshBorders = s["meshBorders"] == "1" ? true : false;
 			MeshBorderOpacity = Single.Parse(s["meshBorderOpacity"], System.Globalization.NumberStyles.Any);
+
+			BackgroundColorLeft = Color.FromArgb(int.Parse(s["backgroundColorLeft"]));
+			BackgroundColorRight = Color.FromArgb(int.Parse(s["backgroundColorRight"]));
 		}
 		catch (Exception e)
 		{
@@ -164,6 +213,9 @@ public class EditorOptions
 
 		s["meshBorders"] = meshBorders ? "1" : "0";
 		s["meshBorderOpacity"] = meshBorderOpacity.ToString();
+
+		s["backgroundColorLeft"] = backgroundColorLeft.ToArgb().ToString();
+		s["backgroundColorRight"] = backgroundColorRight.ToArgb().ToString();
 
 		file.SaveTo("config.cfg");
 	}

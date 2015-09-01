@@ -1,9 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
-public class LayerNode
+public class LayerNode : IDisposable
 {
-	Editor editor;
+	protected Editor editor;
 
 	LayerNode parent;
 	public LayerNode Parent
@@ -14,7 +15,8 @@ public class LayerNode
 			if (parent != null)
 				parent.Nodes.Remove(this);
 
-			value.Nodes.Add(this);
+			if (value != null)
+				value.Nodes.Add(this);
 
 			parent = value;
 		}
@@ -45,6 +47,18 @@ public class LayerNode
 					yield return l;
 		}
 	}
+	public IEnumerable<Layer> LayersInverted
+	{
+		get
+		{
+			if (this is Layer)
+				yield return (this as Layer);
+
+			for (int i = nodes.Count - 1; i >= 0; i--)
+				foreach (Layer l in nodes[i].LayersInverted)
+					yield return l;
+		}
+	}
 
 	public int Index
 	{
@@ -59,7 +73,11 @@ public class LayerNode
 			if (parent == null) return;
 
 			parent.Nodes.Remove(this);
-			parent.Nodes.Insert(value, this);
+
+			if (value == -1)
+				parent.Nodes.Add(this);
+			else
+				parent.Nodes.Insert(value, this);
 		}
 	}
 
@@ -68,9 +86,51 @@ public class LayerNode
 		this.editor = e;
 		this.name = name;
 	}
+	public LayerNode(LayerNode copy)
+	{
+		editor = copy.editor;
+		name = copy.name + " (copy)";
+
+		foreach(LayerNode n in copy.Nodes)
+		{
+			LayerNode copyNode;
+
+			if (n is Layer)
+				copyNode = new Layer(n as Layer);
+			else if (n is LayerFolder)
+				copyNode = new LayerFolder(n as LayerFolder);
+			else
+				copyNode = new LayerNode(n);
+
+			copyNode.SetParent(this, -1);
+		}
+	}
+
+	public virtual void Dispose()
+	{
+		foreach (LayerNode n in Nodes)
+			n.Dispose();
+	}
+
+	public void Remove()
+	{
+		Parent = null;
+		Dispose();
+	}
+
+	public void SetParent(LayerNode node, int index)
+	{
+		Parent = node;
+		Index = index;
+	}
 
 	public virtual void Logic() { }
 	public virtual void Draw() { }
+
+	public virtual LayerNode GetCopy()
+	{
+		return new LayerNode(this);
+	}
 
 	public override string ToString()
 	{

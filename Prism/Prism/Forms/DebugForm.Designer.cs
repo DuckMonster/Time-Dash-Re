@@ -55,7 +55,7 @@
 			this.variousBox.Location = new System.Drawing.Point(158, 12);
 			this.variousBox.Name = "variousBox";
 			this.variousBox.ReadOnly = true;
-			this.variousBox.Size = new System.Drawing.Size(258, 20);
+			this.variousBox.Size = new System.Drawing.Size(775, 20);
 			this.variousBox.TabIndex = 2;
 			// 
 			// DebugForm
@@ -63,7 +63,7 @@
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.BackColor = System.Drawing.SystemColors.ActiveBorder;
-			this.ClientSize = new System.Drawing.Size(624, 44);
+			this.ClientSize = new System.Drawing.Size(1022, 44);
 			this.ControlBox = false;
 			this.Controls.Add(this.variousBox);
 			this.Controls.Add(this.textPositionY);

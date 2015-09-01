@@ -20,7 +20,7 @@ public class ManipulatorScale : Manipulator
 		}
 
 		ManipulatorScale manipulator;
-		Mesh xAxis, yAxis, plane;
+		Model2D xAxis, yAxis, plane;
 		MouseWatch mouse = Editor.mouse;
 
 		public Axis HoveredAxis
@@ -102,21 +102,21 @@ public class ManipulatorScale : Manipulator
 		{
 			manipulator = mt;
 
-			xAxis = new Mesh(new Vector2[] {
+			xAxis = new Model2D(new Vector2[] {
 				new Vector2(1.4f, 0.3f),
 				new Vector2(1.4f, -0.3f),
 				new Vector2(2f, -0.3f),
 				new Vector2(2f, 0.3f)
 			});
 
-			yAxis = new Mesh(new Vector2[] {
+			yAxis = new Model2D(new Vector2[] {
 				new Vector2(-0.3f, 1.4f),
 				new Vector2(0.3f, 1.4f),
 				new Vector2(0.3f, 2f),
 				new Vector2(-0.3f, 2f)
 			});
 
-			plane = new Mesh(new Vector2[] {
+			plane = new Model2D(new Vector2[] {
 				new Vector2(-0.4f, -0.4f),
 				new Vector2(0.4f, -0.4f),
 				new Vector2(0.4f, 0.4f),
