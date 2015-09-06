@@ -35,6 +35,18 @@ public class LayerNode : IDisposable
 		set { name = value; }
 	}
 
+	bool visible = true;
+	public bool Visible
+	{
+		get
+		{
+			if (parent != null)
+				return parent.Visible && visible;
+			else return visible;
+		}
+		set { visible = value; }
+	}
+
 	public IEnumerable<Layer> Layers
 	{
 		get

@@ -67,7 +67,8 @@ public class CameraControl
 			}
 
 			//Zoom :)
-			position.Z -= mouse.WheelDelta * 0.1f * position.Z;
+			if (keyboard.HasPrefix(KeyPrefix.None))
+				position.Z -= mouse.WheelDelta * 0.1f * position.Z;
 
 			previousMouse = mouse.ScreenPosition * 0.5f;
 			previousMouse.X *= editor.form.AspectRatio;

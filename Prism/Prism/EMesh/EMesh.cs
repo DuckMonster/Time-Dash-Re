@@ -11,12 +11,12 @@ using TKTools.Context.Input;
 public class EMesh : IEnumerable, IDisposable
 {
 	#region Program
-	public static ShaderProgram Program;
+	public static ShaderProgram MeshProgram;
 	public static void CompileProgram()
 	{
-		if (Program != null) return;
+		if (MeshProgram != null) return;
 
-		Program = new ShaderProgram(
+		MeshProgram = new ShaderProgram(
 			ShaderProgram.ReadFile("EMesh/meshProgramVertex.cpp"),
 			ShaderProgram.ReadFile("EMesh/meshProgramFragment.cpp"));
 	}
@@ -32,7 +32,18 @@ public class EMesh : IEnumerable, IDisposable
 	public Layer Layer
 	{
 		get { return layer; }
-		set { layer = value; }
+		set
+		{
+			if (layer != null)
+				layer.Meshes.Remove(this);
+
+			layer = value;
+
+			if (layer != null)
+				layer.Meshes.Add(this);
+
+			Program.outlinerForm.UpdateUI();
+		}
 	}
 
 	Mesh mesh;
@@ -59,11 +70,25 @@ public class EMesh : IEnumerable, IDisposable
 	public int Index
 	{
 		get { return layer.Meshes.IndexOf(this); }
+		set
+		{
+			layer.Meshes.Remove(this);
+
+			if (value == -1 || value >= layer.Meshes.Count)
+				layer.Meshes.Add(this);
+			else
+				layer.Meshes.Insert(value, this);
+		}
+	}
+
+	public bool Visible
+	{
+		get { return layer.Visible; }
 	}
 
 	public bool Enabled
 	{
-		get { return layer.Enabled; }
+		get { return Visible && layer.Enabled; }
 	}
 
 	public bool Hovered
@@ -93,8 +118,8 @@ public class EMesh : IEnumerable, IDisposable
 	public EMesh(Layer layer, Editor editor)
 	{
 		this.editor = editor;
-		this.layer = layer;
-		mesh = new Mesh(Program, 4);
+		this.Layer = layer;
+		mesh = new Mesh(MeshProgram, 4);
 
 		vertices.Add(new EVertex(this, mesh.Vertices[0], editor));
 		vertices.Add(new EVertex(this, mesh.Vertices[1], editor));
@@ -118,7 +143,7 @@ public class EMesh : IEnumerable, IDisposable
 		: this(l, e)
 	{
 		for (int i = 0; i < vertices.Count; i++)
-			vertices[i].Position = copy.vertices[i].Position;
+			vertices[i].CopyFrom(copy.Vertices[i]);
 
 		Tile = copy.tile;
 	}
@@ -136,8 +161,8 @@ public class EMesh : IEnumerable, IDisposable
 
 	public void Remove()
 	{
-		Dispose();
-		layer.RemoveMesh(this);
+		Selected = false;
+		Layer = null;
 	}
 
 	public void SetVertices(RectangleF rect)
@@ -157,6 +182,7 @@ public class EMesh : IEnumerable, IDisposable
 
 	public bool Intersects(Polygon p)
 	{
+		if (!Enabled) return false;
 		return p.Intersects(new Polygon(mesh.GetAttribute<Vector3>("vertexPosition").Data));
 	}
 
@@ -164,19 +190,25 @@ public class EMesh : IEnumerable, IDisposable
 
 	public void Draw()
 	{
-		GL.Enable(EnableCap.StencilTest);
-		GL.StencilFunc(StencilFunction.Always, Index, 0xff);
-		GL.StencilOp(StencilOp.Keep, StencilOp.Keep, StencilOp.Replace);
+		if (!Visible) return;
+		if (Enabled)
+		{
+			GL.Enable(EnableCap.StencilTest);
+			GL.StencilFunc(StencilFunction.Always, Index, 0xff);
+			GL.StencilOp(StencilOp.Keep, StencilOp.Keep, StencilOp.Replace);
+		}
 
-		if (!Enabled) return;
+		MeshProgram["enableTexture"].SetValue(tile != null);
 
-		Program["enableTexture"].SetValue(tile != null);
-		Program["uniColor"].SetValue(TKTools.Color.White);
+		if (!Enabled && OptionsForm.options.FocusLayer)
+			MeshProgram["uniColor"].SetValue(TKTools.Color.White * OptionsForm.options.LayerOpacity);
+		else
+			MeshProgram["uniColor"].SetValue(TKTools.Color.White);
 
 		if (tile != null)
 			tile.Texture.Bind();
 		else
-			Program["uniColor"].SetValue(new TKTools.Color(1f, 1f, 1f, 0f));
+			MeshProgram["uniColor"].SetValue(new TKTools.Color(1f, 1f, 1f, 0f));
 
 		mesh.Draw(PrimitiveType.Polygon);
 
@@ -185,23 +217,32 @@ public class EMesh : IEnumerable, IDisposable
 
 	public void DrawUI()
 	{
+		if (!Visible) return;
+		if (!Enabled) return;
+
 		GL.Enable(EnableCap.StencilTest);
 		GL.StencilFunc(StencilFunction.Gequal, Index, 0xff);
 		GL.StencilOp(StencilOp.Keep, StencilOp.Keep, StencilOp.Keep);
 
-		Program["enableTexture"].SetValue(false);
-		Program["uniColor"].SetValue(Selected ? TKTools.Color.White : TKTools.Color.Yellow);
+		MeshProgram["enableTexture"].SetValue(false);
+		MeshProgram["uniColor"].SetValue((Selected ? TKTools.Color.White : TKTools.Color.Yellow) * new TKTools.Color(1f, 1f, 1f, OptionsForm.options.MeshBorderOpacity));
 
-		mesh.Draw(PrimitiveType.LineLoop);
+		if (Selected)
+			GL.LineWidth(2f);
+
+		if (OptionsForm.options.MeshBorders || Hovered || Selected)
+			mesh.Draw(PrimitiveType.LineLoop);
+
+		GL.LineWidth(1f);
 
 		if (Hovered)
 		{
-			Program["uniColor"].SetValue(new TKTools.Color(1f, 1f, 1f,
-				(mouse[OpenTK.Input.MouseButton.Left] && !editor.DisableSelect && !editor.selectionBox.Active) ? 0.55f : 0.4f));
+			MeshProgram["uniColor"].SetValue(new TKTools.Color(1f, 1f, 1f,
+				(mouse[OpenTK.Input.MouseButton.Left] && !editor.DisableSelect && !editor.selectionBox.Active) ? 0.3f : 0.2f));
 			mesh.Draw(PrimitiveType.Polygon);
 		}
 
-		GL.Disable(EnableCap.StencilTest);
+		//GL.Disable(EnableCap.StencilTest);
 
 		if (editor.SelectMode == SelectMode.Vertices)
 			foreach (EVertex v in vertices)

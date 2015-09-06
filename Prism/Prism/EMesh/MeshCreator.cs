@@ -38,6 +38,14 @@ public class MeshCreator
 		}
 	}
 
+	public bool Active
+	{
+		get
+		{
+			return Math.Min(Rectangle.Width, Rectangle.Height) > 0.1f;
+		}
+	}
+
 	public MeshCreator(Editor e)
 	{
 		editor = e;
@@ -88,7 +96,9 @@ public class MeshCreator
 			}
 			else if (origin != null)
 			{
-				editor.CreateMesh(Rectangle, TilePicker.selectedTile);
+				if (Active)
+					editor.CreateMesh(Rectangle, TilePicker.selectedTile);
+
 				origin = null;
 			}
 		}
@@ -96,7 +106,7 @@ public class MeshCreator
 
 	public void Draw()
 	{
-		if (origin != null)
+		if (origin != null && Active)
 		{
 			SYS.RectangleF r = Rectangle;
 

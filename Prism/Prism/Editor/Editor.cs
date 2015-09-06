@@ -18,7 +18,8 @@ public enum ManipulatorMode
 	None = 0,
 	Translate = 1,
 	Rotate = 2,
-	Scale = 3
+	Scale = 3,
+	Paint = 4
 }
 
 public partial class Editor
@@ -37,8 +38,7 @@ public partial class Editor
 	public LayerNode rootLayer;
 
 	public List<TextureSet> textureSetList = new List<TextureSet>();
-
-	public List<EVertex> selectedVertices = new List<EVertex>();
+	public VertexCollection selectedVertices = new VertexCollection();
 
 	SelectMode selectMode = SelectMode.Mesh;
 	public SelectMode SelectMode
@@ -58,7 +58,7 @@ public partial class Editor
 
 	public bool DisableSelect
 	{
-		get { return Manipulator.Active || Manipulator.Hovered || cameraControl.Active; }
+		get { return Manipulator.Active || Manipulator.Hovered || cameraControl.Active || manipulatorMode == ManipulatorMode.Paint; }
 	}
 
 	public IEnumerable<Layer> Layers
@@ -74,7 +74,18 @@ public partial class Editor
 		}
 	}
 
-	public List<EVertex> SelectedVertices
+	public HistorySystem ActiveHistory
+	{
+		get
+		{
+			if (ActiveLayers.Count > 0)
+				return ActiveLayers[0].History;
+			else
+				return null;
+		}
+	}
+
+	public VertexCollection SelectedVertices
 	{
 		get
 		{
@@ -109,8 +120,12 @@ public partial class Editor
 			if (selectionBox.Active)
 			{
 				return selectionBox.GetSelectedMeshes();
-			} else
+			}
+			else
 			{
+				if (Program.outlinerForm.HoveredNode != null)
+					return new EMesh[] { Program.outlinerForm.HoveredNode };
+
 				foreach (Layer l in activeLayers)
 					for (int i = l.Meshes.Count - 1; i >= 0; i--)
 						if (l.Meshes[i].Intersects(new Polygon(new Vector3[] { mouse.Position })))
@@ -143,7 +158,7 @@ public partial class Editor
 
 		keyboard = new KeyboardWatch();
 
-		manipulators = new Manipulator[] { new Manipulator(this), new ManipulatorTranslate(this), new ManipulatorRotate(this), new ManipulatorScale(this) };
+		manipulators = new Manipulator[] { new Manipulator(this), new ManipulatorTranslate(this), new ManipulatorRotate(this), new ManipulatorScale(this), new VertexPen(this) };
 
 		gridModel = new Model();
 		gridModel.PrimitiveType = PrimitiveType.Lines;
@@ -164,7 +179,7 @@ public partial class Editor
 		meshCreator = new MeshCreator(this);
 
 		rootLayer = new LayerNode("root", this);
-    }
+	}
 	public Editor(EditorForm form, string filename)
 		: this(form)
 	{
@@ -181,8 +196,7 @@ public partial class Editor
 		activeLayers.Clear();
 		ActiveLayers.AddRange(layers);
 
-		//if (Program.layerForm != null)
-		//	Program.layerForm.UpdateLayers();
+		Program.outlinerForm.UpdateUI();
 	}
 
 	public void CreateTextureSet(TextureSet s)
@@ -216,15 +230,8 @@ public partial class Editor
 
 		activeLayers[0].AddMesh(mesh);
 		SetSelected(new EMesh[] { mesh });
-	}
 
-	public void RemoveMesh(EMesh m)
-	{
-		m.Selected = false;
-		if (m.Layer != null)
-			m.Layer.RemoveMesh(m);
-
-		m.Dispose();
+		ActiveHistory.Add(new CreateAction(mesh, ActiveHistory));
 	}
 
 	public void Update()
@@ -240,24 +247,35 @@ public partial class Editor
 
 		if (keyboard.KeyReleased(Key.Delete))
 		{
-			foreach (EMesh m in Meshes)
-				if (m.Selected)
-					RemoveMesh(m);
+			List<EMesh> meshes = new List<EMesh>();
+			foreach (EMesh m in SelectedMeshes)
+				meshes.Add(m);
 
-			DeselectAll();
+			if (meshes.Count > 0)
+			{
+				ActiveHistory.Add(new RemoveAction(meshes, ActiveHistory));
+
+				foreach (EMesh m in meshes)
+					m.Remove();
+
+				DeselectAll();
+			}
 		}
 
-		//MANIPULATOR CONTROL
-		if (keyboard.KeyPressed(Key.Q)) manipulatorMode = ManipulatorMode.None;
-		if (keyboard.KeyPressed(Key.W)) manipulatorMode = ManipulatorMode.Translate;
-		if (keyboard.KeyPressed(Key.E)) manipulatorMode = ManipulatorMode.Rotate;
-		if (keyboard.KeyPressed(Key.R)) manipulatorMode = ManipulatorMode.Scale;
+		/*
+		if (manipulatorMode == ManipulatorMode.Paint)
+		{
+			form.CursorVisible = false;
+		}
+		else
+			form.CursorVisible = true;
+			*/
 
 		foreach (Manipulator m in manipulators)
 			m.UpdatePivot();
 
 		//SOME HOTKEYS
-		if (form.Focused)
+		if (form.Focused && !Manipulator.Active)
 		{
 			if (keyboard[Key.LControl])
 			{
@@ -272,25 +290,32 @@ public partial class Editor
 				{
 					if (keyboard.KeyPressed(Key.D))
 					{
-						List<EMesh> copiedMeshes = new List<EMesh>();
-
-						foreach (EMesh mesh in SelectedMeshes)
-						{
-							EMesh newMesh = new EMesh(mesh, mesh.Layer, this);
-
-							mesh.Layer.AddMesh(newMesh);
-							copiedMeshes.Add(newMesh);
-						}
-
-						SetSelected(copiedMeshes);
+						CopySelected();
+						PasteSelected();
 					}
+
+					if (keyboard.KeyPressed(Key.C))
+						CopySelected();
+					if (keyboard.KeyPressed(Key.V))
+						PasteSelected();
+
+					if (keyboard.KeyPressed(Key.Z) && ActiveLayers.Count > 0)
+						ActiveLayers[0].History.Undo();
+					if (keyboard.KeyPressed(Key.Y) && ActiveLayers.Count > 0)
+						ActiveLayers[0].History.Redo();
+
+					if (keyboard.KeyPressed(Key.B))
+						(manipulators[(int)ManipulatorMode.Paint] as VertexPen).ShowPalette();
 				}
 			}
-
-			if (keyboard.KeyPressed(Key.C))
+			else
 			{
-				HSLForm hslForm = new HSLForm(SelectedVertices);
-				hslForm.Show();
+				//MANIPULATOR CONTROL
+				if (keyboard.KeyPressed(Key.Q)) manipulatorMode = ManipulatorMode.None;
+				if (keyboard.KeyPressed(Key.W)) manipulatorMode = ManipulatorMode.Translate;
+				if (keyboard.KeyPressed(Key.E)) manipulatorMode = ManipulatorMode.Rotate;
+				if (keyboard.KeyPressed(Key.R)) manipulatorMode = ManipulatorMode.Scale;
+				if (keyboard.KeyPressed(Key.B)) manipulatorMode = ManipulatorMode.Paint;
 			}
 		}
 
@@ -301,8 +326,6 @@ public partial class Editor
 			m.Logic();
 
 		Manipulator.Logic();
-
-		DebugForm.debugString = "Active Layers = " + (activeLayers.Count == 0 ? "NULL" : activeLayers[0].ToString());
 	}
 
 	public void Render()
@@ -333,8 +356,8 @@ public partial class Editor
 		GL.Clear(ClearBufferMask.StencilBufferBit);
 		GL.Disable(EnableCap.StencilTest);
 
-		EMesh.Program["view"].SetValue(editorCamera.View);
-		EMesh.Program["projection"].SetValue(editorCamera.Projection);
+		EMesh.MeshProgram["view"].SetValue(editorCamera.View);
+		EMesh.MeshProgram["projection"].SetValue(editorCamera.Projection);
 		foreach (EMesh m in Meshes)
 			m.Draw();
 		foreach (EMesh m in Meshes)

@@ -118,10 +118,4 @@ public partial class TextureForm : EditorUIForm
 		(textureList.Items[e.Item] as TextureItem).TextureSet.Name = e.Label;
 		textureList.Items[e.Item].Selected = true;
 	}
-
-	private void OnClose(object sender, FormClosingEventArgs e)
-	{
-		this.Hide();
-		e.Cancel = true;
-	}
 }

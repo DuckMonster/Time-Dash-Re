@@ -4,6 +4,8 @@ using System.Collections.Generic;
 
 public partial class Editor
 {
+	List<EMesh> meshClipboard = new List<EMesh>();
+
 	public void SwitchSelectMode()
 	{
 		selectMode = SelectMode == SelectMode.Mesh ? SelectMode.Vertices : SelectMode.Mesh;
@@ -112,5 +114,27 @@ public partial class Editor
 	{
 		selectedVertices.Clear();
 		Select(meshes);
+	}
+
+	public void CopySelected()
+	{
+		meshClipboard.Clear();
+		meshClipboard.AddRange(SelectedMeshes);
+	}
+
+	public void PasteSelected()
+	{
+		List<EMesh> newMeshes = new List<EMesh>();
+		Layer l = ActiveLayers[0];
+
+		foreach (EMesh m in meshClipboard)
+		{
+			EMesh nm = new EMesh(m, l, this);
+			l.AddMesh(nm);
+			newMeshes.Add(nm);
+		}
+
+		SetSelected(newMeshes);
+		ActiveHistory.Add(new CreateAction(newMeshes, ActiveHistory));
 	}
 }

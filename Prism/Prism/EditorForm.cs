@@ -57,7 +57,7 @@ void main() {
 		else
 			title += editor.Filename;
 
-		Title = title;
+		Title = title + "     FPS: " + (int)this.RenderFrequency;
 	}
 
 	protected override void OnKeyDown(KeyboardKeyEventArgs e)
@@ -85,6 +85,8 @@ void main() {
 	{
 		editor = new Editor(this);
 		Program.NewEditorInstance(editor);
+
+		VSync = VSyncMode.Off;
 
 		screenClearProgram = new ShaderProgram(screenClearVertex, screenClearFragment);
 		screenClearMesh = new Mesh(screenClearProgram);

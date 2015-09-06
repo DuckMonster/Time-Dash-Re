@@ -13,11 +13,8 @@ public class Layer : LayerNode, IEnumerable
 	#endregion
 
 	List<EMesh> meshes = new List<EMesh>();
+	HistorySystem history;
 
-	public bool Visible
-	{
-		get { return true; }
-	}
 	public bool Enabled
 	{
 		get { return editor.activeLayers.Contains(this); }
@@ -28,14 +25,19 @@ public class Layer : LayerNode, IEnumerable
 		get { return meshes; }
 	}
 
+	public HistorySystem History { get { return history; } }
+
 	public Layer(string name, Editor e)
 		:base(name, e)
 	{
+		history = new HistorySystem(this, editor);
 	}
 
 	public Layer(Layer copy)
 		: base(copy)
 	{
+		history = new HistorySystem(this, editor);
+
 		foreach (EMesh m in copy)
 			AddMesh(new EMesh(m, this, editor));
 	}
@@ -48,19 +50,28 @@ public class Layer : LayerNode, IEnumerable
 
 	public void AddMesh(EMesh mesh)
 	{
-		if (meshes.Contains(mesh))
-			return;
+		if (mesh.Layer == this) return;
 
-		meshes.Add(mesh);
 		mesh.Layer = this;
 	}
 
 	public void RemoveMesh(EMesh mesh)
 	{
-		if (!meshes.Contains(mesh))
+		if (mesh.Layer != this)
 			return;
 
-		meshes.Remove(mesh);
+		mesh.Layer = null;
+	}
+
+	public void MergeAndRemove(Layer target)
+	{
+		editor.DeselectAll();
+		EMesh[] mlist = Meshes.ToArray();
+
+		foreach (EMesh m in mlist)
+			m.Layer = target;
+
+		Remove();
 	}
 
 	public override void Logic()

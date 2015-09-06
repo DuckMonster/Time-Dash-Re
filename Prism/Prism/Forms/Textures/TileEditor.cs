@@ -168,6 +168,8 @@ public partial class TileEditor : Form
 
 	protected void TileNameChanged(object caller, LabelEditEventArgs a)
 	{
+		if (a.Label == null) return;
+
 		TileItem item = (TileItem)tileList.Items[a.Item];
 		TextureSet.Tile t = item.Tile;
 		t.Name = a.Label;

@@ -147,13 +147,16 @@ public class ManipulatorScale : Manipulator
 			{
 				scaleOrigin = mouse.Position.Xy - manipulator.Position;
 				scaleAxis = HoveredAxis;
+
 				manipulator.BakeVertexPosition();
 			}
 
-			if (!mouse[MouseButton.Left])
+			if (!mouse[MouseButton.Left] && scaleOrigin != null)
 			{
 				scaleOrigin = null;
 				scaleAxis = Axis.None;
+
+				manipulator.Apply();
 			}
 		}
 
@@ -260,6 +263,23 @@ public class ManipulatorScale : Manipulator
 			EVertex v = editor.SelectedVertices[i];
 			v.Position = origin + delta;
 		}
+	}
+
+	protected void Apply()
+	{
+		Vector2[] appliedPositions = new Vector2[vertexOriginPosition.Length];
+		for (int i = 0; i < editor.SelectedVertices.Count; i++)
+			appliedPositions[i] = editor.SelectedVertices[i].Position;
+
+		editor.ActiveLayers[0].History.Add(new TranslateAction(
+			editor.SelectedVertices,
+			vertexOriginPosition,
+			appliedPositions,
+
+			editor.ActiveHistory
+			));
+
+		vertexOriginPosition = null;
 	}
 
 	public override void Draw()

@@ -25,6 +25,7 @@ public partial class LayerFormAdv : EditorUIForm
 		menuItemNewFolder.Click += (o, e) => AddItem(new TreeLayerNode(this, new LayerFolder("Untitled Folder", Editor)));
 		menuItemNewLayer.Click += (o, e) => AddItem(new TreeLayerNode(this, new Layer("Untitled Layer", Editor)));
 		menuItemDelete.Click += (o, e) => RemoveSelected();
+		menuItemMerge.Click += (o, e) => MergeSelected();
 
 		menuItemCopy.Click += (o, e) =>
 		{
@@ -115,6 +116,28 @@ public partial class LayerFormAdv : EditorUIForm
 		layerTree.EndUpdate();
 	}
 
+	void MergeSelected()
+	{
+		if (layerTree.SelectedNode == null) return;
+
+		TreeLayerNode selected = (layerTree.SelectedNode.Tag as TreeLayerNode);
+		if (selected.Parent.Nodes.Count-1 == selected.Index || !(selected.LayerNode is Layer)) return;
+
+		TreeLayerNode target = (selected.Parent.Nodes[layerTree.SelectedNode.Index + 1] as TreeLayerNode);
+		if (!(target.LayerNode is Layer)) return;
+
+		(selected.LayerNode as Layer).MergeAndRemove(target.LayerNode as Layer);
+
+		layerTree.BeginUpdate();
+
+		activeNode = layerTree.SelectedNode.NextNode;
+		Editor.SetActiveLayers(new Layer[] { target.LayerNode as Layer });
+
+		selected.Parent = null;
+
+		layerTree.EndUpdate();
+	}
+
 	protected void ItemDoubleClicked(object sender, TreeNodeAdvMouseEventArgs e)
 	{
 		if (!e.Node.IsLeaf)
@@ -147,8 +170,6 @@ public partial class LayerFormAdv : EditorUIForm
 
 	protected void ItemDragOver(object sender, DragEventArgs e)
 	{
-		debugLabel.Text = layerTree.DropPosition.Node == null ? "NULL" : (layerTree.DropPosition.Node.Tag as TreeLayerNode).ToString();
-
 		if (layerTree.DropPosition.Node == null)
 		{
 			e.Effect = e.AllowedEffect;
@@ -207,13 +228,14 @@ public partial class LayerFormAdv : EditorUIForm
 
 			foreach (TreeNodeAdv node in nodes)
 			{
-				if (index == -1)
-					(node.Tag as TreeLayerNode).SetParent(parent);
-				else
-				{
-					(node.Tag as TreeLayerNode).SetParent(parent, index);
+				int i = index;
+
+				if (node.Index < i)
+					i--;
+				else if (index != -1)
 					index++;
-				}
+
+				(node.Tag as TreeLayerNode).SetParent(parent, i);
 			}
 		}
 
@@ -238,6 +260,18 @@ namespace TreeNodes
 			{
 				foreach (Layer l in layerNode.Layers)
 					yield return l;
+			}
+		}
+
+		public CheckState Visible
+		{
+			get
+			{
+				return layerNode.Visible ? CheckState.Checked : CheckState.Unchecked;
+			}
+			set
+			{
+				layerNode.Visible = !layerNode.Visible;
 			}
 		}
 

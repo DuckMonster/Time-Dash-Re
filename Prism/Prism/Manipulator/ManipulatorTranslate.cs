@@ -139,6 +139,8 @@ public class ManipulatorTranslate : Manipulator
 			{
 				activeAxis = Axis.None;
 				origin = null;
+
+				manipulator.Apply();
 			}
 		}
 
@@ -198,9 +200,8 @@ public class ManipulatorTranslate : Manipulator
 		if (!Visible) return;
 
 		if (Active)
-		{
 			Manipulate(tool.TranslateVector);
-		}
+
 		tool.Logic();
 	}
 
@@ -215,6 +216,23 @@ public class ManipulatorTranslate : Manipulator
 	{
 		for (int i = 0; i < editor.SelectedVertices.Count; i++)
 			editor.SelectedVertices[i].Position = vertexOriginPosition[i] + delta;
+	}
+
+	protected void Apply()
+	{
+		Vector2[] appliedPositions = new Vector2[vertexOriginPosition.Length];
+		for (int i = 0; i < editor.SelectedVertices.Count; i++)
+			appliedPositions[i] = editor.SelectedVertices[i].Position;
+
+		editor.ActiveLayers[0].History.Add(new TranslateAction(
+			editor.SelectedVertices,
+			vertexOriginPosition,
+			appliedPositions,
+			
+			editor.ActiveHistory
+			));
+
+		vertexOriginPosition = null;
 	}
 
 	public override void Draw()

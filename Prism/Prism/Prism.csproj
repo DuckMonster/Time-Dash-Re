@@ -62,20 +62,37 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Editor\CameraControl.cs" />
+    <Compile Include="Editor\Collections\VertexCollection.cs" />
     <Compile Include="Editor\Editor.cs" />
     <Compile Include="EditorForm.cs" />
     <Compile Include="Editor\Editor.SaveLoad.cs" />
     <Compile Include="Editor\Editor.Selection.cs" />
+    <Compile Include="Forms\Layers\OutlinerForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\Layers\OutlinerForm.Designer.cs">
+      <DependentUpon>OutlinerForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="History\CreateAction.cs" />
+    <Compile Include="History\HistorySystem.cs" />
+    <Compile Include="History\PaintAction.cs" />
+    <Compile Include="History\RemoveAction.cs" />
+    <Compile Include="History\TranslateAction.cs" />
+    <Compile Include="VertexBrush\BrushForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="VertexBrush\BrushForm.Designer.cs">
+      <DependentUpon>BrushForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="VertexBrush\VertexBrush.cs" />
+    <Compile Include="VertexBrush\VertexPen.cs" />
     <Content Include="EMesh\EMesh.Old.cs" />
     <Content Include="EMesh\EVertex.Old.cs" />
     <Compile Include="EMesh\EMesh.cs" />
     <Compile Include="EMesh\EVertex.cs" />
     <Compile Include="EMesh\MeshCreator.cs" />
-    <Compile Include="Forms\Layers\CreateLayerForm.cs">
+    <Compile Include="Forms\EditorUI.cs">
       <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\Layers\CreateLayerForm.Designer.cs">
-      <DependentUpon>CreateLayerForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Forms\DebugForm.cs">
       <SubType>Form</SubType>
@@ -89,20 +106,32 @@
     <Compile Include="Forms\Layers\EditLayerForm.Designer.cs">
       <DependentUpon>EditLayerForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Forms\EditorUIForm.cs">
+    <Content Include="Forms\EditorUIForm.Old.cs">
       <SubType>form</SubType>
-    </Compile>
-    <None Include="Forms\Layers\LayerForm.cs">
-      <SubType>Form</SubType>
-    </None>
-    <None Include="Forms\Layers\LayerForm.Designer.cs">
-      <DependentUpon>LayerForm.cs</DependentUpon>
-    </None>
+    </Content>
     <Compile Include="Forms\Layers\LayerFormAdv.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Forms\Layers\LayerFormAdv.Designer.cs">
       <DependentUpon>LayerFormAdv.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\Mesh Picker\MeshPicker.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\Mesh Picker\MeshPicker.Designer.cs">
+      <DependentUpon>MeshPicker.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\Mesh Picker\TilePicker.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Forms\Mesh Picker\TilePicker.Designer.cs">
+      <DependentUpon>TilePicker.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\Mesh Picker\UserControl1.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Forms\Mesh Picker\UserControl1.Designer.cs">
+      <DependentUpon>UserControl1.cs</DependentUpon>
     </Compile>
     <Compile Include="Forms\OptionsForm.cs">
       <SubType>form</SubType>
@@ -122,19 +151,13 @@
     <Compile Include="Forms\Textures\TexturePicker.Designer.cs">
       <DependentUpon>TextureForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Forms\Textures\TilePicker.cs">
+    <Content Include="Forms\Textures\TilePicker.Old.cs">
       <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\Textures\TilePicker.Designer.cs">
-      <DependentUpon>TilePicker.cs</DependentUpon>
-    </Compile>
+    </Content>
+    <Content Include="Forms\Textures\TilePicker.Old.Designer.cs">
+      <DependentUpon>TilePicker.Old.cs</DependentUpon>
+    </Content>
     <None Include="Layer.cs" />
-    <Compile Include="Forms\Vertex Brush\HSLForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\Vertex Brush\HSLForm.Designer.cs">
-      <DependentUpon>HSLForm.cs</DependentUpon>
-    </Compile>
     <Compile Include="Layer\LayerFolder.cs" />
     <Compile Include="Layer\Layer.cs" />
     <Compile Include="Layer\LayerNode.cs" />
@@ -156,20 +179,26 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Forms\Layers\CreateLayerForm.resx">
-      <DependentUpon>CreateLayerForm.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="Forms\DebugForm.resx">
       <DependentUpon>DebugForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\Layers\EditLayerForm.resx">
       <DependentUpon>EditLayerForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\Layers\LayerForm.resx">
-      <DependentUpon>LayerForm.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="Forms\Layers\LayerFormAdv.resx">
       <DependentUpon>LayerFormAdv.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\Layers\OutlinerForm.resx">
+      <DependentUpon>OutlinerForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\Mesh Picker\MeshPicker.resx">
+      <DependentUpon>MeshPicker.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\Mesh Picker\TilePicker.resx">
+      <DependentUpon>TilePicker.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\Mesh Picker\UserControl1.resx">
+      <DependentUpon>UserControl1.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\OptionsForm.resx">
       <DependentUpon>OptionsForm.cs</DependentUpon>
@@ -180,12 +209,12 @@
     <EmbeddedResource Include="Forms\Textures\TextureForm.resx">
       <DependentUpon>TextureForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\Textures\TilePicker.resx">
-      <DependentUpon>TilePicker.cs</DependentUpon>
+    <EmbeddedResource Include="VertexBrush\BrushForm.resx">
+      <DependentUpon>BrushForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\Vertex Brush\HSLForm.resx">
-      <DependentUpon>HSLForm.cs</DependentUpon>
-    </EmbeddedResource>
+    <None Include="Forms\Textures\TilePicker.Old.resx">
+      <DependentUpon>TilePicker.Old.cs</DependentUpon>
+    </None>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>

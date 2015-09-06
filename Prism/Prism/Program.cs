@@ -19,7 +19,9 @@ public class Program
 	public static DebugForm debugForm;
 	public static LayerFormAdv layerForm;
 	public static TextureForm textureForm;
-	public static TilePicker tilePicker; 
+	public static OutlinerForm outlinerForm;
+	public static MeshPicker meshPicker;
+	public static TilePicker tilePicker;
 
 	KeyboardWatch keyboard = new KeyboardWatch();
 
@@ -29,8 +31,17 @@ public class Program
 		{
 			yield return layerForm;
 			yield return textureForm;
-			yield return tilePicker;
+			yield return meshPicker;
 			yield return debugForm;
+			yield return outlinerForm;
+		}
+	}
+
+	static IEnumerable<EditorUIControl> Controls
+	{
+		get
+		{
+			yield return tilePicker;
 		}
 	}
 
@@ -48,20 +59,21 @@ public class Program
 	void LoadForms()
 	{
 		debugForm = new DebugForm();
-		debugForm.Show();
 		debugForm.Visible = false;
 
 		layerForm = new LayerFormAdv();
-		layerForm.Show();
 		layerForm.Visible = false;
 
 		textureForm = new TextureForm();
-		textureForm.Show();
 		textureForm.Visible = false;
 
-		tilePicker = new TilePicker();
-		tilePicker.Show();
-		tilePicker.Visible = false;
+		meshPicker = new MeshPicker();
+		meshPicker.Visible = false;
+
+		outlinerForm = new OutlinerForm();
+		outlinerForm.Visible = false;
+
+		tilePicker = meshPicker.TilePicker;
 	}
 
 	void Update()
@@ -75,7 +87,9 @@ public class Program
 		if (keyboard.KeyReleased(Key.F3))
 			textureForm.Visible = !textureForm.Visible;
 		if (keyboard.KeyReleased(Key.F4))
-			tilePicker.Visible = !tilePicker.Visible;
+			meshPicker.Visible = !meshPicker.Visible;
+		if (keyboard.KeyReleased(Key.F5))
+			outlinerForm.Visible = !outlinerForm.Visible;
 
 		if (keyboard.KeyReleased(Key.F12))
 			new OptionsForm().Show();
@@ -85,11 +99,17 @@ public class Program
 	{
 		foreach (EditorUIForm f in Forms)
 			f.Editor = e;
+
+		foreach (EditorUIControl c in Controls)
+			c.Editor = e;
 	}
 
 	public static void UpdateUI()
 	{
 		foreach (EditorUIForm f in Forms)
 			f.UpdateUI();
+
+		foreach (EditorUIControl c in Controls)
+			c.UpdateUI();
 	}
 }

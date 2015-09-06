@@ -81,7 +81,7 @@ public class SelectionBox
 
 		foreach (EMesh m in editor.Meshes)
 			foreach (EVertex v in m)
-				if (v.Intersects(polygon))
+				if (v.Enabled && v.Intersects(polygon))
 					list.Add(v);
 
 		return list;
@@ -95,7 +95,7 @@ public class SelectionBox
 
 		foreach (Layer l in editor.activeLayers)
 			for (int i = l.Meshes.Count - 1; i >= 0; i--)
-				if (l.Meshes[i].Intersects(polygon))
+				if (l.Meshes[i].Enabled && l.Meshes[i].Intersects(polygon))
 				{
 					list.Add(l.Meshes[i]);
 					if (!Active) break;

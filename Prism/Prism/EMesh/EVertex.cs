@@ -14,7 +14,7 @@ public class EVertex : IDisposable
 	EMesh mesh;
 
 	Vector2 position, uv;
-	float hue = 0f, saturation = 1f, lightness = 1f;
+	ColorHSL hslShift = new ColorHSL(0f, 1f, 1f);
 
 	Vertex vertex;
 
@@ -32,7 +32,7 @@ public class EVertex : IDisposable
 		}
 	}
 	public Vector2 UV
-	{ 
+	{
 		get { return uv; }
 		set
 		{
@@ -41,35 +41,47 @@ public class EVertex : IDisposable
 		}
 	}
 
-	public float Hue
+	public ColorHSL HSL
 	{
-		get { return hue; }
+		get { return hslShift; }
 		set
 		{
-			hue = value;
+			hslShift = value;
+			UploadHSL();
+		}
+	}
+
+	public float Hue
+	{
+		get { return hslShift.H; }
+		set
+		{
+			hslShift.H = value;
 			UploadHSL();
 		}
 	}
 
 	public float Saturation
 	{
-		get { return saturation; }
+		get { return hslShift.S; }
 		set
 		{
-			saturation = value;
+			hslShift.S = value;
 			UploadHSL();
 		}
 	}
 
 	public float Lightness
 	{
-		get { return lightness; }
+		get { return hslShift.L; }
 		set
 		{
-			lightness = value;
+			hslShift.L = value;
 			UploadHSL();
 		}
 	}
+
+	public VertexBrush Brush { get { return new VertexBrush(hslShift, 0, 0, 0); } }
 
 	public bool Enabled
 	{
@@ -112,9 +124,21 @@ public class EVertex : IDisposable
 		rectModel = (Model2D)Model.CreateFromPrimitive(MeshPrimitive.Quad);
 	}
 
+	public void CopyFrom(EVertex v)
+	{
+		Position = v.Position;
+		HSL = v.HSL;
+	}
+
 	void UploadHSL()
 	{
-		vertex.SetAttribute<Vector3>("vertexHSL", new Vector3(hue, saturation, lightness));
+		vertex.SetAttribute("vertexHSL", HSL.ToVector);
+	}
+
+	public void Paint(ColorHSL brush, float weight = 1f)
+	{
+		ColorHSL c = ColorHSL.Blend(HSL, brush, weight);
+		HSL = c;
 	}
 
 	public bool Intersects(Polygon p)
@@ -129,6 +153,7 @@ public class EVertex : IDisposable
 
 	public void Dispose()
 	{
+		rectModel.Dispose();
 	}
 
 	public void Draw()
@@ -138,13 +163,18 @@ public class EVertex : IDisposable
 		rectModel.Reset();
 
 		rectModel.Translate(Position);
-		rectModel.Scale(0.1f);
+		rectModel.Scale(0.015f * editor.editorCamera.Position.Z);
+
+		if (Selected)
+			GL.LineWidth(2f);
 
 		rectModel.Draw(PrimitiveType.LineLoop);
 
+		GL.LineWidth(1f);
+
 		if (Hovered)
 		{
-			rectModel.Color = new Color(1f, 1f, 1f, 
+			rectModel.Color = new Color(1f, 1f, 1f,
 				(mouse[MouseButton.Left] && !editor.DisableSelect && !editor.selectionBox.Active) ? 0.8f : 0.4f);
 
 			rectModel.Scale(0.6f);

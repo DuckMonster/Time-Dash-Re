@@ -85,10 +85,18 @@ class ManipulatorRotate : Manipulator
 		public void Logic()
 		{
 			if ((Hovered && mouse.ButtonPressed(MouseButton.Left)) || (previousAngle != null && mouse[MouseButton.Left]))
+			{
+				if (previousAngle == null)
+					manipulator.BakeVertexOrigin();
+
 				previousAngle = Angle;
+			}
 
 			if (!mouse[MouseButton.Left] && previousAngle != null)
+			{
 				previousAngle = null;
+				manipulator.Apply();
+			}
 		}
 
 		public void Draw()
@@ -125,6 +133,8 @@ class ManipulatorRotate : Manipulator
 	}
 
 	Tool tool;
+
+	Vector2[] vertexOriginPosition;
 
 	public override bool Active
 	{
@@ -179,6 +189,30 @@ class ManipulatorRotate : Manipulator
 			Vector2 deltaPos = new Vector2(diff.X * cos - diff.Y * sin, diff.Y * cos + diff.X * sin);
 			v.Position = origin + deltaPos;
 		}
+	}
+
+	protected void BakeVertexOrigin()
+	{
+		vertexOriginPosition = new Vector2[editor.SelectedVertices.Count];
+		for (int i = 0; i < vertexOriginPosition.Length; i++)
+			vertexOriginPosition[i] = editor.SelectedVertices[i].Position;
+	}
+
+	protected void Apply()
+	{
+		Vector2[] appliedPositions = new Vector2[vertexOriginPosition.Length];
+		for (int i = 0; i < appliedPositions.Length; i++)
+			appliedPositions[i] = editor.SelectedVertices[i].Position;
+
+		editor.ActiveLayers[0].History.Add(new TranslateAction(
+			editor.SelectedVertices,
+			vertexOriginPosition,
+			appliedPositions,
+
+			editor.ActiveHistory
+			));
+
+		vertexOriginPosition = null;
 	}
 
 	public override void Draw()

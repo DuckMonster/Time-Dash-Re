@@ -144,7 +144,6 @@
 			this.ShowIcon = false;
 			this.ShowInTaskbar = false;
 			this.Text = "Textures";
-			this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.OnClose);
 			((System.ComponentModel.ISupportInitialize)(this.previewBox)).EndInit();
 			this.ResumeLayout(false);
 			this.PerformLayout();
