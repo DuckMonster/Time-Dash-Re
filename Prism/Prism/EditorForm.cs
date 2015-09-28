@@ -74,7 +74,6 @@ void main() {
 				if (dialog.ShowDialog() == DialogResult.OK)
 				{
 					editor = new Editor(this, dialog.FileName);
-
 					Program.NewEditorInstance(editor);
 				}
 			}

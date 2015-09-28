@@ -59,32 +59,8 @@ namespace Prism.Parser
 		}
 		static void SaveLayers(PrismMap map, BinaryWriter file)
 		{
-			file.Write(map.Layers.Count);
-			foreach(PrismLayer l in map.Layers)
-			{
-				file.Write(l.Name);
-				file.Write(l.Meshes.Count);
-				foreach(PrismMesh m in l.Meshes)
-				{
-					file.Write(m.VertexPosition.Length);
-
-					for (int i = 0; i < m.VertexPosition.Length; i++)
-					{
-						file.Write(m.VertexPosition[i].X);
-						file.Write(m.VertexPosition[i].Y);
-					}
-
-					if (m.Tile != null)
-					{
-						file.Write(true);
-
-						PrismTexture tex = m.Tile.Texture;
-						file.Write(map.Textures.IndexOf(tex));
-						file.Write(tex.Tiles.IndexOf(m.Tile));
-					}
-					else file.Write(false);
-				}
-			}
+			PrismLayerNode node = map.RootLayerNode;
+			node.WriteToBuffer(file, map);
 		}
 		#endregion
 
@@ -136,34 +112,7 @@ namespace Prism.Parser
 		{
 			#region VERSION 0+
 			{
-				int layerN = file.ReadInt32();
-				for(int i=0; i<layerN; i++)
-				{
-					PrismLayer l = new PrismLayer(file.ReadString());
-					int meshN = file.ReadInt32();
-
-					for(int j=0; j<meshN; j++)
-					{
-						int vertexN = file.ReadInt32();
-						Vector2[] vp = new Vector2[vertexN];
-
-						for(int k=0; k<vertexN; k++)
-							vp[k] = new Vector2(file.ReadSingle(), file.ReadSingle());
-
-						PrismTexture.Tile tile = null;
-						if (file.ReadBoolean())
-						{
-							int indexOfTexture = file.ReadInt32(),
-								indexOfTile = file.ReadInt32();
-							tile = map.Textures[indexOfTexture].Tiles[indexOfTile];
-						}
-
-						PrismMesh m = new PrismMesh(vp, tile);
-						l.AddMesh(m);
-					}
-
-					map.AddLayer(l);
-				}
+				map.RootLayerNode.ReadFromBuffer(file, map);
 			}
 			#endregion
 		}

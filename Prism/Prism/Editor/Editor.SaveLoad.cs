@@ -29,23 +29,7 @@ public partial class Editor
 			map.AddTexture(set);
 		}
 
-		foreach (Layer l in Layers)
-		{
-			PrismLayer newLayer = new PrismLayer(l.Name);
-			foreach (EMesh m in l)
-			{
-				Vector2[] pos = new Vector2[m.Vertices.Count];
-
-				for (int i = 0; i < pos.Length; i++)
-					pos[i] = m.Vertices[i].Position;
-
-				PrismMesh newMesh = new PrismMesh(pos, m.Tile == null ? null : tileList[m.Tile]);
-
-				newLayer.AddMesh(newMesh);
-			}
-
-			map.AddLayer(newLayer);
-		}
+		map.RootLayerNode = rootLayer.GetPrismNode(null, tileList);
 
 		if (filename == null)
 		{
@@ -63,7 +47,7 @@ public partial class Editor
 	public void LoadFrom(string filename)
 	{
 		this.filename = filename;
-
+		
 		PrismMap map = PrismFile.LoadMapFrom(filename);
 
 		textureSetList.Clear();
@@ -84,18 +68,6 @@ public partial class Editor
 			CreateTextureSet(set);
 		}
 
-		foreach(PrismLayer l in map.Layers)
-		{
-			Layer layer = new Layer(l.Name, this);
-			foreach(PrismMesh m in l.Meshes)
-			{
-				EMesh newMesh = new EMesh(m, layer, this);
-
-				if (m.Tile != null)
-					newMesh.Tile = tileList[m.Tile];
-
-				layer.AddMesh(newMesh);
-			}
-		}
+		rootLayer = new LayerNode(map.RootLayerNode, tileList, this);
 	}
 }

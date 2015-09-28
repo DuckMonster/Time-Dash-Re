@@ -25,6 +25,11 @@ namespace Prism.Parser
 				get { return texture; }
 			}
 
+			public int Index
+			{
+				get { return texture.Tiles.IndexOf(this); }
+			}
+
 			public Tile(string name, RectangleF uv, PrismTexture texture)
 			{
 				this.name = name;

@@ -46,6 +46,24 @@ public partial class LayerFormAdv : EditorUIForm
 		activeFont = new Font(layerTree.Font.FontFamily, layerTree.Font.Size, FontStyle.Bold);
 	}
 
+	public override void UpdateUI()
+	{
+		base.UpdateUI();
+		RecreateList();
+	}
+
+	void RecreateList()
+	{
+		layerTree.BeginUpdate();
+
+		model.Nodes.Clear();
+
+		foreach(LayerNode n in Editor.rootLayer.Nodes)
+			model.Nodes.Add(new TreeLayerNode(this, n));
+
+		layerTree.EndUpdate();
+	}
+
 	protected void DrawText(object o, DrawEventArgs e)
 	{
 		if (activeNode == e.Node)
@@ -293,6 +311,12 @@ namespace TreeNodes
 		{
 			this.form = form;
 			this.layerNode = node;
+
+			foreach(LayerNode n in node.Nodes)
+			{
+				TreeLayerNode newNode = new TreeLayerNode(form, n);
+				newNode.Parent = this;
+			}
 		}
 
 		public bool IsParentTo(Node n)

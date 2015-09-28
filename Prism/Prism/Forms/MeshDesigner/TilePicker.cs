@@ -7,7 +7,11 @@ using System.Windows.Forms;
 
 public partial class TilePicker : EditorUIControl
 {
-	public static TextureSet.Tile selectedTile;
+	TextureSet.Tile selectedTile;
+	public TextureSet.Tile SelectedTile
+	{
+		get { return selectedTile; }
+	}
 
 	class TextureItem : ListViewItem
 	{

@@ -63,13 +63,15 @@ public class MeshCreator
 
 	void UpdateMesh()
 	{
-		if (TilePicker.selectedTile == null)
+		MeshDesign design = Program.meshDesigner.CurrentDesign;
+
+		if (design.Tile == null)
 		{
 			selectModel.Texture = null;
 		}
 		else
 		{
-			TextureSet.Tile tile = TilePicker.selectedTile;
+			TextureSet.Tile tile = design.Tile;
 			SYS.RectangleF rect = tile.UV;
 
 			selectModel.VertexUV = new Vector2[] {
@@ -97,7 +99,7 @@ public class MeshCreator
 			else if (origin != null)
 			{
 				if (Active)
-					editor.CreateMesh(Rectangle, TilePicker.selectedTile);
+					editor.CreateMesh(Rectangle, Program.meshDesigner.CurrentDesign);
 
 				origin = null;
 			}

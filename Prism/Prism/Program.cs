@@ -20,7 +20,7 @@ public class Program
 	public static LayerFormAdv layerForm;
 	public static TextureForm textureForm;
 	public static OutlinerForm outlinerForm;
-	public static MeshPicker meshPicker;
+	public static MeshDesigner meshDesigner;
 	public static TilePicker tilePicker;
 
 	KeyboardWatch keyboard = new KeyboardWatch();
@@ -31,7 +31,7 @@ public class Program
 		{
 			yield return layerForm;
 			yield return textureForm;
-			yield return meshPicker;
+			yield return meshDesigner;
 			yield return debugForm;
 			yield return outlinerForm;
 		}
@@ -67,13 +67,13 @@ public class Program
 		textureForm = new TextureForm();
 		textureForm.Visible = false;
 
-		meshPicker = new MeshPicker();
-		meshPicker.Visible = false;
+		meshDesigner = new MeshDesigner();
+		meshDesigner.Visible = false;
 
 		outlinerForm = new OutlinerForm();
 		outlinerForm.Visible = false;
 
-		tilePicker = meshPicker.TilePicker;
+		tilePicker = meshDesigner.TilePicker;
 	}
 
 	void Update()
@@ -87,7 +87,7 @@ public class Program
 		if (keyboard.KeyReleased(Key.F3))
 			textureForm.Visible = !textureForm.Visible;
 		if (keyboard.KeyReleased(Key.F4))
-			meshPicker.Visible = !meshPicker.Visible;
+			meshDesigner.Visible = !meshDesigner.Visible;
 		if (keyboard.KeyReleased(Key.F5))
 			outlinerForm.Visible = !outlinerForm.Visible;
 

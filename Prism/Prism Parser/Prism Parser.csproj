@@ -42,9 +42,13 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Reference Include="TKTools">
+      <HintPath>..\..\..\!Libs\TKTools\TKTools\bin\Debug\TKTools.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="PrismLayer.cs" />
+    <Compile Include="Layers\PrismLayer.cs" />
+    <Compile Include="Layers\PrismLayerNode.cs" />
     <Compile Include="PrismMesh.cs" />
     <Compile Include="PrismMap.cs" />
     <Compile Include="PrismFile.cs" />

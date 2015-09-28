@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using Prism.Parser;
+using OpenTK;
+using TKTools;
 
 public class Layer : LayerNode, IEnumerable
 {
@@ -40,6 +43,15 @@ public class Layer : LayerNode, IEnumerable
 
 		foreach (EMesh m in copy)
 			AddMesh(new EMesh(m, this, editor));
+	}
+
+	public Layer(PrismLayer copy, Dictionary<PrismTexture.Tile, TextureSet.Tile> tiles, Editor e) 
+		:base(copy, tiles, e)
+	{
+		history = new HistorySystem(this, e);
+
+		foreach(PrismMesh mesh in copy.Meshes)
+			AddMesh(new EMesh(mesh, tiles, this, e));
 	}
 
 	public override void Dispose()
@@ -92,5 +104,27 @@ public class Layer : LayerNode, IEnumerable
 	public override string ToString()
 	{
 		return Name;
+	}
+
+	public override PrismLayerNode GetPrismNode(PrismLayerNode parent, Dictionary<TextureSet.Tile, PrismTexture.Tile> tiles)
+	{
+		PrismLayer node = new PrismLayer(Name, parent);
+
+		foreach (EMesh m in Meshes)
+		{
+			Vector2[] pos = new Vector2[m.Vertices.Count];
+			ColorHSL[] col = new ColorHSL[m.Vertices.Count];
+
+			for (int i = 0; i < pos.Length; i++)
+			{
+				pos[i] = m.Vertices[i].Position;
+				col[i] = m.Vertices[i].HSL;
+			}
+
+			PrismMesh mesh = new PrismMesh(pos, col, m.Tile != null ? tiles[m.Tile] : null);
+			node.Meshes.Add(mesh);
+		}
+
+		return node;
 	}
 }

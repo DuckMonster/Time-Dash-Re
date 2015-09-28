@@ -217,16 +217,11 @@ public partial class Editor
 			Program.tilePicker.UpdateUI();
 	}
 
-	public void CreateMesh(System.Drawing.RectangleF rect, TextureSet.Tile tile)
+	public void CreateMesh(System.Drawing.RectangleF rect, MeshDesign design)
 	{
 		if (activeLayers.Count == 0 || activeLayers.Count > 1) return;
 
-		EMesh mesh;
-
-		if (tile != null)
-			mesh = new EMesh(rect, tile, activeLayers[0], this);
-		else
-			mesh = new EMesh(rect, activeLayers[0], this);
+		EMesh mesh = new EMesh(rect, design, activeLayers[0], this);
 
 		activeLayers[0].AddMesh(mesh);
 		SetSelected(new EMesh[] { mesh });

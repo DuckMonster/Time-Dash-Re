@@ -67,11 +67,19 @@
     <Compile Include="EditorForm.cs" />
     <Compile Include="Editor\Editor.SaveLoad.cs" />
     <Compile Include="Editor\Editor.Selection.cs" />
+    <Compile Include="EMesh\EMesh.What.cs" />
+    <Compile Include="EMesh\MeshDesign.cs" />
     <Compile Include="Forms\Layers\OutlinerForm.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Forms\Layers\OutlinerForm.Designer.cs">
       <DependentUpon>OutlinerForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\MeshDesigner\SolidColorPicker.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Forms\MeshDesigner\SolidColorPicker.Designer.cs">
+      <DependentUpon>SolidColorPicker.cs</DependentUpon>
     </Compile>
     <Compile Include="History\CreateAction.cs" />
     <Compile Include="History\HistorySystem.cs" />
@@ -88,7 +96,6 @@
     <Compile Include="VertexBrush\VertexPen.cs" />
     <Content Include="EMesh\EMesh.Old.cs" />
     <Content Include="EMesh\EVertex.Old.cs" />
-    <Compile Include="EMesh\EMesh.cs" />
     <Compile Include="EMesh\EVertex.cs" />
     <Compile Include="EMesh\MeshCreator.cs" />
     <Compile Include="Forms\EditorUI.cs">
@@ -115,22 +122,22 @@
     <Compile Include="Forms\Layers\LayerFormAdv.Designer.cs">
       <DependentUpon>LayerFormAdv.cs</DependentUpon>
     </Compile>
-    <Compile Include="Forms\Mesh Picker\MeshPicker.cs">
+    <Compile Include="Forms\MeshDesigner\MeshDesigner.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\Mesh Picker\MeshPicker.Designer.cs">
-      <DependentUpon>MeshPicker.cs</DependentUpon>
+    <Compile Include="Forms\MeshDesigner\MeshDesigner.Designer.cs">
+      <DependentUpon>MeshDesigner.cs</DependentUpon>
     </Compile>
-    <Compile Include="Forms\Mesh Picker\TilePicker.cs">
+    <Compile Include="Forms\MeshDesigner\TilePicker.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Forms\Mesh Picker\TilePicker.Designer.cs">
+    <Compile Include="Forms\MeshDesigner\TilePicker.Designer.cs">
       <DependentUpon>TilePicker.cs</DependentUpon>
     </Compile>
-    <Compile Include="Forms\Mesh Picker\UserControl1.cs">
+    <Compile Include="Forms\MeshDesigner\UserControl1.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Forms\Mesh Picker\UserControl1.Designer.cs">
+    <Compile Include="Forms\MeshDesigner\UserControl1.Designer.cs">
       <DependentUpon>UserControl1.cs</DependentUpon>
     </Compile>
     <Compile Include="Forms\OptionsForm.cs">
@@ -191,13 +198,16 @@
     <EmbeddedResource Include="Forms\Layers\OutlinerForm.resx">
       <DependentUpon>OutlinerForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\Mesh Picker\MeshPicker.resx">
-      <DependentUpon>MeshPicker.cs</DependentUpon>
+    <EmbeddedResource Include="Forms\MeshDesigner\MeshDesigner.resx">
+      <DependentUpon>MeshDesigner.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\Mesh Picker\TilePicker.resx">
+    <EmbeddedResource Include="Forms\MeshDesigner\SolidColorPicker.resx">
+      <DependentUpon>SolidColorPicker.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\MeshDesigner\TilePicker.resx">
       <DependentUpon>TilePicker.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\Mesh Picker\UserControl1.resx">
+    <EmbeddedResource Include="Forms\MeshDesigner\UserControl1.resx">
       <DependentUpon>UserControl1.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\OptionsForm.resx">

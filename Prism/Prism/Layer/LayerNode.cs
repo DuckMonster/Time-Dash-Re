@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Prism.Parser;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
@@ -99,10 +100,8 @@ public class LayerNode : IDisposable
 		this.name = name;
 	}
 	public LayerNode(LayerNode copy)
+		:this(copy.name + " (copy)", copy.editor)
 	{
-		editor = copy.editor;
-		name = copy.name + " (copy)";
-
 		foreach(LayerNode n in copy.Nodes)
 		{
 			LayerNode copyNode;
@@ -115,6 +114,17 @@ public class LayerNode : IDisposable
 				copyNode = new LayerNode(n);
 
 			copyNode.SetParent(this, -1);
+		}
+	}
+	public LayerNode(PrismLayerNode copy, Dictionary<PrismTexture.Tile, TextureSet.Tile> tiles, Editor e)
+		:this(copy.Name, e)
+	{
+		foreach(PrismLayerNode n in copy.Nodes)
+		{
+			if (n is PrismLayer)
+				Nodes.Add(new Layer(n as PrismLayer, tiles, e));
+			else
+				Nodes.Add(new LayerNode(n, tiles, e));
 		}
 	}
 
@@ -151,5 +161,14 @@ public class LayerNode : IDisposable
 			str += n.ToString() + ", ";
 
 		return str + "}";
+	}
+
+	public virtual PrismLayerNode GetPrismNode(PrismLayerNode parent, Dictionary<TextureSet.Tile, PrismTexture.Tile> tiles)
+	{
+		PrismLayerNode node = new PrismLayerNode(name, parent);
+		foreach (LayerNode n in Nodes)
+			n.GetPrismNode(node, tiles);
+
+		return node;
 	}
 }

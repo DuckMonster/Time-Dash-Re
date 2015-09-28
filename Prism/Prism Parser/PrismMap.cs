@@ -8,12 +8,13 @@ namespace Prism.Parser
 	{
 		internal readonly uint fileStructureVersion;
 
-		List<PrismLayer> layerList = new List<PrismLayer>();
+		PrismLayerNode rootNode = new PrismLayerNode("base", null);
 		List<PrismTexture> textureList = new List<PrismTexture>();
 
-		public List<PrismLayer> Layers
+		public PrismLayerNode RootLayerNode
 		{
-			get { return layerList; }
+			get { return rootNode; }
+			set { rootNode = value; }
 		}
 		public List<PrismTexture> Textures
 		{
@@ -23,11 +24,6 @@ namespace Prism.Parser
 		public PrismMap(uint fileStructureVersion)
 		{
 			this.fileStructureVersion = fileStructureVersion;
-		}
-
-		public void AddLayer(PrismLayer l)
-		{
-			layerList.Add(l);
 		}
 
 		public void AddTexture(PrismTexture t)

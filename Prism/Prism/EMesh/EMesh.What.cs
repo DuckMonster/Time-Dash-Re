@@ -61,8 +61,6 @@ public class EMesh : IEnumerable, IDisposable
 		get { return design; }
 		set
 		{
-			if (value == null) return;
-
 			design = value;
 			if (design.Type == MeshDesign.DesignType.Tile)
 				SetVerticesUV(design.Tile.UV);
@@ -173,7 +171,10 @@ public class EMesh : IEnumerable, IDisposable
 			vertices[i].HSL = copy.VertexColor[i];
 		}
 
-		design = copy.
+		if (copy.Tile != null)
+			design = new MeshDesign(tiles[copy.Tile]);
+		else
+			design = new MeshDesign(TKTools.Color.Red);
 	}
 
 	public void Dispose()
@@ -220,16 +221,16 @@ public class EMesh : IEnumerable, IDisposable
 			GL.StencilOp(StencilOp.Keep, StencilOp.Keep, StencilOp.Replace);
 		}
 
-		TKTools.Color c = tile == null ? Color : TKTools.Color.White;
-		MeshProgram["enableTexture"].SetValue(tile != null);
+		TKTools.Color c = Design.Tile == null ? Color : TKTools.Color.White;
+		MeshProgram["enableTexture"].SetValue(Design.Tile != null);
 
 		if (!Enabled && OptionsForm.options.FocusLayer)
 			MeshProgram["uniColor"].SetValue(c * OptionsForm.options.LayerOpacity);
 		else
 			MeshProgram["uniColor"].SetValue(c);
 
-		if (tile != null)
-			tile.Texture.Bind();
+		if (Design.Tile != null)
+			Design.Tile.Texture.Bind();
 
 		mesh.Draw(PrimitiveType.Polygon);
 		GL.Disable(EnableCap.StencilTest);
